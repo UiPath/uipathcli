@@ -90,3 +90,37 @@ paths:
 		t.Errorf("stderr does not contain missing parameter error, expected: %v, got: %v", expected, result.StdErr)
 	}
 }
+
+func TestInvalidArrayDataTypesShowError(t *testing.T) {
+	t.Run("Integer", func(t *testing.T) { InvalidArrayDataTypeShowsError(t, "integer", "1,INVALID,3") })
+	t.Run("Number", func(t *testing.T) { InvalidArrayDataTypeShowsError(t, "number", "1.3, 1.0, INVALID") })
+	t.Run("Boolean", func(t *testing.T) { InvalidArrayDataTypeShowsError(t, "boolean", "true, false, invalid") })
+}
+
+func InvalidArrayDataTypeShowsError(t *testing.T, datatype string, values string) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:	  
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: array
+                  items:
+                    type: ` + datatype + `
+              nullable: false
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", values}, context)
+
+	expected := "Cannot convert 'myparameter' values '" + values + "' to " + datatype + " array"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr does not contain missing parameter error, expected: %v, got: %v", expected, result.StdErr)
+	}
+}

@@ -232,3 +232,67 @@ paths:
 		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestPostRequestArrayDataTypes(t *testing.T) {
+	t.Run("String", func(t *testing.T) {
+		PostRequestArrayDataType(t, "string", "val1,val2", "[\"val1\",\"val2\"]")
+	})
+	t.Run("Integer", func(t *testing.T) {
+		PostRequestArrayDataType(t, "integer", "0,1,2", "[0,1,2]")
+	})
+	t.Run("Number", func(t *testing.T) {
+		PostRequestArrayDataType(t, "number", "0.5,0.1", "[0.5,0.1]")
+	})
+	t.Run("Boolean", func(t *testing.T) {
+		PostRequestArrayDataType(t, "boolean", "true", "[true]")
+	})
+	t.Run("StringWithEscaping", func(t *testing.T) {
+		PostRequestArrayDataType(t, "string", "val1,val\\,2", "[\"val1\",\"val,2\"]")
+	})
+	t.Run("StringWithDoubleEscaping", func(t *testing.T) {
+		PostRequestArrayDataType(t, "string", "val1,val\\\\,2", "[\"val1\",\"val\\\\\",\"2\"]")
+	})
+	t.Run("StringWithMultipleEscaping", func(t *testing.T) {
+		PostRequestArrayDataType(t, "string", "val1,val\\,2\\,3", "[\"val1\",\"val,2,3\"]")
+	})
+	t.Run("IntegerWithSpaces", func(t *testing.T) {
+		PostRequestArrayDataType(t, "integer", "0, 1 , 2 ", "[0,1,2]")
+	})
+	t.Run("NumberWithSpaces", func(t *testing.T) {
+		PostRequestArrayDataType(t, "number", "0.5, 0.1", "[0.5,0.1]")
+	})
+	t.Run("BooleanWithSpaces", func(t *testing.T) {
+		PostRequestArrayDataType(t, "boolean", "true, false", "[true,false]")
+	})
+	t.Run("EmptyArray", func(t *testing.T) {
+		PostRequestArrayDataType(t, "boolean", "", "[]")
+	})
+}
+
+func PostRequestArrayDataType(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:	  
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: array
+                  items:
+                    type: ` + datatype + `
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", argument}, context)
+
+	expected := `{"myparameter":` + value + `}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find array in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}

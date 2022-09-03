@@ -11,10 +11,14 @@ type Parameter struct {
 }
 
 const (
-	ParameterTypeString  = "string"
-	ParameterTypeInteger = "integer"
-	ParameterTypeNumber  = "number"
-	ParameterTypeBoolean = "boolean"
+	ParameterTypeString       = "string"
+	ParameterTypeInteger      = "integer"
+	ParameterTypeNumber       = "number"
+	ParameterTypeBoolean      = "boolean"
+	ParameterTypeStringArray  = "stringArray"
+	ParameterTypeIntegerArray = "integerArray"
+	ParameterTypeNumberArray  = "numberArray"
+	ParameterTypeBooleanArray = "booleanArray"
 )
 
 const (

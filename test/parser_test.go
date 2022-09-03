@@ -239,3 +239,71 @@ paths:
 		t.Errorf("stdout does not contain snake cased parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestBodyParameterArray(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  description: This is my parameter
+                  type: array
+                  items:
+                    type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "This is my parameter"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain array parameter description, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestBodyParameterNestedSchemaRef(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        level1:
+          $ref: '#/components/schemas/Data'
+    Data:
+      type: object
+      properties:
+        level2:
+          $ref: '#/components/schemas/NestedData'
+    NestedData:
+      type: object
+      properties:
+        level3:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--level1"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain myparameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}

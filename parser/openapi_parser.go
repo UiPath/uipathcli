@@ -45,6 +45,20 @@ func (p OpenApiParser) getName(method string, route string, operation openapi3.O
 }
 
 func (p OpenApiParser) getType(schema openapi3.Schema) string {
+	if schema.Type == openapi3.TypeArray {
+		itemType := schema.Items.Value.Type
+		switch itemType {
+		case openapi3.TypeBoolean:
+			return ParameterTypeBooleanArray
+		case openapi3.TypeInteger:
+			return ParameterTypeIntegerArray
+		case openapi3.TypeNumber:
+			return ParameterTypeNumberArray
+		default:
+			return ParameterTypeStringArray
+		}
+	}
+
 	switch schema.Type {
 	case openapi3.TypeBoolean:
 		return ParameterTypeBoolean

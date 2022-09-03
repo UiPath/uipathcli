@@ -40,6 +40,77 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
+func (c TypeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
+	return c.splitEscaped(value, ','), nil
+}
+
+func (c TypeConverter) convertToIntegerArray(value string, parameter parser.Parameter) ([]int, error) {
+	splitted := c.splitEscaped(value, ',')
+
+	result := []int{}
+	for _, itemStr := range splitted {
+		item, err := c.convertToInteger(itemStr, parameter)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot convert '%s' values '%s' to integer array", parameter.Name, value)
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+func (c TypeConverter) convertToNumberArray(value string, parameter parser.Parameter) ([]float64, error) {
+	splitted := c.splitEscaped(value, ',')
+
+	result := []float64{}
+	for _, itemStr := range splitted {
+		item, err := c.convertToNumber(itemStr, parameter)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot convert '%s' values '%s' to number array", parameter.Name, value)
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+func (c TypeConverter) convertToBooleanArray(value string, parameter parser.Parameter) ([]bool, error) {
+	splitted := c.splitEscaped(value, ',')
+
+	result := []bool{}
+	for _, itemStr := range splitted {
+		item, err := c.convertToBoolean(itemStr, parameter)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot convert '%s' values '%s' to boolean array", parameter.Name, value)
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+func (c TypeConverter) splitEscaped(str string, separator byte) []string {
+	var result []string
+	var item []byte
+	var escaping = false
+	for i := 0; i < len(str); i++ {
+		char := str[i]
+		if char == '\\' && !escaping {
+			escaping = true
+		} else if char == '\\' && escaping {
+			escaping = false
+			item = append(item, char)
+		} else if char == separator && !escaping {
+			result = append(result, string(item))
+			item = []byte{}
+		} else {
+			escaping = false
+			item = append(item, char)
+		}
+	}
+	if len(item) > 0 {
+		result = append(result, string(item))
+	}
+	return result
+}
+
 func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interface{}, error) {
 	switch parameter.Type {
 	case parser.ParameterTypeInteger:
@@ -48,6 +119,14 @@ func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToNumber(value, parameter)
 	case parser.ParameterTypeBoolean:
 		return c.convertToBoolean(value, parameter)
+	case parser.ParameterTypeStringArray:
+		return c.convertToStringArray(value, parameter)
+	case parser.ParameterTypeIntegerArray:
+		return c.convertToIntegerArray(value, parameter)
+	case parser.ParameterTypeNumberArray:
+		return c.convertToNumberArray(value, parameter)
+	case parser.ParameterTypeBooleanArray:
+		return c.convertToBooleanArray(value, parameter)
 	default:
 		return value, nil
 	}
