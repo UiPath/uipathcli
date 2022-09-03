@@ -15,10 +15,12 @@ const (
 	ParameterTypeInteger      = "integer"
 	ParameterTypeNumber       = "number"
 	ParameterTypeBoolean      = "boolean"
+	ParameterTypeObject       = "object"
 	ParameterTypeStringArray  = "stringArray"
 	ParameterTypeIntegerArray = "integerArray"
 	ParameterTypeNumberArray  = "numberArray"
 	ParameterTypeBooleanArray = "booleanArray"
+	ParameterTypeObjectArray  = "objectArray"
 )
 
 const (

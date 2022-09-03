@@ -40,6 +40,70 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
+func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {
+	if parameter == nil {
+		return nil
+	}
+	for _, param := range parameter.Parameters {
+		if param.Name == name {
+			return &param
+		}
+	}
+	return nil
+}
+
+func (c TypeConverter) tryConvert(value string, parameter *parser.Parameter) (interface{}, error) {
+	if parameter == nil {
+		return value, nil
+	}
+	return c.Convert(value, *parameter)
+}
+
+func (c TypeConverter) assignToObject(obj map[string]interface{}, keys []string, value string, parameter parser.Parameter) error {
+	current := obj
+	currentParameter := &parameter
+	for i := 0; i < len(keys); i++ {
+		key := keys[i]
+		lastKey := i == len(keys)-1
+		if lastKey && current[key] != nil {
+			return fmt.Errorf("Cannot convert '%s' value because object key '%s' is already defined", parameter.Name, key)
+		}
+
+		currentParameter = c.findParameter(currentParameter, key)
+		if current[key] == nil {
+			current[key] = map[string]interface{}{}
+		}
+		if lastKey {
+			parsedValue, err := c.tryConvert(value, currentParameter)
+			if err != nil {
+				return err
+			}
+			current[key] = parsedValue
+			break
+		}
+		current = current[key].(map[string]interface{})
+	}
+	return nil
+}
+
+func (c TypeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
+	obj := map[string]interface{}{}
+	assigns := c.splitEscaped(value, ';')
+	for _, assign := range assigns {
+		keyValue := c.splitEscaped(assign, '=')
+		if len(keyValue) < 2 {
+			keyValue = append(keyValue, "")
+		}
+		keys := c.splitEscaped(keyValue[0], '.')
+		value := keyValue[1]
+		err := c.assignToObject(obj, keys, value, parameter)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return obj, nil
+}
+
 func (c TypeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
 	return c.splitEscaped(value, ','), nil
 }
@@ -86,6 +150,20 @@ func (c TypeConverter) convertToBooleanArray(value string, parameter parser.Para
 	return result, nil
 }
 
+func (c TypeConverter) convertToObjectArray(value string, parameter parser.Parameter) ([]interface{}, error) {
+	splitted := c.splitEscaped(value, ',')
+
+	result := []interface{}{}
+	for _, itemStr := range splitted {
+		item, err := c.convertToObject(itemStr, parameter)
+		if err != nil {
+			return nil, fmt.Errorf("Cannot convert '%s' values '%s' to object array", parameter.Name, value)
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
 func (c TypeConverter) splitEscaped(str string, separator byte) []string {
 	var result []string
 	var item []byte
@@ -119,6 +197,8 @@ func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToNumber(value, parameter)
 	case parser.ParameterTypeBoolean:
 		return c.convertToBoolean(value, parameter)
+	case parser.ParameterTypeObject:
+		return c.convertToObject(value, parameter)
 	case parser.ParameterTypeStringArray:
 		return c.convertToStringArray(value, parameter)
 	case parser.ParameterTypeIntegerArray:
@@ -127,6 +207,8 @@ func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToNumberArray(value, parameter)
 	case parser.ParameterTypeBooleanArray:
 		return c.convertToBooleanArray(value, parameter)
+	case parser.ParameterTypeObjectArray:
+		return c.convertToObjectArray(value, parameter)
 	default:
 		return value, nil
 	}

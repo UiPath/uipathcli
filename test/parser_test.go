@@ -140,7 +140,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -165,7 +165,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -191,7 +191,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               $ref: '#/components/schemas/ValidationRequest'
@@ -221,7 +221,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:

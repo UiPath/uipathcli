@@ -11,7 +11,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -38,7 +38,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -71,7 +71,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -103,7 +103,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -122,5 +122,55 @@ paths:
 	expected := "Cannot convert 'myparameter' values '" + values + "' to " + datatype + " array"
 	if !strings.Contains(result.StdErr, expected) {
 		t.Errorf("stderr does not contain missing parameter error, expected: %v, got: %v", expected, result.StdErr)
+	}
+}
+
+func TestAssignNestedObjectKeyShowsError(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello=5"}, context)
+
+	expected := "Cannot convert 'myparameter' value because object key 'hello' is already defined"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr does not contain object key already defined error, expected: %v, got: %v", expected, result.StdErr)
+	}
+}
+
+func TestSameObjectKeysShowsError(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello.a=5"}, context)
+
+	expected := "Cannot convert 'myparameter' value because object key 'a' is already defined"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr does not contain object key already defined error, expected: %v, got: %v", expected, result.StdErr)
 	}
 }

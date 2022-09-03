@@ -54,6 +54,8 @@ func (p OpenApiParser) getType(schema openapi3.Schema) string {
 			return ParameterTypeIntegerArray
 		case openapi3.TypeNumber:
 			return ParameterTypeNumberArray
+		case openapi3.TypeObject:
+			return ParameterTypeObjectArray
 		default:
 			return ParameterTypeStringArray
 		}
@@ -66,6 +68,8 @@ func (p OpenApiParser) getType(schema openapi3.Schema) string {
 		return ParameterTypeInteger
 	case openapi3.TypeNumber:
 		return ParameterTypeNumber
+	case openapi3.TypeObject:
+		return ParameterTypeObject
 	default:
 		return ParameterTypeString
 	}

@@ -56,7 +56,7 @@ paths:
     post:
       summary: Simple ping
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -213,7 +213,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -275,7 +275,7 @@ paths:
   /validate:
     post:
       requestBody:
-        content:	  
+        content:
           application/json:
             schema:
               properties:
@@ -294,5 +294,193 @@ paths:
 	expected := `{"myparameter":` + value + `}`
 	if result.RequestBody != expected {
 		t.Errorf("Did not find array in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestObjectType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello=world`}, context)
+
+	expected := `{"myparameter":{"hello":"world"}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find object in request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestNestedObjectType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello.a=world;hello.b=world2;foo=bar`}, context)
+
+	expected := `{"myparameter":{"foo":"bar","hello":{"a":"world","b":"world2"}}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find nested object in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestObjectTypeConvertsNestedType(t *testing.T) {
+	t.Run("String", func(t *testing.T) {
+		ObjectTypeConvertsNestedType(t, "string", "val1", "\"val1\"")
+	})
+	t.Run("Integer", func(t *testing.T) {
+		ObjectTypeConvertsNestedType(t, "integer", "1", "1")
+	})
+	t.Run("Number", func(t *testing.T) {
+		ObjectTypeConvertsNestedType(t, "number", "0.5", "0.5")
+	})
+	t.Run("Boolean", func(t *testing.T) {
+		ObjectTypeConvertsNestedType(t, "boolean", "true", "true")
+	})
+}
+
+func ObjectTypeConvertsNestedType(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  $ref: '#/components/schemas/Data'
+components:
+  schemas:
+    Data:
+      type: object
+      properties:
+        myobj:
+          $ref: '#/components/schemas/NestedData'
+    NestedData:
+      type: object
+      properties:
+        mykey:
+          type: ` + datatype + `
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
+
+	expected := `{"myparameter":{"myobj":{"mykey":` + value + `}}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find typed nested object in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestObjectTypeConvertsNestedArrayType(t *testing.T) {
+	t.Run("StringArray", func(t *testing.T) {
+		ObjectTypeConvertsNestedArrayType(t, "string", "val1,val2", "[\"val1\",\"val2\"]")
+	})
+	t.Run("IntegerArray", func(t *testing.T) {
+		ObjectTypeConvertsNestedArrayType(t, "integer", "1,4", "[1,4]")
+	})
+	t.Run("NumberArray", func(t *testing.T) {
+		ObjectTypeConvertsNestedArrayType(t, "number", "0.5,0.1,1.3", "[0.5,0.1,1.3]")
+	})
+	t.Run("BooleanArray", func(t *testing.T) {
+		ObjectTypeConvertsNestedArrayType(t, "boolean", "true,false,true", "[true,false,true]")
+	})
+}
+
+func ObjectTypeConvertsNestedArrayType(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  $ref: '#/components/schemas/Data'
+components:
+  schemas:
+    Data:
+      type: object
+      properties:
+        myobj:
+          $ref: '#/components/schemas/NestedData'
+    NestedData:
+      type: object
+      properties:
+        mykey:
+          type: array
+          items:
+            type: ` + datatype + `
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
+
+	expected := `{"myparameter":{"myobj":{"mykey":` + value + `}}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find typed nested object array in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestArrayObjectType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: array
+                  items:
+                    type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello=world,other=object`}, context)
+
+	expected := `{"myparameter":[{"hello":"world"},{"other":"object"}]}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find object array in json request body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
