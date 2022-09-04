@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -28,6 +29,35 @@ func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []Execu
 	}
 }
 
+func (e HttpExecutor) createForm(parameters []ExecutionParameter) ([]byte, string, error) {
+	var b bytes.Buffer
+	writer := multipart.NewWriter(&b)
+	for _, parameter := range parameters {
+		switch v := parameter.Value.(type) {
+		case string:
+			w, err := writer.CreateFormField(parameter.Name)
+			if err != nil {
+				return []byte{}, "", fmt.Errorf("Error creating form field '%s': %v", parameter.Name, err)
+			}
+			_, err = w.Write([]byte(v))
+			if err != nil {
+				return []byte{}, "", fmt.Errorf("Error writing form field '%s': %v", parameter.Name, err)
+			}
+		case FileReference:
+			w, err := writer.CreateFormFile(parameter.Name, v.Filename)
+			if err != nil {
+				return []byte{}, "", fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+			}
+			_, err = w.Write(v.Data)
+			if err != nil {
+				return []byte{}, "", fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+			}
+		}
+	}
+	writer.Close()
+	return b.Bytes(), writer.FormDataContentType(), nil
+}
+
 func (e HttpExecutor) createJson(parameters []ExecutionParameter) ([]byte, string, error) {
 	var body = map[string]interface{}{}
 	for _, parameter := range parameters {
@@ -41,6 +71,9 @@ func (e HttpExecutor) createJson(parameters []ExecutionParameter) ([]byte, strin
 }
 
 func (e HttpExecutor) createBody(bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
+	if len(formParameters) > 0 {
+		return e.createForm(formParameters)
+	}
 	if len(bodyParameters) > 0 {
 		return e.createJson(bodyParameters)
 	}

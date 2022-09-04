@@ -1,6 +1,8 @@
 package commandline
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -482,5 +484,84 @@ paths:
 	expected := `{"myparameter":[{"hello":"world"},{"other":"object"}]}`
 	if result.RequestBody != expected {
 		t.Errorf("Did not find object array in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostFormRequest(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--file", "hello-world"}, context)
+
+	contentType := result.RequestHeader["content-type"]
+	expected := "multipart/form-data; boundary="
+	if !strings.Contains(contentType, expected) {
+		t.Errorf("Did not set correct content type, expected: %v, got: %v", expected, contentType)
+	}
+	expected = `Content-Disposition: form-data; name="file"; filename="file"`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find Content-Disposition in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+	expected = `Content-Type: application/octet-stream`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find Content-Type in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+	expected = `hello-world`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find content in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostFormRequestFromFileReference(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+	path := filepath.Join(t.TempDir(), "hello-world.txt")
+	os.WriteFile(path, []byte("hello-world"), 0644)
+
+	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
+
+	expected := `Content-Disposition: form-data; name="file"; filename="hello-world.txt"`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find Content-Disposition in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+	expected = `Content-Type: application/octet-stream`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find Content-Type in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+	expected = `hello-world`
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find content in body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }

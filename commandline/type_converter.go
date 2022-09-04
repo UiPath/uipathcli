@@ -1,12 +1,18 @@
 package commandline
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
+	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
 )
+
+const filePrefix = "file://"
 
 type TypeConverter struct{}
 
@@ -38,6 +44,26 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 		return false, nil
 	}
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
+}
+
+func (c TypeConverter) readFile(path string) (executor.FileReference, error) {
+	data, err := os.ReadFile(path)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return executor.FileReference{}, fmt.Errorf("File '%s' not found", path)
+	}
+	if err != nil {
+		return executor.FileReference{}, fmt.Errorf("Error reading file '%s': %v", path, err)
+	}
+	filename := filepath.Base(path)
+	return *executor.NewFileReference(filename, data), nil
+}
+
+func (c TypeConverter) convertToBinary(value string, parameter parser.Parameter) (executor.FileReference, error) {
+	if strings.HasPrefix(value, filePrefix) {
+		path := strings.TrimPrefix(value, filePrefix)
+		return c.readFile(path)
+	}
+	return *executor.NewFileReference(parameter.Name, []byte(value)), nil
 }
 
 func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {
@@ -197,6 +223,8 @@ func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToNumber(value, parameter)
 	case parser.ParameterTypeBoolean:
 		return c.convertToBoolean(value, parameter)
+	case parser.ParameterTypeBinary:
+		return c.convertToBinary(value, parameter)
 	case parser.ParameterTypeObject:
 		return c.convertToObject(value, parameter)
 	case parser.ParameterTypeStringArray:

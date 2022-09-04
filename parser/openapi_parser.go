@@ -71,6 +71,9 @@ func (p OpenApiParser) getType(schema openapi3.Schema) string {
 	case openapi3.TypeObject:
 		return ParameterTypeObject
 	default:
+		if schema.Format == "binary" {
+			return ParameterTypeBinary
+		}
 		return ParameterTypeString
 	}
 }

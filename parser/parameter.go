@@ -12,6 +12,7 @@ type Parameter struct {
 
 const (
 	ParameterTypeString       = "string"
+	ParameterTypeBinary       = "binary"
 	ParameterTypeInteger      = "integer"
 	ParameterTypeNumber       = "number"
 	ParameterTypeBoolean      = "boolean"

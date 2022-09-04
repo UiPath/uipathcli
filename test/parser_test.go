@@ -307,3 +307,30 @@ components:
 		t.Errorf("stdout does not contain myparameter, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestFormParameterDescription(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "The file to upload"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain form parameter description, expected: %v, got: %v", expected, result.StdOut)
+	}
+}

@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -172,5 +173,33 @@ paths:
 	expected := "Cannot convert 'myparameter' value because object key 'a' is already defined"
 	if !strings.Contains(result.StdErr, expected) {
 		t.Errorf("stderr does not contain object key already defined error, expected: %v, got: %v", expected, result.StdErr)
+	}
+}
+
+func TestInvalidFileReference(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+	path := filepath.Join(t.TempDir(), "not-found.txt")
+
+	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
+
+	expected := "File '" + path + "' not found"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr does not contain file not found error, expected: %v, got: %v", expected, result.StdErr)
 	}
 }
