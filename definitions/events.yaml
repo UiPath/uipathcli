@@ -1,0 +1,343 @@
+openapi: 3.0.1
+info:
+  title: UiPath.DocumentUnderstanding.Events.Api
+  version: v1
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/eventservice
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /events:
+    post:
+      operationId: publish
+      tags:
+        - Events
+      summary: Publish a new event
+      description: "Publish a new event.\r\nThis operation is idempotent.In case you provide the same event id, the event is simply ignored.\r\nThis makes it easy to retry this operation when the communication is interrupted or any failure occured."
+      requestBody:
+        description: The event to publish
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishEventRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PublishEventRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PublishEventRequest'
+      responses:
+        '200':
+          description: Success
+  /subscription:
+    post:
+      operationId: create-subscription
+      tags:
+        - Subscription
+      summary: Create a new subscription with the given name and start receiving events.
+      description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
+      requestBody:
+        description: The request containing subscription info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+      responses:
+        '200':
+          description: Success
+  /subscription/webhook:
+    post:
+      operationId: create-subscription-webhook
+      tags:
+        - Subscription
+      summary: Create a new subscription with the given name and provided webhook url and start receiving events.
+      description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
+      requestBody:
+        description: The request containing subscription info
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CreateWebhookSubscriptionRequest'
+      responses:
+        '200':
+          description: Success
+  /subscription/{name}:
+    delete:
+      operationId: delete-subscription
+      tags:
+        - Subscription
+      summary: Delete subscriptions
+      description: "Deletes an existing subscription with the given name.\r\n            \r\nThis operation is idempotent which means deleting an already deleted subscription will simply succeed."
+      parameters:
+        - name: name
+          in: path
+          description: The subscription name
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+  /subscription/{name}/event:
+    get:
+      operationId: read
+      tags:
+        - Subscription
+      summary: Read event
+      description: "Use existing subscription and wait for an event to be received.\r\n            \r\nThe connection is kept open until the wait time expired or an event is available and being dispatched."
+      parameters:
+        - name: name
+          in: path
+          description: The subscription name
+          required: true
+          schema:
+            type: string
+        - name: WaitTimeMs
+          in: query
+          description: The time to wait for new event to arrive before returning 204 response
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/GetEventResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetEventResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/GetEventResponse'
+  /subscription/{name}/event/heartbeat:
+    post:
+      operationId: event-heartbeat
+      tags:
+        - Subscription
+      summary: Notifies the service that the caller needs more time and is still processing the event.
+      description: Resets the timeout for rescheduling a dispatched event.
+      parameters:
+        - name: name
+          in: path
+          description: The subscription name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The request with the delivery id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatEventRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatEventRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/HeartbeatEventRequest'
+      responses:
+        '200':
+          description: Success
+  /subscription/{name}/event/success:
+    post:
+      operationId: event-success
+      tags:
+        - Subscription
+      summary: Mark the event as successfully processed
+      description: "Mark the received event as success.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
+      parameters:
+        - name: name
+          in: path
+          description: The subscription name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The request with the delivery id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessEventRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/SuccessEventRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/SuccessEventRequest'
+      responses:
+        '200':
+          description: Success
+  /subscription/{name}/event/failure:
+    post:
+      operationId: event-failure
+      tags:
+        - Subscription
+      summary: Mark the event as failure
+      description: "Mark the received event as failure.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
+      parameters:
+        - name: name
+          in: path
+          description: The subscription name
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The request with the delivery id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FailureEventRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/FailureEventRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/FailureEventRequest'
+      responses:
+        '200':
+          description: Success
+components:
+  schemas:
+    CreateSubscriptionRequest:
+      required:
+        - name
+        - topic
+      type: object
+      properties:
+        name:
+          type: string
+          description: The subscription name
+        topic:
+          type: string
+          description: The topic to subscribe to
+      additionalProperties: false
+    CreateWebhookSubscriptionRequest:
+      required:
+        - name
+        - topic
+        - webhook
+      type: object
+      properties:
+        name:
+          type: string
+          description: The subscription name
+        topic:
+          type: string
+          description: The topic to subscribe to
+        webhook:
+          $ref: '#/components/schemas/Webhook'
+      additionalProperties: false
+    FailureEventRequest:
+      required:
+        - deliveryId
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          description: The delivery id
+        requeue:
+          type: boolean
+          description: Whether the event should be requeued for the next client to be picked up
+      additionalProperties: false
+    GetEventResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The event id
+          nullable: true
+        topic:
+          type: string
+          description: The event topic
+          nullable: true
+        data:
+          type: string
+          description: The event data
+          nullable: true
+        deliveryId:
+          type: string
+          description: The delivery id
+          nullable: true
+        correlationId:
+          type: string
+          description: The correlation id
+          nullable: true
+      additionalProperties: false
+      description: The event
+    HeartbeatEventRequest:
+      required:
+        - deliveryId
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          description: The delivery id
+      additionalProperties: false
+    PublishEventRequest:
+      required:
+        - data
+        - id
+        - topic
+      type: object
+      properties:
+        id:
+          type: string
+          description: The event id
+        topic:
+          type: string
+          description: The event topic
+        data:
+          type: string
+          description: The event data
+        partitionKey:
+          type: string
+          description: "The partition key for this event.\r\n            \r\nThis key is used for balancing events across multiple partitions.\r\nEvents are handed out to each subscriber in a round-robin fashion\r\nacross all used partitions."
+          nullable: true
+      additionalProperties: false
+      description: The event
+    SuccessEventRequest:
+      required:
+        - deliveryId
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          description: The delivery id
+      additionalProperties: false
+    Webhook:
+      required:
+        - url
+      type: object
+      properties:
+        url:
+          type: string
+          description: The Webhook Url
+      additionalProperties: false
+  securitySchemes:
+    BearerToken:
+      type: http
+      description: Authorization header using the Bearer scheme
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerToken: []
