@@ -68,7 +68,7 @@ function download_openapidoc()
 ############################################################
 function get_defaultconfigfile()
 {
-    local config_file="$HOME/uipathcli.profiles.yaml"
+    local config_file="$HOME/.uipathcli/config"
     echo "$config_file"
 }
 
@@ -77,7 +77,7 @@ function get_defaultconfigfile()
 #
 # Arguments:
 #   - Path to the configuration file
-#     typically $HOME/uipathcli.profiles.yaml
+#     typically $HOME/.uipathcli/config
 #
 # Returns:
 #   The new default content of the configuration file

@@ -14,7 +14,6 @@ import (
 )
 
 const DefinitionsDirectory = "definitions"
-const ConfigurationFileName = "uipathcli.profiles.yaml"
 
 func readDefinition(path string) (*commandline.DefinitionData, error) {
 	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
@@ -53,7 +52,7 @@ func readConfiguration() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error reading configuration file: %v", err)
 	}
-	filename := filepath.Join(homeDir, ConfigurationFileName)
+	filename := filepath.Join(homeDir, ".uipathcli", "config")
 	data, err := os.ReadFile(filename)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return []byte{}, nil

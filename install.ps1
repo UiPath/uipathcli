@@ -67,7 +67,7 @@ function Get-OpenApiDoc() {
         System.String. The path to the config file
 #>
 function Get-DefaultConfigFile() {
-    $configFile = Join-Path -Path "$env:userprofile" -ChildPath "/uipathcli.profiles.yaml"
+    $configFile = Join-Path -Path "$env:userprofile" -ChildPath "/.uipathcli/config"
     return $configFile
 }
 
@@ -76,7 +76,7 @@ function Get-DefaultConfigFile() {
         Creates a configuration file with default content
     .PARAMETER ConfigFile
         System.String. Path to the configuration file, 
-        typically $HOME/uipathcli.profiles.yaml
+        typically $HOME/.uipathcli/config
     .OUTPUTS
         System.String. The new default content of the configuration file
 #>

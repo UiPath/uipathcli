@@ -48,10 +48,10 @@ go build .
 
 ## Configuration
 
-Create a configuration file `uipathcli.profiles.yaml` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant in the route for services which require it.
+Create a configuration file `.uipathcli/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant in the route for services which require it.
 
 ```
-cat <<EOT > $HOME/uipathcli.profiles.yaml
+cat <<EOT > $HOME/.uipathcli/config
 ---
 profiles:
   - name: default
