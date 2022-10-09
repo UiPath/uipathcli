@@ -1,4 +1,4 @@
-package executor
+package cache
 
 type Cache interface {
 	Get(key string) string

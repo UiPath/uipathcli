@@ -1,4 +1,4 @@
-package executor
+package auth
 
 import (
 	"crypto/tls"
@@ -8,15 +8,17 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/UiPath/uipathcli/cache"
 )
 
-type IdentityClient struct {
-	Cache Cache
+type identityClient struct {
+	Cache cache.Cache
 }
 
 const TokenRoute = "/connect/token"
 
-func (c IdentityClient) GetToken(tokenRequest TokenRequest) (string, error) {
+func (c identityClient) GetToken(tokenRequest tokenRequest) (string, error) {
 	cacheKey := c.cacheKey(tokenRequest)
 	token := c.Cache.Get(cacheKey)
 	if token != "" {
@@ -48,6 +50,9 @@ func (c IdentityClient) GetToken(tokenRequest TokenRequest) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %v", err)
 	}
+	if response.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes))
+	}
 
 	var result identityResponse
 	err = json.Unmarshal(bytes, &result)
@@ -59,6 +64,6 @@ func (c IdentityClient) GetToken(tokenRequest TokenRequest) (string, error) {
 	return result.AccessToken, nil
 }
 
-func (c IdentityClient) cacheKey(tokenRequest TokenRequest) string {
+func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
 	return fmt.Sprintf("token|%v|%v|%v", tokenRequest.BaseUri, tokenRequest.ClientId, tokenRequest.ClientSecret)
 }

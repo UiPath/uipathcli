@@ -27,6 +27,16 @@ function install_uipathcli()
     go install github.com/UiPath/uipathcli@latest
 }
 
+
+############################################################
+# Installs uipathcli using the go install command
+############################################################
+function install_uipathcli_authenticator_k8s()
+{
+    go env -w GOPRIVATE=github.com/UiPath/uipathcli-authenticator-k8s
+    go install github.com/UiPath/uipathcli-authenticator-k8s@latest
+}
+
 ############################################################
 # Finds the definitions folder and creates it, if needed
 #
@@ -61,7 +71,7 @@ function download_openapidoc()
 }
 
 ############################################################
-# Finds the config files and returns the path to it
+# Finds the config file and returns the path to it
 #
 # Returns:
 #   The path to the config file
@@ -93,8 +103,9 @@ function create_defaultconfigfile()
 profiles:
   - name: default
     uri: https://cloud.uipath.com
-    clientId: <enter your client id here>
-    clientSecret: <enter your client secret here>
+    auth:
+      clientId: <enter your client id here>
+      clientSecret: <enter your client secret here>
     path:
       organization: <enter your organization name here>
       tenant: <enter your tenant name here>
@@ -103,16 +114,66 @@ EOF
     echo "$config_content"
 }
 
+############################################################
+# Finds the plugins file and returns the path to it
+#
+# Returns:
+#   The path to the plugins configuration file
+############################################################
+function get_defaultpluginsfile()
+{
+    local plugins_file="$HOME/.uipathcli/plugins"
+    echo "$plugins_file"
+}
+
+############################################################
+# Creates a plugins file with the kubernetes authenticator
+# enabled (uipathcli-authenticator-k8s)
+#
+# Arguments:
+#   - Path to the plugins file
+#     typically $HOME/.uipathcli/plugins
+#
+# Returns:
+#   The content of the plugins file
+############################################################
+function create_defaultpluginsfile()
+{
+    local plugins_file="$1"
+
+    mkdir -p "${plugins_file%/*}/"
+
+    local plugins_content=""
+    IFS='' read -r -d '' plugins_content <<"EOF"
+authenticators:
+  - name: kubernetes
+    path: ./uipathcli-authenticator-k8s
+EOF
+    echo "$plugins_content" > "$plugins_file"
+    echo "$plugins_content"
+}
+
 echo -e "Downloading and installing uipathcli..."
 
 install_uipathcli
+
+echo -e "Downloading and installing uipathcli-authenticator-k8s..."
+
+install_uipathcli_authenticator_k8s
 
 echo -e "Downloading service definitions..."
 
 definitions_folder=$(create_definitionsfolder)
 download_openapidoc "$definitions_folder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml"
 download_openapidoc "$definitions_folder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml"
-download_openapidoc "$definitions_folder" "digitizer" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/digitizer/swagger/v1/swagger.yaml"
+
+plugins_file=$(get_defaultpluginsfile)
+if [ ! -f "$plugins_file" ]
+then
+    echo -e "Setting up default plugins file..."
+    plugins_content=$(create_defaultpluginsfile "$plugins_file")
+    echo -e "\n$plugins_content\n"
+fi
 
 config_file=$(get_defaultconfigfile)
 if [ ! -f "$config_file" ]

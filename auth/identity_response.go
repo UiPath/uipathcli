@@ -1,4 +1,4 @@
-package executor
+package auth
 
 type identityResponse struct {
 	AccessToken string  `json:"access_token"`

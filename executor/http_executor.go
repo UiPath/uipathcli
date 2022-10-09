@@ -5,15 +5,19 @@ import (
 	"crypto/rand"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/UiPath/uipathcli/auth"
+	"github.com/UiPath/uipathcli/config"
 )
 
 type HttpExecutor struct {
-	TokenProvider TokenProvider
+	Authenticators []auth.Authenticator
 }
 
 func RequestId() string {
@@ -82,7 +86,6 @@ func (e HttpExecutor) createBody(bodyParameters []ExecutionParameter, formParame
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
 	uri := fmt.Sprintf("%s://%s%s%s", baseUri.Scheme, baseUri.Host, baseUri.Path, route)
-
 	for _, parameter := range pathParameters {
 		uri = strings.Replace(uri, "{"+parameter.Name+"}", parameter.Value.(string), -1)
 	}
@@ -112,6 +115,22 @@ func (e HttpExecutor) send(client *http.Client, req *http.Request) (*http.Respon
 	return resp, err
 }
 
+func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
+	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
+	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
+	for _, authProvider := range e.Authenticators {
+		result := authProvider.Auth(ctx)
+		if result.Error != "" {
+			return nil, errors.New(result.Error)
+		}
+		ctx.Config = result.Config
+		for k, v := range result.RequestHeader {
+			ctx.Request.Header[k] = v
+		}
+	}
+	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
+}
+
 func (e HttpExecutor) Call(context ExecutionContext) (string, error) {
 	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
 	if err != nil {
@@ -129,18 +148,12 @@ func (e HttpExecutor) Call(context ExecutionContext) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error preparing request: %v", err)
 	}
-
-	if context.ClientId != "" && context.ClientSecret != "" {
-		tokenRequest := NewTokenRequest(
-			fmt.Sprintf("%s://%s/identity_", uri.Scheme, uri.Host),
-			context.ClientId,
-			context.ClientSecret,
-			context.Insecure)
-		token, err := e.TokenProvider.GetToken(*tokenRequest)
-		if err != nil {
-			return "", fmt.Errorf("Error retrieving bearer token: %v", err)
-		}
-		request.Header.Add("Authorization", "Bearer "+token)
+	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
+	if err != nil {
+		return "", err
+	}
+	for k, v := range auth.RequestHeader {
+		request.Header.Add(k, v)
 	}
 
 	transport := &http.Transport{

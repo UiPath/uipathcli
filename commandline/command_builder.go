@@ -167,6 +167,9 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if err != nil {
 				return err
 			}
+
+			insecure := context.Bool(insecureFlagName) || config.Insecure
+			debug := context.Bool(debugFlagName) || config.Debug
 			executionContext := executor.NewExecutionContext(
 				operation.Method,
 				*baseUri,
@@ -176,10 +179,9 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				headerParameters,
 				bodyParameters,
 				formParameters,
-				config.ClientId,
-				config.ClientSecret,
-				context.Bool(insecureFlagName) || config.Insecure,
-				context.Bool(debugFlagName) || config.Debug)
+				config.Auth,
+				insecure,
+				debug)
 			output, err := b.Executor.Call(*executionContext)
 			if err != nil {
 				return err

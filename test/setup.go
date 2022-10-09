@@ -7,6 +7,8 @@ import (
 	"net/http/httptest"
 	"strings"
 
+	"github.com/UiPath/uipathcli/auth"
+	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -101,8 +103,10 @@ func runCli(args []string, context Context) Result {
 		Parser:         parser.OpenApiParser{},
 		ConfigProvider: config.ConfigProvider{},
 		Executor: executor.HttpExecutor{
-			TokenProvider: executor.IdentityClient{
-				Cache: executor.FileCache{},
+			Authenticators: []auth.Authenticator{
+				auth.BearerAuthenticator{
+					Cache: cache.FileCache{},
+				},
 			},
 		},
 	}

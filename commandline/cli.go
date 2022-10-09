@@ -23,7 +23,7 @@ func (c Cli) parseDefinitions(definitions []DefinitionData) ([]parser.Definition
 	for _, definition := range definitions {
 		d, err := c.Parser.Parse(definition.Name, definition.Data)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error parsing definition file '%s': %v", definition.Name, err)
 		}
 		result = append(result, *d)
 	}
@@ -33,11 +33,11 @@ func (c Cli) parseDefinitions(definitions []DefinitionData) ([]parser.Definition
 func (c Cli) run(args []string, configData []byte, definitionData []DefinitionData) error {
 	err := c.ConfigProvider.Load(configData)
 	if err != nil {
-		return fmt.Errorf("Error loading profile configuration: %v", err)
+		return err
 	}
 	definitions, err := c.parseDefinitions(definitionData)
 	if err != nil {
-		return fmt.Errorf("Error parsing definition files: %v", err)
+		return err
 	}
 
 	CommandBuilder := CommandBuilder{

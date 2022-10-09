@@ -24,14 +24,16 @@ func (cp *ConfigProvider) Load(data []byte) error {
 
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 	return Config{
-		Uri:          profile.Uri.URL,
-		Path:         profile.Path,
-		Query:        profile.Query,
-		Header:       profile.Header,
-		ClientId:     profile.ClientId,
-		ClientSecret: profile.ClientSecret,
-		Insecure:     profile.Insecure,
-		Debug:        profile.Debug,
+		Uri:    profile.Uri.URL,
+		Path:   profile.Path,
+		Query:  profile.Query,
+		Header: profile.Header,
+		Auth: AuthConfig{
+			Type:   fmt.Sprintf("%v", profile.Auth["type"]),
+			Config: profile.Auth,
+		},
+		Insecure: profile.Insecure,
+		Debug:    profile.Debug,
 	}
 }
 

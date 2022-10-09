@@ -7,10 +7,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/UiPath/uipathcli/auth"
+	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
+	"github.com/UiPath/uipathcli/plugins"
 )
 
 const DefinitionsDirectory = "definitions"
@@ -63,6 +66,36 @@ func readConfiguration() ([]byte, error) {
 	return data, nil
 }
 
+func readPlugins() (*plugins.Config, error) {
+	homeDir, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("Error reading plugins file: %v", err)
+	}
+	filename := filepath.Join(homeDir, ".uipathcli", "plugins")
+	data, err := os.ReadFile(filename)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Error reading plugins file '%s': %v", filename, err)
+	}
+	config_provider := plugins.ConfigProvider{}
+	return config_provider.Parse(data)
+}
+
+func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
+	authenticators := []auth.Authenticator{}
+	for _, authenticator := range pluginsCfg.Authenticators {
+		authenticators = append(authenticators, auth.ExternalAuthenticator{
+			Config: *auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
+		})
+	}
+	authenticators = append(authenticators, auth.BearerAuthenticator{
+		Cache: cache.FileCache{},
+	})
+	return authenticators
+}
+
 func main() {
 	cfg, err := readConfiguration()
 	if err != nil {
@@ -74,15 +107,19 @@ func main() {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(132)
 	}
+	pluginsCfg, err := readPlugins()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err.Error())
+		os.Exit(133)
+	}
+
 	cli := commandline.Cli{
 		StdOut:         os.Stdout,
 		StdErr:         os.Stderr,
 		Parser:         parser.OpenApiParser{},
 		ConfigProvider: config.ConfigProvider{},
 		Executor: executor.HttpExecutor{
-			TokenProvider: executor.IdentityClient{
-				Cache: executor.FileCache{},
-			},
+			Authenticators: authenticators(pluginsCfg),
 		},
 	}
 

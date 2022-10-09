@@ -1,4 +1,4 @@
-package executor
+package cache
 
 import (
 	"crypto/sha256"
@@ -13,7 +13,7 @@ import (
 )
 
 const CachePermissions fs.FileMode = 0600
-const CacheDirectory string = "uipath-cli"
+const CacheDirectory string = "uipathcli"
 const Separator string = "|"
 
 type FileCache struct{}

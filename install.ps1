@@ -23,6 +23,15 @@ function Install-uipathcli() {
 
 <#
     .SYNOPSIS
+        Installs uipathcli kubernetes authenticator using the go install command
+#>
+function Install-uipathcli-authenticator-k8s() {
+    go env -w GOPRIVATE=github.com/UiPath/uipathcli-authenticator-k8s
+    go install github.com/UiPath/uipathcli-authenticator-k8s@latest
+}
+
+<#
+    .SYNOPSIS
         Finds the definitions folder and creates it, if needed
     .OUTPUTS
         System.String. The path to the definitions folder
@@ -62,7 +71,7 @@ function Get-OpenApiDoc() {
 
 <#
     .SYNOPSIS
-        Finds the config files and returns the path to it
+        Finds the config file and returns the path to it
     .OUTPUTS
         System.String. The path to the config file
 #>
@@ -75,7 +84,7 @@ function Get-DefaultConfigFile() {
     .SYNOPSIS
         Creates a configuration file with default content
     .PARAMETER ConfigFile
-        System.String. Path to the configuration file, 
+        System.String. Path to the configuration file,
         typically $HOME/.uipathcli/config
     .OUTPUTS
         System.String. The new default content of the configuration file
@@ -91,8 +100,9 @@ function New-DefaultConfigFile() {
 profiles:
   - name: default
     uri: https://cloud.uipath.com
-    clientId: <enter your client id here>
-    clientSecret: <enter your client secret here>
+    auth:
+      clientId: <enter your client id here>
+      clientSecret: <enter your client secret here>
     path:
       organization: <enter your organization name here>
       tenant: <enter your tenant name here>
@@ -101,16 +111,63 @@ profiles:
     return $content
 }
 
+<#
+    .SYNOPSIS
+        Finds the plugins file and returns the path to it
+    .OUTPUTS
+        System.String. The path to the plugins file
+#>
+function Get-DefaultPluginsFile() {
+    $pluginsFile = Join-Path -Path "$env:userprofile" -ChildPath "/.uipathcli/plugins"
+    return $pluginsFile
+}
+
+<#
+    .SYNOPSIS
+        Creates a plugins file with the kubernetes authenticator enabled
+        (uipathcli-authenticator-k8s)
+    .PARAMETER PluginsFile
+        System.String. Path to the plugins file,
+        typically $HOME/.uipathcli/plugins
+    .OUTPUTS
+        System.String. The content of the plugins file
+#>
+function New-DefaultPluginsFile() {
+    param (
+        [Parameter(Mandatory = $true)]
+        [String]$PluginsFile
+    )
+
+    New-Item -Force -Path $PluginsFile | Out-Null
+    $content = @"
+authenticators:
+  - name: kubernetes
+    path: ./uipathcli-authenticator-k8s
+"@
+    Add-Content "$PluginsFile" "$content"
+    return $content
+}
+
 Write-Host "Downloading and installing uipathcli..."
 
 Install-uipathcli
+
+Write-Host "Downloading and installing uipathcli-authenticator-k8s..."
+
+Install-uipathcli-authenticator-k8s
 
 Write-Host "Downloading service definitions..."
 
 $definitionsFolder = New-DefinitionsFolder
 Get-OpenApiDoc "$definitionsFolder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml"
 Get-OpenApiDoc "$definitionsFolder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml"
-Get-OpenApiDoc "$definitionsFolder" "digitizer" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/digitizer/swagger/v1/swagger.yaml"
+
+$pluginsFile = Get-DefaultPluginsFile
+if (!(Test-Path -Path "$pluginsFile")) {
+    Write-Host "Setting up default plugins file..."
+    $pluginsContent = New-DefaultPluginsFile "$pluginsFile"
+    Write-Host "`n$pluginsContent`n"
+}
 
 $configFile = Get-DefaultConfigFile
 if (!(Test-Path -Path "$configFile")) {

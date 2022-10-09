@@ -1,6 +1,10 @@
 package executor
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/UiPath/uipathcli/config"
+)
 
 type ExecutionContext struct {
 	Method           string
@@ -11,8 +15,7 @@ type ExecutionContext struct {
 	HeaderParameters []ExecutionParameter
 	BodyParameters   []ExecutionParameter
 	FormParameters   []ExecutionParameter
-	ClientId         string
-	ClientSecret     string
+	AuthConfig       config.AuthConfig
 	Insecure         bool
 	Debug            bool
 }
@@ -26,9 +29,8 @@ func NewExecutionContext(
 	headerParameters []ExecutionParameter,
 	bodyParameters []ExecutionParameter,
 	formParameters []ExecutionParameter,
-	clientId string,
-	clientSecret string,
+	authConfig config.AuthConfig,
 	insecure bool,
 	debug bool) *ExecutionContext {
-	return &ExecutionContext{method, uri, route, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, clientId, clientSecret, insecure, debug}
+	return &ExecutionContext{method, uri, route, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug}
 }

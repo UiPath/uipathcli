@@ -28,10 +28,6 @@ In order to quickly get started, you can run the install scripts for windows and
 
 ## Build
 
-This section describes the prerequisites and necessary steps for building and running the CLI.
-
-### Compile
-
 You can build an excutable for your current platform using the standard go build command:
 
 ```
@@ -55,8 +51,9 @@ cat <<EOT > $HOME/.uipathcli/config
 ---
 profiles:
   - name: default
-    clientId: <your-client-id>
-    clientSecret: <your-client-secret>
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
     path:
       organization: <organization-name>
       tenant: <tenant-name>
@@ -175,8 +172,9 @@ You can set up a separate profile for service fabric which configures the URI an
 ```
 profiles:
   - name: sf
-    clientId: <your-client-id>
-    clientSecret: <your-client-secret>
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
     path:
       organization: test
       tenant: DefaultTenant
@@ -248,6 +246,33 @@ You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on 
 ./build/uipathcli --help
 ```
 
+### How to retrieve secrets from kubernetes?
+
+The CLI has support for retrieving clientId and clientSecret from kubernetes using the [uipathcli-authenticator-k8s](https://github.com/UiPath/uipathcli-authenticator-k8s). You need to enable the authenticator plugin by creating the plugins configuration file `.uipathcli/plugins` in your home directory:
+
+```
+authenticators:
+  - name: kubernetes
+    path: ./uipathcli-authenticator-k8s
+```
+
+You can define the secret name, namespace and data keys so that the CLI fetches the clientId and clientSecret using the kube API and creates a bearer token based on these credentials:
+
+```
+profiles:
+  - name: default
+    auth:
+      type: kubernetes
+      kubeconfig: /home/tschmitt/.kube/config
+      namespace: <my-namespace>
+      secretName: <my-secret>
+      clientId: ClientId          # data key in <my-secret>
+      clientSecret: ClientSecret  # data key in <my-secret>
+    path:
+      organization: uipatcleitzc
+      tenant: DefaultTenant
+```
+
 ### How to use multiple profiles?
 
 You can also define multiple configuration profiles to target different environments (like alpha, staging or prod), configure separate auth credentials, or manage multiple organizations/tenants:
@@ -255,8 +280,9 @@ You can also define multiple configuration profiles to target different environm
 ```
 profiles:
   - name: default
-    clientId: <your-client-id>
-    clientSecret: <your-client-secret>
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
     path:
       organization: uipatcleitzc
       tenant: DefaultTenant
@@ -267,8 +293,9 @@ profiles:
       X-UIPATH-MLService: MLSERVICE_TIEMODEL
   - name: alpha
     uri: https://alpha.uipath.com
-    clientId: <your-client-id>
-    clientSecret: <your-client-secret>
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
     path:
       organization: UiPatricjvjx
       tenant: DefaultTenant
