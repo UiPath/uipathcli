@@ -104,7 +104,7 @@ func runCli(args []string, context Context) Result {
 		ConfigProvider: config.ConfigProvider{},
 		Executor: executor.HttpExecutor{
 			Authenticators: []auth.Authenticator{
-				auth.BearerAuthenticator{
+				auth.TokenAuthenticator{
 					Cache: cache.FileCache{},
 				},
 			},

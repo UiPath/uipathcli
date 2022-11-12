@@ -119,15 +119,18 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
 	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
 	for _, authProvider := range e.Authenticators {
-		result := authProvider.Auth(ctx)
-		if result.Error != "" {
-			return nil, errors.New(result.Error)
-		}
-		ctx.Config = result.Config
-		for k, v := range result.RequestHeader {
-			ctx.Request.Header[k] = v
+		if authProvider.CanAuthenticate(ctx) {
+			result := authProvider.Auth(ctx)
+			if result.Error != "" {
+				return nil, errors.New(result.Error)
+			}
+			ctx.Config = result.Config
+			for k, v := range result.RequestHeader {
+				ctx.Request.Header[k] = v
+			}
 		}
 	}
+
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 

@@ -13,6 +13,10 @@ type ExternalAuthenticator struct {
 	Config ExternalAuthenticatorConfig
 }
 
+func (a ExternalAuthenticator) CanAuthenticate(ctx AuthenticatorContext) bool {
+	return true
+}
+
 func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	input, err := json.Marshal(ctx)
 	if err != nil {

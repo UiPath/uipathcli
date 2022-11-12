@@ -52,6 +52,7 @@ cat <<EOT > $HOME/.uipathcli/config
 profiles:
   - name: default
     auth:
+      type: client_credentials
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
     path:
@@ -61,6 +62,22 @@ EOT
 ```
 
 Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
+
+Altenatively you can use a token based authentication. In this case you need to create a token and add it to the config file.
+
+```
+cat <<EOT > $HOME/.uipathcli/config
+---
+profiles:
+  - name: default
+    auth:
+      type: bearer
+      token: <your-token>
+    path:
+      organization: <organization-name>
+      tenant: <tenant-name>
+EOT
+```
 
 ```
 ./uipathcli metering ping
@@ -173,6 +190,7 @@ You can set up a separate profile for service fabric which configures the URI an
 profiles:
   - name: sf
     auth:
+      type: client_credentials
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
     path:
@@ -281,6 +299,7 @@ You can also define multiple configuration profiles to target different environm
 profiles:
   - name: default
     auth:
+      type: client_credentials
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
     path:
@@ -294,8 +313,8 @@ profiles:
   - name: alpha
     uri: https://alpha.uipath.com
     auth:
-      clientId: <your-client-id>
-      clientSecret: <your-client-secret>
+      type: bearer
+      token: <your user JWT token>
     path:
       organization: UiPatricjvjx
       tenant: DefaultTenant

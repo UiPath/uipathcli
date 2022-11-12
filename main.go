@@ -99,7 +99,9 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 			Config: *auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
 		})
 	}
-	authenticators = append(authenticators, auth.BearerAuthenticator{
+	authenticators = append(authenticators, auth.S2SAuthenticator {
+		Cache: cache.FileCache{},
+	}, auth.TokenAuthenticator{
 		Cache: cache.FileCache{},
 	})
 

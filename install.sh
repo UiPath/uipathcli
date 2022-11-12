@@ -104,6 +104,7 @@ profiles:
   - name: default
     uri: https://cloud.uipath.com
     auth:
+      type: client_credentials
       clientId: <enter your client id here>
       clientSecret: <enter your client secret here>
     path:

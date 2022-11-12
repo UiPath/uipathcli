@@ -4,3 +4,4 @@ uipathcli
 build/
 coverage.out
 coverage.html
+.vscode

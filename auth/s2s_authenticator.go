@@ -3,21 +3,26 @@ package auth
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/UiPath/uipathcli/cache"
 )
 
-type BearerAuthenticator struct {
+type S2SAuthenticator struct {
 	Cache cache.Cache
 }
 
-func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
+func (a S2SAuthenticator) CanAuthenticate(ctx AuthenticatorContext) bool {
+	 return strings.EqualFold("client_credentials", ctx.Type)
+}
+
+func (a S2SAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if !a.enabled(ctx) {
 		return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 	}
 	config, err := a.getConfig(ctx)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Invalid s2s authenticator configuration: %v", err))
 	}
 
 	url, err := url.Parse(ctx.Request.URL)
@@ -33,17 +38,17 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 		ctx.Insecure)
 	token, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Error retrieving s2s token: %v", err))
 	}
 	ctx.Request.Header["Authorization"] = "Bearer " + token
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 }
 
-func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {
+func (a S2SAuthenticator) enabled(ctx AuthenticatorContext) bool {
 	return ctx.Config["clientId"] != nil && ctx.Config["clientSecret"] != nil
 }
 
-func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthenticatorConfig, error) {
+func (a S2SAuthenticator) getConfig(ctx AuthenticatorContext) (*S2SAuthenticatorConfig, error) {
 	clientId, err := a.parseRequiredString(ctx.Config, "clientId")
 	if err != nil {
 		return nil, err
@@ -52,10 +57,10 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthent
 	if err != nil {
 		return nil, err
 	}
-	return NewBearerAuthenticatorConfig(clientId, clientSecret), nil
+	return NewS2SAuthenticatorConfig(clientId, clientSecret), nil
 }
 
-func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
+func (a S2SAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
 	value := config[name]
 	result, valid := value.(string)
 	if !valid || result == "" {
