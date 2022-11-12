@@ -66,8 +66,13 @@ function download_openapidoc()
     local path="$1"
     local name="$2"
     local url="$3"
+    local version="$4"
 
-    wget --quiet --output-document="$path/$name.yaml" "$url"
+    if [ "$version" != "3.0" ]
+    then
+        url="https://converter.swagger.io/api/convert?url=$url"
+    fi
+    wget --quiet --output-document="$path/$name.yaml" --header="accept: application/yaml" "$url"
 }
 
 ############################################################
@@ -164,8 +169,10 @@ install_uipathcli_authenticator_k8s
 echo -e "Downloading service definitions..."
 
 definitions_folder=$(create_definitionsfolder)
-download_openapidoc "$definitions_folder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml"
-download_openapidoc "$definitions_folder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml"
+download_openapidoc "$definitions_folder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml" "3.0"
+download_openapidoc "$definitions_folder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml" "3.0"
+download_openapidoc "$definitions_folder" "digitizer" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/digitizer/swagger/v1/swagger.yaml" "3.0"
+download_openapidoc "$definitions_folder" "orchestrator" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/orchestrator_/swagger/v15.0/swagger.yaml" "2.0"
 
 plugins_file=$(get_defaultpluginsfile)
 if [ ! -f "$plugins_file" ]

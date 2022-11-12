@@ -60,12 +60,19 @@ function Get-OpenApiDoc() {
         [Parameter(Mandatory = $true)]
         [String]$Name,
         [Parameter(Mandatory = $true)]
-        [String]$Url
+        [String]$Url,
+        [Parameter(Mandatory = $true)]
+        [ValidateSet("2.0", "3.0")]
+        [String]$Version
     )
 
     $ProgressPreference = "SilentlyContinue"
-    $fileName = Join-Path -Path "$path" -ChildPath "$name.yaml"
-    Invoke-WebRequest -Uri "$url" -OutFile "$fileName"
+    $fileName = Join-Path -Path "$Path" -ChildPath "$Name.yaml"
+    $url = $Url
+    if ($Version -ne "3.0") {
+        $url = "https://converter.swagger.io/api/convert?url=$Url"
+    }
+    Invoke-WebRequest -Headers @{"accept"="application/yaml"} -Uri "$url" -OutFile "$fileName"
     $ProgressPreference = "Continue"
 }
 
@@ -159,8 +166,10 @@ Install-uipathcli-authenticator-k8s
 Write-Host "Downloading service definitions..."
 
 $definitionsFolder = New-DefinitionsFolder
-Get-OpenApiDoc "$definitionsFolder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml"
-Get-OpenApiDoc "$definitionsFolder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml"
+Get-OpenApiDoc "$definitionsFolder" "metering" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/metering/swagger/v1/swagger.yaml" "3.0"
+Get-OpenApiDoc "$definitionsFolder" "events" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/eventservice/swagger/v1/swagger.yaml" "3.0"
+Get-OpenApiDoc "$definitionsFolder" "digitizer" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/du_/api/digitizer/swagger/v1/swagger.yaml" "3.0"
+Get-OpenApiDoc "$definitionsFolder" "orchestrator" "https://cloud.uipath.com/testdwfdcxqn/DefaultTenant/orchestrator_/swagger/v15.0/swagger.yaml" "2.0"
 
 $pluginsFile = Get-DefaultPluginsFile
 if (!(Test-Path -Path "$pluginsFile")) {
