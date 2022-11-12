@@ -44,7 +44,7 @@ func (p OpenApiParser) getName(method string, route string, operation openapi3.O
 	return strings.ToLower(method + routeName)
 }
 
-func (p OpenApiParser) getType(schema openapi3.Schema) string {
+func (p OpenApiParser) getSchemaType(schema openapi3.Schema) string {
 	if schema.Type == openapi3.TypeArray {
 		itemType := schema.Items.Value.Type
 		switch itemType {
@@ -78,18 +78,30 @@ func (p OpenApiParser) getType(schema openapi3.Schema) string {
 	}
 }
 
-func (p OpenApiParser) parseSchema(fieldName string, schema openapi3.Schema, in string, requiredFieldnames []string) Parameter {
+func (p OpenApiParser) getType(schemaRef *openapi3.SchemaRef) string {
+	if schemaRef == nil {
+		return ParameterTypeString
+	}
+	return p.getSchemaType(*schemaRef.Value)
+}
+
+func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaRef, in string, requiredFieldnames []string) Parameter {
 	name := ToSnakeCase(fieldName)
-	_type := p.getType(schema)
+	_type := p.getType(schemaRef)
 	required := p.contains(requiredFieldnames, fieldName)
-	parameters := p.parseSchemas(schema.Properties, in, schema.Required)
-	return *NewParameter(name, _type, schema.Description, in, fieldName, required, parameters)
+	parameters := []Parameter{}
+	description := ""
+	if schemaRef != nil {
+		description = schemaRef.Value.Description
+		parameters = p.parseSchemas(schemaRef.Value.Properties, in, schemaRef.Value.Required)
+	}
+	return *NewParameter(name, _type, description, in, fieldName, required, parameters)
 }
 
 func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string) []Parameter {
 	result := []Parameter{}
-	for fieldName, schema := range schemas {
-		parsed := p.parseSchema(fieldName, *schema.Value, in, requiredFieldnames)
+	for fieldName, schemaRef := range schemas {
+		parsed := p.parseSchema(fieldName, schemaRef, in, requiredFieldnames)
 		result = append(result, parsed)
 	}
 	return result
@@ -112,12 +124,14 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 }
 
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
-	schema := *param.Schema.Value
 	fieldName := param.Name
 	name := ToSnakeCase(fieldName)
-	_type := p.getType(schema)
+	_type := p.getType(param.Schema)
 	required := param.Required
-	parameters := p.parseSchemas(schema.Properties, param.In, schema.Required)
+	parameters := []Parameter{}
+	if param.Schema != nil {
+		parameters = p.parseSchemas(param.Schema.Value.Properties, param.In, param.Schema.Value.Required)
+	}
 	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, parameters)
 }
 

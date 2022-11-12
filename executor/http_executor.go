@@ -85,7 +85,9 @@ func (e HttpExecutor) createBody(bodyParameters []ExecutionParameter, formParame
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
-	uri := fmt.Sprintf("%s://%s%s%s", baseUri.Scheme, baseUri.Host, baseUri.Path, route)
+	normalizedPath := strings.Trim(baseUri.Path, "/")
+	normalizedRoute := strings.Trim(route, "/")
+	uri := fmt.Sprintf("%s://%s/%s/%s", baseUri.Scheme, baseUri.Host, normalizedPath, normalizedRoute)
 	for _, parameter := range pathParameters {
 		uri = strings.Replace(uri, "{"+parameter.Name+"}", parameter.Value.(string), -1)
 	}

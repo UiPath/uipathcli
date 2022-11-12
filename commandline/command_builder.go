@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strings"
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -70,7 +71,8 @@ func (b CommandBuilder) overrideUri(uri *url.URL, overrideUri *url.URL, config c
 	if overrideUri != nil && overrideUri.Path != "" {
 		path = overrideUri.Path
 	}
-	return url.Parse(fmt.Sprintf("%s://%s%s", scheme, host, path))
+	normalizedPath := strings.Trim(path, "/")
+	return url.Parse(fmt.Sprintf("%s://%s/%s", scheme, host, normalizedPath))
 }
 
 func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (*url.URL, error) {

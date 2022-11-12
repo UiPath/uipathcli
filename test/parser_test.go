@@ -127,6 +127,33 @@ paths:
 	}
 }
 
+func TestParameterWithoutSchema(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+      summary: Simple ping
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
+
+	expected := "/ping?filter=my-filter"
+	if !strings.Contains(result.RequestUrl, expected) {
+		t.Errorf("Request url did not contain query string, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
 func TestParameterDataTypes(t *testing.T) {
 	t.Run("String", func(t *testing.T) { ParameterDataType(t, "string") })
 	t.Run("Integer", func(t *testing.T) { ParameterDataType(t, "integer") })
@@ -146,6 +173,31 @@ paths:
               properties:
                 myparameter:
                   type: ` + datatype + `
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--myparameter"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestParameterWithoutType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  description: This is my parameter
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
@@ -202,6 +254,36 @@ components:
       properties:
         myname:
           type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--myname"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain body parameter from schema reference, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestBodyParameterSchemaRefWithoutType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        myname:
+          description: this is my parameter
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
