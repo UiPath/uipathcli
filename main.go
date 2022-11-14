@@ -55,7 +55,11 @@ func readConfiguration() ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error reading configuration file: %v", err)
 	}
-	filename := filepath.Join(homeDir, ".uipathcli", "config")
+	filename := os.Getenv("UIPATHCLI_CONFIGURATION_PATH")
+	if (filename == "") {
+		filename = filepath.Join(homeDir, ".uipathcli", "config")
+	}
+
 	data, err := os.ReadFile(filename)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return []byte{}, nil
@@ -71,7 +75,12 @@ func readPlugins() (*plugins.Config, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Error reading plugins file: %v", err)
 	}
-	filename := filepath.Join(homeDir, ".uipathcli", "plugins")
+
+	filename := os.Getenv("UIPATHCLI_PLUGINS_PATH")
+	if (filename == "") {
+		filename = filepath.Join(homeDir, ".uipathcli", "plugins")
+	}
+
 	data, err := os.ReadFile(filename)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return nil, nil
@@ -93,6 +102,7 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 	authenticators = append(authenticators, auth.BearerAuthenticator{
 		Cache: cache.FileCache{},
 	})
+
 	return authenticators
 }
 
