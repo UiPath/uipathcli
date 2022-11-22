@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -50,10 +51,10 @@ func readDefinitions() ([]commandline.DefinitionData, error) {
 	return result, nil
 }
 
-func readConfiguration() ([]byte, error) {
+func readConfiguration() (string, []byte, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("Error reading configuration file: %v", err)
+		return "", nil, fmt.Errorf("Error reading configuration file: %v", err)
 	}
 	filename := os.Getenv("UIPATHCLI_CONFIGURATION_PATH")
 	if filename == "" {
@@ -62,12 +63,12 @@ func readConfiguration() ([]byte, error) {
 
 	data, err := os.ReadFile(filename)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
-		return []byte{}, nil
+		return filename, []byte{}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Error reading configuration file '%s': %v", filename, err)
+		return "", nil, fmt.Errorf("Error reading configuration file '%s': %v", filename, err)
 	}
-	return data, nil
+	return filename, data, nil
 }
 
 func readPlugins() (*plugins.Config, error) {
@@ -103,12 +104,67 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 	return authenticators
 }
 
+func readUserInput(message string) (string, error) {
+	reader := bufio.NewReader(os.Stdin)
+	fmt.Print(message + " ")
+	value, err := reader.ReadString('\n')
+	if err != nil {
+		return "", err
+	}
+	return strings.Trim(value, " \r\n\t"), nil
+}
+
+func configureCli(configFile string, configData []byte) error {
+	configProvider := config.ConfigProvider{}
+	err := configProvider.Load(configData)
+	if err != nil {
+		return err
+	}
+
+	clientId, err := readUserInput("Enter client id:")
+	if err != nil {
+		return nil
+	}
+	clientSecret, err := readUserInput("Enter client secret:")
+	if err != nil {
+		return nil
+	}
+	organization, err := readUserInput("Enter organization:")
+	if err != nil {
+		return nil
+	}
+	tenant, err := readUserInput("Enter tenant:")
+	if err != nil {
+		return nil
+	}
+
+	data, err := configProvider.Update(clientId, clientSecret, organization, tenant)
+	if err != nil {
+		return err
+	}
+	os.WriteFile(configFile, data, 0600)
+	if err != nil {
+		return err
+	}
+	fmt.Println("Successfully configured uipathcli")
+	return nil
+}
+
 func main() {
-	cfg, err := readConfiguration()
+	cfgFile, cfgData, err := readConfiguration()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
+	if len(os.Args) > 1 && os.Args[1] == "config" {
+		err := configureCli(cfgFile, cfgData)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err.Error())
+			os.Exit(140)
+		}
+		os.Exit(0)
+	}
+
 	definitions, err := readDefinitions()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -130,7 +186,7 @@ func main() {
 		},
 	}
 
-	err = cli.Run(os.Args, cfg, definitions)
+	err = cli.Run(os.Args, cfgData, definitions)
 	if err != nil {
 		os.Exit(1)
 	}

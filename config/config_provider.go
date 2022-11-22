@@ -22,6 +22,35 @@ func (cp *ConfigProvider) Load(data []byte) error {
 	return nil
 }
 
+func (cp *ConfigProvider) Update(clientId string, clientSecret string, organization string, tenant string) ([]byte, error) {
+	var defaultProfile *profileYaml
+	for _, profile := range cp.profiles {
+		if profile.Name == DefaultProfile {
+			defaultProfile = &profile
+		}
+	}
+	if defaultProfile == nil {
+		defaultProfile = &profileYaml{
+			Name: DefaultProfile,
+		}
+		cp.profiles = append(cp.profiles, *defaultProfile)
+	}
+
+	if clientId != "" {
+		defaultProfile.Auth["clientId"] = clientId
+	}
+	if clientSecret != "" {
+		defaultProfile.Auth["clientSecret"] = clientSecret
+	}
+	if organization != "" {
+		defaultProfile.Path["organization"] = organization
+	}
+	if tenant != "" {
+		defaultProfile.Path["tenant"] = tenant
+	}
+	return yaml.Marshal(profilesYaml{Profiles: cp.profiles})
+}
+
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 	return Config{
 		Uri:    profile.Uri.URL,

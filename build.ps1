@@ -1,6 +1,7 @@
 Write-Host "Copying OpenAPI definitions"
 New-Item -ItemType Directory -Force -Path build/definitions | out-null
 Copy-Item definitions/* -Destination build/definitions/
+Copy-Item GETTING_STARTED.md -Destination build/README.md
 
 Write-Host "Building linux executable"
 pwsh -Command { $env:GOOS = "linux"; $env:GOARCH = "386"; go build -o build/uipathcli }

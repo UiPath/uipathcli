@@ -2,11 +2,11 @@ package config
 
 type profileYaml struct {
 	Name     string                 `yaml:"name"`
-	Uri      urlYaml                `yaml:"uri"`
-	Path     map[string]string      `yaml:"path"`
-	Query    map[string]string      `yaml:"query"`
-	Header   map[string]string      `yaml:"header"`
-	Auth     map[string]interface{} `yaml:"auth"`
-	Insecure bool                   `yaml:"insecure"`
-	Debug    bool                   `yaml:"debug"`
+	Uri      urlYaml                `yaml:"uri,omitempty"`
+	Path     map[string]string      `yaml:"path,omitempty"`
+	Query    map[string]string      `yaml:"query,omitempty"`
+	Header   map[string]string      `yaml:"header,omitempty"`
+	Auth     map[string]interface{} `yaml:"auth,omitempty"`
+	Insecure bool                   `yaml:"insecure,omitempty"`
+	Debug    bool                   `yaml:"debug,omitempty"`
 }
