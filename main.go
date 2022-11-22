@@ -56,7 +56,7 @@ func readConfiguration() ([]byte, error) {
 		return nil, fmt.Errorf("Error reading configuration file: %v", err)
 	}
 	filename := os.Getenv("UIPATHCLI_CONFIGURATION_PATH")
-	if (filename == "") {
+	if filename == "" {
 		filename = filepath.Join(homeDir, ".uipathcli", "config")
 	}
 
@@ -77,15 +77,12 @@ func readPlugins() (*plugins.Config, error) {
 	}
 
 	filename := os.Getenv("UIPATHCLI_PLUGINS_PATH")
-	if (filename == "") {
+	if filename == "" {
 		filename = filepath.Join(homeDir, ".uipathcli", "plugins")
 	}
 
 	data, err := os.ReadFile(filename)
-	if err != nil && errors.Is(err, os.ErrNotExist) {
-		return nil, nil
-	}
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("Error reading plugins file '%s': %v", filename, err)
 	}
 	config_provider := plugins.ConfigProvider{}
