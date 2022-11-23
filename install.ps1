@@ -19,6 +19,30 @@ function Install-uipathcli() {
 
 <#
     .SYNOPSIS
+        Registers autocomplete for uipathcli in the current user profile of powershell
+#>
+function Enable-AutoComplete() {
+    $profileFile = $PROFILE.CurrentUserAllHosts
+    New-Item -Force -Path $profileFile | Out-Null
+    if (Select-String -Path $profileFile -Pattern "uipathcliAutocomplete")
+    {
+        return
+    }
+    $content = @'
+$uipathcliAutocomplete = {
+    param($wordToComplete, $commandAst, $cursorPosition)
+    $command, $params = $commandAst.ToString() -split " ", 2
+    & $command complete --command "$commandAst" | foreach-object {
+        [system.management.automation.completionresult]::new($_, $_, 'parametervalue', $_)
+    }
+}
+Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcliAutocomplete
+'@
+    Add-Content "$profileFile" "$content"
+}
+
+<#
+    .SYNOPSIS
         Finds the config file and returns the path to it
     .OUTPUTS
         System.String. The path to the config file
@@ -62,6 +86,7 @@ profiles:
 Write-Host "Downloading and installing uipathcli..."
 
 Install-uipathcli
+Enable-AutoComplete
 
 $configFile = Get-DefaultConfigFile
 if (!(Test-Path -Path "$configFile")) {

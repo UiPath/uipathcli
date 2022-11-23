@@ -17,15 +17,44 @@ set -e
 ############################################################
 function install_uipathcli()
 {
-    local tmp_file=`mktemp`
-    wget "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli.zip" --output-document=$tmp_file --quiet
+    local tmp_file
+    tmp_file=$(mktemp)
+    wget "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli.zip" --output-document="$tmp_file" --quiet
     unzip -qq -o -d "." $tmp_file
-    rm $tmp_file
+    rm "$tmp_file"
     if [[ "$OSTYPE" == "darwin"* ]]; then
         mv uipathcli uipathcli.linux
         mv uipathcli.osx uipathcli
     fi
     chmod +x uipathcli
+}
+
+############################################################
+# Registers autocomplete for uipathcli in .bashrc
+############################################################
+function enable_autocomplete()
+{
+    local profile_file="$HOME/.bashrc"
+
+    mkdir -p "${profile_file%/*}/"
+
+    if grep -q "_uipathcli_bash_complete" "$profile_file"
+    then
+        return
+    fi
+    local profile_content=""
+    IFS='' read -r -d '' profile_content <<"EOF"
+
+function _uipathcli_bash_complete()
+{
+  local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
+  local candidates
+  read -d '' -ra candidates < <(uipathcli complete --command "${COMP_LINE}" 2>/dev/null)
+  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
+}
+complete -f -F _uipathcli_bash_complete uipathcli
+EOF
+    echo "$profile_content" >> "$profile_file"
 }
 
 ############################################################
@@ -75,6 +104,7 @@ EOF
 echo -e "Downloading and installing uipathcli..."
 
 install_uipathcli
+enable_autocomplete
 
 echo -e "Downloading service definitions..."
 
