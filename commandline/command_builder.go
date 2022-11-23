@@ -207,13 +207,38 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 	}
 }
 
+func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.Command {
+	return &cli.Command{
+		Name:        "complete",
+		Description: "Returns the autocomplete suggestions",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:   "command",
+				Usage:  "The command to autocomplete",
+				Hidden: true,
+			},
+		},
+		Hidden: true,
+		Action: func(context *cli.Context) error {
+			commandText := context.Value("command").(string)
+			handler := AutoCompleteHandler{}
+			words := handler.Find(commandText, commands)
+			for _, word := range words {
+				fmt.Fprintln(b.StdOut, word)
+			}
+			return nil
+		},
+	}
+}
+
 func (b CommandBuilder) Create(definitions []parser.Definition) []*cli.Command {
 	commands := []*cli.Command{}
 	for _, e := range definitions {
 		command := b.createServiceCommand(e)
 		commands = append(commands, command)
 	}
-	return commands
+	autocompleteCommand := b.createAutoCompleteCommand(commands)
+	return append(commands, autocompleteCommand)
 }
 
 func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
