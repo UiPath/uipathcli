@@ -19,6 +19,7 @@ const profileFlagName = "profile"
 const uriFlagName = "uri"
 
 type CommandBuilder struct {
+	StdIn          io.Reader
 	StdOut         io.Writer
 	ConfigProvider config.ConfigProvider
 	Executor       executor.Executor
@@ -220,13 +221,31 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 		},
 		Hidden: true,
 		Action: func(context *cli.Context) error {
-			commandText := context.Value("command").(string)
+			commandText := context.String("command")
 			handler := AutoCompleteHandler{}
 			words := handler.Find(commandText, commands)
 			for _, word := range words {
 				fmt.Fprintln(b.StdOut, word)
 			}
 			return nil
+		},
+	}
+}
+
+func (b CommandBuilder) createConfigCommand() *cli.Command {
+	return &cli.Command{
+		Name:        "config",
+		Description: "Interactive command to configure the CLI",
+		Hidden:      true,
+		Flags:       b.CreateDefaultFlags(true),
+		Action: func(context *cli.Context) error {
+			profileName := context.String(profileFlagName)
+			handler := ConfigCommandHandler{
+				StdIn:          b.StdIn,
+				StdOut:         b.StdOut,
+				ConfigProvider: b.ConfigProvider,
+			}
+			return handler.Configure(profileName)
 		},
 	}
 }
@@ -238,7 +257,8 @@ func (b CommandBuilder) Create(definitions []parser.Definition) []*cli.Command {
 		commands = append(commands, command)
 	}
 	autocompleteCommand := b.createAutoCompleteCommand(commands)
-	return append(commands, autocompleteCommand)
+	configCommand := b.createConfigCommand()
+	return append(commands, autocompleteCommand, configCommand)
 }
 
 func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {

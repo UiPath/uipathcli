@@ -11,6 +11,7 @@ import (
 )
 
 type Cli struct {
+	StdIn          io.Reader
 	StdOut         io.Writer
 	StdErr         io.Writer
 	Parser         parser.Parser
@@ -41,6 +42,7 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 	}
 
 	CommandBuilder := CommandBuilder{
+		StdIn:          c.StdIn,
 		StdOut:         c.StdOut,
 		ConfigProvider: c.ConfigProvider,
 		Executor:       c.Executor,

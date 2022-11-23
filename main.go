@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"errors"
 	"fmt"
 	"os"
@@ -104,67 +103,12 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 	return authenticators
 }
 
-func readUserInput(message string) (string, error) {
-	reader := bufio.NewReader(os.Stdin)
-	fmt.Print(message + " ")
-	value, err := reader.ReadString('\n')
-	if err != nil {
-		return "", err
-	}
-	return strings.Trim(value, " \r\n\t"), nil
-}
-
-func configureCli(configFile string, configData []byte) error {
-	configProvider := config.ConfigProvider{}
-	err := configProvider.Load(configData)
-	if err != nil {
-		return err
-	}
-
-	clientId, err := readUserInput("Enter client id:")
-	if err != nil {
-		return nil
-	}
-	clientSecret, err := readUserInput("Enter client secret:")
-	if err != nil {
-		return nil
-	}
-	organization, err := readUserInput("Enter organization:")
-	if err != nil {
-		return nil
-	}
-	tenant, err := readUserInput("Enter tenant:")
-	if err != nil {
-		return nil
-	}
-
-	data, err := configProvider.Update(clientId, clientSecret, organization, tenant)
-	if err != nil {
-		return err
-	}
-	os.WriteFile(configFile, data, 0600)
-	if err != nil {
-		return err
-	}
-	fmt.Println("Successfully configured uipathcli")
-	return nil
-}
-
 func main() {
 	cfgFile, cfgData, err := readConfiguration()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
-	if len(os.Args) > 1 && os.Args[1] == "config" {
-		err := configureCli(cfgFile, cfgData)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err.Error())
-			os.Exit(140)
-		}
-		os.Exit(0)
-	}
-
 	definitions, err := readDefinitions()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
@@ -177,10 +121,13 @@ func main() {
 	}
 
 	cli := commandline.Cli{
-		StdOut:         os.Stdout,
-		StdErr:         os.Stderr,
-		Parser:         parser.OpenApiParser{},
-		ConfigProvider: config.ConfigProvider{},
+		StdIn:  os.Stdin,
+		StdOut: os.Stdout,
+		StdErr: os.Stderr,
+		Parser: parser.OpenApiParser{},
+		ConfigProvider: config.ConfigProvider{
+			ConfigFileName: cfgFile,
+		},
 		Executor: executor.HttpExecutor{
 			Authenticators: authenticators(pluginsCfg),
 		},

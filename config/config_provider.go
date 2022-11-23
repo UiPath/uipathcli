@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -9,7 +10,8 @@ import (
 const DefaultProfile = "default"
 
 type ConfigProvider struct {
-	profiles []profileYaml
+	profiles       []profileYaml
+	ConfigFileName string
 }
 
 func (cp *ConfigProvider) Load(data []byte) error {
@@ -22,33 +24,44 @@ func (cp *ConfigProvider) Load(data []byte) error {
 	return nil
 }
 
-func (cp *ConfigProvider) Update(clientId string, clientSecret string, organization string, tenant string) ([]byte, error) {
-	var defaultProfile *profileYaml
-	for _, profile := range cp.profiles {
-		if profile.Name == DefaultProfile {
-			defaultProfile = &profile
+func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecret string, organization string, tenant string) error {
+	profile := profileYaml{
+		Name: profileName,
+		Auth: map[string]interface{}{},
+		Path: map[string]string{},
+	}
+	newProfile := true
+	for _, p := range cp.profiles {
+		if p.Name == profileName {
+			profile = p
+			newProfile = false
 		}
 	}
-	if defaultProfile == nil {
-		defaultProfile = &profileYaml{
-			Name: DefaultProfile,
-		}
-		cp.profiles = append(cp.profiles, *defaultProfile)
-	}
-
 	if clientId != "" {
-		defaultProfile.Auth["clientId"] = clientId
+		profile.Auth["clientId"] = clientId
 	}
 	if clientSecret != "" {
-		defaultProfile.Auth["clientSecret"] = clientSecret
+		profile.Auth["clientSecret"] = clientSecret
 	}
 	if organization != "" {
-		defaultProfile.Path["organization"] = organization
+		profile.Path["organization"] = organization
 	}
 	if tenant != "" {
-		defaultProfile.Path["tenant"] = tenant
+		profile.Path["tenant"] = tenant
 	}
-	return yaml.Marshal(profilesYaml{Profiles: cp.profiles})
+	if newProfile {
+		cp.profiles = append(cp.profiles, profile)
+	}
+
+	data, err := yaml.Marshal(profilesYaml{Profiles: cp.profiles})
+	if err != nil {
+		return fmt.Errorf("Error updating configuration: %v", err)
+	}
+	err = os.WriteFile(cp.ConfigFileName, data, 0600)
+	if err != nil {
+		return fmt.Errorf("Error updating configuration file: %v", err)
+	}
+	return nil
 }
 
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
