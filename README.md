@@ -18,15 +18,17 @@ For more details about how to use the CLI, take a look at the [Getting Started](
 
 You can build an excutable for your current platform using the standard go build command:
 
-```
-# Build the CLI on Windows
+### Windows
+```powershell
 go build .
+
 .\uipathcli.exe --help
 ```
 
-```
-# Build the CLI on Linux
+### Linux
+```bash
 go build .
+
 ./uipathcli --help
 ```
 
@@ -34,7 +36,7 @@ go build .
 
 The following command runs the tests with detailed debug output:
 
-```
+```bash
 go test -v ./...
 ```
 
@@ -44,7 +46,7 @@ go test -v ./...
 
 You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on Windows and the Bash script (`build.sh`) on Linux:
 
-```
+```powershell
 # Cross-compile the CLI on Windows for all supported platforms
 .\build.ps1
 
@@ -57,7 +59,7 @@ You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on 
 .\build\uipathcli.exe --help
 ```
 
-```
+```bash
 # Cross-compile the CLI on Linux for all supported platforms
 ./build.sh
 
@@ -72,7 +74,7 @@ You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on 
 
 ### How to generate code coverage?
 
-```
+```bash
 # Run tests and generate code coverage file
 go test -v ./... -coverpkg ./... -coverprofile coverage.out
 
@@ -84,7 +86,7 @@ go tool cover --html=coverage.out
 
 You can set up a separate profile for service fabric which configures the URI and disables HTTPS certificate checks: 
 
-```
+```yaml
 profiles:
   - name: sf
     auth:
@@ -98,7 +100,7 @@ profiles:
 
 And you simply call the CLI with the `--profile sf` parameter:
 
-```
+```bash
 ./uipathcli metering ping --profile sf
 ```
 
@@ -106,7 +108,7 @@ And you simply call the CLI with the `--profile sf` parameter:
 
 The CLI has support for retrieving clientId and clientSecret from kubernetes using the [uipathcli-authenticator-k8s](https://github.com/UiPath/uipathcli-authenticator-k8s). You need to enable the authenticator plugin by creating the plugins configuration file `.uipathcli/plugins` in your home directory:
 
-```
+```yaml
 authenticators:
   - name: kubernetes
     path: ./uipathcli-authenticator-k8s
@@ -114,7 +116,7 @@ authenticators:
 
 You can define the secret name, namespace and data keys so that the CLI fetches the clientId and clientSecret using the kube API and creates a bearer token based on these credentials:
 
-```
+```yaml
 profiles:
   - name: default
     auth:
