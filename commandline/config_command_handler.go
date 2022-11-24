@@ -15,8 +15,8 @@ type ConfigCommandHandler struct {
 	ConfigProvider config.ConfigProvider
 }
 
-var notSetMessage = "not set"
-var maskMessage = "*******"
+const notSetMessage = "not set"
+const maskMessage = "*******"
 
 func (h ConfigCommandHandler) Configure(profileName string) error {
 	config := h.ConfigProvider.Config(profileName)

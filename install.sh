@@ -47,9 +47,10 @@ function enable_autocomplete()
 
 function _uipathcli_bash_complete()
 {
+  local executable="${COMP_WORDS[0]}"
   local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
   local candidates
-  read -d '' -ra candidates < <(uipathcli complete --command "${COMP_LINE}" 2>/dev/null)
+  read -d '' -ra candidates < <($executable complete --command "${COMP_LINE}" 2>/dev/null)
   read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
 }
 complete -f -F _uipathcli_bash_complete uipathcli
@@ -91,11 +92,11 @@ profiles:
   - name: default
     uri: https://cloud.uipath.com
     auth:
-      clientId: <enter your client id here>
-      clientSecret: <enter your client secret here>
+      clientId: 
+      clientSecret: 
     path:
-      organization: <enter your organization name here>
-      tenant: <enter your tenant name here>
+      organization: 
+      tenant: 
 EOF
     echo "$config_content" > "$config_file"
     echo "$config_content"

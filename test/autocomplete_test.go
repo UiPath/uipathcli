@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -191,4 +192,103 @@ components:
 	if result.StdOut != expectedWords {
 		t.Errorf("Did not return the expected autocomplete words, expected: %v, got: %v", expectedWords, result.StdOut)
 	}
+}
+
+func TestAutocompleteAllFlagsMatch(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        short-description:
+          type: string
+        description:
+          type: string
+        other:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"complete", "--command", "uipathcli myservice post-validate --"}, context)
+
+	expectedWords := []string{
+		"--description",
+		"--other",
+		"--short-description",
+	}
+	actualWords := strings.Split(strings.Trim(result.StdOut, "\n"), "\n")
+	if !sameWords(actualWords, expectedWords) {
+		t.Errorf("Did not return the expected autocomplete words, expected: %v, got: %v", expectedWords, actualWords)
+	}
+}
+
+func TestAutocompleteExcludesAlreadySpecifiedFlag(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        short-description:
+          type: string
+        description:
+          type: string
+        other:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"complete", "--command", "uipathcli myservice post-validate --description \"my description\" --"}, context)
+
+	expectedWords := []string{
+		"--other",
+		"--short-description",
+	}
+	actualWords := strings.Split(strings.Trim(result.StdOut, "\n"), "\n")
+	if !sameWords(actualWords, expectedWords) {
+		t.Errorf("Did not return the expected autocomplete words, expected: %v, got: %v", expectedWords, result.StdOut)
+	}
+}
+
+func sameWords(actual []string, expected []string) bool {
+	if len(actual) != len(expected) {
+		return false
+	}
+
+	for _, word := range expected {
+		if !containsWord(actual, word) {
+			return false
+		}
+	}
+	return true
+}
+
+func containsWord(words []string, word string) bool {
+	for _, w := range words {
+		if w == word {
+			return true
+		}
+	}
+	return false
 }

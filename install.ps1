@@ -73,11 +73,11 @@ profiles:
   - name: default
     uri: https://cloud.uipath.com
     auth:
-      clientId: <enter your client id here>
-      clientSecret: <enter your client secret here>
+      clientId: 
+      clientSecret: 
     path:
-      organization: <enter your organization name here>
-      tenant: <enter your tenant name here>
+      organization: 
+      tenant: 
 "@
     Add-Content "$ConfigFile" "$content"
     return $content

@@ -222,8 +222,14 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 		Hidden: true,
 		Action: func(context *cli.Context) error {
 			commandText := context.String("command")
+			exclude := []string{
+				"--" + insecureFlagName,
+				"--" + debugFlagName,
+				"--" + profileFlagName,
+				"--" + uriFlagName,
+			}
 			handler := AutoCompleteHandler{}
-			words := handler.Find(commandText, commands)
+			words := handler.Find(commandText, commands, exclude)
 			for _, word := range words {
 				fmt.Fprintln(b.StdOut, word)
 			}

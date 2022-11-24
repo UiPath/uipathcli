@@ -9,7 +9,7 @@ import (
 type AutoCompleteHandler struct {
 }
 
-func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command) []string {
+func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command, exclude []string) []string {
 	words := strings.Split(commandText, " ")
 	if len(words) < 2 {
 		return []string{}
@@ -32,9 +32,9 @@ func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command) [
 
 	lastWord := words[len(words)-1]
 	if strings.HasPrefix(lastWord, "-") {
-		return a.searchFlags(strings.TrimLeft(lastWord, "-"), command)
+		return a.searchFlags(strings.TrimLeft(lastWord, "-"), command, append(exclude, words...))
 	}
-	return a.searchCommands(lastWord, command.Subcommands)
+	return a.searchCommands(lastWord, command.Subcommands, exclude)
 }
 
 func (a AutoCompleteHandler) findCommand(name string, commands []*cli.Command) *cli.Command {
@@ -46,7 +46,7 @@ func (a AutoCompleteHandler) findCommand(name string, commands []*cli.Command) *
 	return nil
 }
 
-func (a AutoCompleteHandler) searchCommands(word string, commands []*cli.Command) []string {
+func (a AutoCompleteHandler) searchCommands(word string, commands []*cli.Command, exclude []string) []string {
 	result := []string{}
 	for _, command := range commands {
 		if strings.HasPrefix(command.Name, word) {
@@ -58,10 +58,10 @@ func (a AutoCompleteHandler) searchCommands(word string, commands []*cli.Command
 			result = append(result, command.Name)
 		}
 	}
-	return a.removeDuplicates(result)
+	return a.removeDuplicates(a.removeExcluded(result, exclude))
 }
 
-func (a AutoCompleteHandler) searchFlags(word string, command *cli.Command) []string {
+func (a AutoCompleteHandler) searchFlags(word string, command *cli.Command, exclude []string) []string {
 	result := []string{}
 	for _, flag := range command.Flags {
 		flagNames := flag.Names()
@@ -79,7 +79,7 @@ func (a AutoCompleteHandler) searchFlags(word string, command *cli.Command) []st
 			}
 		}
 	}
-	return a.removeDuplicates(result)
+	return a.removeDuplicates(a.removeExcluded(result, exclude))
 }
 
 func (a AutoCompleteHandler) removeDuplicates(values []string) []string {
@@ -93,4 +93,23 @@ func (a AutoCompleteHandler) removeDuplicates(values []string) []string {
 		}
 	}
 	return result
+}
+
+func (a AutoCompleteHandler) removeExcluded(values []string, exclude []string) []string {
+	result := []string{}
+	for _, entry := range values {
+		if !a.contains(exclude, entry) {
+			result = append(result, entry)
+		}
+	}
+	return result
+}
+
+func (a AutoCompleteHandler) contains(values []string, value string) bool {
+	for _, v := range values {
+		if v == value {
+			return true
+		}
+	}
+	return false
 }
