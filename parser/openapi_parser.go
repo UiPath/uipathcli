@@ -91,11 +91,13 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	required := p.contains(requiredFieldnames, fieldName)
 	parameters := []Parameter{}
 	description := ""
+	var defaultValue interface{}
 	if schemaRef != nil {
 		description = schemaRef.Value.Description
+		defaultValue = schemaRef.Value.Default
 		parameters = p.parseSchemas(schemaRef.Value.Properties, in, schemaRef.Value.Required)
 	}
-	return *NewParameter(name, _type, description, in, fieldName, required, parameters)
+	return *NewParameter(name, _type, description, in, fieldName, required, defaultValue, parameters)
 }
 
 func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string) []Parameter {
@@ -129,10 +131,12 @@ func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	_type := p.getType(param.Schema)
 	required := param.Required
 	parameters := []Parameter{}
+	var defaultValue interface{}
 	if param.Schema != nil {
+		defaultValue = param.Schema.Value.Default
 		parameters = p.parseSchemas(param.Schema.Value.Properties, param.In, param.Schema.Value.Required)
 	}
-	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, parameters)
+	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, parameters)
 }
 
 func (p OpenApiParser) parseParameters(params openapi3.Parameters) []Parameter {

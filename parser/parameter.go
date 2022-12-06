@@ -1,13 +1,14 @@
 package parser
 
 type Parameter struct {
-	Name        string
-	Type        string
-	Description string
-	In          string
-	FieldName   string
-	Required    bool
-	Parameters  []Parameter
+	Name         string
+	Type         string
+	Description  string
+	In           string
+	FieldName    string
+	Required     bool
+	DefaultValue interface{}
+	Parameters   []Parameter
 }
 
 const (
@@ -32,6 +33,6 @@ const (
 	ParameterInForm   = "form"
 )
 
-func NewParameter(name string, t string, description string, in string, fieldName string, required bool, parameters []Parameter) *Parameter {
-	return &Parameter{name, t, description, in, fieldName, required, parameters}
+func NewParameter(name string, t string, description string, in string, fieldName string, required bool, defaultValue interface{}, parameters []Parameter) *Parameter {
+	return &Parameter{name, t, description, in, fieldName, required, defaultValue, parameters}
 }

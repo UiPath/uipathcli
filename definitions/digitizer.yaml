@@ -30,6 +30,7 @@ paths:
             enum:
               - '1'
             type: string
+            default: '1'
         - name: x-uipath-apply-ocr-on-pdf
           in: header
           description: 'Specify whether or not to apply OCR on PDFs. Defaults to **yes** if not specified. Supported options: **yes**, **no**, **auto**.'
@@ -94,7 +95,8 @@ paths:
           schema:
             enum:
               - '1'
-            type: string
+            type: string            
+            default: '1'
         - name: operationId
           in: path
           description: ID of the Digitization Operation.

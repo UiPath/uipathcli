@@ -37,6 +37,9 @@ func (b CommandBuilder) createExecutionParameters(context *cli.Context, in strin
 			}
 			parameter := executor.NewExecutionParameter(param.FieldName, value)
 			parameters = append(parameters, *parameter)
+		} else if param.In == in && param.Required && param.DefaultValue != nil {
+			parameter := executor.NewExecutionParameter(param.FieldName, param.DefaultValue)
+			parameters = append(parameters, *parameter)
 		}
 	}
 	for key, value := range additionalParameters {
@@ -111,6 +114,7 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	result := true
 	for _, parameter := range parameters {
 		if parameter.Required &&
+			parameter.DefaultValue == nil &&
 			context.String(parameter.Name) == "" &&
 			config.Path[parameter.Name] == "" &&
 			config.Query[parameter.Name] == "" &&

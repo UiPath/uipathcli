@@ -565,3 +565,96 @@ paths:
 		t.Errorf("Did not find content in body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestPostRequestWithDefaultValueWhenRequired(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  default: 'my-name'
+              required:
+                - firstName
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create"}, context)
+
+	expected := `{"firstName":"my-name"}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestOmitDefaultValueWhenOptional(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  default: 'first-name'
+                lastName:
+                  type: string
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create", "--last-name", "last-name"}, context)
+
+	expected := `{"lastName":"last-name"}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestIgnoreDefaultValueWhenProvided(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  default: 'my-name'
+              required:
+                - firstName
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create", "--first-name", "provided-name"}, context)
+
+	expected := `{"firstName":"provided-name"}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
