@@ -53,6 +53,10 @@ func (l HttpLogger) LogResponse(response *http.Response, debug bool) error {
 		fmt.Fprintf(l.Output, "%s %s\n", response.Proto, response.Status)
 		l.logHeaders(response.Header)
 	}
-	_, err := l.logBody(response.Body)
+
+	len, err := l.logBody(response.Body)
+	if len == 0 && response.StatusCode >= 400 {
+		fmt.Fprintf(l.Output, "%s %s\n", response.Proto, response.Status)
+	}
 	return err
 }

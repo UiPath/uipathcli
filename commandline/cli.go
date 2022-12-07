@@ -14,6 +14,7 @@ type Cli struct {
 	StdIn          io.Reader
 	StdOut         io.Writer
 	StdErr         io.Writer
+	ColoredOutput  bool
 	Parser         parser.Parser
 	ConfigProvider config.ConfigProvider
 	Executor       executor.Executor
@@ -64,10 +65,17 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 	return app.Run(args)
 }
 
+const colorRed = "\033[31m"
+const colorReset = "\033[0m"
+
 func (c Cli) Run(args []string, configData []byte, definitionData []DefinitionData) error {
 	err := c.run(args, configData, definitionData)
 	if err != nil {
-		fmt.Fprintln(c.StdErr, err.Error())
+		message := err.Error()
+		if c.ColoredOutput {
+			message = colorRed + err.Error() + colorReset
+		}
+		fmt.Fprintln(c.StdErr, message)
 	}
 	return err
 }

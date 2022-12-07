@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/UiPath/uipathcli/auth"
@@ -103,6 +104,13 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 	return authenticators
 }
 
+func colorsSupported() bool {
+	_, noColorSet := os.LookupEnv("NO_COLOR")
+	term, _ := os.LookupEnv("TERM")
+	omitColors := noColorSet || term == "dumb" || runtime.GOOS == "windows"
+	return !omitColors
+}
+
 func main() {
 	cfgFile, cfgData, err := readConfiguration()
 	if err != nil {
@@ -121,10 +129,11 @@ func main() {
 	}
 
 	cli := commandline.Cli{
-		StdIn:  os.Stdin,
-		StdOut: os.Stdout,
-		StdErr: os.Stderr,
-		Parser: parser.OpenApiParser{},
+		StdIn:         os.Stdin,
+		StdOut:        os.Stdout,
+		StdErr:        os.Stderr,
+		Parser:        parser.OpenApiParser{},
+		ColoredOutput: colorsSupported(),
 		ConfigProvider: config.ConfigProvider{
 			ConfigFileName: cfgFile,
 		},
