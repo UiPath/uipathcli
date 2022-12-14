@@ -52,6 +52,9 @@ paths:
                 file:
                   type: string
                   format: binary
+                  description: The file to digitize
+              required:
+                - file
             encoding:
               file:
                 style: form

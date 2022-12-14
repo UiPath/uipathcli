@@ -186,6 +186,63 @@ paths:
 	}
 }
 
+func TestHelpShowsParameterIsRequired(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: string
+                  description: This is my parameter
+              required:
+                - myparameter
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "This is my parameter (required)"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestHelpShowsParameterWithDefaultValue(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: string
+                  description: This is my parameter
+                  default: '1'
+              required:
+                - myparameter
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "This is my parameter (default: 1)"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
 func TestParameterWithoutType(t *testing.T) {
 	definition := `
 paths:

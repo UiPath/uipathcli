@@ -17,6 +17,7 @@ const insecureFlagName = "insecure"
 const debugFlagName = "debug"
 const profileFlagName = "profile"
 const uriFlagName = "uri"
+const helpFlagName = "help"
 
 type CommandBuilder struct {
 	StdIn          io.Reader
@@ -49,12 +50,27 @@ func (b CommandBuilder) createExecutionParameters(context *cli.Context, in strin
 	return parameters, nil
 }
 
+func (b CommandBuilder) parameterRequired(parameter parser.Parameter) bool {
+	return parameter.Required && parameter.DefaultValue == nil
+}
+
+func (b CommandBuilder) parameterDescription(parameter parser.Parameter) string {
+	required := b.parameterRequired(parameter)
+	if parameter.DefaultValue != nil {
+		return fmt.Sprintf("%s (default: %v)", parameter.Description, parameter.DefaultValue)
+	}
+	if required {
+		return fmt.Sprintf("%s (required)", parameter.Description)
+	}
+	return parameter.Description
+}
+
 func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 	flags := []cli.Flag{}
 	for _, parameter := range parameters {
 		flag := cli.StringFlag{
 			Name:  parameter.Name,
-			Usage: parameter.Description,
+			Usage: b.parameterDescription(parameter),
 		}
 		flags = append(flags, &flag)
 	}
@@ -131,6 +147,7 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 
 func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
 	flags := b.CreateDefaultFlags(true)
+	flags = append(flags, b.HelpFlag())
 	flags = append(flags, b.createFlags(operation.Parameters)...)
 
 	return &cli.Command{
@@ -196,6 +213,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			fmt.Fprintln(b.StdOut, output)
 			return nil
 		},
+		HideHelp: true,
 	}
 }
 
@@ -208,7 +226,11 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 	return &cli.Command{
 		Name:        definition.Name,
 		Description: definition.Description,
+		Flags: []cli.Flag{
+			b.HelpFlag(),
+		},
 		Subcommands: commands,
+		HideHelp:    true,
 	}
 }
 
@@ -222,6 +244,7 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 				Usage:  "The command to autocomplete",
 				Hidden: true,
 			},
+			b.HelpFlag(),
 		},
 		Hidden: true,
 		Action: func(context *cli.Context) error {
@@ -231,6 +254,7 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 				"--" + debugFlagName,
 				"--" + profileFlagName,
 				"--" + uriFlagName,
+				"--" + helpFlagName,
 			}
 			handler := AutoCompleteHandler{}
 			words := handler.Find(commandText, commands, exclude)
@@ -239,15 +263,19 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 			}
 			return nil
 		},
+		HideHelp: true,
 	}
 }
 
 func (b CommandBuilder) createConfigCommand() *cli.Command {
+	flags := b.CreateDefaultFlags(true)
+	flags = append(flags, b.HelpFlag())
+
 	return &cli.Command{
 		Name:        "config",
 		Description: "Interactive command to configure the CLI",
 		Hidden:      true,
-		Flags:       b.CreateDefaultFlags(true),
+		Flags:       flags,
 		Action: func(context *cli.Context) error {
 			profileName := context.String(profileFlagName)
 			handler := ConfigCommandHandler{
@@ -257,6 +285,7 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 			}
 			return handler.Configure(profileName)
 		},
+		HideHelp: true,
 	}
 }
 
@@ -300,5 +329,14 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Value:   false,
 			Hidden:  hidden,
 		},
+	}
+}
+
+func (b CommandBuilder) HelpFlag() cli.Flag {
+	return &cli.BoolFlag{
+		Name:   helpFlagName,
+		Usage:  "Show help",
+		Value:  false,
+		Hidden: true,
 	}
 }

@@ -3,8 +3,8 @@ module github.com/UiPath/uipathcli
 go 1.19
 
 require (
-	github.com/getkin/kin-openapi v0.108.0
-	github.com/urfave/cli/v2 v2.23.5
+	github.com/getkin/kin-openapi v0.110.0
+	github.com/urfave/cli/v2 v2.23.7
 	gopkg.in/yaml.v2 v2.4.0
 )
 

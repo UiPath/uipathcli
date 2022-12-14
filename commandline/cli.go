@@ -52,15 +52,16 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 	commands := CommandBuilder.Create(definitions)
 
 	app := &cli.App{
-		Name:        "uipath",
-		Usage:       "Command-Line Interface for UiPath Services",
-		UsageText:   "uipath <service> <operation> --parameter",
-		Version:     "1.0.0",
-		Flags:       flags,
-		Commands:    commands,
-		Writer:      c.StdOut,
-		ErrWriter:   c.StdErr,
-		HideVersion: true,
+		Name:            "uipathcli",
+		Usage:           "Command-Line Interface for UiPath Services",
+		UsageText:       "uipathcli <service> <operation> --parameter",
+		Version:         "1.0.0",
+		Flags:           flags,
+		Commands:        commands,
+		Writer:          c.StdOut,
+		ErrWriter:       c.StdErr,
+		HideVersion:     true,
+		HideHelpCommand: true,
 	}
 	return app.Run(args)
 }
