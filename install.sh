@@ -10,6 +10,7 @@
 # and sets up a default configuration.
 ############################################################
 
+set -o pipefail
 set -e
 
 ############################################################
@@ -30,6 +31,30 @@ function install_uipathcli()
 }
 
 ############################################################
+# Autocomplete snipped for uipathcli
+#
+# Returns:
+#   String containing the autocomplete snipped
+############################################################
+function get_autocomplete_script()
+{
+    local content=""
+    IFS='' read -r -d '' content <<"EOF"
+
+function _uipathcli_bash_complete()
+{
+  local executable="${COMP_WORDS[0]}"
+  local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
+  local candidates
+  read -d '' -ra candidates < <($executable complete --command "${COMP_LINE}" 2>/dev/null)
+  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
+}
+complete -f -F _uipathcli_bash_complete uipathcli
+EOF
+    echo "$content"
+}
+
+############################################################
 # Registers autocomplete for uipathcli in .bashrc
 ############################################################
 function enable_autocomplete()
@@ -43,18 +68,7 @@ function enable_autocomplete()
         return
     fi
     local profile_content=""
-    IFS='' read -r -d '' profile_content <<"EOF"
-
-function _uipathcli_bash_complete()
-{
-  local executable="${COMP_WORDS[0]}"
-  local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
-  local candidates
-  read -d '' -ra candidates < <($executable complete --command "${COMP_LINE}" 2>/dev/null)
-  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
-}
-complete -f -F _uipathcli_bash_complete uipathcli
-EOF
+    profile_content=$(get_autocomplete_script)
     echo "$profile_content" >> "$profile_file"
 }
 
@@ -68,6 +82,29 @@ function get_defaultconfigfile()
 {
     local config_file="$HOME/.uipathcli/config"
     echo "$config_file"
+}
+
+############################################################
+# Empty default config for uipathcli
+#
+# Returns:
+#   String containing the default config
+############################################################
+function get_defaultconfigcontent()
+{
+    local content=""
+    IFS='' read -r -d '' content <<"EOF"
+profiles:
+  - name: default
+    uri: https://cloud.uipath.com
+    auth:
+      clientId: 
+      clientSecret: 
+    path:
+      organization: 
+      tenant: 
+EOF
+    echo "$content"
 }
 
 ############################################################
@@ -87,17 +124,7 @@ function create_defaultconfigfile()
     mkdir -p "${config_file%/*}/"
 
     local config_content=""
-    IFS='' read -r -d '' config_content <<"EOF"
-profiles:
-  - name: default
-    uri: https://cloud.uipath.com
-    auth:
-      clientId: 
-      clientSecret: 
-    path:
-      organization: 
-      tenant: 
-EOF
+    config_content=$(get_defaultconfigcontent)
     echo "$config_content" > "$config_file"
     echo "$config_content"
 }
@@ -106,8 +133,6 @@ echo -e "Downloading and installing uipathcli..."
 
 install_uipathcli
 enable_autocomplete
-
-echo -e "Downloading service definitions..."
 
 config_file=$(get_defaultconfigfile)
 if [ ! -f "$config_file" ]
