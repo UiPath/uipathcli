@@ -32,13 +32,20 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 		Auth: map[string]interface{}{},
 		Path: map[string]string{},
 	}
-	newProfile := true
-	for _, p := range cp.profiles {
+	index := -1
+	for i, p := range cp.profiles {
 		if p.Name == profileName {
+			index = i
 			profile = p
-			newProfile = false
 		}
 	}
+	if profile.Auth == nil {
+		profile.Auth = map[string]interface{}{}
+	}
+	if profile.Path == nil {
+		profile.Path = map[string]string{}
+	}
+
 	if clientId != "" {
 		profile.Auth["clientId"] = clientId
 	}
@@ -51,8 +58,10 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 	if tenant != "" {
 		profile.Path["tenant"] = tenant
 	}
-	if newProfile {
+	if index == -1 {
 		cp.profiles = append(cp.profiles, profile)
+	} else {
+		cp.profiles[index] = profile
 	}
 
 	data, err := yaml.Marshal(profilesYaml{Profiles: cp.profiles})
