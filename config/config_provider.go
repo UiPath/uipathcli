@@ -3,11 +3,13 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
 
 const DefaultProfile = "default"
+const configFilePermissions = 0600
 
 type ConfigProvider struct {
 	profiles       []profileYaml
@@ -57,7 +59,11 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 	if err != nil {
 		return fmt.Errorf("Error updating configuration: %v", err)
 	}
-	err = os.WriteFile(cp.ConfigFileName, data, 0600)
+	err = os.MkdirAll(filepath.Dir(cp.ConfigFileName), configFilePermissions)
+	if err != nil {
+		return fmt.Errorf("Error creating configuration folder: %v", err)
+	}
+	err = os.WriteFile(cp.ConfigFileName, data, configFilePermissions)
 	if err != nil {
 		return fmt.Errorf("Error updating configuration file: %v", err)
 	}
