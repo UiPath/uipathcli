@@ -1,8 +1,8 @@
 # UiPath OpenAPI Command-Line-Interface
 
-The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services.
+The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
-The CLI works on Windows, Linux and MacOS.
+![](https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif)
 
 ## Install
 
