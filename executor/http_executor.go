@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"path"
 	"strings"
 
 	"github.com/UiPath/uipathcli/auth"
@@ -27,9 +28,11 @@ func RequestId() string {
 }
 
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
+	formatter := TypeFormatter{}
 	request.Header.Add("x-request-id", RequestId())
 	for _, parameter := range headerParameters {
-		request.Header.Add(parameter.Name, parameter.Value.(string))
+		headerValue := formatter.FormatHeader(parameter)
+		request.Header.Add(parameter.Name, headerValue)
 	}
 }
 
@@ -85,16 +88,21 @@ func (e HttpExecutor) createBody(bodyParameters []ExecutionParameter, formParame
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
+	formatter := TypeFormatter{}
 	normalizedPath := strings.Trim(baseUri.Path, "/")
 	normalizedRoute := strings.Trim(route, "/")
-	uri := fmt.Sprintf("%s://%s/%s/%s", baseUri.Scheme, baseUri.Host, normalizedPath, normalizedRoute)
+	path := path.Join(normalizedPath, normalizedRoute)
+
+	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
 	for _, parameter := range pathParameters {
-		uri = strings.Replace(uri, "{"+parameter.Name+"}", parameter.Value.(string), -1)
+		pathValue := formatter.FormatPath(parameter)
+		uri = strings.Replace(uri, "{"+parameter.Name+"}", pathValue, -1)
 	}
 
 	querySeparator := "?"
 	for _, parameter := range queryParameters {
-		uri = uri + querySeparator + parameter.Name + "=" + url.QueryEscape(parameter.Value.(string))
+		queryStringValue := formatter.FormatQueryString(parameter)
+		uri = uri + querySeparator + queryStringValue
 		querySeparator = "&"
 	}
 

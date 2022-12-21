@@ -379,6 +379,31 @@ paths:
 	}
 }
 
+func TestRemoveDollarSignInParameter(t *testing.T) {
+	definition := `
+paths:
+  /data:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                $top:
+                  type: integer
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-data", "--help"}, context)
+
+	expected := "--top"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not remove dollar sign from parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
 func TestBodyParameterArray(t *testing.T) {
 	definition := `
 paths:

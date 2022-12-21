@@ -78,6 +78,11 @@ func (p OpenApiParser) getSchemaType(schema openapi3.Schema) string {
 	}
 }
 
+func (p OpenApiParser) getParameterName(fieldName string) string {
+	name := ToSnakeCase(fieldName)
+	return strings.ReplaceAll(name, "$", "")
+}
+
 func (p OpenApiParser) getType(schemaRef *openapi3.SchemaRef) string {
 	if schemaRef == nil {
 		return ParameterTypeString
@@ -86,7 +91,7 @@ func (p OpenApiParser) getType(schemaRef *openapi3.SchemaRef) string {
 }
 
 func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaRef, in string, requiredFieldnames []string) Parameter {
-	name := ToSnakeCase(fieldName)
+	name := p.getParameterName(fieldName)
 	_type := p.getType(schemaRef)
 	required := p.contains(requiredFieldnames, fieldName)
 	parameters := []Parameter{}
@@ -127,7 +132,7 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	fieldName := param.Name
-	name := ToSnakeCase(fieldName)
+	name := p.getParameterName(fieldName)
 	_type := p.getType(param.Schema)
 	required := param.Required
 	parameters := []Parameter{}

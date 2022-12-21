@@ -202,6 +202,246 @@ paths:
 	}
 }
 
+func TestRequestWithPathParameterArray(t *testing.T) {
+	t.Run("StringArray", func(t *testing.T) {
+		RequestWithPathParameterArray(t, "string", "val1,val2", "val1,val2")
+	})
+	t.Run("IntegerArray", func(t *testing.T) {
+		RequestWithPathParameterArray(t, "integer", "1,4", "1,4")
+	})
+	t.Run("NumberArray", func(t *testing.T) {
+		RequestWithPathParameterArray(t, "number", "0.5,0.1,1.3", "0.5,0.1,1.3")
+	})
+	t.Run("BooleanArray", func(t *testing.T) {
+		RequestWithPathParameterArray(t, "boolean", "true,false,true", "true,false,true")
+	})
+}
+
+func RequestWithPathParameterArray(t *testing.T, itemsType string, argument string, pathValue string) {
+	definition := `
+paths:
+  /ping/{ids}:
+    parameters:
+    - name: ids
+      in: path
+      required: true
+      description: The ids
+      schema:
+        type: array
+        items:
+          type: ` + itemsType + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--ids", argument}, context)
+
+	expected := "/ping/" + pathValue
+	if result.RequestUrl != expected {
+		t.Errorf("Invalid request url, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestRequestWithHeaderParameterArray(t *testing.T) {
+	t.Run("StringArray", func(t *testing.T) {
+		RequestWithHeaderParameterArray(t, "string", "val1,val2", "val1,val2")
+	})
+	t.Run("IntegerArray", func(t *testing.T) {
+		RequestWithHeaderParameterArray(t, "integer", "1,4", "1,4")
+	})
+	t.Run("NumberArray", func(t *testing.T) {
+		RequestWithHeaderParameterArray(t, "number", "0.5,0.1,1.3", "0.5,0.1,1.3")
+	})
+	t.Run("BooleanArray", func(t *testing.T) {
+		RequestWithHeaderParameterArray(t, "boolean", "true,false,true", "true,false,true")
+	})
+}
+
+func RequestWithHeaderParameterArray(t *testing.T, itemsType string, argument string, headerValue string) {
+	definition := `
+paths:
+  /ping:
+    parameters:
+    - name: ids
+      in: header
+      required: true
+      description: The ids
+      schema:
+        type: array
+        items:
+          type: ` + itemsType + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--ids", argument}, context)
+
+	header := result.RequestHeader["ids"]
+	if header != headerValue {
+		t.Errorf("Invalid header value, expected: %v, got: %v", headerValue, header)
+	}
+}
+
+func TestRequestWithQueryStringParameterArray(t *testing.T) {
+	t.Run("StringArray", func(t *testing.T) {
+		RequestWithQueryStringParameterArray(t, "string", "val1,val2", "id=val1%2Cid=val2")
+	})
+	t.Run("IntegerArray", func(t *testing.T) {
+		RequestWithQueryStringParameterArray(t, "integer", "1,4", "id=1%2Cid=4")
+	})
+	t.Run("NumberArray", func(t *testing.T) {
+		RequestWithQueryStringParameterArray(t, "number", "0.5,0.1,1.3", "id=0.5%2Cid=0.1%2Cid=1.3")
+	})
+	t.Run("BooleanArray", func(t *testing.T) {
+		RequestWithQueryStringParameterArray(t, "boolean", "true,false,true", "id=true%2Cid=false%2Cid=true")
+	})
+}
+
+func RequestWithQueryStringParameterArray(t *testing.T, itemsType string, argument string, queryStringValue string) {
+	definition := `
+paths:
+  /ping:
+    parameters:
+    - name: id
+      in: query
+      required: true
+      description: The id
+      schema:
+        type: array
+        items:
+          type: ` + itemsType + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--id", argument}, context)
+
+	expected := "/ping?" + queryStringValue
+	if result.RequestUrl != expected {
+		t.Errorf("Invalid request url, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestRequestWithPathParameterDataTypes(t *testing.T) {
+	t.Run("String", func(t *testing.T) { RequestWithPathParameterDataType(t, "string", "myvalue", "myvalue") })
+	t.Run("Integer", func(t *testing.T) { RequestWithPathParameterDataType(t, "integer", "0", "0") })
+	t.Run("Number", func(t *testing.T) { RequestWithPathParameterDataType(t, "number", "0.5", "0.5") })
+	t.Run("Boolean", func(t *testing.T) { RequestWithPathParameterDataType(t, "boolean", "true", "true") })
+}
+
+func RequestWithPathParameterDataType(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /ping/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: The id
+      schema:
+        type: ` + datatype + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--id", argument}, context)
+
+	expected := `/ping/` + value
+	if result.RequestUrl != expected {
+		t.Errorf("Invalid request url, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestRequestWithQueryStringDataTypes(t *testing.T) {
+	t.Run("String", func(t *testing.T) { RequestWithQueryStringDataTypes(t, "string", "myvalue", "myvalue") })
+	t.Run("Integer", func(t *testing.T) { RequestWithQueryStringDataTypes(t, "integer", "0", "0") })
+	t.Run("Number", func(t *testing.T) { RequestWithQueryStringDataTypes(t, "number", "0.5", "0.5") })
+	t.Run("Boolean", func(t *testing.T) { RequestWithQueryStringDataTypes(t, "boolean", "true", "true") })
+}
+
+func RequestWithQueryStringDataTypes(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /ping:
+    parameters:
+    - name: filter
+      in: query
+      required: true
+      description: The filter
+      schema:
+        type: ` + datatype + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--filter", argument}, context)
+
+	expected := `/ping?filter=` + value
+	if result.RequestUrl != expected {
+		t.Errorf("Invalid request url, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestRequestWithHeaderDataTypes(t *testing.T) {
+	t.Run("String", func(t *testing.T) { RequestWithHeaderDataTypes(t, "string", "myvalue", "myvalue") })
+	t.Run("Integer", func(t *testing.T) { RequestWithHeaderDataTypes(t, "integer", "0", "0") })
+	t.Run("Number", func(t *testing.T) { RequestWithHeaderDataTypes(t, "number", "0.5", "0.5") })
+	t.Run("Boolean", func(t *testing.T) { RequestWithHeaderDataTypes(t, "boolean", "true", "true") })
+}
+
+func RequestWithHeaderDataTypes(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /ping:
+    parameters:
+    - name: x-header
+      in: header
+      required: true
+      description: The filter
+      schema:
+        type: ` + datatype + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--x-header", argument}, context)
+
+	header := result.RequestHeader["x-header"]
+	if header != value {
+		t.Errorf("Invalid header value, expected: %v, got: %v", value, header)
+	}
+}
+
 func TestPostRequestDataTypes(t *testing.T) {
 	t.Run("String", func(t *testing.T) { PostRequestDataType(t, "string", "myvalue", "\"myvalue\"") })
 	t.Run("Integer", func(t *testing.T) { PostRequestDataType(t, "integer", "0", "0") })
