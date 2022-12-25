@@ -11,21 +11,22 @@ import (
 	"time"
 )
 
-const cachePermissions = 0600
+const cacheFilePermissions = 0600
+const cacheDirectoryPermissions = 0700
 const cacheDirectory = "uipathcli"
 const separator = "|"
 
 type FileCache struct{}
 
-func (c FileCache) Get(key string) string {
+func (c FileCache) Get(key string) (string, float32) {
 	expiry, value, err := c.readValue(key)
 	if err != nil {
-		return ""
+		return "", 0
 	}
-	if expiry < time.Now().Unix() {
-		return ""
+	if expiry < time.Now().Unix()+30 {
+		return "", 0
 	}
-	return value
+	return value, float32(expiry)
 }
 
 func (c FileCache) Set(key string, value string, expiresIn float32) {
@@ -33,9 +34,9 @@ func (c FileCache) Set(key string, value string, expiresIn float32) {
 	if err != nil {
 		return
 	}
-	expires := time.Now().Unix() + int64(expiresIn) - 30
+	expires := time.Now().Unix() + int64(expiresIn)
 	data := []byte(fmt.Sprintf("%d%s%s", expires, separator, value))
-	os.WriteFile(path, data, cachePermissions)
+	os.WriteFile(path, data, cacheFilePermissions)
 }
 
 func (c FileCache) readValue(key string) (int64, string, error) {
@@ -65,7 +66,7 @@ func (c FileCache) cacheFilePath(key string) (string, error) {
 		return "", err
 	}
 	cacheDirectory := filepath.Join(userCacheDirectory, cacheDirectory)
-	os.MkdirAll(cacheDirectory, cachePermissions)
+	os.MkdirAll(cacheDirectory, cacheDirectoryPermissions)
 
 	hash := sha256.Sum256([]byte(key))
 	fileName := fmt.Sprintf("%x.cache", hash)

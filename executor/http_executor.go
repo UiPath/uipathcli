@@ -96,7 +96,7 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
 	for _, parameter := range pathParameters {
 		pathValue := formatter.FormatPath(parameter)
-		uri = strings.Replace(uri, "{"+parameter.Name+"}", pathValue, -1)
+		uri = strings.ReplaceAll(uri, "{"+parameter.Name+"}", pathValue)
 	}
 
 	querySeparator := "?"

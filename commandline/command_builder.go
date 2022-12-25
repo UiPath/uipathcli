@@ -268,8 +268,21 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 }
 
 func (b CommandBuilder) createConfigCommand() *cli.Command {
-	flags := b.CreateDefaultFlags(true)
-	flags = append(flags, b.HelpFlag())
+	authFlagName := "auth"
+	flags := []cli.Flag{
+		&cli.StringFlag{
+			Name:  authFlagName,
+			Value: CredentialsAuth,
+			Usage: fmt.Sprintf("Type of authorization: %s, %s", CredentialsAuth, LoginAuth),
+		},
+		&cli.StringFlag{
+			Name:    profileFlagName,
+			Usage:   "Profile to configure",
+			EnvVars: []string{"UIPATH_PROFILE"},
+			Value:   config.DefaultProfile,
+		},
+		b.HelpFlag(),
+	}
 
 	return &cli.Command{
 		Name:        "config",
@@ -277,13 +290,14 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 		Hidden:      true,
 		Flags:       flags,
 		Action: func(context *cli.Context) error {
+			auth := context.String(authFlagName)
 			profileName := context.String(profileFlagName)
 			handler := ConfigCommandHandler{
 				StdIn:          b.StdIn,
 				StdOut:         b.StdOut,
 				ConfigProvider: b.ConfigProvider,
 			}
-			return handler.Configure(profileName)
+			return handler.Configure(auth, profileName)
 		},
 		HideHelp: true,
 	}

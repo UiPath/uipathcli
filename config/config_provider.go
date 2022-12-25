@@ -10,6 +10,7 @@ import (
 
 const DefaultProfile = "default"
 const configFilePermissions = 0600
+const configDirectoryPermissions = 0700
 
 type ConfigProvider struct {
 	profiles       []profileYaml
@@ -26,11 +27,9 @@ func (cp *ConfigProvider) Load(data []byte) error {
 	return nil
 }
 
-func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecret string, organization string, tenant string) error {
+func (cp *ConfigProvider) Update(profileName string, auth map[string]interface{}, path map[string]string) error {
 	profile := profileYaml{
 		Name: profileName,
-		Auth: map[string]interface{}{},
-		Path: map[string]string{},
 	}
 	index := -1
 	for i, p := range cp.profiles {
@@ -39,25 +38,9 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 			profile = p
 		}
 	}
-	if profile.Auth == nil {
-		profile.Auth = map[string]interface{}{}
-	}
-	if profile.Path == nil {
-		profile.Path = map[string]string{}
-	}
+	profile.Auth = auth
+	profile.Path = path
 
-	if clientId != "" {
-		profile.Auth["clientId"] = clientId
-	}
-	if clientSecret != "" {
-		profile.Auth["clientSecret"] = clientSecret
-	}
-	if organization != "" {
-		profile.Path["organization"] = organization
-	}
-	if tenant != "" {
-		profile.Path["tenant"] = tenant
-	}
 	if index == -1 {
 		cp.profiles = append(cp.profiles, profile)
 	} else {
@@ -68,7 +51,7 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 	if err != nil {
 		return fmt.Errorf("Error updating configuration: %v", err)
 	}
-	err = os.MkdirAll(filepath.Dir(cp.ConfigFileName), configFilePermissions)
+	err = os.MkdirAll(filepath.Dir(cp.ConfigFileName), configDirectoryPermissions)
 	if err != nil {
 		return fmt.Errorf("Error creating configuration folder: %v", err)
 	}
@@ -80,6 +63,18 @@ func (cp *ConfigProvider) Update(profileName string, clientId string, clientSecr
 }
 
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
+	if profile.Auth == nil {
+		profile.Auth = map[string]interface{}{}
+	}
+	if profile.Path == nil {
+		profile.Path = map[string]string{}
+	}
+	if profile.Header == nil {
+		profile.Header = map[string]string{}
+	}
+	if profile.Query == nil {
+		profile.Query = map[string]string{}
+	}
 	return Config{
 		Uri:    profile.Uri.URL,
 		Path:   profile.Path,
@@ -94,6 +89,11 @@ func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 	}
 }
 
+func (cp ConfigProvider) New() Config {
+	profile := profileYaml{}
+	return cp.convertToConfig(profile)
+}
+
 func (cp ConfigProvider) Config(name string) *Config {
 	for _, profile := range cp.profiles {
 		if profile.Name == name {
@@ -103,7 +103,8 @@ func (cp ConfigProvider) Config(name string) *Config {
 	}
 
 	if name == DefaultProfile {
-		return &Config{}
+		config := cp.New()
+		return &config
 	}
 	return nil
 }

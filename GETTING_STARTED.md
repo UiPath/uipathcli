@@ -2,7 +2,7 @@
 
 The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
-![](https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif)
+<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif" width="80%"/>
 
 ## Install
 
@@ -22,7 +22,22 @@ curl -sL https://du-nst-cdn.azureedge.net/uipathcli/install.sh | bash
 
 ## Configuration
 
-You can run the interative configuration:
+The CLI supports multiple ways to authorize with the UiPath services:
+- **Client credentials**: Generate secret and configure the CLI to use these long-term credentials
+
+- **OAuth login**: Login to UiPath using your browser and SSO of choice: Microsoft Login, Google Login, LinkedIn, Custom SSO or simple username/password. No need to manage any credentials.
+
+### Client Credentials
+
+In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret).
+
+1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
+
+2. Click `Add Application`
+
+3. Fill out the fields: Applicaton Name, Application Type: `Confidential application` and add the scopes you want to assign to your credentials. Click `Save` and the app id (`clientId`) and app secret (`clientSecret`) should be displayed. 
+
+4. Run the interactive CLI configuration:
 
 ```bash
 uipathcli config
@@ -55,6 +70,40 @@ Response:
   "version": "22.11-20-main.v0b5ce6",
   "timestamp": "2022-11-24T09:46:57.3190592Z"
 }
+```
+
+### OAuth Login
+
+In order to use oauth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
+1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
+
+2. Click `Add Application`
+
+3. Fill out the fields: Applicaton Name, Application Type: `Non-Confidential application`, Add scopes and set redirect url to `http://localhost:12700`
+
+4. Run the interactive CLI configuration:
+
+```bash
+uipathcli config --auth login
+```
+
+The CLI will ask you to enter the main config settings like
+- `clientId`, `redirectUri` and `scopes` to start the OAuth flow
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+
+```
+Enter client id [*******9026]: <your-external-application-id>
+Enter redirect uri [not set]: http://localhost:12700
+Enter scopes [not set]: OR.Users
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Successfully configured uipathcli
+```
+
+5. After that the CLI should be ready and you can validate that it is working by invoking one of the services:
+
+```bash
+uipathcli orchestrator Users_Get
 ```
 
 ### Configuration File

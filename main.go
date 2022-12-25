@@ -97,6 +97,9 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 			Config: *auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
 		})
 	}
+	authenticators = append(authenticators, auth.OAuthAuthenticator{
+		Cache: cache.FileCache{},
+	})
 	authenticators = append(authenticators, auth.BearerAuthenticator{
 		Cache: cache.FileCache{},
 	})

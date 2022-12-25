@@ -26,16 +26,16 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	}
 
 	identityClient := identityClient(a)
-	tokenRequest := newTokenRequest(
+	tokenRequest := newClientCredentialTokenRequest(
 		fmt.Sprintf("%s://%s/identity_", url.Scheme, url.Host),
 		config.ClientId,
 		config.ClientSecret,
 		ctx.Insecure)
-	token, err := identityClient.GetToken(*tokenRequest)
+	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %v", err))
 	}
-	ctx.Request.Header["Authorization"] = "Bearer " + token
+	ctx.Request.Header["Authorization"] = "Bearer " + tokenResponse.AccessToken
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 }
 
