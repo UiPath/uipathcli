@@ -4,6 +4,7 @@ import (
 	"net/url"
 
 	"github.com/UiPath/uipathcli/config"
+	"github.com/UiPath/uipathcli/plugin"
 )
 
 type ExecutionContext struct {
@@ -18,6 +19,7 @@ type ExecutionContext struct {
 	AuthConfig       config.AuthConfig
 	Insecure         bool
 	Debug            bool
+	Plugin           plugin.CommandPlugin
 }
 
 func NewExecutionContext(
@@ -31,6 +33,7 @@ func NewExecutionContext(
 	formParameters []ExecutionParameter,
 	authConfig config.AuthConfig,
 	insecure bool,
-	debug bool) *ExecutionContext {
-	return &ExecutionContext{method, uri, route, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug}
+	debug bool,
+	plugin plugin.CommandPlugin) *ExecutionContext {
+	return &ExecutionContext{method, uri, route, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug, plugin}
 }

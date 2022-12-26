@@ -15,6 +15,7 @@ import (
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
+	"github.com/UiPath/uipathcli/plugin"
 )
 
 type ContextBuilder struct {
@@ -59,6 +60,11 @@ func (b *ContextBuilder) WithResponseHeader(header map[string]string) *ContextBu
 	return b
 }
 
+func (b *ContextBuilder) WithCommandPlugin(commandPlugin plugin.CommandPlugin) *ContextBuilder {
+	b.context.CommandPlugin = commandPlugin
+	return b
+}
+
 func (b *ContextBuilder) Build() Context {
 	return b.context
 }
@@ -77,6 +83,7 @@ type Context struct {
 	ResponseHeader map[string]string
 	ResponseBody   string
 	Identity       IdentityContext
+	CommandPlugin  plugin.CommandPlugin
 }
 
 type Result struct {
@@ -154,6 +161,20 @@ func runCli(args []string, context Context) Result {
 
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
+	authenticators := []auth.Authenticator{
+		auth.PatAuthenticator{},
+		auth.OAuthAuthenticator{
+			Cache: cache.FileCache{},
+		},
+		auth.BearerAuthenticator{
+			Cache: cache.FileCache{},
+		},
+	}
+	commandPlugins := []plugin.CommandPlugin{}
+	if context.CommandPlugin != nil {
+		commandPlugins = append(commandPlugins, context.CommandPlugin)
+	}
+
 	cli := commandline.Cli{
 		StdIn:  context.StdIn,
 		StdOut: stdout,
@@ -163,16 +184,12 @@ func runCli(args []string, context Context) Result {
 			ConfigFileName: configFile,
 		},
 		Executor: executor.HttpExecutor{
-			Authenticators: []auth.Authenticator{
-				auth.PatAuthenticator{},
-				auth.OAuthAuthenticator{
-					Cache: cache.FileCache{},
-				},
-				auth.BearerAuthenticator{
-					Cache: cache.FileCache{},
-				},
-			},
+			Authenticators: authenticators,
 		},
+		PluginExecutor: executor.PluginExecutor{
+			Authenticators: authenticators,
+		},
+		CommandPlugins: commandPlugins,
 	}
 	data := []commandline.DefinitionData{
 		*commandline.NewDefinitionData(context.DefinitionName, []byte(context.DefinitionData)),

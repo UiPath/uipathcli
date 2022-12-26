@@ -24,6 +24,7 @@ type CommandBuilder struct {
 	StdOut         io.Writer
 	ConfigProvider config.ConfigProvider
 	Executor       executor.Executor
+	PluginExecutor executor.Executor
 }
 
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
@@ -145,6 +146,13 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
+func (b CommandBuilder) executeCommand(context executor.ExecutionContext) (string, error) {
+	if context.Plugin != nil {
+		return b.PluginExecutor.Call(context)
+	}
+	return b.Executor.Call(context)
+}
+
 func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
 	flags := b.CreateDefaultFlags(true)
 	flags = append(flags, b.HelpFlag())
@@ -205,8 +213,9 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				formParameters,
 				config.Auth,
 				insecure,
-				debug)
-			output, err := b.Executor.Call(*executionContext)
+				debug,
+				operation.Plugin)
+			output, err := b.executeCommand(*executionContext)
 			if err != nil {
 				return err
 			}
@@ -214,6 +223,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			return nil
 		},
 		HideHelp: true,
+		Hidden:   operation.Hidden,
 	}
 }
 

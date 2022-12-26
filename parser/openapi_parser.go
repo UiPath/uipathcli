@@ -161,7 +161,7 @@ func (p OpenApiParser) parseOperationParameters(operation openapi3.Operation, ro
 
 func (p OpenApiParser) parseOperation(method string, route string, operation openapi3.Operation, routeParameters openapi3.Parameters) Operation {
 	name := p.getName(method, route, operation)
-	return *NewOperation(name, operation.Summary, method, route, p.parseOperationParameters(operation, routeParameters))
+	return *NewOperation(name, operation.Summary, method, route, p.parseOperationParameters(operation, routeParameters), nil, false)
 }
 
 func (p OpenApiParser) parsePath(route string, pathItem openapi3.PathItem) []Operation {

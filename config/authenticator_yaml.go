@@ -1,4 +1,4 @@
-package plugins
+package config
 
 type authenticatorYaml struct {
 	Name string `yaml:"name"`

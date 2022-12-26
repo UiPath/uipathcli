@@ -14,7 +14,8 @@ import (
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
-	"github.com/UiPath/uipathcli/plugins"
+	"github.com/UiPath/uipathcli/plugin"
+	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 )
 
 const DefinitionsDirectory = "definitions"
@@ -71,7 +72,7 @@ func readConfiguration() (string, []byte, error) {
 	return filename, data, nil
 }
 
-func readPlugins() (*plugins.Config, error) {
+func readPlugins() (*config.PluginConfig, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("Error reading plugins file: %v", err)
@@ -86,11 +87,11 @@ func readPlugins() (*plugins.Config, error) {
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("Error reading plugins file '%s': %v", filename, err)
 	}
-	config_provider := plugins.ConfigProvider{}
+	config_provider := config.PluginConfigProvider{}
 	return config_provider.Parse(data)
 }
 
-func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
+func authenticators(pluginsCfg *config.PluginConfig) []auth.Authenticator {
 	authenticators := []auth.Authenticator{}
 	for _, authenticator := range pluginsCfg.Authenticators {
 		authenticators = append(authenticators, auth.ExternalAuthenticator{
@@ -132,6 +133,7 @@ func main() {
 		os.Exit(133)
 	}
 
+	authenticators := authenticators(pluginsCfg)
 	cli := commandline.Cli{
 		StdIn:         os.Stdin,
 		StdOut:        os.Stdout,
@@ -142,7 +144,14 @@ func main() {
 			ConfigFileName: cfgFile,
 		},
 		Executor: executor.HttpExecutor{
-			Authenticators: authenticators(pluginsCfg),
+			Authenticators: authenticators,
+		},
+		PluginExecutor: executor.PluginExecutor{
+			Authenticators: authenticators,
+		},
+		CommandPlugins: []plugin.CommandPlugin{
+			plugin_digitizer.DigitizeCommand{},
+			plugin_digitizer.StatusCommand{},
 		},
 	}
 
