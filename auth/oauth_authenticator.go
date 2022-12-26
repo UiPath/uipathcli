@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"os/exec"
 	"runtime"
 	"time"
@@ -29,7 +30,11 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
 	}
-	token, err := a.retrieveToken(*requestUrl, *config, ctx.Insecure)
+	identityBaseUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
+	if err != nil {
+		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+	}
+	token, err := a.retrieveToken(*identityBaseUri, *config, ctx.Insecure)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %v", err))
 	}
@@ -37,9 +42,8 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 }
 
-func (a OAuthAuthenticator) retrieveToken(requestUrl url.URL, config OAuthAuthenticatorConfig, insecure bool) (string, error) {
-	identityBaseUri := fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host)
-	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s", identityBaseUri, config.ClientId, config.Scopes)
+func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config OAuthAuthenticatorConfig, insecure bool) (string, error) {
+	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.Scopes)
 	token, _ := a.Cache.Get(cacheKey)
 	if token != "" {
 		return token, nil
@@ -69,7 +73,7 @@ func (a OAuthAuthenticator) retrieveToken(requestUrl url.URL, config OAuthAuthen
 	return tokenResponse.AccessToken, nil
 }
 
-func (a OAuthAuthenticator) login(identityBaseUri string, config OAuthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
+func (a OAuthAuthenticator) login(identityBaseUri url.URL, config OAuthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
@@ -105,14 +109,15 @@ func (a OAuthAuthenticator) login(identityBaseUri string, config OAuthAuthentica
 	}()
 
 	loginUrl := fmt.Sprintf("%s/connect/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&code_challenge=%s&code_challenge_method=S256&state=%s",
-		identityBaseUri,
+		identityBaseUri.String(),
 		url.QueryEscape(config.ClientId),
 		url.QueryEscape(config.RedirectUrl.String()),
 		url.QueryEscape(config.Scopes),
 		url.QueryEscape(codeChallenge),
 		url.QueryEscape(state))
-	fmt.Println("Go to URL and perform login:\n" + loginUrl)
-	a.openBrowser(loginUrl)
+	if err := a.openBrowser(loginUrl); err != nil {
+		fmt.Fprintln(os.Stderr, "Go to URL and perform login:\n"+loginUrl)
+	}
 
 	<-ctx.Done()
 

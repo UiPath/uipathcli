@@ -23,29 +23,19 @@ type AuthConfig struct {
 const organizationKey = "organization"
 const tenantKey = "tenant"
 
-func (a Config) Organization() string {
-	return a.Path[organizationKey]
-}
-
-func (a Config) Tenant() string {
-	return a.Path[tenantKey]
-}
-
-func (a Config) ConfigureOrgTenant(organization string, tenant string) bool {
-	if organization != "" {
-		a.Path[organizationKey] = organization
-	}
-	if tenant != "" {
-		a.Path[tenantKey] = tenant
-	}
-
-	return organization != "" || tenant != ""
-}
-
 const clientIdKey = "clientId"
 const clientSecretKey = "clientSecret"
 const redirectUriKey = "redirectUri"
 const scopesKey = "scopes"
+const patKey = "pat"
+
+func (c Config) Organization() string {
+	return c.Path[organizationKey]
+}
+
+func (c Config) Tenant() string {
+	return c.Path[tenantKey]
+}
 
 func (c Config) ClientId() string {
 	clientId := c.Auth.Config[clientIdKey]
@@ -79,8 +69,40 @@ func (c Config) Scopes() string {
 	return fmt.Sprintf("%v", scopes)
 }
 
+func (c Config) Pat() string {
+	pat := c.Auth.Config[patKey]
+	if pat == nil {
+		return ""
+	}
+	return fmt.Sprintf("%v", pat)
+}
+
+func (c Config) ConfigureOrgTenant(organization string, tenant string) bool {
+	if organization != "" {
+		c.Path[organizationKey] = organization
+	}
+	if tenant != "" {
+		c.Path[tenantKey] = tenant
+	}
+
+	return organization != "" || tenant != ""
+}
+
+func (c Config) ConfigurePatAuth(pat string) bool {
+	delete(c.Auth.Config, clientIdKey)
+	delete(c.Auth.Config, clientSecretKey)
+	delete(c.Auth.Config, redirectUriKey)
+	delete(c.Auth.Config, scopesKey)
+
+	if pat != "" {
+		c.Auth.Config[patKey] = pat
+	}
+	return pat != ""
+}
+
 func (c Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes string) bool {
 	delete(c.Auth.Config, clientSecretKey)
+	delete(c.Auth.Config, patKey)
 
 	if clientId != "" {
 		c.Auth.Config[clientIdKey] = clientId
@@ -98,6 +120,7 @@ func (c Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes s
 func (c Config) ConfigureCredentialsAuth(clientId string, clientSecret string) bool {
 	delete(c.Auth.Config, redirectUriKey)
 	delete(c.Auth.Config, scopesKey)
+	delete(c.Auth.Config, patKey)
 
 	if clientId != "" {
 		c.Auth.Config[clientIdKey] = clientId

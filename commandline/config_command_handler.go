@@ -17,9 +17,11 @@ type ConfigCommandHandler struct {
 
 const notSetMessage = "not set"
 const maskMessage = "*******"
+const successMessage = "Successfully configured uipathcli"
 
 const CredentialsAuth = "credentials"
 const LoginAuth = "login"
+const PatAuth = "pat"
 
 func (h ConfigCommandHandler) Configure(auth string, profileName string) error {
 	switch auth {
@@ -27,30 +29,33 @@ func (h ConfigCommandHandler) Configure(auth string, profileName string) error {
 		return h.configureCredentials(profileName)
 	case LoginAuth:
 		return h.configureLogin(profileName)
+	case PatAuth:
+		return h.configurePat(profileName)
 	}
-	return fmt.Errorf("Invalid auth, supported values: %s, %s", CredentialsAuth, LoginAuth)
+	return fmt.Errorf("Invalid auth, supported values: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth)
 }
 
 func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
+	reader := bufio.NewReader(h.StdIn)
 
 	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
-	clientId, err := h.readUserInput(message)
+	clientId, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter client secret [%s]:", h.getDisplayValue(config.ClientSecret(), true))
-	clientSecret, err := h.readUserInput(message)
+	clientSecret, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
-	organization, err := h.readUserInput(message)
+	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
-	tenant, err := h.readUserInput(message)
+	tenant, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
@@ -63,36 +68,37 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, "Successfully configured uipathcli")
+		fmt.Fprintln(h.StdOut, successMessage)
 	}
 	return nil
 }
 
 func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
+	reader := bufio.NewReader(h.StdIn)
 
 	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
-	clientId, err := h.readUserInput(message)
+	clientId, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter redirect uri [%s]:", h.getDisplayValue(config.RedirectUri(), false))
-	redirectUri, err := h.readUserInput(message)
+	redirectUri, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter scopes [%s]:", h.getDisplayValue(config.Scopes(), false))
-	scopes, err := h.readUserInput(message)
+	scopes, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
-	organization, err := h.readUserInput(message)
+	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
 	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
-	tenant, err := h.readUserInput(message)
+	tenant, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
@@ -105,7 +111,40 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, "Successfully configured uipathcli")
+		fmt.Fprintln(h.StdOut, successMessage)
+	}
+	return nil
+}
+
+func (h ConfigCommandHandler) configurePat(profileName string) error {
+	config := h.getOrCreateProfile(profileName)
+	reader := bufio.NewReader(h.StdIn)
+
+	message := fmt.Sprintf("Enter personal access token [%s]:", h.getDisplayValue(config.Pat(), true))
+	pat, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
+	organization, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
+	tenant, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+
+	authChanged := config.ConfigurePatAuth(pat)
+	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
+
+	if authChanged || orgTenantChanged {
+		err = h.ConfigProvider.Update(profileName, config.Auth.Config, config.Path)
+		if err != nil {
+			return err
+		}
+		fmt.Fprintln(h.StdOut, successMessage)
 	}
 	return nil
 }
@@ -135,8 +174,7 @@ func (h ConfigCommandHandler) maskValue(value string) string {
 	return maskMessage + value[len(value)-4:]
 }
 
-func (h ConfigCommandHandler) readUserInput(message string) (string, error) {
-	reader := bufio.NewReader(h.StdIn)
+func (h ConfigCommandHandler) readUserInput(message string, reader *bufio.Reader) (string, error) {
 	fmt.Fprint(h.StdOut, message+" ")
 	value, err := reader.ReadString('\n')
 	if err != nil {

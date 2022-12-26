@@ -97,14 +97,15 @@ func authenticators(pluginsCfg *plugins.Config) []auth.Authenticator {
 			Config: *auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
 		})
 	}
-	authenticators = append(authenticators, auth.OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	})
-	authenticators = append(authenticators, auth.BearerAuthenticator{
-		Cache: cache.FileCache{},
-	})
-
-	return authenticators
+	return append(authenticators,
+		auth.PatAuthenticator{},
+		auth.OAuthAuthenticator{
+			Cache: cache.FileCache{},
+		},
+		auth.BearerAuthenticator{
+			Cache: cache.FileCache{},
+		},
+	)
 }
 
 func colorsSupported() bool {

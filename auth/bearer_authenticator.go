@@ -24,10 +24,14 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
 	}
+	identityBaseUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", url.Scheme, url.Host))
+	if err != nil {
+		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+	}
 
 	identityClient := identityClient(a)
 	tokenRequest := newClientCredentialTokenRequest(
-		fmt.Sprintf("%s://%s/identity_", url.Scheme, url.Host),
+		*identityBaseUri,
 		config.ClientId,
 		config.ClientSecret,
 		ctx.Insecure)

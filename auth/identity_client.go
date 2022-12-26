@@ -41,9 +41,9 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	return response, nil
 }
 
-func (c identityClient) retrieveToken(baseUri string, form url.Values, insecure bool) (*tokenResponse, error) {
-	uri := baseUri + TokenRoute
-	request, err := http.NewRequest("POST", uri, strings.NewReader(form.Encode()))
+func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, insecure bool) (*tokenResponse, error) {
+	uri := baseUri.JoinPath(TokenRoute)
+	request, err := http.NewRequest("POST", uri.String(), strings.NewReader(form.Encode()))
 	if err != nil {
 		return nil, fmt.Errorf("Error preparing request: %v", err)
 	}
@@ -75,8 +75,9 @@ func (c identityClient) retrieveToken(baseUri string, form url.Values, insecure 
 }
 
 func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
-	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s",
-		tokenRequest.BaseUri,
+	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s|%s",
+		tokenRequest.BaseUri.Scheme,
+		tokenRequest.BaseUri.Hostname(),
 		tokenRequest.GrantType,
 		tokenRequest.ClientId,
 		tokenRequest.ClientSecret,

@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
+	"os"
 	"strings"
 
 	"github.com/UiPath/uipathcli/auth"
@@ -36,9 +38,19 @@ func (b *ContextBuilder) WithConfig(config string) *ContextBuilder {
 	return b
 }
 
+func (b *ContextBuilder) WithStdIn(input bytes.Buffer) *ContextBuilder {
+	b.context.StdIn = &input
+	return b
+}
+
 func (b *ContextBuilder) WithResponse(statusCode int, body string) *ContextBuilder {
 	b.context.ResponseStatus = statusCode
 	b.context.ResponseBody = body
+	return b
+}
+
+func (b *ContextBuilder) WithIdentityResponse(statusCode int, body string) *ContextBuilder {
+	b.context.Identity = IdentityContext{statusCode, body}
 	return b
 }
 
@@ -51,13 +63,20 @@ func (b *ContextBuilder) Build() Context {
 	return b.context
 }
 
+type IdentityContext struct {
+	ResponseStatus int
+	ResponseBody   string
+}
+
 type Context struct {
 	Config         string
+	StdIn          *bytes.Buffer
 	DefinitionName string
 	DefinitionData string
 	ResponseStatus int
 	ResponseHeader map[string]string
 	ResponseBody   string
+	Identity       IdentityContext
 }
 
 type Result struct {
@@ -67,6 +86,30 @@ type Result struct {
 	RequestUrl    string
 	RequestHeader map[string]string
 	RequestBody   string
+	ConfigFile    string
+}
+
+func handleIdentityTokenRequest(context Context, request *http.Request, response http.ResponseWriter) {
+	body, _ := io.ReadAll(request.Body)
+	requestBody := string(body)
+	data, _ := url.ParseQuery(requestBody)
+	if len(data["client_id"]) != 1 || data["client_id"][0] == "" {
+		response.WriteHeader(400)
+		response.Write([]byte("client_id is missing"))
+		return
+	}
+	if len(data["client_secret"]) != 1 || data["client_secret"][0] == "" {
+		response.WriteHeader(400)
+		response.Write([]byte("client_secret is missing"))
+		return
+	}
+	if len(data["grant_type"]) != 1 || data["grant_type"][0] != "client_credentials" {
+		response.WriteHeader(400)
+		response.Write([]byte("Invalid grant_type"))
+		return
+	}
+	response.WriteHeader(context.Identity.ResponseStatus)
+	response.Write([]byte(context.Identity.ResponseBody))
 }
 
 func runCli(args []string, context Context) Result {
@@ -76,6 +119,11 @@ func runCli(args []string, context Context) Result {
 
 	if context.ResponseStatus != 0 {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.URL.String() == "/identity_/connect/token" {
+				handleIdentityTokenRequest(context, r, w)
+				return
+			}
+
 			requestUrl = r.URL.String()
 			body, _ := io.ReadAll(r.Body)
 			requestBody = string(body)
@@ -95,15 +143,31 @@ func runCli(args []string, context Context) Result {
 		args = append(args, "--uri", srv.URL)
 	}
 
+	configFile := ""
+	if context.StdIn != nil {
+		tempFile, _ := os.CreateTemp("", "uipathcli-test-config")
+		configFile = tempFile.Name()
+	}
+	if configFile != "" && context.Config != "" {
+		os.WriteFile(configFile, []byte(context.Config), 0600)
+	}
+
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	cli := commandline.Cli{
-		StdOut:         stdout,
-		StdErr:         stderr,
-		Parser:         parser.OpenApiParser{},
-		ConfigProvider: config.ConfigProvider{},
+		StdIn:  context.StdIn,
+		StdOut: stdout,
+		StdErr: stderr,
+		Parser: parser.OpenApiParser{},
+		ConfigProvider: config.ConfigProvider{
+			ConfigFileName: configFile,
+		},
 		Executor: executor.HttpExecutor{
 			Authenticators: []auth.Authenticator{
+				auth.PatAuthenticator{},
+				auth.OAuthAuthenticator{
+					Cache: cache.FileCache{},
+				},
 				auth.BearerAuthenticator{
 					Cache: cache.FileCache{},
 				},
@@ -123,5 +187,6 @@ func runCli(args []string, context Context) Result {
 		RequestUrl:    requestUrl,
 		RequestHeader: requestHeader,
 		RequestBody:   requestBody,
+		ConfigFile:    configFile,
 	}
 }

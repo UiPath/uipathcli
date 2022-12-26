@@ -23,9 +23,11 @@ curl -sL https://du-nst-cdn.azureedge.net/uipathcli/install.sh | bash
 ## Configuration
 
 The CLI supports multiple ways to authorize with the UiPath services:
-- **Client credentials**: Generate secret and configure the CLI to use these long-term credentials
+- **Client Credentials**: Generate secret and configure the CLI to use these long-term credentials.
 
-- **OAuth login**: Login to UiPath using your browser and SSO of choice: Microsoft Login, Google Login, LinkedIn, Custom SSO or simple username/password. No need to manage any credentials.
+- **OAuth Login**: Login to UiPath using your browser and SSO of choice: Microsoft Login, Google Login, LinkedIn, Custom SSO or simple username/password. No need to manage any credentials.
+
+- **Personal Access Token**: Generate a PAT and configure the CLI to use the access token.
 
 ### Client Credentials
 
@@ -35,9 +37,11 @@ In order to use client credentials, you need to set up an [External Application 
 
 2. Click `Add Application`
 
-3. Fill out the fields: Applicaton Name, Application Type: `Confidential application` and add the scopes you want to assign to your credentials. Click `Save` and the app id (`clientId`) and app secret (`clientSecret`) should be displayed. 
+3. Fill out the fields: Application Name, Application Type: `Confidential application` and add the scopes you want to assign to your credentials.
 
-4. Run the interactive CLI configuration:
+4. Click `Save` and the app id (`clientId`) and app secret (`clientSecret`) should be displayed.
+
+5. Run the interactive CLI configuration:
 
 ```bash
 uipathcli config
@@ -79,9 +83,11 @@ In order to use oauth login, you need to set up an [External Application (Non-Co
 
 2. Click `Add Application`
 
-3. Fill out the fields: Applicaton Name, Application Type: `Non-Confidential application`, Add scopes and set redirect url to `http://localhost:12700`
+3. Fill out the fields: Application Name, Application Type: `Non-Confidential application`, Add scopes and set redirect url to `http://localhost:12700`
 
-4. Run the interactive CLI configuration:
+4. Click `Add` and note the application id.
+
+5. Run the interactive CLI configuration:
 
 ```bash
 uipathcli config --auth login
@@ -105,6 +111,37 @@ Successfully configured uipathcli
 ```bash
 uipathcli orchestrator Users_Get
 ```
+
+### Personal Access Token
+
+You need to generate a personal access token (PAT) and configure the CLI to use it:
+
+1. Go to https://cloud.uipath.com/your-org/portal_/personalAccessToken
+
+2. Click `Generate new token`
+
+3. Give your token a name, set an expiry date and add the scopes you want to assign to your token.
+
+5. Click `Save` and make sure you copy the generated token.
+
+4. Run the interactive CLI configuration:
+
+```bash
+uipathcli config -- auth pat
+```
+
+The CLI will ask you to enter the main config settings like
+- `pat` your personal access token
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+
+```
+Enter personal access token [*******9026]: <your-pat>
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Successfully configured uipathcli
+```
+
+After that the CLI should be ready and you can validate that it is working by invoking one of the services.
 
 ### Configuration File
 

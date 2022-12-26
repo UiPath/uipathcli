@@ -273,7 +273,7 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 		&cli.StringFlag{
 			Name:  authFlagName,
 			Value: CredentialsAuth,
-			Usage: fmt.Sprintf("Type of authorization: %s, %s", CredentialsAuth, LoginAuth),
+			Usage: fmt.Sprintf("Type of authorization: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth),
 		},
 		&cli.StringFlag{
 			Name:    profileFlagName,

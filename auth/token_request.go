@@ -1,7 +1,9 @@
 package auth
 
+import "net/url"
+
 type tokenRequest struct {
-	BaseUri      string
+	BaseUri      url.URL
 	GrantType    string
 	ClientId     string
 	ClientSecret string
@@ -11,10 +13,10 @@ type tokenRequest struct {
 	Insecure     bool
 }
 
-func newClientCredentialTokenRequest(baseUri string, clientId string, clientSecret string, insecure bool) *tokenRequest {
+func newClientCredentialTokenRequest(baseUri url.URL, clientId string, clientSecret string, insecure bool) *tokenRequest {
 	return &tokenRequest{baseUri, "client_credentials", clientId, clientSecret, "", "", "", insecure}
 }
 
-func newAuthorizationCodeTokenRequest(baseUri string, clientId string, code string, codeVerifier string, redirectUrl string, insecure bool) *tokenRequest {
+func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, code string, codeVerifier string, redirectUrl string, insecure bool) *tokenRequest {
 	return &tokenRequest{baseUri, "authorization_code", clientId, "", code, codeVerifier, redirectUrl, insecure}
 }
