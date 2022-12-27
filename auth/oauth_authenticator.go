@@ -115,9 +115,10 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config OAuthAuthentic
 		url.QueryEscape(config.Scopes),
 		url.QueryEscape(codeChallenge),
 		url.QueryEscape(state))
-	if err := a.openBrowser(loginUrl); err != nil {
-		fmt.Fprintln(os.Stderr, "Go to URL and perform login:\n"+loginUrl)
-	}
+
+	go func(url string) {
+		a.openBrowser(url)
+	}(loginUrl)
 
 	<-ctx.Done()
 
@@ -163,16 +164,44 @@ func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, n
 	return result, nil
 }
 
+func (a OAuthAuthenticator) showBrowserLink(url string) {
+	fmt.Fprintln(os.Stderr, "Go to URL and perform login:\n"+url)
+}
+
 func (a OAuthAuthenticator) openBrowser(url string) error {
+	var cmd *exec.Cmd
+
 	switch runtime.GOOS {
 	case "windows":
-		return exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
 	case "linux":
-		return exec.Command("xdg-open", url).Start()
+		cmd = exec.Command("xdg-open", url)
 	case "darwin":
-		return exec.Command("open", url).Start()
+		cmd = exec.Command("open", url)
+	default:
+		a.showBrowserLink(url)
+		return fmt.Errorf("Platform not supported: %s", runtime.GOOS)
 	}
-	return fmt.Errorf("Platform not supported: %s", runtime.GOOS)
+
+	err := cmd.Start()
+	if err != nil {
+		a.showBrowserLink(url)
+		return err
+	}
+	done := make(chan error)
+	go func() {
+		done <- cmd.Wait()
+	}()
+
+	select {
+	case err := <-done:
+		if err != nil {
+			a.showBrowserLink(url)
+		}
+		return err
+	case <-time.After(5 * time.Second):
+		return nil
+	}
 }
 
 func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
