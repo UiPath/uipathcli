@@ -2,6 +2,7 @@ package commandline
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/UiPath/uipathcli/plugin"
 )
@@ -12,8 +13,9 @@ func (c SimplePluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-plugin-command", "This is a simple plugin command", []plugin.CommandParameter{}, false)
 }
 
-func (c SimplePluginCommand) Execute(context plugin.ExecutionContext) (string, error) {
-	return "Simple plugin command output", nil
+func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+	output.Write([]byte("Simple plugin command output"))
+	return nil
 }
 
 type ContextPluginCommand struct {
@@ -26,9 +28,10 @@ func (c ContextPluginCommand) Command() plugin.Command {
 	}, false)
 }
 
-func (c *ContextPluginCommand) Execute(context plugin.ExecutionContext) (string, error) {
+func (c *ContextPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
 	c.Context = context
-	return "Success", nil
+	output.Write([]byte("Success"))
+	return nil
 }
 
 type ErrorPluginCommand struct{}
@@ -37,8 +40,8 @@ func (c ErrorPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-failed-command", "This command always fails", []plugin.CommandParameter{}, false)
 }
 
-func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext) (string, error) {
-	return "", fmt.Errorf("Internal server error when calling mypluginservice")
+func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+	return fmt.Errorf("Internal server error when calling mypluginservice")
 }
 
 type HideOperationPluginCommand struct{}
@@ -47,8 +50,8 @@ func (c HideOperationPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-hidden-command", "This command should not be shown", []plugin.CommandParameter{}, true)
 }
 
-func (c HideOperationPluginCommand) Execute(context plugin.ExecutionContext) (string, error) {
-	return "", fmt.Errorf("my-hidden-command is not supported")
+func (c HideOperationPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+	return fmt.Errorf("my-hidden-command is not supported")
 }
 
 type ParametrizedPluginCommand struct{}
@@ -59,6 +62,7 @@ func (c ParametrizedPluginCommand) Command() plugin.Command {
 	}, false)
 }
 
-func (c ParametrizedPluginCommand) Execute(context plugin.ExecutionContext) (string, error) {
-	return "Parametrized plugin command output", nil
+func (c ParametrizedPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+	output.Write([]byte("Parametrized plugin command output"))
+	return nil
 }

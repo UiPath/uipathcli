@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 type HttpExecutor struct {
@@ -141,14 +143,14 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 
-func (e HttpExecutor) Call(context ExecutionContext) (string, error) {
+func (e HttpExecutor) Call(context ExecutionContext, output io.Writer) error {
 	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
 	if err != nil {
-		return "", err
+		return err
 	}
 	body, contentType, err := e.createBody(context.BodyParameters, context.FormParameters)
 	if err != nil {
-		return "", err
+		return err
 	}
 	request, err := http.NewRequest(context.Method, uri.String(), bytes.NewReader(body))
 	if contentType != "" {
@@ -156,11 +158,11 @@ func (e HttpExecutor) Call(context ExecutionContext) (string, error) {
 	}
 	e.addHeaders(request, context.HeaderParameters)
 	if err != nil {
-		return "", fmt.Errorf("Error preparing request: %v", err)
+		return fmt.Errorf("Error preparing request: %v", err)
 	}
 	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
 	if err != nil {
-		return "", err
+		return err
 	}
 	for k, v := range auth.RequestHeader {
 		request.Header.Add(k, v)
@@ -170,21 +172,22 @@ func (e HttpExecutor) Call(context ExecutionContext) (string, error) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: context.Insecure},
 	}
 	client := &http.Client{Transport: transport}
-	logger := HttpLogger{
-		Output: &bytes.Buffer{},
+	logger := utils.HttpLogger{
+		Output: output,
+		Debug:  context.Debug,
 	}
-	err = logger.LogRequest(request, bytes.NewReader(body), context.Debug)
+	err = logger.LogRequest(request)
 	if err != nil {
-		return "", err
+		return err
 	}
 	response, err := e.send(client, request)
 	if err != nil {
-		return "", fmt.Errorf("Error sending request: %v", err)
+		return fmt.Errorf("Error sending request: %v", err)
 	}
 	defer response.Body.Close()
-	err = logger.LogResponse(response, context.Debug)
+	err = logger.LogResponse(response)
 	if err != nil {
-		return "", err
+		return err
 	}
-	return logger.Output.String(), nil
+	return nil
 }

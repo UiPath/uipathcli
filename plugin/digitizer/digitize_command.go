@@ -10,8 +10,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 type DigitizeCommand struct{}
@@ -22,33 +22,49 @@ func (c DigitizeCommand) Command() plugin.Command {
 	}, false)
 }
 
-func (c DigitizeCommand) Execute(context plugin.ExecutionContext) (string, error) {
-	operationId, err := c.digitize(context)
+func (c DigitizeCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+	logger := utils.HttpLogger{
+		Output: output,
+		Debug:  context.Debug,
+	}
+	operationId, err := c.digitize(context, &logger)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	for i := 1; i <= 60; i++ {
-		result, err := c.waitForDigitization(operationId, context)
+		finished, err := c.waitForDigitization(operationId, context, &logger)
 		if err != nil {
-			return "", err
+			return err
 		}
-		if result != "" {
-			return result, nil
+		if finished {
+			return nil
 		}
 		time.Sleep(1 * time.Second)
 	}
-	return "", fmt.Errorf("Digitization with operationId '%s' did not finish in time", operationId)
+	return fmt.Errorf("Digitization with operationId '%s' did not finish in time", operationId)
 }
 
-func (c DigitizeCommand) digitize(context plugin.ExecutionContext) (string, error) {
+func (c DigitizeCommand) digitize(context plugin.ExecutionContext, logger *utils.HttpLogger) (string, error) {
 	request, err := c.createDigitizeRequest(context)
 	if err != nil {
 		return "", err
 	}
+	if context.Debug {
+		err = logger.LogRequest(request)
+		if err != nil {
+			return "", err
+		}
+	}
 	response, err := c.sendRequest(request, context.Insecure)
 	if err != nil {
 		return "", fmt.Errorf("Error sending request: %v", err)
+	}
+	if context.Debug {
+		err = logger.LogResponse(response)
+		if err != nil {
+			return "", err
+		}
 	}
 	defer response.Body.Close()
 	data, err := io.ReadAll(response.Body)
@@ -66,38 +82,47 @@ func (c DigitizeCommand) digitize(context plugin.ExecutionContext) (string, erro
 	return result.OperationId, nil
 }
 
-func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.ExecutionContext) (string, error) {
+func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.ExecutionContext, logger *utils.HttpLogger) (bool, error) {
 	request, err := c.createDigitizeStatusRequest(operationId, context)
 	if err != nil {
-		return "", err
+		return true, err
+	}
+	if context.Debug {
+		err = logger.LogRequest(request)
+		if err != nil {
+			return true, err
+		}
 	}
 	response, err := c.sendRequest(request, context.Insecure)
 	if err != nil {
-		return "", fmt.Errorf("Error sending request: %v", err)
+		return true, fmt.Errorf("Error sending request: %v", err)
+	}
+	if context.Debug {
+		err = logger.LogResponse(response)
+		if err != nil {
+			return true, err
+		}
 	}
 	defer response.Body.Close()
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error reading response: %v", err)
+		return true, fmt.Errorf("Error reading response: %v", err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(data))
+		return true, fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(data))
 	}
 	var result digitizeStatusResponse
 	err = json.Unmarshal(data, &result)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %v", err)
+		return true, fmt.Errorf("Error parsing json response: %v", err)
 	}
 	if result.Status == "NotStarted" || result.Status == "Running" {
-		return "", nil
+		return false, nil
 	}
-
-	output := bytes.Buffer{}
-	err = json.Indent(&output, data, "", "  ")
-	if err != nil {
-		return string(data), nil
+	if !context.Debug {
+		logger.LogBody(bytes.NewBuffer(data))
 	}
-	return output.String(), nil
+	return true, nil
 }
 
 func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext) (*http.Request, error) {
@@ -154,7 +179,7 @@ func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context
 	return request, nil
 }
 
-func (c DigitizeCommand) createBody(file executor.FileReference) ([]byte, string, error) {
+func (c DigitizeCommand) createBody(file plugin.FileParameter) ([]byte, string, error) {
 	var b bytes.Buffer
 	writer := multipart.NewWriter(&b)
 	w, err := writer.CreateFormFile("file", file.Filename)
@@ -188,11 +213,11 @@ func (c DigitizeCommand) getParameter(name string, parameters []plugin.Execution
 	return "", fmt.Errorf("Could not find '%s' parameter", name)
 }
 
-func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) (*executor.FileReference, error) {
+func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) (*plugin.FileParameter, error) {
 	for _, p := range parameters {
 		if p.Name == "file" {
-			if fileReference, ok := p.Value.(executor.FileReference); ok {
-				return &fileReference, nil
+			if fileParameter, ok := p.Value.(plugin.FileParameter); ok {
+				return &fileParameter, nil
 			}
 		}
 	}

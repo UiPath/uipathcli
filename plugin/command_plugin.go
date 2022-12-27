@@ -1,6 +1,8 @@
 package plugin
 
+import "io"
+
 type CommandPlugin interface {
 	Command() Command
-	Execute(context ExecutionContext) (string, error)
+	Execute(context ExecutionContext, output io.Writer) error
 }

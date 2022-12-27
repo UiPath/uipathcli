@@ -2,6 +2,7 @@ package executor
 
 import (
 	"errors"
+	"io"
 	"net/url"
 
 	"github.com/UiPath/uipathcli/auth"
@@ -32,7 +33,12 @@ func (e PluginExecutor) executeAuthenticators(baseUri url.URL, authConfig config
 func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParameter) []plugin.ExecutionParameter {
 	result := []plugin.ExecutionParameter{}
 	for _, parameter := range parameters {
-		result = append(result, *plugin.NewExecutionParameter(parameter.Name, parameter.Value))
+		name := parameter.Name
+		value := parameter.Value
+		if fileReference, ok := parameter.Value.(FileReference); ok {
+			value = *plugin.NewFileParameter(fileReference.Filename, fileReference.Data)
+		}
+		result = append(result, *plugin.NewExecutionParameter(name, value))
 	}
 	return result
 }
@@ -52,10 +58,10 @@ func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthRe
 	}
 }
 
-func (e PluginExecutor) Call(context ExecutionContext) (string, error) {
+func (e PluginExecutor) Call(context ExecutionContext, output io.Writer) error {
 	auth, err := e.executeAuthenticators(context.BaseUri, context.AuthConfig, context.Debug, context.Insecure)
 	if err != nil {
-		return "", err
+		return err
 	}
 
 	pluginAuth := e.pluginAuth(auth)
@@ -66,5 +72,5 @@ func (e PluginExecutor) Call(context ExecutionContext) (string, error) {
 		pluginParams,
 		context.Insecure,
 		context.Debug)
-	return context.Plugin.Execute(*pluginContext)
+	return context.Plugin.Execute(*pluginContext, output)
 }

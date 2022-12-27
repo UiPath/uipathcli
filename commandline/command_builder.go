@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/url"
 	"strings"
+	"sync"
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -146,11 +147,11 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
-func (b CommandBuilder) executeCommand(context executor.ExecutionContext) (string, error) {
+func (b CommandBuilder) executeCommand(context executor.ExecutionContext, output io.Writer) error {
 	if context.Plugin != nil {
-		return b.PluginExecutor.Call(context)
+		return b.PluginExecutor.Call(context, output)
 	}
-	return b.Executor.Call(context)
+	return b.Executor.Call(context, output)
 }
 
 func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
@@ -215,12 +216,23 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				insecure,
 				debug,
 				operation.Plugin)
-			output, err := b.executeCommand(*executionContext)
-			if err != nil {
-				return err
-			}
-			fmt.Fprintln(b.StdOut, output)
-			return nil
+
+			var wg sync.WaitGroup
+			wg.Add(2)
+			reader, writer := io.Pipe()
+			go func(reader *io.PipeReader) {
+				defer wg.Done()
+				io.Copy(b.StdOut, reader)
+			}(reader)
+
+			go func(context executor.ExecutionContext, output io.WriteCloser) {
+				defer wg.Done()
+				defer output.Close()
+				err = b.executeCommand(context, output)
+			}(*executionContext, writer)
+
+			wg.Wait()
+			return err
 		},
 		HideHelp: true,
 		Hidden:   operation.Hidden,
