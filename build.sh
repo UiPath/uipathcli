@@ -4,7 +4,7 @@ set -e
 echo "Copying OpenAPI definitions"
 mkdir -p build/definitions
 cp definitions/* build/definitions/
-cp GETTING_STARTED.md build/README.md
+cp README.md build/README.md
 
 echo "Building linux executable"
 GOOS=linux GOARCH=386 go build -o build/uipathcli

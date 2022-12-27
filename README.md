@@ -1,94 +1,333 @@
 # UiPath OpenAPI Command-Line-Interface
 
-The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services.
+The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
-CLI operations and arguments are generated based OpenAPI 3 documents. OpenAPI documents for new services can be dropped in the `definitions` folder and will be automatically picked up and displayed in the CLI.
+<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif" width="80%"/>
 
-Executuables are available for Windows, Linux and MacOS.
+## Install
 
-## Usage
-
-For more details about how to use the CLI, take a look at the [Getting Started](GETTING_STARTED.md) guide.
-
-## Prerequisites
-
-- [Go Compiler](https://go.dev/dl/)
-
-## Build
-
-You can build an excutable for your current platform using the standard go build command:
+In order to get started quickly, you can run the install scripts for windows and linux:
 
 ### Windows
-```powershell
-go build .
-
-.\uipathcli.exe --help
-```
-
-### Linux
-```bash
-go build .
-
-./uipathcli --help
-```
-
-## Test
-
-The following command runs the tests with detailed debug output:
-
-```bash
-go test -v ./...
-```
-
-## FAQ
-
-### How to cross-compile the CLI?
-
-You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on Windows and the Bash script (`build.sh`) on Linux:
 
 ```powershell
-# Cross-compile the CLI on Windows for all supported platforms
-.\build.ps1
+. { iwr https://du-nst-cdn.azureedge.net/uipathcli/install.ps1 } | iex
+```
 
-# Generates
-# - build/uipathcli        for Linux
-# - build/uipathcli.exe    for Windows
-# - build/uipathcli.osx    for MacOS
+### Linux/MacOS
 
-# Run the CLI (on windows)
-.\build\uipathcli.exe --help
+```bash
+curl -sL https://du-nst-cdn.azureedge.net/uipathcli/install.sh | bash
+```
+
+## Configuration
+
+The CLI supports multiple ways to authorize with the UiPath services:
+- **Client Credentials**: Generate secret and configure the CLI to use these long-term credentials.
+
+- **OAuth Login**: Login to UiPath using your browser and SSO of choice: Microsoft Login, Google Login, LinkedIn, Custom SSO or simple username/password. No need to manage any credentials.
+
+- **Personal Access Token**: Generate a PAT and configure the CLI to use the access token.
+
+### Client Credentials
+
+In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret).
+
+1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
+
+2. Click `Add Application`
+
+3. Fill out the fields: Application Name, Application Type: `Confidential application` and add the scopes you want to assign to your credentials.
+
+4. Click `Save` and the app id (`clientId`) and app secret (`clientSecret`) should be displayed.
+
+5. Run the interactive CLI configuration:
+
+```bash
+uipathcli config
+```
+
+The CLI will ask you to enter the main config settings like
+- `clientId` and `clientSecret` to retrieve the JWT bearer token for authentication
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+
+```
+Enter client id [*******9026]: <your-client-id>
+Enter client secret [*******pcnN]: <your-client-secret>
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Successfully configured uipathcli
+```
+
+After that the CLI should be ready and you can validate that it is working by invoking one of the services:
+
+```bash
+uipathcli metering ping
+```
+
+Response:
+```json
+{
+  "location": "westeurope",
+  "serverRegion": "westeurope",
+  "clusterId": "du-prod-du-we-g-dns",
+  "version": "22.11-20-main.v0b5ce6",
+  "timestamp": "2022-11-24T09:46:57.3190592Z"
+}
+```
+
+### OAuth Login
+
+In order to use oauth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
+1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
+
+2. Click `Add Application`
+
+3. Fill out the fields: Application Name, Application Type: `Non-Confidential application`, Add scopes and set redirect url to `http://localhost:12700`
+
+4. Click `Add` and note the application id.
+
+5. Run the interactive CLI configuration:
+
+```bash
+uipathcli config --auth login
+```
+
+The CLI will ask you to enter the main config settings like
+- `clientId`, `redirectUri` and `scopes` to start the OAuth flow
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+
+```
+Enter client id [*******9026]: <your-external-application-id>
+Enter redirect uri [not set]: http://localhost:12700
+Enter scopes [not set]: OR.Users
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Successfully configured uipathcli
+```
+
+5. After that the CLI should be ready and you can validate that it is working by invoking one of the services:
+
+```bash
+uipathcli orchestrator Users_Get
+```
+
+### Personal Access Token
+
+You need to generate a personal access token (PAT) and configure the CLI to use it:
+
+1. Go to https://cloud.uipath.com/your-org/portal_/personalAccessToken
+
+2. Click `Generate new token`
+
+3. Give your token a name, set an expiry date and add the scopes you want to assign to your token.
+
+5. Click `Save` and make sure you copy the generated token.
+
+4. Run the interactive CLI configuration:
+
+```bash
+uipathcli config -- auth pat
+```
+
+The CLI will ask you to enter the main config settings like
+- `pat` your personal access token
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+
+```
+Enter personal access token [*******9026]: <your-pat>
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Successfully configured uipathcli
+```
+
+After that the CLI should be ready and you can validate that it is working by invoking one of the services.
+
+### Configuration File
+
+You can also manually create or edit the configuration file `.uipathcli/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant in the route for services which require it.
+
+```bash
+cat <<EOT > $HOME/.uipathcli/config
+---
+profiles:
+  - name: default
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+    path:
+      organization: <organization-name>
+      tenant: <tenant-name>
+EOT
+```
+
+Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
+
+```bash
+./uipathcli metering ping
+```
+
+## Commands and arguments
+
+CLI commands consist of three main parts:
+
+```bash
+./uipathcli <service-name> <operation-name> <arguments>
+```
+
+- `<service-name>`: The CLI discovers the existing OpenAPI specifications and shows each of them as a separate service
+- `<operation-name>`: The operation typically represents the route to call
+- `<arguments>`: A list of arguments which are used as request parameters (in the path, header, querystring or body)
+
+Example:
+
+```bash
+./uipathcli metering validate --product-name "DU" --model-name "my-model"
+```
+
+### Basic arguments
+
+The CLI supports string, integer, floating point and boolean arguments. The arguments are automatically converted to the type defined in the OpenAPI specification:
+
+```bash
+./uipathcli product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
+```
+
+### Array arguments
+
+Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean and object arrays.
+
+```bash
+./uipathcli product list --name-filter "my-product,new-product"
+```
+
+### Nested Object arguments
+
+More complex nested objects can be passed as semi-colon separated list of property assigments:
+
+```bash
+./uipathcli product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
+```
+
+The command creates the following JSON body in the HTTP request:
+
+```json
+{
+  "product": {
+    "name": "my-product",
+    "price": {
+      "value": 340,
+      "sale": {
+        "discount": 10,
+        "value": 306
+      }
+    }
+  }
+}
+```
+### File Upload arguments
+
+File content can be uploaded directly from a command line argument. The following command will upload a file with the content `hello-world`:
+
+```bash
+./uipathcli digitizer digitize --api-version 1 --file "hello-world"
+```
+
+CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
+
+```bash
+./uipathcli digitizer digitize --api-version 1 --file file:///documents/invoice.pdf
+```
+
+## Debug
+
+You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
+
+```bash
+./uipathcli metering ping --debug
 ```
 
 ```bash
-# Cross-compile the CLI on Linux for all supported platforms
-./build.sh
+GET https://cloud.uipath.com/uipatcleitzc/DefaultTenant/du_/api/metering/ping HTTP/1.1
+X-Request-Id: b033e39294147bcb1174c5b7ace6ac7c
+Authorization: Bearer ...
 
-# Generates
-# - build/uipathcli        for Linux
-# - build/uipathcli.exe    for Windows
-# - build/uipathcli.osx    for MacOS
 
-# Run the CLI (on linux)
-./build/uipathcli --help
+HTTP/1.1 200 OK
+Connection: keep-alive
+Content-Type: application/json; charset=utf-8
+
+{
+  "location": "westeurope",
+  "serverRegion": "westeurope",
+  "clusterId": "du-prod-du-we-g-dns",
+  "version": "22.8-63-main.v29c916",
+  "timestamp": "2022-08-23T12:23:19.0121688Z"
+}
 ```
 
-### How to generate code coverage?
+## Multiple Profiles
 
-```bash
-# Run tests and generate code coverage file
-go test -v ./... -coverpkg ./... -coverprofile coverage.out
-
-# Visualize coverage file
-go tool cover --html=coverage.out
-```
-
-### How to run the CLI against service fabric?
-
-You can set up a separate profile for service fabric which configures the URI and disables HTTPS certificate checks: 
+You can also define multiple configuration profiles to target different environments (like alpha, staging or prod), configure separate auth credentials, or manage multiple organizations/tenants:
 
 ```yaml
 profiles:
-  - name: sf
+  - name: default
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+    path:
+      organization: uipatcleitzc
+      tenant: DefaultTenant
+  - name: apikey
+    uri: https://du.uipath.com/metering/
+    header:
+      X-UIPATH-License: <your-api-key>
+      X-UIPATH-MLService: MLSERVICE_TIEMODEL
+  - name: alpha
+    uri: https://alpha.uipath.com
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+    path:
+      organization: UiPatricjvjx
+      tenant: DefaultTenant
+```
+
+If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
+
+```bash
+./uipathcli metering ping --profile alpha
+```
+
+You can also change the profile using an environment variable (`UIPATH_PROFILE`):
+
+```bash
+UIPATH_PROFILE=alpha ./uipathcli metering ping
+```
+
+## Global Arguments
+
+You can either pass global arguments as CLI parameters, set an env variable or set them using the configuration file. Here is a list of the supported global arguments which can be applied to all CLI operations:
+
+| Name | Env-Variable | Type | Default Value | Description |
+| ----------- | ----------- | ----------- | ----------- | ----------- |
+| `--debug` | `UIPATH_DEBUG` | `boolean` | `false` | Show debug output |
+| `--profile` | `UIPATH_PROFILE` | `string` | `default` | Use profile from configuration file |
+| `--uri` | `UIPATH_URI` | `uri` | `https://cloud.uipath.com` | URL override |
+| `--insecure` | `UIPATH_INSECURE` | `boolean` | `false` |*Warning: Disables HTTPS certificate checks* |
+
+## FAQ
+
+### How to run the CLI against Automation Suite?
+
+You can set up a separate profile for automation suite which configures the URI and disables HTTPS certificate checks (if necessary).
+
+*Note: Disabling HTTPS certificate validation imposes a security risk. Please make sure you understand the implications of this setting and just disable the certificate check when absolutely necessary.*
+
+```yaml
+profiles:
+  - name: automationsuite
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
@@ -98,35 +337,12 @@ profiles:
     insecure: true
 ```
 
-And you simply call the CLI with the `--profile sf` parameter:
+And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
-./uipathcli metering ping --profile sf
+./uipathcli metering ping --profile automationsuite
 ```
 
-### How to retrieve secrets from kubernetes?
+### How to contribute?
 
-The CLI has support for retrieving clientId and clientSecret from kubernetes using the [uipathcli-authenticator-k8s](https://github.com/UiPath/uipathcli-authenticator-k8s). You need to enable the authenticator plugin by creating the plugins configuration file `.uipathcli/plugins` in your home directory:
-
-```yaml
-authenticators:
-  - name: kubernetes
-    path: ./uipathcli-authenticator-k8s
-```
-
-You can define the secret name, namespace and data keys so that the CLI fetches the clientId and clientSecret using the kube API and creates a bearer token based on these credentials:
-
-```yaml
-profiles:
-  - name: default
-    auth:
-      type: kubernetes
-      kubeconfig: /home/tschmitt/.kube/config
-      namespace: <my-namespace>
-      secretName: <my-secret>
-      clientId: ClientId          # data key in <my-secret>
-      clientSecret: ClientSecret  # data key in <my-secret>
-    path:
-      organization: uipatcleitzc
-      tenant: DefaultTenant
-```
+Take a look at the [contribution guide](CONTRIBUTING.md) for details on how to contribute to this project.
