@@ -60,22 +60,28 @@ paths:
 }
 
 func TestCustomOperationName(t *testing.T) {
+	t.Run("SimpleOperationId", func(t *testing.T) { CustomOperationName(t, "my-ping-operation", "my-ping-operation") })
+	t.Run("OperationIdWithSlash", func(t *testing.T) { CustomOperationName(t, "my/operation", "my-operation") })
+	t.Run("OperationIdWithUnderscore", func(t *testing.T) { CustomOperationName(t, "my_operation", "my-operation") })
+	t.Run("UppercaseOperationId", func(t *testing.T) { CustomOperationName(t, "MY_Operation", "my-operation") })
+}
+
+func CustomOperationName(t *testing.T, operationId string, expectedName string) {
 	definition := `
 paths:
   /ping:
     get:
       summary: Simple ping
-      operationId: my-ping-operation
-`
+      operationId: ` + operationId
+
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		Build()
 
 	result := runCli([]string{"myservice"}, context)
 
-	expected := "my-ping-operation"
-	if !strings.Contains(result.StdOut, expected) {
-		t.Errorf("stdout does not contain custom operation, expected: %v, got: %v", expected, result.StdOut)
+	if !strings.Contains(result.StdOut, expectedName) {
+		t.Errorf("stdout does not contain custom operation, expected: %v, got: %v", expectedName, result.StdOut)
 	}
 }
 

@@ -37,11 +37,13 @@ func (p OpenApiParser) getUri(document openapi3.T) (*url.URL, error) {
 }
 
 func (p OpenApiParser) getName(method string, route string, operation openapi3.Operation) string {
+	name := method + route
 	if operation.OperationID != "" {
-		return operation.OperationID
+		name = operation.OperationID
 	}
-	routeName := strings.ReplaceAll(route, "/", "-")
-	return strings.ToLower(method + routeName)
+	name = strings.ReplaceAll(name, "/", "-")
+	name = strings.ReplaceAll(name, "_", "-")
+	return strings.ToLower(name)
 }
 
 func (p OpenApiParser) getSchemaType(schema openapi3.Schema) string {
