@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"net/url"
+	"sort"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -175,12 +176,19 @@ func (p OpenApiParser) parsePath(route string, pathItem openapi3.PathItem) []Ope
 	return operations
 }
 
+func (p OpenApiParser) sort(operations []Operation) {
+	sort.Slice(operations, func(i, j int) bool {
+		return operations[i].Name < operations[j].Name
+	})
+}
+
 func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, error) {
 	operations := []Operation{}
 	for path := range document.Paths {
 		pathItem := document.Paths.Find(path)
 		operations = append(operations, p.parsePath(path, *pathItem)...)
 	}
+	p.sort(operations)
 	uri, err := p.getUri(document)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing server URL: %v", err)

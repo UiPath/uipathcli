@@ -40,6 +40,29 @@ info:
 	}
 }
 
+func TestMultipleOperationsSortedByName(t *testing.T) {
+	definition := `
+paths:
+  /hello:
+    get:
+      summary: hello
+      operationId: hello-operation
+  /aaaaa:
+    get:
+      summary: aaaaa
+      operationId: aaaaa-operation
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "--help"}, context)
+
+	if strings.Index(result.StdOut, "aaaaa-operation") >= strings.Index(result.StdOut, "hello-operation") {
+		t.Errorf("Expected aaaaa operation to be first, got: %v", result.StdOut)
+	}
+}
+
 func TestOperationName(t *testing.T) {
 	definition := `
 paths:
