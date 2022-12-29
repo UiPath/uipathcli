@@ -2,7 +2,7 @@
 
 The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
-<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif" width="80%"/>
+<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started.gif" />
 
 ## Install
 
@@ -32,6 +32,8 @@ The CLI supports multiple ways to authorize with the UiPath services:
 ### Client Credentials
 
 In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret).
+
+<img src="https://du-nst-cdn.azureedge.net/uipathcli/auth_credentials.gif" />
 
 1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
 
@@ -79,6 +81,9 @@ Response:
 ### OAuth Login
 
 In order to use oauth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
+
+<img src="https://du-nst-cdn.azureedge.net/uipathcli/auth_login.gif" />
+
 1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
 
 2. Click `Add Application`
