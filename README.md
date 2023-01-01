@@ -6,19 +6,102 @@ The UiPath OpenAPI CLI project is a command line interface to simplify, script a
 
 ## Install
 
-In order to get started quickly, you can run the install scripts for windows and linux:
+In order to get started quickly, you can run the install scripts for Windows, Linux and MacOS:
+
+<details open>
+  <summary>Install instructions for x86_64/amd64</summary>
+  <p>
 
 ### Windows
 
 ```powershell
-. { iwr https://du-nst-cdn.azureedge.net/uipathcli/install.ps1 } | iex
+Invoke-WebRequest "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-windows-amd64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
 ```
 
-### Linux/MacOS
+### Linux
 
 ```bash
-curl -sL https://du-nst-cdn.azureedge.net/uipathcli/install.sh | bash
+curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-linux-amd64.tar.gz" | tar --extract --gzip --overwrite
 ```
+
+### MacOS
+
+```bash
+curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-amd64.tar.gz" | tar --extract --gzip --overwrite
+```
+
+  </p>
+</details>
+
+<details>
+  <summary>Install instructions for arm64</summary>
+  <p>
+
+### Windows (ARM)
+
+```powershell
+Invoke-WebRequest "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-windows-arm64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
+```
+
+### Linux (ARM)
+
+```bash
+curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-linux-arm64.tar.gz" | tar --extract --gzip --overwrite
+```
+
+### MacOS (ARM)
+
+```bash
+curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-arm64.tar.gz" | tar --extract --gzip --overwrite
+```
+
+  </p>
+</details>
+
+<details>
+  <summary>Enable command completion</summary>
+  <p>
+
+For autocompletion to work, the `uipathcli` executable needs to be in your PATH. Make sure the following commands output the path to the `uipathcli` executable:
+
+### PowerShell
+
+```powershell
+(Get-Command uipathcli).Path
+```
+
+### Bash
+
+```bash
+which uipathcli
+```
+
+You can enable autocompletion by running the following commands depending on which shell you are using:
+
+### PowerShell
+
+```powershell
+uipathcli autocomplete enable --shell "powershell"
+```
+
+### Bash
+
+```bash
+uipathcli autocomplete enable --shell "bash"
+```
+
+  </p>
+</details>
+
+<br />
+
+After installing the `uipathcli` executable, you can run the interactive config command to finish setting up your CLI:
+
+```
+uipathcli config
+```
+
+More details about how to configure the CLI can be found in the following sections.
 
 ## Configuration
 
@@ -31,17 +114,21 @@ The CLI supports multiple ways to authorize with the UiPath services:
 
 ### Client Credentials
 
-In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret).
+In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret):
 
 <img src="https://du-nst-cdn.azureedge.net/uipathcli/auth_credentials.gif" />
 
-1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
 
-2. Click `Add Application`
+1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/externalApps](https://cloud.uipath.com)
 
-3. Fill out the fields: Application Name, Application Type: `Confidential application` and add the scopes you want to assign to your credentials.
+2. Click **+ Add Application**
 
-4. Click `Save` and the app id (`clientId`) and app secret (`clientSecret`) should be displayed.
+3. Fill out the fields:
+* **Application Name**: *\<your-app\>*
+* **Application Type**: `Confidential application` 
+* **+ Add Scopes**: Add the permissions you want to assign to your credentials
+
+4. Click **Add** and the app id (`clientId`) and app secret (`clientSecret`) should be displayed.
 
 5. Run the interactive CLI configuration:
 
@@ -84,13 +171,17 @@ In order to use oauth login, you need to set up an [External Application (Non-Co
 
 <img src="https://du-nst-cdn.azureedge.net/uipathcli/auth_login.gif" />
 
-1. Go to https://cloud.uipath.com/your-org/portal_/externalApps
+1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/externalApps](https://cloud.uipath.com)
 
-2. Click `Add Application`
+2. Click **+ Add Application**
 
-3. Fill out the fields: Application Name, Application Type: `Non-Confidential application`, Add scopes and set redirect url to `http://localhost:12700`
+3. Fill out the fields:
+* **Application Name**: *\<your-app\>*
+* **Application Type**: `Non-Confidential application` 
+* **+ Add Scopes**: Add the permissions you want to grant the CLI
+* **Redirect URL**: `http://localhost:12700`
 
-4. Click `Add` and note the application id.
+4. Click **Add** and note the app id (`clientId`).
 
 5. Run the interactive CLI configuration:
 
@@ -99,7 +190,7 @@ uipathcli config --auth login
 ```
 
 The CLI will ask you to enter the main config settings like
-- `clientId`, `redirectUri` and `scopes` to start the OAuth flow
+- `clientId`, `redirectUri` and `scopes` which are needed to initiate the OAuth flow
 - `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
 
 ```
@@ -121,13 +212,16 @@ uipathcli orchestrator Users_Get
 
 You need to generate a personal access token (PAT) and configure the CLI to use it:
 
-1. Go to https://cloud.uipath.com/your-org/portal_/personalAccessToken
+1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/personalAccessToken](https://cloud.uipath.com)
 
-2. Click `Generate new token`
+2. Click **+ Generate new token**
 
-3. Give your token a name, set an expiry date and add the scopes you want to assign to your token.
+3. Fill out the fields:
+* **Name**: *\<token-name\>*
+* **Expiration Date**: Set an expiry date for the token
+* **+ Add Scopes**: Add the permissions you want to grant the PAT
 
-5. Click `Save` and make sure you copy the generated token.
+5. Click **Save** and make sure you copy the generated token.
 
 4. Run the interactive CLI configuration:
 

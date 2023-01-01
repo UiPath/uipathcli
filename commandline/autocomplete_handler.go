@@ -1,12 +1,129 @@
 package commandline
 
 import (
+	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/urfave/cli/v2"
 )
 
+const directoryPermissions = 0755
+const filePermissions = 0644
+
+const Powershell = "powershell"
+const Bash = "bash"
+
+const completeHandlerEnabledCheck = "uipathcli_auto_complete"
+
+const powershellCompleteHandler = `
+$uipathcli_auto_complete = {
+    param($wordToComplete, $commandAst, $cursorPosition)
+    $command, $params = $commandAst.ToString() -split " ", 2
+    & $command autocomplete complete --command "$commandAst" | foreach-object {
+        [system.management.automation.completionresult]::new($_, $_, 'parametervalue', $_)
+    }
+}
+Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcli_auto_complete
+`
+
+const bashCompleteHandler = `
+function _uipathcli_auto_complete()
+{
+  local executable="${COMP_WORDS[0]}"
+  local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
+  local candidates
+  read -d '' -ra candidates < <($executable autocomplete complete --command "${COMP_LINE}" 2>/dev/null)
+  read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
+}
+complete -f -F _uipathcli_auto_complete uipathcli
+`
+
 type AutoCompleteHandler struct {
+}
+
+func (a AutoCompleteHandler) EnableCompleter(shell string, filePath string) (string, error) {
+	if shell != Powershell && shell != Bash {
+		return "", fmt.Errorf("Invalid shell, supported values: %s, %s", Powershell, Bash)
+	}
+
+	profileFilePath, err := a.profileFilePath(shell, filePath)
+	if err != nil {
+		return "", err
+	}
+	completeHandler := a.completeHandler(shell)
+	return a.enableCompleter(shell, profileFilePath, completeHandlerEnabledCheck, completeHandler)
+}
+
+func (a AutoCompleteHandler) profileFilePath(shell string, filePath string) (string, error) {
+	if filePath != "" {
+		return filePath, nil
+	}
+	if shell == Powershell {
+		return PowershellProfilePath()
+	}
+	return BashrcPath()
+}
+
+func (a AutoCompleteHandler) completeHandler(shell string) string {
+	if shell == Powershell {
+		return powershellCompleteHandler
+	}
+	return bashCompleteHandler
+}
+
+func (a AutoCompleteHandler) enableCompleter(shell string, filePath string, enabledCheck string, completerHandler string) (string, error) {
+	err := a.ensureDirectoryExists(filePath)
+	if err != nil {
+		return "", err
+	}
+	enabled, err := a.completerEnabled(filePath, enabledCheck)
+	if err != nil {
+		return "", err
+	}
+	if enabled {
+		output := fmt.Sprintf("Shell: %s\nProfile: %s\n\nCommand completion is already enabled.", shell, filePath)
+		return output, nil
+	}
+	err = a.writeCompleterHandler(filePath, completerHandler)
+	if err != nil {
+		return "", err
+	}
+	output := fmt.Sprintf("Shell: %s\nProfile: %s\n\nSuccessfully enabled command completion! Restart your shell for the changes to take effect.", shell, filePath)
+	return output, nil
+}
+
+func (a AutoCompleteHandler) ensureDirectoryExists(filePath string) error {
+	err := os.MkdirAll(filepath.Dir(filePath), directoryPermissions)
+	if err != nil {
+		return fmt.Errorf("Error creating profile folder: %v", err)
+	}
+	return nil
+}
+
+func (a AutoCompleteHandler) completerEnabled(filePath string, enabledCheck string) (bool, error) {
+	content, err := os.ReadFile(filePath)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return false, nil
+	}
+	if err != nil {
+		return false, fmt.Errorf("Error reading profile file: %v", err)
+	}
+	return strings.Contains(string(content), enabledCheck), nil
+}
+
+func (a AutoCompleteHandler) writeCompleterHandler(filePath string, completerHandler string) error {
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePermissions)
+	if err != nil {
+		return fmt.Errorf("Error opening profile file: %v", err)
+	}
+	defer file.Close()
+	if _, err := file.WriteString(completerHandler); err != nil {
+		return fmt.Errorf("Error writing profile file: %v", err)
+	}
+	return nil
 }
 
 func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command, exclude []string) []string {

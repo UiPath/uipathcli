@@ -256,7 +256,44 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 	}
 }
 
-func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.Command {
+func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
+	const shellFlagName = "shell"
+	const powershellFlagValue = "powershell"
+	const bashFlagValue = "bash"
+	const fileFlagName = "file"
+
+	return &cli.Command{
+		Name:        "enable",
+		Description: "Enables auto complete in your shell",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     shellFlagName,
+				Usage:    fmt.Sprintf("%s, %s", powershellFlagValue, bashFlagValue),
+				Required: true,
+			},
+			&cli.StringFlag{
+				Name:   fileFlagName,
+				Hidden: true,
+			},
+			b.HelpFlag(),
+		},
+		Hidden: true,
+		Action: func(context *cli.Context) error {
+			shell := context.String(shellFlagName)
+			filePath := context.String(fileFlagName)
+			handler := AutoCompleteHandler{}
+			output, err := handler.EnableCompleter(shell, filePath)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(b.StdOut, output)
+			return nil
+		},
+		HideHelp: true,
+	}
+}
+
+func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Command) *cli.Command {
 	return &cli.Command{
 		Name:        "complete",
 		Description: "Returns the autocomplete suggestions",
@@ -289,13 +326,23 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 	}
 }
 
+func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.Command {
+	return &cli.Command{
+		Name: "autocomplete",
+		Subcommands: []*cli.Command{
+			b.createAutoCompleteEnableCommand(),
+			b.createAutoCompleteCompleteCommand(commands),
+		},
+	}
+}
+
 func (b CommandBuilder) createConfigCommand() *cli.Command {
 	authFlagName := "auth"
 	flags := []cli.Flag{
 		&cli.StringFlag{
 			Name:  authFlagName,
 			Value: CredentialsAuth,
-			Usage: fmt.Sprintf("Type of authorization: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth),
+			Usage: fmt.Sprintf("Authorization type: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth),
 		},
 		&cli.StringFlag{
 			Name:    profileFlagName,
