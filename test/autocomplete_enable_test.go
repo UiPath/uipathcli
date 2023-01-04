@@ -19,8 +19,7 @@ func TestEnableAutocompleteInvalidShellShowsError(t *testing.T) {
 }
 
 func TestEnableAutocompletePowershellShowsSuccessOutput(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -39,8 +38,7 @@ Successfully enabled command completion! Restart your shell for the changes to t
 }
 
 func TestEnableAutocompletePowershellCreatesProfileFile(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -66,8 +64,7 @@ Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcl
 }
 
 func TestEnableAutocompletePowershellUpdatesExistingProfileFile(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	os.WriteFile(profilePath, []byte("existing content\nshould not change"), 0644)
 
 	context := NewContextBuilder().
@@ -95,8 +92,7 @@ Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcl
 }
 
 func TestEnableAutocompletePowershellNoChangesIfEnabledAlready(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	initialContent := `
 $uipathcli_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -122,8 +118,7 @@ Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcl
 }
 
 func TestEnableAutocompletePowershellShowsAlreadyEnabledOutput(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	initialContent := `
 $uipathcli_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -153,8 +148,7 @@ Command completion is already enabled.
 }
 
 func TestEnableAutocompleteBashShowsSuccessOutput(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -173,8 +167,7 @@ Successfully enabled command completion! Restart your shell for the changes to t
 }
 
 func TestEnableAutocompleteBashCreatesProfileFile(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -201,8 +194,7 @@ complete -f -F _uipathcli_auto_complete uipathcli
 }
 
 func TestEnableAutocompleteBashUpdatesExistingProfileFile(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	os.WriteFile(profilePath, []byte("\nexisting content\nshould not change\n"), 0644)
 
 	context := NewContextBuilder().
@@ -233,8 +225,7 @@ complete -f -F _uipathcli_auto_complete uipathcli
 }
 
 func TestEnableAutocompleteBashNoChangesIfEnabledAlready(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	initialContent := `
 function _uipathcli_auto_complete()
 {
@@ -261,8 +252,7 @@ complete -f -F _uipathcli_auto_complete uipathcli
 }
 
 func TestEnableAutocompleteBashShowsAlreadyEnabledOutput(t *testing.T) {
-	profilePath := autoCompleteProfilePath()
-	defer os.Remove(profilePath)
+	profilePath := autoCompleteProfilePath(t)
 	initialContent := `
 function _uipathcli_auto_complete()
 {
@@ -292,7 +282,8 @@ Command completion is already enabled.
 	}
 }
 
-func autoCompleteProfilePath() string {
+func autoCompleteProfilePath(t *testing.T) string {
 	tempFile, _ := os.CreateTemp("", "uipathcli-test-profile")
+	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	return tempFile.Name()
 }

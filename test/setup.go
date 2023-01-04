@@ -39,6 +39,11 @@ func (b *ContextBuilder) WithConfig(config string) *ContextBuilder {
 	return b
 }
 
+func (b *ContextBuilder) WithConfigFile(configFile string) *ContextBuilder {
+	b.context.ConfigFile = configFile
+	return b
+}
+
 func (b *ContextBuilder) WithStdIn(input bytes.Buffer) *ContextBuilder {
 	b.context.StdIn = &input
 	return b
@@ -76,6 +81,7 @@ type IdentityContext struct {
 
 type Context struct {
 	Config         string
+	ConfigFile     string
 	StdIn          *bytes.Buffer
 	DefinitionName string
 	DefinitionData string
@@ -93,7 +99,6 @@ type Result struct {
 	RequestUrl    string
 	RequestHeader map[string]string
 	RequestBody   string
-	ConfigFile    string
 }
 
 func handleIdentityTokenRequest(context Context, request *http.Request, response http.ResponseWriter) {
@@ -150,13 +155,8 @@ func runCli(args []string, context Context) Result {
 		args = append(args, "--uri", srv.URL)
 	}
 
-	configFile := ""
-	if context.StdIn != nil {
-		tempFile, _ := os.CreateTemp("", "uipathcli-test-config")
-		configFile = tempFile.Name()
-	}
-	if configFile != "" && context.Config != "" {
-		os.WriteFile(configFile, []byte(context.Config), 0600)
+	if context.ConfigFile != "" && context.Config != "" {
+		os.WriteFile(context.ConfigFile, []byte(context.Config), 0600)
 	}
 
 	stdout := new(bytes.Buffer)
@@ -181,7 +181,7 @@ func runCli(args []string, context Context) Result {
 		StdErr: stderr,
 		Parser: parser.OpenApiParser{},
 		ConfigProvider: config.ConfigProvider{
-			ConfigFileName: configFile,
+			ConfigFileName: context.ConfigFile,
 		},
 		Executor: executor.HttpExecutor{
 			Authenticators: authenticators,
@@ -204,6 +204,5 @@ func runCli(args []string, context Context) Result {
 		RequestUrl:    requestUrl,
 		RequestHeader: requestHeader,
 		RequestBody:   requestBody,
-		ConfigFile:    configFile,
 	}
 }
