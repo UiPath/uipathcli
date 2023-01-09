@@ -4,9 +4,9 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Setup Go
         uses: actions/setup-go@v3
         with:
@@ -20,8 +20,26 @@ jobs:
         run: go test -v ./test/
       - name: Package
         run: ./build.sh && ./package.sh
-      - uses: actions/upload-artifact@v3
+      - name: Upload packages
+        uses: actions/upload-artifact@v3
         with:
           name: packages
           path: build/packages/
           if-no-files-found: error
+
+  release:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download packages
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: build/packages/
+      - name: Publish
+        run: ./publish.sh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
