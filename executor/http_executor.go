@@ -79,7 +79,10 @@ func (e HttpExecutor) createJson(parameters []ExecutionParameter) ([]byte, strin
 	return result, "application/json", nil
 }
 
-func (e HttpExecutor) createBody(bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
+func (e HttpExecutor) createBody(body []byte, bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
+	if len(body) > 0 {
+		return body, "application/json", nil
+	}
 	if len(formParameters) > 0 {
 		return e.createForm(formParameters)
 	}
@@ -148,7 +151,7 @@ func (e HttpExecutor) Call(context ExecutionContext, output io.Writer) error {
 	if err != nil {
 		return err
 	}
-	body, contentType, err := e.createBody(context.BodyParameters, context.FormParameters)
+	body, contentType, err := e.createBody(context.Body, context.BodyParameters, context.FormParameters)
 	if err != nil {
 		return err
 	}

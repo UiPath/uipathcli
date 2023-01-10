@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"os"
 	"path/filepath"
 	"strings"
@@ -896,5 +897,73 @@ paths:
 	expected := `{"firstName":"provided-name"}`
 	if result.RequestBody != expected {
 		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestUsesStdIn(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  default: 'my-name'
+              required:
+                - firstName
+`
+	stdIn := bytes.Buffer{}
+	stdIn.Write([]byte(`{"firstName":"foo"}`))
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithStdIn(stdIn).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create"}, context)
+
+	expected := `{"firstName":"foo"}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostRequestWithStdInAndParameter(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      parameters:
+      - name: x-uipath-myvalue
+        in: header
+        required: true
+        schema:
+          type: string
+`
+	stdIn := bytes.Buffer{}
+	stdIn.Write([]byte(`{"foo":"bar"}`))
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithStdIn(stdIn).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value"}, context)
+
+	expectedBody := `{"foo":"bar"}`
+	if result.RequestBody != expectedBody {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expectedBody, result.RequestBody)
+	}
+
+	header := result.RequestHeader["x-uipath-myvalue"]
+	expectedHeader := "test-value"
+	if header != expectedHeader {
+		t.Errorf("Did not set correct custom header, expected: %v, got: %v", expectedHeader, header)
 	}
 }

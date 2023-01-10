@@ -195,7 +195,11 @@ func runCli(args []string, context Context) Result {
 		*commandline.NewDefinitionData(context.DefinitionName, []byte(context.DefinitionData)),
 	}
 	args = append([]string{"uipath"}, args...)
-	err := cli.Run(args, []byte(context.Config), data)
+	input := []byte{}
+	if context.StdIn != nil {
+		input = context.StdIn.Bytes()
+	}
+	err := cli.Run(args, []byte(context.Config), data, input)
 
 	return Result{
 		Error:         err,

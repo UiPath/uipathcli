@@ -83,7 +83,7 @@ func (c Cli) applyPlugins(definitions []parser.Definition) {
 	}
 }
 
-func (c Cli) run(args []string, configData []byte, definitionData []DefinitionData) error {
+func (c Cli) run(args []string, configData []byte, definitionData []DefinitionData, input []byte) error {
 	err := c.ConfigProvider.Load(configData)
 	if err != nil {
 		return err
@@ -95,6 +95,7 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 	c.applyPlugins(definitions)
 
 	CommandBuilder := CommandBuilder{
+		Input:          input,
 		StdIn:          c.StdIn,
 		StdOut:         c.StdOut,
 		ConfigProvider: c.ConfigProvider,
@@ -122,8 +123,8 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 const colorRed = "\033[31m"
 const colorReset = "\033[0m"
 
-func (c Cli) Run(args []string, configData []byte, definitionData []DefinitionData) error {
-	err := c.run(args, configData, definitionData)
+func (c Cli) Run(args []string, configData []byte, definitionData []DefinitionData, input []byte) error {
+	err := c.run(args, configData, definitionData, input)
 	if err != nil {
 		message := err.Error()
 		if c.ColoredOutput {

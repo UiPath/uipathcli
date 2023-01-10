@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -116,6 +117,17 @@ func colorsSupported() bool {
 	return !omitColors
 }
 
+func readStdIn() []byte {
+	stat, _ := os.Stdin.Stat()
+	if (stat.Mode() & os.ModeCharDevice) == 0 {
+		input, err := io.ReadAll(os.Stdin)
+		if err == nil {
+			return input
+		}
+	}
+	return []byte{}
+}
+
 func main() {
 	cfgFile, cfgData, err := readConfiguration()
 	if err != nil {
@@ -155,7 +167,8 @@ func main() {
 		},
 	}
 
-	err = cli.Run(os.Args, cfgData, definitions)
+	input := readStdIn()
+	err = cli.Run(os.Args, cfgData, definitions, input)
 	if err != nil {
 		os.Exit(1)
 	}
