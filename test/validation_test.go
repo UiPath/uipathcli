@@ -1,4 +1,4 @@
-package commandline
+package test
 
 import (
 	"path/filepath"
