@@ -31,6 +31,83 @@ paths:
 	}
 }
 
+func TestGetRequestShowsResponseBody(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, `{"hello":"world"}`).
+		Build()
+
+	result := runCli([]string{"myservice", "get-ping"}, context)
+
+	expectedStdOut := `{
+  "hello": "world"
+}`
+	if result.StdOut != expectedStdOut {
+		t.Errorf("Expected response body on stdout %v, got: %v", expectedStdOut, result.StdOut)
+	}
+}
+
+func TestGetRequestWithDebugFlagShowsRequestAndResponse(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, `{"hello":"world"}`).
+		Build()
+
+	result := runCli([]string{"myservice", "get-ping", "--debug"}, context)
+
+	stdout := strings.Split(result.StdOut, "\n")
+	expected := "GET http://"
+	if !strings.HasPrefix(stdout[0], expected) {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[0])
+	}
+	expected = "X-Request-Id:"
+	if !strings.HasPrefix(stdout[1], expected) {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[1])
+	}
+	expected = "HTTP/1.1 200 OK"
+	if stdout[4] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[4])
+	}
+	expected = "Content-Length:"
+	if !strings.HasPrefix(stdout[5], expected) {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[5])
+	}
+	expected = "Content-Type: text/plain; charset=utf-8"
+	if stdout[6] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[6])
+	}
+	expected = "Date:"
+	if !strings.HasPrefix(stdout[7], expected) {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[7])
+	}
+	expected = "{"
+	if stdout[9] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[9])
+	}
+	expected = `  "hello": "world"`
+	if stdout[10] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[10])
+	}
+	expected = "}"
+	if stdout[11] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[11])
+	}
+}
+
 func TestRequestId(t *testing.T) {
 	definition := `
 paths:
@@ -790,6 +867,7 @@ paths:
 		Build()
 	path := filepath.Join(t.TempDir(), "hello-world.txt")
 	os.WriteFile(path, []byte("hello-world"), 0644)
+	defer os.Remove(path)
 
 	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
 
