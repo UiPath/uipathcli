@@ -338,6 +338,14 @@ CLI arguments can also refer to files on disk. This command reads the invoice fr
 ./uipathcli digitizer digitize --api-version 1 --file file:///documents/invoice.pdf
 ```
 
+## Standard input (stdin) / Pipes
+
+You can pipe JSON into the CLI as stdin and it will be used as the request body instead of CLI parameters. The following example reads an orchestrator setting, modifies the value using `jq` and pipes the output back into to the CLI to update it:
+
+```bash
+./uipathcli orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | ./uipathcli orchestrator settings-putbyid
+```
+
 ## Debug
 
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:

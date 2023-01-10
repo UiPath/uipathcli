@@ -20,6 +20,7 @@ const uriFlagName = "uri"
 const helpFlagName = "help"
 
 type CommandBuilder struct {
+	Input          []byte
 	StdIn          io.Reader
 	StdOut         io.Writer
 	ConfigProvider config.ConfigProvider
@@ -150,9 +151,11 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				return err
 			}
 
-			err = b.validateArguments(context, operation.Parameters, *config)
-			if err != nil {
-				return err
+			if len(b.Input) == 0 {
+				err = b.validateArguments(context, operation.Parameters, *config)
+				if err != nil {
+					return err
+				}
 			}
 
 			pathParameters, err := b.createExecutionParameters(context, parser.ParameterInPath, operation, config.Path)
@@ -182,6 +185,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				operation.Method,
 				baseUri,
 				operation.Route,
+				b.Input,
 				pathParameters,
 				queryParameters,
 				headerParameters,
