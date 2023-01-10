@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/url"
-	"strings"
 	"sync"
 
 	"github.com/UiPath/uipathcli/config"
@@ -79,40 +78,16 @@ func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 	return flags
 }
 
-func (b CommandBuilder) overrideUri(uri *url.URL, overrideUri *url.URL, config config.Config) (*url.URL, error) {
-	scheme := uri.Scheme
-	host := uri.Host
-	path := uri.Path
-
-	if overrideUri != nil && overrideUri.Scheme != "" {
-		scheme = overrideUri.Scheme
-	}
-	if overrideUri != nil && overrideUri.Host != "" {
-		host = overrideUri.Host
-	}
-	if overrideUri != nil && overrideUri.Path != "" {
-		path = overrideUri.Path
-	}
-	normalizedPath := strings.Trim(path, "/")
-	return url.Parse(fmt.Sprintf("%s://%s/%s", scheme, host, normalizedPath))
-}
-
-func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (*url.URL, error) {
+func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
-		return nil, err
+		return definition.BaseUri, err
 	}
 
-	uri := &definition.BaseUri
-	uri, err = b.overrideUri(uri, config.Uri, config)
-	if err != nil {
-		return nil, err
-	}
-	uri, err = b.overrideUri(uri, uriArgument, config)
-	if err != nil {
-		return nil, err
-	}
-	return uri, nil
+	builder := NewUriBuilder(definition.BaseUri)
+	builder.OverrideUri(config.Uri)
+	builder.OverrideUri(uriArgument)
+	return builder.Uri(), nil
 }
 
 func (b CommandBuilder) parseUriArgument(context *cli.Context) (*url.URL, error) {
@@ -205,7 +180,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			debug := context.Bool(debugFlagName) || config.Debug
 			executionContext := executor.NewExecutionContext(
 				operation.Method,
-				*baseUri,
+				baseUri,
 				operation.Route,
 				pathParameters,
 				queryParameters,

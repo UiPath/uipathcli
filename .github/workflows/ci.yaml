@@ -17,7 +17,7 @@ jobs:
       - name: Build
         run: go build .
       - name: Test
-        run: go test -v ./test/
+        run: go test -v ./...
       - name: Package
         run: ./build.sh && ./package.sh
       - name: Upload packages
