@@ -75,6 +75,16 @@ Here are a few things you can do to make code reviews go as smooth as possible:
 
 ## FAQ
 
+### How to integrate my service with the CLI?
+
+If you just want to try out a service, you can copy the OpenAPI specfication in the `definition/` folder next to the `uipathcli` executable. The CLI automatically picks up all the OpenAPI definitions and shows them as top-level commands. The file name of the definition will be the command name. You can see all installed definitions by running:
+
+```bash
+uipathcli --help
+```
+
+If you would like to publish your service definition bundled together with the CLI, you can simply copy it in the [definitions](definitions) folder of this repository and create a PR with your change.
+
 ### How to cross-compile the CLI?
 
 You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on Windows and the Bash script (`build.sh`) on Linux:
