@@ -102,7 +102,8 @@ func authenticators(pluginsCfg *config.PluginConfig) []auth.Authenticator {
 	return append(authenticators,
 		auth.PatAuthenticator{},
 		auth.OAuthAuthenticator{
-			Cache: cache.FileCache{},
+			Cache:           cache.FileCache{},
+			BrowserLauncher: auth.ExecBrowserLauncher{},
 		},
 		auth.BearerAuthenticator{
 			Cache: cache.FileCache{},

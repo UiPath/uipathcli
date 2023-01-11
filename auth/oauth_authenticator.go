@@ -4,18 +4,18 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net"
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
-	"runtime"
 	"time"
 
 	"github.com/UiPath/uipathcli/cache"
 )
 
 type OAuthAuthenticator struct {
-	Cache cache.Cache
+	Cache           cache.Cache
+	BrowserLauncher BrowserLauncher
 }
 
 func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
@@ -32,7 +32,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	}
 	identityBaseUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", identityBaseUri, err))
 	}
 	token, err := a.retrieveToken(*identityBaseUri, *config, ctx.Insecure)
 	if err != nil {
@@ -57,7 +57,9 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config OAuthA
 		return "", err
 	}
 
-	identityClient := identityClient(a)
+	identityClient := identityClient{
+		Cache: a.Cache,
+	}
 	tokenRequest := newAuthorizationCodeTokenRequest(
 		identityBaseUri,
 		config.ClientId,
@@ -95,29 +97,40 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config OAuthAuthentic
 		}
 		cancel()
 	})
-	port := config.RedirectUrl.Port()
+	listener, err := net.Listen("tcp", config.RedirectUrl.Host)
+	if err != nil {
+		return "", fmt.Errorf("Error starting listener on address %s and wait for oauth redirect: %v", config.RedirectUrl.Host, err)
+	}
+	defer listener.Close()
+
 	server := &http.Server{
-		Addr:    ":" + port,
 		Handler: mux,
 	}
-	go func() {
-		listenErr := server.ListenAndServe()
+	defer server.Close()
+
+	go func(listener net.Listener) {
+		listenErr := server.Serve(listener)
 		if listenErr != nil {
-			err = fmt.Errorf("Error starting server on port %s and wait for oauth redirect: %v", port, listenErr)
+			err = fmt.Errorf("Error starting server on address %s and wait for oauth redirect: %v", config.RedirectUrl.Host, listenErr)
 		}
 		cancel()
-	}()
+	}(listener)
 
+	port := listener.Addr().(*net.TCPAddr).Port
+	redirectUri := fmt.Sprintf("%s://%s:%d", config.RedirectUrl.Scheme, config.RedirectUrl.Hostname(), port)
 	loginUrl := fmt.Sprintf("%s/connect/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&code_challenge=%s&code_challenge_method=S256&state=%s",
 		identityBaseUri.String(),
 		url.QueryEscape(config.ClientId),
-		url.QueryEscape(config.RedirectUrl.String()),
+		url.QueryEscape(redirectUri),
 		url.QueryEscape(config.Scopes),
 		url.QueryEscape(codeChallenge),
 		url.QueryEscape(state))
 
 	go func(url string) {
-		a.openBrowser(url)
+		err := a.BrowserLauncher.OpenBrowser(url)
+		if err != nil {
+			a.showBrowserLink(url)
+		}
 	}(loginUrl)
 
 	<-ctx.Done()
@@ -166,42 +179,6 @@ func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, n
 
 func (a OAuthAuthenticator) showBrowserLink(url string) {
 	fmt.Fprintln(os.Stderr, "Go to URL and perform login:\n"+url)
-}
-
-func (a OAuthAuthenticator) openBrowser(url string) error {
-	var cmd *exec.Cmd
-
-	switch runtime.GOOS {
-	case "windows":
-		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
-	case "linux":
-		cmd = exec.Command("xdg-open", url)
-	case "darwin":
-		cmd = exec.Command("open", url)
-	default:
-		a.showBrowserLink(url)
-		return fmt.Errorf("Platform not supported: %s", runtime.GOOS)
-	}
-
-	err := cmd.Start()
-	if err != nil {
-		a.showBrowserLink(url)
-		return err
-	}
-	done := make(chan error)
-	go func() {
-		done <- cmd.Wait()
-	}()
-
-	select {
-	case err := <-done:
-		if err != nil {
-			a.showBrowserLink(url)
-		}
-		return err
-	case <-time.After(5 * time.Second):
-		return nil
-	}
 }
 
 func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {

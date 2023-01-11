@@ -1,4 +1,4 @@
-package plugin_digitizer
+package digitzer
 
 import (
 	"fmt"

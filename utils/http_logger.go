@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"sort"
 )
 
 type HttpLogger struct {
@@ -15,7 +16,14 @@ type HttpLogger struct {
 }
 
 func (l HttpLogger) logHeaders(header http.Header) {
-	for key, values := range header {
+	keys := []string{}
+	for k := range header {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		values := header[key]
 		for _, value := range values {
 			fmt.Fprintf(l.Output, "%s: %s\n", key, value)
 		}

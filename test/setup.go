@@ -24,7 +24,9 @@ type ContextBuilder struct {
 
 func NewContextBuilder() *ContextBuilder {
 	return &ContextBuilder{
-		context: Context{},
+		context: Context{
+			Responses: map[string]ResponseData{},
+		},
 	}
 }
 
@@ -50,18 +52,17 @@ func (b *ContextBuilder) WithStdIn(input bytes.Buffer) *ContextBuilder {
 }
 
 func (b *ContextBuilder) WithResponse(statusCode int, body string) *ContextBuilder {
-	b.context.ResponseStatus = statusCode
-	b.context.ResponseBody = body
+	b.context.Responses["*"] = ResponseData{statusCode, body}
+	return b
+}
+
+func (b *ContextBuilder) WithUrlResponse(url string, statusCode int, body string) *ContextBuilder {
+	b.context.Responses[url] = ResponseData{statusCode, body}
 	return b
 }
 
 func (b *ContextBuilder) WithIdentityResponse(statusCode int, body string) *ContextBuilder {
-	b.context.Identity = IdentityContext{statusCode, body}
-	return b
-}
-
-func (b *ContextBuilder) WithResponseHeader(header map[string]string) *ContextBuilder {
-	b.context.ResponseHeader = header
+	b.context.IdentityResponse = ResponseData{statusCode, body}
 	return b
 }
 
@@ -74,9 +75,9 @@ func (b *ContextBuilder) Build() Context {
 	return b.context
 }
 
-type IdentityContext struct {
-	ResponseStatus int
-	ResponseBody   string
+type ResponseData struct {
+	Status int
+	Body   string
 }
 
 type Context struct {
@@ -85,11 +86,10 @@ type Context struct {
 	StdIn          *bytes.Buffer
 	DefinitionName string
 	DefinitionData string
-	ResponseStatus int
-	ResponseHeader map[string]string
-	ResponseBody   string
-	Identity       IdentityContext
-	CommandPlugin  plugin.CommandPlugin
+
+	Responses        map[string]ResponseData
+	IdentityResponse ResponseData
+	CommandPlugin    plugin.CommandPlugin
 }
 
 type Result struct {
@@ -120,8 +120,8 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 		response.Write([]byte("Invalid grant_type"))
 		return
 	}
-	response.WriteHeader(context.Identity.ResponseStatus)
-	response.Write([]byte(context.Identity.ResponseBody))
+	response.WriteHeader(context.IdentityResponse.Status)
+	response.Write([]byte(context.IdentityResponse.Body))
 }
 
 func runCli(args []string, context Context) Result {
@@ -129,14 +129,14 @@ func runCli(args []string, context Context) Result {
 	requestHeader := map[string]string{}
 	requestBody := ""
 
-	if context.ResponseStatus != 0 {
+	if len(context.Responses) > 0 {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.String() == "/identity_/connect/token" {
+			requestUrl = r.URL.String()
+			if requestUrl == "/identity_/connect/token" {
 				handleIdentityTokenRequest(context, r, w)
 				return
 			}
 
-			requestUrl = r.URL.String()
 			body, _ := io.ReadAll(r.Body)
 			requestBody = string(body)
 			for key, values := range r.Header {
@@ -145,11 +145,12 @@ func runCli(args []string, context Context) Result {
 				}
 			}
 
-			w.WriteHeader(context.ResponseStatus)
-			for key, value := range context.ResponseHeader {
-				w.Header().Add(strings.ToLower(key), value)
+			response, found := context.Responses[requestUrl]
+			if !found {
+				response = context.Responses["*"]
 			}
-			w.Write([]byte(context.ResponseBody))
+			w.WriteHeader(response.Status)
+			w.Write([]byte(response.Body))
 		}))
 		defer srv.Close()
 		args = append(args, "--uri", srv.URL)
@@ -164,7 +165,8 @@ func runCli(args []string, context Context) Result {
 	authenticators := []auth.Authenticator{
 		auth.PatAuthenticator{},
 		auth.OAuthAuthenticator{
-			Cache: cache.FileCache{},
+			Cache:           cache.FileCache{},
+			BrowserLauncher: auth.ExecBrowserLauncher{},
 		},
 		auth.BearerAuthenticator{
 			Cache: cache.FileCache{},
