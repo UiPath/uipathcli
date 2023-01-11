@@ -329,13 +329,13 @@ The command creates the following JSON body in the HTTP request:
 File content can be uploaded directly from a command line argument. The following command will upload a file with the content `hello-world`:
 
 ```bash
-./uipathcli digitizer digitize --api-version 1 --file "hello-world"
+./uipathcli digitizer digitize --file "hello-world"
 ```
 
 CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
 
 ```bash
-./uipathcli digitizer digitize --api-version 1 --file file:///documents/invoice.pdf
+./uipathcli digitizer digitize ---file file:///documents/invoice.pdf
 ```
 
 ## Standard input (stdin) / Pipes
