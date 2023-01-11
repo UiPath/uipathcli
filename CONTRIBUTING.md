@@ -124,3 +124,106 @@ go test -v ./... -coverpkg ./... -coverprofile coverage.out
 # Visualize coverage file
 go tool cover --html=coverage.out
 ```
+
+### How to create complex commands or how to adapt existing commands?
+
+The CLI supports a pluggable infrastructure which allows you to implement complex custom commands. The [`DigitizeCommand`](plugin/digitizer/digitize_command.go) is an example for a custom command which abstracts away the complexity of the async digitization API. The digitizer API requires you to upload a file, followed by polling the status API until the digitization finished in order to retrieve the digitization result. The `DigitizeCommand` allows the user to just invoke one command for uploading the file and retrieving the result:
+
+```bash
+./uipathcli digitizer digitize --file file:///documents/invoice.pdf
+```
+
+returns
+```json
+{
+  "status": "Succeeded",
+  "result": {
+    "documentId": "c684a468-41fe-4b4f-a99b-7bbd3242137e",
+    "contentType": "application/pdf",
+    "length": 1839,
+    "pages": [
+      {
+        ...
+      }
+    ]
+  }
+}
+```
+
+**Implement new command**
+
+These are the steps to implement new command or override existing one:
+
+1. Create a struct which implements the [`CommandPlugin`](plugin/command_plugin.go) interface
+
+```go
+type CreateCommand struct{}
+
+func (c CreateCommand) Command() plugin.Command {
+  // Provides the definition of the command like name, description and parameters
+}
+
+func (c CreateCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+  // Invoked when the CLI command is executed
+}
+```
+
+2. Implement the `Command()` function and return the definition of your command and all the parameters. In this example we define the `create-product` command with three parameters `id`, `name` and `description`. The `id` is an integer and is required. `name` is a string and required, too. `description` is an optional string.
+
+```go
+func (c CreateCommand) Command() plugin.Command {
+  return *plugin.NewCommand("myservice", "create-product", "Creates a product", []plugin.CommandParameter{
+    *plugin.NewCommandParameter("id", plugin.ParameterTypeInteger, "The product id", true),
+    *plugin.NewCommandParameter("name", plugin.ParameterTypeString, "The product name", true),
+    *plugin.NewCommandParameter("description", plugin.ParameterTypeString, "The product description", false),
+  }, false)
+}
+```
+
+3. Implement `Execute(...)` function which performs the operation of the command. The `context` parameters gives you all the input provided by the user and `output` can be used to write information on standard output.
+
+4. Register the command with the `uipathcli` in [`main.go`](main.go)
+
+```go
+cli := commandline.Cli{
+  CommandPlugins: []plugin.CommandPlugin{
+    plugin_myservice.CreateCommand{},
+  },
+}
+```
+
+4. You can call your new command:
+
+```bash
+uipathcli myservice create-product --id "1" --name "tv" --description "40 inch Smart TV"
+
+uipathcli myservice create-product --id "2" --name "table"
+```
+
+**Hide existing command**
+
+You can also hide an existing command by setting the hidden flag:
+
+1. Create a struct which implements the [`CommandPlugin`](plugin/command_plugin.go) interface
+
+```go
+type StatusCommand struct{}
+
+func (c StatusCommand) Command() plugin.Command {
+  return *plugin.NewCommand("myservice", "status", "", []plugin.CommandParameter{}, true)
+}
+
+func (c StatusCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+  return fmt.Errorf("Status command not supported")
+}
+```
+
+2. Register the command with the `uipathcli` in [`main.go`](main.go)
+
+```go
+cli := commandline.Cli{
+  CommandPlugins: []plugin.CommandPlugin{
+    plugin_myservice.StatusCommand{},
+  },
+}
+```
