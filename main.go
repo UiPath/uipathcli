@@ -30,11 +30,23 @@ func readDefinition(path string) (*commandline.DefinitionData, error) {
 	return commandline.NewDefinitionData(name, data), nil
 }
 
-func readDefinitions() ([]commandline.DefinitionData, error) {
+func definitionsPath() (string, error) {
+	path := os.Getenv("UIPATHCLI_DEFINITIONS_PATH")
+	if path != "" {
+		return path, nil
+	}
 	currentDirectory, err := os.Executable()
 	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading definition files from folder '%s': %v", definitionsDirectory, err)
+		return "", fmt.Errorf("Error reading definition files from folder '%s': %v", definitionsDirectory, err)
+	}
+	return definitionsDirectory, nil
+}
+
+func readDefinitions() ([]commandline.DefinitionData, error) {
+	definitionsDirectory, err := definitionsPath()
+	if err != nil {
+		return nil, err
 	}
 	files, err := os.ReadDir(definitionsDirectory)
 	if err != nil {
@@ -53,16 +65,24 @@ func readDefinitions() ([]commandline.DefinitionData, error) {
 	return result, nil
 }
 
-func readConfiguration() (string, []byte, error) {
+func configurationFilePath() (string, error) {
+	filename := os.Getenv("UIPATHCLI_CONFIGURATION_PATH")
+	if filename != "" {
+		return filename, nil
+	}
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", nil, fmt.Errorf("Error reading configuration file: %v", err)
+		return "", fmt.Errorf("Error reading configuration file: %v", err)
 	}
-	filename := os.Getenv("UIPATHCLI_CONFIGURATION_PATH")
-	if filename == "" {
-		filename = filepath.Join(homeDir, ".uipathcli", "config")
-	}
+	filename = filepath.Join(homeDir, ".uipathcli", "config")
+	return filename, nil
+}
 
+func readConfiguration() (string, []byte, error) {
+	filename, err := configurationFilePath()
+	if err != nil {
+		return "", nil, err
+	}
 	data, err := os.ReadFile(filename)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return filename, []byte{}, nil
@@ -73,17 +93,24 @@ func readConfiguration() (string, []byte, error) {
 	return filename, data, nil
 }
 
-func readPlugins() (*config.PluginConfig, error) {
+func pluginsFilePath() (string, error) {
+	filename := os.Getenv("UIPATHCLI_PLUGINS_PATH")
+	if filename != "" {
+		return filename, nil
+	}
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return nil, fmt.Errorf("Error reading plugins file: %v", err)
+		return "", fmt.Errorf("Error reading plugins file: %v", err)
 	}
+	filename = filepath.Join(homeDir, ".uipathcli", "plugins")
+	return filename, nil
+}
 
-	filename := os.Getenv("UIPATHCLI_PLUGINS_PATH")
-	if filename == "" {
-		filename = filepath.Join(homeDir, ".uipathcli", "plugins")
+func readPlugins() (*config.PluginConfig, error) {
+	filename, err := pluginsFilePath()
+	if err != nil {
+		return nil, err
 	}
-
 	data, err := os.ReadFile(filename)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		return nil, fmt.Errorf("Error reading plugins file '%s': %v", filename, err)
@@ -173,5 +200,4 @@ func main() {
 	if err != nil {
 		os.Exit(1)
 	}
-	os.Exit(0)
 }

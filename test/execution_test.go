@@ -865,13 +865,11 @@ paths:
 		WithResponse(200, "{}").
 		WithDefinition("myservice", definition).
 		Build()
-	path := filepath.Join(t.TempDir(), "hello-world.txt")
+	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	defer os.Remove(path)
-
 	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
 
-	expected := `Content-Disposition: form-data; name="file"; filename="hello-world.txt"`
+	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
 	if !strings.Contains(result.RequestBody, expected) {
 		t.Errorf("Did not find Content-Disposition in body, expected: %v, got: %v", expected, result.RequestBody)
 	}
