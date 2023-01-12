@@ -1,12 +1,11 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
-	"math/rand"
 	"strings"
-	"time"
 )
 
 type SecretGenerator struct{}
@@ -33,8 +32,10 @@ func (g SecretGenerator) base64Encode(value []byte) string {
 }
 
 func (g SecretGenerator) randomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
 	b := make([]byte, length)
-	rand.Read(b)
+	_, err := rand.Read(b)
+	if err != nil {
+		panic(fmt.Errorf("Could not get cryptographically secure random numbers: %v", err))
+	}
 	return fmt.Sprintf("%x", b)[:length]
 }
