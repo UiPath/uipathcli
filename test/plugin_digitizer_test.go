@@ -2,7 +2,6 @@ package test
 
 import (
 	"os"
-	"path/filepath"
 	"strings"
 	"testing"
 
@@ -121,9 +120,8 @@ paths:
 }
 
 func TestDigitizeSuccessfully(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "hello-world.txt")
+	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	defer os.Remove(path)
 
 	config := `profiles:
 - name: default
@@ -158,9 +156,8 @@ paths:
 }
 
 func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "hello-world.txt")
+	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	defer os.Remove(path)
 
 	config := `profiles:
 - name: default

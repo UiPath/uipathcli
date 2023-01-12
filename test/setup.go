@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"strings"
+	"testing"
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/cache"
@@ -211,4 +212,13 @@ func runCli(args []string, context Context) Result {
 		RequestHeader: requestHeader,
 		RequestBody:   requestBody,
 	}
+}
+
+func createFile(t *testing.T) string {
+	tempFile, err := os.CreateTemp("", "uipathcli-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Remove(tempFile.Name()) })
+	return tempFile.Name()
 }

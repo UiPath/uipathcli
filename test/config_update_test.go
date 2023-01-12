@@ -3,11 +3,34 @@ package test
 import (
 	"bytes"
 	"os"
+	"strings"
 	"testing"
 )
 
+func TestConfigCommandIsShown(t *testing.T) {
+	context := NewContextBuilder().
+		Build()
+
+	result := runCli([]string{"--help"}, context)
+
+	if !strings.Contains(result.StdOut, "config") {
+		t.Errorf("Expected config command to be shown, but got %v", result.StdOut)
+	}
+}
+
+func TestConfigCommandDescriptionIsShown(t *testing.T) {
+	context := NewContextBuilder().
+		Build()
+
+	result := runCli([]string{"config", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "Interactive command to configure the CLI") {
+		t.Errorf("Expected config command description to be shown, but got %v", result.StdOut)
+	}
+}
+
 func TestConfiguresCredentialsAuth(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("client-id\nclient-secret\nmy-org\nmy-tenant\n"))
@@ -37,7 +60,7 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 }
 
 func TestConfiguresLoginAuth(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("ffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\nmy-org\nmy-tenant\n"))
@@ -68,7 +91,7 @@ func TestConfiguresLoginAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuth(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("rt_mypersonalaccesstoken\nmy-org\nmy-tenant\n"))
@@ -97,7 +120,7 @@ func TestConfiguresPatAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuthDoesNotChangeExistingConfigValues(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -135,7 +158,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuth(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -174,7 +197,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuthPartially(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -213,7 +236,7 @@ profiles:
 }
 
 func TestConfiguresNewProfile(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -252,7 +275,7 @@ profiles:
 }
 
 func TestReconfiguresExistingProfile(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -310,7 +333,7 @@ func TestCredentialsAuthOutputNotSet(t *testing.T) {
 }
 
 func TestCredentialsAuthMasksSecrets(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -339,7 +362,7 @@ profiles:
 }
 
 func TestCredentialsAuthMasksShortSecretsCompletely(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -368,7 +391,7 @@ profiles:
 }
 
 func TestPatAuthMasksSecrets(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -396,7 +419,7 @@ profiles:
 }
 
 func TestLoginAuthMasksSecrets(t *testing.T) {
-	configFile := createConfig(t)
+	configFile := createFile(t)
 	config := `
 profiles:
 - name: default
@@ -423,10 +446,4 @@ profiles:
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
-}
-
-func createConfig(t *testing.T) string {
-	tempFile, _ := os.CreateTemp("", "uipathcli-test-config")
-	t.Cleanup(func() { os.Remove(tempFile.Name()) })
-	return tempFile.Name()
 }

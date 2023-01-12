@@ -201,13 +201,14 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			reader, writer := io.Pipe()
 			go func(reader *io.PipeReader) {
 				defer wg.Done()
+				defer reader.Close()
 				io.Copy(b.StdOut, reader)
 			}(reader)
 
-			go func(context executor.ExecutionContext, output io.WriteCloser) {
+			go func(context executor.ExecutionContext, writer *io.PipeWriter) {
 				defer wg.Done()
-				defer output.Close()
-				err = b.executeCommand(context, output)
+				defer writer.Close()
+				err = b.executeCommand(context, writer)
 			}(*executionContext, writer)
 
 			wg.Wait()
@@ -335,7 +336,7 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Description: "Interactive command to configure the CLI",
-		Hidden:      true,
+		Hidden:      false,
 		Flags:       flags,
 		Action: func(context *cli.Context) error {
 			auth := context.String(authFlagName)
