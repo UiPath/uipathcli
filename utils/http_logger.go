@@ -76,6 +76,8 @@ func (l HttpLogger) LogResponse(response *http.Response) error {
 	response.Body = io.NopCloser(bytes.NewBuffer(body))
 	if len(body) == 0 && response.StatusCode >= 400 {
 		fmt.Fprintf(l.Output, "%s %s\n", response.Proto, response.Status)
+	} else {
+		fmt.Fprint(l.Output, "\n")
 	}
 	return err
 }
