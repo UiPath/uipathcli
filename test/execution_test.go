@@ -48,7 +48,8 @@ paths:
 
 	expectedStdOut := `{
   "hello": "world"
-}`
+}
+`
 	if result.StdOut != expectedStdOut {
 		t.Errorf("Expected response body on stdout %v, got: %v", expectedStdOut, result.StdOut)
 	}
