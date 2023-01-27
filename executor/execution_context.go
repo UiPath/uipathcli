@@ -11,6 +11,7 @@ type ExecutionContext struct {
 	Method           string
 	BaseUri          url.URL
 	Route            string
+	ContentType      string
 	Body             []byte
 	PathParameters   []ExecutionParameter
 	QueryParameters  []ExecutionParameter
@@ -27,6 +28,7 @@ func NewExecutionContext(
 	method string,
 	uri url.URL,
 	route string,
+	contentType string,
 	body []byte,
 	pathParameters []ExecutionParameter,
 	queryParameters []ExecutionParameter,
@@ -37,5 +39,5 @@ func NewExecutionContext(
 	insecure bool,
 	debug bool,
 	plugin plugin.CommandPlugin) *ExecutionContext {
-	return &ExecutionContext{method, uri, route, body, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug, plugin}
+	return &ExecutionContext{method, uri, route, contentType, body, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug, plugin}
 }

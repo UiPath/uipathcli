@@ -28,6 +28,19 @@ type CommandBuilder struct {
 	PluginExecutor executor.Executor
 }
 
+func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) []byte {
+	input := b.Input
+	if len(input) == 0 && len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
+		switch value := bodyParameters[0].Value.(type) {
+		case executor.FileReference:
+			input = value.Data
+		default:
+			input = []byte(fmt.Sprintf("%v", value))
+		}
+	}
+	return input
+}
+
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
 	typeConverter := TypeConverter{}
 
@@ -178,14 +191,15 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if err != nil {
 				return err
 			}
-
+			input := b.getBodyInput(bodyParameters)
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
 			executionContext := executor.NewExecutionContext(
 				operation.Method,
 				baseUri,
 				operation.Route,
-				b.Input,
+				operation.ContentType,
+				input,
 				pathParameters,
 				queryParameters,
 				headerParameters,

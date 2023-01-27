@@ -527,3 +527,34 @@ paths:
 		t.Errorf("stdout does not contain form parameter description, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestRawRequestBodyShowsInputParameter(t *testing.T) {
+	definition := `
+paths:
+  /upload:
+    post:
+      operationId: upload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: The file to upload
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "upload", "--help"}, context)
+
+	expected := "The file to upload"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain raw request body parameter description, expected: %v, got: %v", expected, result.StdOut)
+	}
+
+	expected = "--input"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain input parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}

@@ -10,6 +10,7 @@ import (
 )
 
 const DefaultServerBaseUrl = "https://cloud.uipath.com"
+const RawBodyParameterName = "$input"
 
 type OpenApiParser struct{}
 
@@ -117,20 +118,25 @@ func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, require
 	return result
 }
 
-func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestBodyRef) []Parameter {
+func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestBodyRef) (string, []Parameter) {
 	parameters := []Parameter{}
 	if requestBody == nil {
-		return parameters
+		return "", parameters
 	}
 	content := requestBody.Value.Content.Get("application/json")
 	if content != nil {
-		return p.parseSchemas(content.Schema.Value.Properties, ParameterInBody, content.Schema.Value.Required)
+		return "application/json", p.parseSchemas(content.Schema.Value.Properties, ParameterInBody, content.Schema.Value.Required)
 	}
 	content = requestBody.Value.Content.Get("multipart/form-data")
 	if content != nil {
-		return p.parseSchemas(content.Schema.Value.Properties, ParameterInForm, content.Schema.Value.Required)
+		return "multipart/form-data", p.parseSchemas(content.Schema.Value.Properties, ParameterInForm, content.Schema.Value.Required)
 	}
-	return parameters
+	content = requestBody.Value.Content.Get("application/octet-stream")
+	if content != nil {
+		parameter := p.parseSchema(RawBodyParameterName, content.Schema, ParameterInBody, []string{RawBodyParameterName})
+		return "application/octet-stream", []Parameter{parameter}
+	}
+	return "", parameters
 }
 
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
@@ -156,15 +162,16 @@ func (p OpenApiParser) parseParameters(params openapi3.Parameters) []Parameter {
 	return parameters
 }
 
-func (p OpenApiParser) parseOperationParameters(operation openapi3.Operation, routeParameters openapi3.Parameters) []Parameter {
-	parameters := p.parseRequestBodyParameters(operation.RequestBody)
+func (p OpenApiParser) parseOperationParameters(operation openapi3.Operation, routeParameters openapi3.Parameters) (string, []Parameter) {
+	contentType, parameters := p.parseRequestBodyParameters(operation.RequestBody)
 	parameters = append(parameters, p.parseParameters(routeParameters)...)
-	return append(parameters, p.parseParameters(operation.Parameters)...)
+	return contentType, append(parameters, p.parseParameters(operation.Parameters)...)
 }
 
 func (p OpenApiParser) parseOperation(method string, route string, operation openapi3.Operation, routeParameters openapi3.Parameters) Operation {
 	name := p.getName(method, route, operation)
-	return *NewOperation(name, operation.Summary, method, route, p.parseOperationParameters(operation, routeParameters), nil, false)
+	contentType, parameters := p.parseOperationParameters(operation, routeParameters)
+	return *NewOperation(name, operation.Summary, method, route, contentType, parameters, nil, false)
 }
 
 func (p OpenApiParser) parsePath(route string, pathItem openapi3.PathItem) []Operation {

@@ -1044,3 +1044,65 @@ paths:
 		t.Errorf("Did not set correct custom header, expected: %v, got: %v", expectedHeader, header)
 	}
 }
+
+func TestPostWithFileAsRawRequestBody(t *testing.T) {
+	definition := `
+paths:
+  /upload:
+    post:
+      operationId: upload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: The file to upload
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	path := createFile(t)
+	os.WriteFile(path, []byte("hello-world"), 0644)
+	result := runCli([]string{"myservice", "upload", "--input", "file://" + path}, context)
+
+	contentType := result.RequestHeader["content-type"]
+	if contentType != "application/octet-stream" {
+		t.Errorf("Content-Type is not application/octet-stream, got: %v", contentType)
+	}
+	if result.RequestBody != "hello-world" {
+		t.Errorf("Request body is not as expected, got: %v", result.RequestBody)
+	}
+}
+
+func TestPostWithRawRequestBody(t *testing.T) {
+	definition := `
+paths:
+  /upload:
+    post:
+      operationId: upload
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: The file to upload
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "upload", "--input", "hello-world"}, context)
+
+	contentType := result.RequestHeader["content-type"]
+	if contentType != "application/octet-stream" {
+		t.Errorf("Content-Type is not application/octet-stream, got: %v", contentType)
+	}
+	if result.RequestBody != "hello-world" {
+		t.Errorf("Request body is not as expected, got: %v", result.RequestBody)
+	}
+}
