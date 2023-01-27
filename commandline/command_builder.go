@@ -271,7 +271,6 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 			},
 			b.HelpFlag(),
 		},
-		Hidden: true,
 		Action: func(context *cli.Context) error {
 			shell := context.String(shellFlagName)
 			filePath := context.String(fileFlagName)
@@ -293,13 +292,11 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Comman
 		Description: "Returns the autocomplete suggestions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:   "command",
-				Usage:  "The command to autocomplete",
-				Hidden: true,
+				Name:  "command",
+				Usage: "The command to autocomplete",
 			},
 			b.HelpFlag(),
 		},
-		Hidden: true,
 		Action: func(context *cli.Context) error {
 			commandText := context.String("command")
 			exclude := []string{
@@ -322,11 +319,16 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Comman
 
 func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.Command {
 	return &cli.Command{
-		Name: "autocomplete",
+		Name:        "autocomplete",
+		Description: "Commands for autocompletion",
+		Flags: []cli.Flag{
+			b.HelpFlag(),
+		},
 		Subcommands: []*cli.Command{
 			b.createAutoCompleteEnableCommand(),
 			b.createAutoCompleteCompleteCommand(commands),
 		},
+		HideHelp: true,
 	}
 }
 
@@ -350,7 +352,6 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "config",
 		Description: "Interactive command to configure the CLI",
-		Hidden:      false,
 		Flags:       flags,
 		Action: func(context *cli.Context) error {
 			auth := context.String(authFlagName)
