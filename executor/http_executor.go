@@ -67,7 +67,7 @@ func (e HttpExecutor) createForm(parameters []ExecutionParameter) ([]byte, strin
 	return b.Bytes(), writer.FormDataContentType(), nil
 }
 
-func (e HttpExecutor) createJson(parameters []ExecutionParameter) ([]byte, string, error) {
+func (e HttpExecutor) createJson(contentType string, parameters []ExecutionParameter) ([]byte, string, error) {
 	var body = map[string]interface{}{}
 	for _, parameter := range parameters {
 		body[parameter.Name] = parameter.Value
@@ -76,20 +76,20 @@ func (e HttpExecutor) createJson(parameters []ExecutionParameter) ([]byte, strin
 	if err != nil {
 		return []byte{}, "", fmt.Errorf("Error creating body: %v", err)
 	}
-	return result, "application/json", nil
+	return result, contentType, nil
 }
 
-func (e HttpExecutor) createBody(body []byte, bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
+func (e HttpExecutor) createBody(contentType string, body []byte, bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
 	if len(body) > 0 {
-		return body, "application/json", nil
+		return body, contentType, nil
 	}
 	if len(formParameters) > 0 {
 		return e.createForm(formParameters)
 	}
 	if len(bodyParameters) > 0 {
-		return e.createJson(bodyParameters)
+		return e.createJson(contentType, bodyParameters)
 	}
-	return []byte{}, "", nil
+	return []byte{}, contentType, nil
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
@@ -151,7 +151,7 @@ func (e HttpExecutor) Call(context ExecutionContext, output io.Writer) error {
 	if err != nil {
 		return err
 	}
-	body, contentType, err := e.createBody(context.Body, context.BodyParameters, context.FormParameters)
+	body, contentType, err := e.createBody(context.ContentType, context.Body, context.BodyParameters, context.FormParameters)
 	if err != nil {
 		return err
 	}

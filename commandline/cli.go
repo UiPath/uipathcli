@@ -63,7 +63,7 @@ func (c Cli) convertToParameters(parameters []plugin.CommandParameter) []parser.
 
 func (c Cli) applyPluginCommand(plugin plugin.CommandPlugin, command plugin.Command, definition *parser.Definition) {
 	parameters := c.convertToParameters(command.Parameters)
-	operation := parser.NewOperation(command.Name, command.Description, "", "", parameters, plugin, command.Hidden)
+	operation := parser.NewOperation(command.Name, command.Description, "", "", "application/json", parameters, plugin, command.Hidden)
 	for i, _ := range definition.Operations {
 		if definition.Operations[i].Name == command.Name {
 			definition.Operations[i] = *operation

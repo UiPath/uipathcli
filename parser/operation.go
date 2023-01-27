@@ -7,11 +7,12 @@ type Operation struct {
 	Description string
 	Method      string
 	Route       string
+	ContentType string
 	Parameters  []Parameter
 	Plugin      plugin.CommandPlugin
 	Hidden      bool
 }
 
-func NewOperation(name string, description string, method string, route string, parameters []Parameter, plugin plugin.CommandPlugin, hidden bool) *Operation {
-	return &Operation{name, description, method, route, parameters, plugin, hidden}
+func NewOperation(name string, description string, method string, route string, contentType string, parameters []Parameter, plugin plugin.CommandPlugin, hidden bool) *Operation {
+	return &Operation{name, description, method, route, contentType, parameters, plugin, hidden}
 }
