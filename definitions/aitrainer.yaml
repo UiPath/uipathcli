@@ -1,0 +1,3841 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-trainer
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /v1/runs/{runId}:
+    get:
+      tags:
+        - Training run related APIs
+      description: Get Run by id
+      operationId: getRunById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: runId
+          in: path
+          description: 'Expected: uuid String corresponding to Run Id'
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+    put:
+      tags:
+        - Training run related APIs
+      description: Update a Run
+      operationId: updateRun
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RunUpdationRequest'
+        required: true
+      responses:
+        '200':
+          description: Run updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+        '202':
+          description: Run update request accepted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+    delete:
+      tags:
+        - Training run related APIs
+      description: Delete Run by id
+      operationId: deleteRunById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: runId
+          in: path
+          description: 'Expected: uuid String corresponding to Run Id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '202':
+          description: Run deletion request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/pipelines/{pipelineId}:
+    get:
+      tags:
+        - Training pipeline related APIs
+      description: Get Pipeline by id
+      operationId: getPipelineById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pipelineId
+          in: path
+          description: 'Expected: uuid String corresponding to Pipeline Id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Pipeline retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+    put:
+      tags:
+        - Training pipeline related APIs
+      description: Update a Pipeline
+      operationId: updatePipeline
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pipelineId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineUpdationRequest'
+        required: true
+      responses:
+        '201':
+          description: Pipeline is updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+  /v1/trainerTenant:
+    get:
+      tags:
+        - Tenant APIs
+      description: Get tenants
+      operationId: getTenants
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenantProvisionId
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: tenantProvisioningStatus
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - NOT_PROVISIONED
+                - PROVISIONED
+                - DEPROVISIONING
+                - DISABLED
+                - FAILED
+                - SOFT_DELETED
+            default: []
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        '200':
+          description: Tenant/Tenants retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
+    post:
+      tags:
+        - Tenant APIs
+      description: Provision tenant to Training
+      operationId: provisionTenant
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantProvisionLicenseDto'
+        required: true
+      responses:
+        '201':
+          description: Tenant provisioned successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/trainerTenant/refreshExpiringSasUrl:
+    post:
+      tags:
+        - Tenant APIs
+      operationId: refreshExpiringSasUrlForTenants
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/serviceentries:
+    get:
+      tags:
+        - Service entry related APIs
+      description: Fetch service entries with the search criteria
+      operationId: getServiceEntries
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: hostName
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: port
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: protocol
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - HTTP
+              - HTTPS
+              - TLS
+              - TCP
+              - UDP
+        - name: global
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+              - FAILED
+      responses:
+        '200':
+          description: ML Skills retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
+    post:
+      tags:
+        - Service entry related APIs
+      description: Service entry creation
+      operationId: createServiceEntry
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceEntryCreationRequest'
+        required: true
+      responses:
+        '201':
+          description: Service entry created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseServiceEntryDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseServiceEntryDto'
+  /v1/runs:
+    get:
+      tags:
+        - Training run related APIs
+      description: Fetch Runs
+      operationId: getRuns
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: sourcePackageId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - SCHEDULED
+              - QUEUED
+              - RUNNING
+              - SUCCESSFUL
+              - FAILED
+              - KILLED
+              - PACKAGING
+              - WAITING_FOR_RESOURCES
+        - name: pipelineType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - FULL_TRAINING
+              - TRAIN_ONLY
+              - EVALUATE_ONLY
+        - name: fromDate
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: pipelineId
+          in: query
+          description: 'Expected: pipeline uuid for which runs are being queried for'
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Runs retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoRunDtoBasePipelineDto'
+        '404':
+          description: The resource you are trying to get does not exist
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoRunDtoBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoRunDtoBasePipelineDto'
+    post:
+      tags:
+        - Training run related APIs
+      description: Start a schedule run for trigger pipeline
+      operationId: startRun
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScheduledRunRequest'
+        required: true
+      responses:
+        '202':
+          description: Run start request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
+  /v1/pipelines:
+    get:
+      tags:
+        - Training pipeline related APIs
+      description: Fetch Pipelines
+      operationId: getPipelines
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+      responses:
+        '200':
+          description: Pipelines retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoBasePipelineDto'
+        '404':
+          description: The resource you are trying to get does not exist
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoBasePipelineDto'
+    post:
+      tags:
+        - Training pipeline related APIs
+      description: Create a pipeline
+      operationId: createPipeline
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PipelineCreationRequest'
+        required: true
+      responses:
+        '201':
+          description: Pipeline created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBasePipelineDto'
+  /v1/datasets:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Fetch list of datasets '
+      operationId: getDatasets
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who is fetching Datasets'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the One who is fetching Datasets'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who is fetching Datasets'
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          description: 'Expected: AccountName of the One who is fetching Datasets'
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          description: 'Expected: TenantName of the One who is fetching Datasets'
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          description: 'Expected: Authorization token to perform operation'
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: exactMatchOnName
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+      responses:
+        '200':
+          description: Datasets retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDto'
+    post:
+      tags:
+        - Dataset Controller related APIs
+      description: Create a dataset
+      operationId: createDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s creating dataset'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s creating dataset'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s creating dataset'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetRequestDto'
+        required: true
+      responses:
+        '201':
+          description: Dataset Created Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '409':
+          description: Dataset with same name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+  /v1/datasets:download:
+    get:
+      tags:
+        - Dataset Download Controller related APIs
+      description: Get Dataset downloads list
+      operationId: getDatasetDownloads
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: true
+          schema:
+            type: string
+        - name: datasetId
+          in: query
+          description: 'Expected: ID of the Dataset'
+          required: true
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+      responses:
+        '200':
+          description: Dataset retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDownloadDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDownloadDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDownloadDto'
+    post:
+      tags:
+        - Dataset Download Controller related APIs
+      description: Start Downloading the Dataset
+      operationId: initiateDatasetDownload
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId'
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId'
+          required: true
+          schema:
+            type: string
+        - name: datasetId
+          in: query
+          description: 'Expected: ID of the Dataset'
+          required: true
+          schema:
+            type: string
+        - name: files
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Dataset Download started successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDownloadDto'
+        '409':
+          description: Already Downloading the Dataset
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDownloadDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDownloadDto'
+  /v1/datasets/{datasetId}:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: Get Dataset by id
+      operationId: getDatasetById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          description: 'Expected: uuid String corresponding to datasetId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dataset retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+    post:
+      tags:
+        - Dataset Controller related APIs
+      description: Update a dataset
+      operationId: updateDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s updating dataset'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s updating dataset'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s updating dataset'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetRequestDto'
+        required: true
+      responses:
+        '201':
+          description: Dataset Updated Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+    delete:
+      tags:
+        - Dataset Controller related APIs
+      description: Delete a dataset
+      operationId: deleteDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s deleting dataset'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s deleting dataset'
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s deleting dataset'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Dataset Deletion Request Accepted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/datasets/{datasetId}/rotateKey:
+    post:
+      tags:
+        - Dataset Controller related APIs
+      description: Rotate API key
+      operationId: rotateKey
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s rotating the api key'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s rotating the api key'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s rotating the api key'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s rotating the api key'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: API key for dataset rotated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '404':
+          description: Dataset is not a public dataset
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseDatasetDto'
+  /v1/datasets/{datasetId}/copyBlob:
+    post:
+      tags:
+        - Dataset Controller related APIs
+      description: Copy blob from one location to another inside dataset
+      operationId: copyBlob
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating dataset'
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          description: 'Expected: uuid String corresponding to datasetId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CopyBlobRequestDto'
+        required: true
+      responses:
+        '200':
+          description: Blob copied successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/trainerTenant/{tenantId}:
+    get:
+      tags:
+        - Tenant APIs
+      description: Get Tenant by id
+      operationId: getTenantById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
+  /v1/signedURL:
+    get:
+      tags:
+        - SignedURL Generation Related APIs
+      operationId: getSignedURL
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: blobName
+          in: query
+          description: Blob Name
+          required: true
+          schema:
+            type: string
+        - name: encodedUrl
+          in: query
+          description: Flag if values are URL encoded
+          required: false
+          schema:
+            type: string
+            default: 'false'
+        - name: signingMethod
+          in: query
+          description: HttpMethod to Use while Signing the URL
+          required: true
+          schema:
+            type: string
+            enum:
+              - PUT
+              - POST
+              - GET
+        - name: contentType
+          in: query
+          description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
+          required: false
+          schema:
+            $ref: '#/components/schemas/MediaType'
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '400':
+          description: Invalid Input
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+  /v1/signedURL/public:
+    get:
+      tags:
+        - SignedURL Generation Related APIs
+      operationId: getPublicSignedURL
+      parameters:
+        - name: api-key
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: blobName
+          in: query
+          description: Blob Name
+          required: true
+          schema:
+            type: string
+        - name: signingMethod
+          in: query
+          description: HttpMethod to Use while Signing the URL
+          required: true
+          schema:
+            type: string
+            enum:
+              - PUT
+              - POST
+              - GET
+        - name: contentType
+          in: query
+          description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
+          required: false
+          schema:
+            $ref: '#/components/schemas/MediaType'
+        - name: filePath
+          in: query
+          description: Path of the file for which the signed url is being generated
+          required: true
+          schema:
+            type: string
+        - name: encodedPathUrl
+          in: query
+          description: Flag if the filePath URL encoded
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '400':
+          description: Invalid Input
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+  /v1/runs/logs/{runId}:
+    get:
+      tags:
+        - Training run related APIs
+      description: Fetch Run Logs
+      operationId: getRunLogs
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Run logs retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunLogsDto'
+        '404':
+          description: The resource you are trying to get does not exist
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunLogsDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRunLogsDto'
+  /v1/datasets/{datasetId}/signedURL:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Signed URL for read and update operations. '
+      operationId: getDatasetSignedURL
+      parameters:
+        - name: account-id
+          in: header
+          description: Account Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: Tenant Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          description: Project Id to which the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filePath
+          in: query
+          description: file path for which the signed url to be generated.
+          required: true
+          schema:
+            type: string
+        - name: encodedPathUrl
+          in: query
+          description: Flag if the filePath URL encoded
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: signingMethod
+          in: query
+          description: HttpMethod to Use while Signing the URL
+          required: true
+          schema:
+            type: string
+            enum:
+              - PUT
+              - POST
+              - GET
+        - name: contentType
+          in: query
+          description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
+          required: false
+          schema:
+            $ref: '#/components/schemas/MediaType'
+        - name: authorization
+          in: header
+          description: Authorization token to perform operation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+  /v1/datasets/{datasetId}/files:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Lists files/directory in a dataset '
+      operationId: listDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: Account Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: Tenant Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          description: Project Id to which the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: pageToken
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: datasetId
+          in: path
+          description: Id of the dataset
+          required: true
+          schema:
+            type: string
+        - name: filePath
+          in: query
+          description: Path to the file
+          required: false
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: encodedPathUrl
+          in: query
+          description: Flag if the filePath URL encoded
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: authorization
+          in: header
+          description: Authorization token to perform operation
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+    delete:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Delete files/directory in a dataset '
+      operationId: deleteFileForDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: Account Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: Tenant Id to whom the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          description: Project Id to which the dataset belongs
+          required: true
+          schema:
+            type: string
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: filePath
+          in: query
+          description: Path to the file
+          required: false
+          schema:
+            type: string
+        - name: blobType
+          in: query
+          required: false
+          schema:
+            type: string
+            default: FILE
+            enum:
+              - FILE
+              - DIRECTORY
+        - name: encodedPathUrl
+          in: query
+          description: Flag if the filePath URL encoded
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/datasets/search:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Check if Dataset exists by name '
+      operationId: checkUniqueName
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            maxLength: 50
+            minLength: 0
+            pattern: '[a-zA-Z_0-9][a-zA-Z0-9_ .-]*'
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '409':
+          description: Project name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/datasets/listPipelineArtifacts:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Fetch list of pipeline artifacts '
+      operationId: listPipelineArtifacts
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: pageToken
+          in: query
+          description: 'Expected: Authorization token to perform operation'
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: directoryName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ListOfBlobs retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+  /v1/datasets/listDataset:
+    get:
+      tags:
+        - Dataset Controller related APIs
+      description: 'Fetch list of blobs '
+      operationId: getListDataset
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the One who''s creating datasets'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the one who is fetching datasets'
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          description: 'Expected: AccountName of the One who is fetching Datasets'
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          description: 'Expected: TenantName of the One who is fetching Datasets'
+          required: false
+          schema:
+            type: string
+        - name: pageToken
+          in: query
+          description: 'Expected: Authorization token to perform operation'
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: directoryName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ListOfBlobs retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
+  /v1/trainerTenant/{tenantIdToDeprovision}:
+    delete:
+      tags:
+        - Tenant APIs
+      description: Deprovision tenant and its resources
+      operationId: deProvisionTenant
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenantIdToDeprovision
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: deletePackage
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '202':
+          description: Tenant deprovisioning request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/serviceentries/{serviceEntryId}:
+    delete:
+      tags:
+        - Service entry related APIs
+      description: Delete Service entry
+      operationId: deleteServiceEntry
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: serviceEntryId
+          in: path
+          description: 'Expected: UUID string corresponding to Service entry'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service entry deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        '404':
+          description: Service entry is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+  /v1/datasets:download/{datasetDownloadId}:
+    delete:
+      tags:
+        - Dataset Download Controller related APIs
+      description: Delete a Downloaded Dataset
+      operationId: deleteDatasetDownload
+      parameters:
+        - name: user-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s deleting dataset'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s deleting dataset'
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          description: 'Expected: ProjectId of the current Dataset'
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: datasetDownloadId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Deletion Request Accepted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/datasets/files:
+    delete:
+      tags:
+        - Dataset Controller related APIs
+      description: Delete files
+      operationId: deleteFile
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the one who is deleting data'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the one who is deleting data'
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          description: 'Expected: ProjectId of the One who''s deleting data'
+          required: false
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the one who is deleting data'
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          description: 'Expected: AccountName of the One who is deleting data'
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          description: 'Expected: TenantName of the One who is deleting data'
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          description: 'Expected: Authorization token to perform operation'
+          required: false
+          schema:
+            type: string
+        - name: datasetId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fileName
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: blobType
+          in: query
+          required: false
+          schema:
+            type: string
+            default: FILE
+            enum:
+              - FILE
+              - DIRECTORY
+        - name: exactMatchOnName
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '202':
+          description: File deletion request accepted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+components:
+  schemas:
+    RunUpdationRequest:
+      required:
+        - runAction
+      type: object
+      properties:
+        runAction:
+          type: string
+          description: Run Action
+          enum:
+            - KILL
+            - RESTART
+    BasePipelineDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        sourceType:
+          type: string
+          enum:
+            - ML_PACKAGE
+        sourceId:
+          type: string
+        sourceName:
+          type: string
+        sourceVersionId:
+          type: string
+        sourceVersion:
+          type: string
+        sourceCustomVersion:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        scheduleType:
+          type: string
+          enum:
+            - ONE_SHOT
+            - TIME_TRIGGER
+        pipelineType:
+          type: string
+          enum:
+            - FULL_TRAINING
+            - TRAIN_ONLY
+            - EVALUATE_ONLY
+        trainingDatasetId:
+          type: string
+        dataDirectory:
+          type: string
+        evaluationDatasetId:
+          type: string
+        evaluationDataDirectory:
+          type: string
+        autoDeploy:
+          type: boolean
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        schedule:
+          type: string
+        timezone:
+          type: string
+        triggerTime:
+          type: string
+        repeat:
+          type: boolean
+        sourcePackageName:
+          type: string
+        sourcePackageVersion:
+          type: integer
+          format: int32
+        sourcePackageTrainingVersion:
+          type: integer
+          format: int32
+        recurrence:
+          type: integer
+          format: int32
+        requestCPU:
+          type: number
+          format: float
+        requestMemory:
+          type: integer
+          format: int32
+        limitCPU:
+          type: number
+          format: float
+        limitMemory:
+          type: integer
+          format: int32
+        pvcSize:
+          type: integer
+          format: int32
+    BaseResponseRunDtoBasePipelineDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/RunDtoBasePipelineDto'
+    RunDtoBasePipelineDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        sourceType:
+          type: string
+          enum:
+            - ML_PACKAGE
+        sourceId:
+          type: string
+        sourceName:
+          type: string
+        sourceVersionId:
+          type: string
+        sourceVersion:
+          type: string
+        sourceCustomVersion:
+          type: string
+        projectId:
+          type: string
+        name:
+          type: string
+        pipeline:
+          $ref: '#/components/schemas/BasePipelineDto'
+        displayStatus:
+          type: string
+          enum:
+            - SCHEDULED
+            - QUEUED
+            - RUNNING
+            - SUCCESSFUL
+            - FAILED
+            - KILLED
+            - PACKAGING
+            - WAITING_FOR_RESOURCES
+        status:
+          type: string
+          enum:
+            - CREATED
+            - QUEUED
+            - PACKAGING
+            - WAITING_FOR_RESOURCES
+            - ALLOCATING_LICENSES
+            - DEPLOYING
+            - DEPLOYED
+            - COMPLETED
+            - FAILED
+            - KILLED
+            - SOFT_DELETED
+        pipelineType:
+          type: string
+          enum:
+            - FULL_TRAINING
+            - TRAIN_ONLY
+            - EVALUATE_ONLY
+        score:
+          type: number
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        trainingDatasetId:
+          type: string
+        dataDirectory:
+          type: string
+        evaluationDatasetId:
+          type: string
+        evaluationDataDirectory:
+          type: string
+        startedOn:
+          type: integer
+          format: int64
+        completedOn:
+          type: integer
+          format: int64
+        envVars:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/SettingDto'
+        licenseUpdatedOn:
+          type: string
+          format: date-time
+        clusterInfo:
+          type: string
+        failureReason:
+          type: string
+        encrypted:
+          type: boolean
+    SettingDto:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+    PipelineEnvVarsRequest:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+      description: Environment variables to be used while triggering pipeline
+    PipelineUpdationRequest:
+      type: object
+      properties:
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Pipeline description
+        trainingDatasetId:
+          type: string
+          description: Training dataset Id
+        dataDirectory:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Data directory used by the pipeline
+        evaluationDatasetId:
+          type: string
+          description: Evaluation dataset id
+        evaluationDataDirectory:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Evaluation data directory used by the pipeline
+        autoDeploy:
+          type: boolean
+          description: Pipeline Auto deployment flag
+        processor:
+          type: string
+          description: Processor on which training should run
+          enum:
+            - CPU
+            - GPU
+        schedule:
+          type: string
+          description: Crontab expression
+        timezone:
+          type: string
+          description: Only UTC is supported
+        triggerTime:
+          type: string
+          description: For one time pipelines
+        repeat:
+          type: boolean
+          description: Set if cronjob needs to be run repeatedly
+        environmentVars:
+          type: array
+          description: Environment variables to be used while triggering pipeline
+          items:
+            $ref: '#/components/schemas/PipelineEnvVarsRequest'
+        recurrence:
+          type: integer
+          description: Recurrence in days, runs every n days from triggerTime. It requires cron to be sent with format MM HH */1 * *
+          format: int32
+        requestCPU:
+          minimum: 0
+          type: number
+          description: Minimum CPU to allocate
+          format: float
+        requestMemory:
+          minimum: 0
+          type: integer
+          description: Minimum RAM to allocate
+          format: int32
+        limitCPU:
+          minimum: 0
+          type: number
+          description: Max CPU limit for the pipeline
+          format: float
+        limitMemory:
+          minimum: 0
+          type: integer
+          description: Max RAM limit for the pipeline
+          format: int32
+        pvcSize:
+          minimum: 0
+          type: integer
+          description: PVC Size for the training pipeline
+          format: int32
+    BaseResponseBasePipelineDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/BasePipelineDto'
+    TenantProvisionLicenseDto:
+      required:
+        - allocatedAIGPULicenses
+        - allocatedAIRobotLicenses
+        - orchestratorTenantId
+        - tenantIdToProvision
+      type: object
+      properties:
+        tenantIdToProvision:
+          type: string
+          description: Expected UUID. Tenant-key for provisioning
+        orchestratorTenantId:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Tenant Id assigned by orchestrator.'
+          format: int64
+        tenantName:
+          type: string
+          description: 'Expected: String. Tenant name assigned by orchestrator.'
+        aifabricEnabled:
+          type: boolean
+          description: Boolean flag to indicate AIFabric enabled or disabled
+          deprecated: true
+        allocatedAIRobotLicenses:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Allocated CPU license for tenant'
+          format: int32
+        allocatedAIGPULicenses:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Allocated GPU license for tenant'
+          format: int32
+        licenseExpiryTime:
+          type: integer
+          description: 'Expected: Long (epoch time). Expiry time of licenses.'
+          format: int64
+    BaseResponseString:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: string
+    ServiceEntryCreationRequest:
+      type: object
+      properties:
+        hostName:
+          type: string
+        port:
+          type: integer
+          format: int64
+        protocol:
+          type: string
+          enum:
+            - HTTP
+            - HTTPS
+            - TLS
+            - TCP
+            - UDP
+        global:
+          type: boolean
+    BaseResponseServiceEntryDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/ServiceEntryDto'
+    ServiceEntryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        hostName:
+          type: string
+        port:
+          type: string
+        protocol:
+          type: string
+          enum:
+            - HTTP
+            - HTTPS
+            - TLS
+            - TCP
+            - UDP
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - FAILED
+        global:
+          type: boolean
+    ScheduledRunRequest:
+      required:
+        - pipelineId
+      type: object
+      properties:
+        pipelineId:
+          type: string
+          description: Expected UUID. UUID of pipeline
+    PipelineCreationRequest:
+      required:
+        - name
+        - projectId
+        - sourceId
+        - sourceVersionId
+      type: object
+      properties:
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Pipeline description
+        trainingDatasetId:
+          type: string
+          description: Training dataset Id
+        dataDirectory:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Data directory used by the pipeline
+        evaluationDatasetId:
+          type: string
+          description: Evaluation dataset id
+        evaluationDataDirectory:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Evaluation data directory used by the pipeline
+        autoDeploy:
+          type: boolean
+          description: Pipeline Auto deployment flag
+        processor:
+          type: string
+          description: Processor on which training should run
+          enum:
+            - CPU
+            - GPU
+        schedule:
+          type: string
+          description: Crontab expression
+        timezone:
+          type: string
+          description: Only UTC is supported
+        triggerTime:
+          type: string
+          description: For one time pipelines
+        repeat:
+          type: boolean
+          description: Set if cronjob needs to be run repeatedly
+        environmentVars:
+          type: array
+          description: Environment variables to be used while triggering pipeline
+          items:
+            $ref: '#/components/schemas/PipelineEnvVarsRequest'
+        recurrence:
+          type: integer
+          description: Recurrence in days, runs every n days from triggerTime. It requires cron to be sent with format MM HH */1 * *
+          format: int32
+        requestCPU:
+          minimum: 0
+          type: number
+          description: Minimum CPU to allocate
+          format: float
+        requestMemory:
+          minimum: 0
+          type: integer
+          description: Minimum RAM to allocate
+          format: int32
+        limitCPU:
+          minimum: 0
+          type: number
+          description: Max CPU limit for the pipeline
+          format: float
+        limitMemory:
+          minimum: 0
+          type: integer
+          description: Max RAM limit for the pipeline
+          format: int32
+        pvcSize:
+          minimum: 0
+          type: integer
+          description: PVC Size for the training pipeline
+          format: int32
+        projectId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: UUID of project to which pipeline belongs
+        name:
+          maxLength: 50
+          minLength: 0
+          pattern: '[a-zA-Z_][a-zA-Z0-9_ ]*'
+          type: string
+          description: Pipeline name
+        sourceType:
+          type: string
+          description: Pipeline source
+          enum:
+            - ML_PACKAGE
+        sourceId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: Pipeline source id
+        sourceVersionId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: Pipeline source version id
+        scheduleType:
+          type: string
+          description: Schedule type
+          enum:
+            - ONE_SHOT
+            - TIME_TRIGGER
+        pipelineType:
+          type: string
+          description: Pipeline type
+          enum:
+            - FULL_TRAINING
+            - TRAIN_ONLY
+            - EVALUATE_ONLY
+        sourcePackageVersion:
+          type: integer
+          format: int32
+        sourcePackageTrainingVersion:
+          type: integer
+          format: int32
+        sourcePackageName:
+          type: string
+        sourceCustomVersion:
+          type: string
+          description: Source Package custom version
+    DatasetRequestDto:
+      type: object
+      properties:
+        name:
+          maxLength: 50
+          minLength: 0
+          pattern: '[a-zA-Z_0-9][a-zA-Z0-9_ .-]*'
+          type: string
+          description: Name of dataset
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Description of dataset
+        projectId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: UUID of project to which dataset belongs
+        public:
+          type: boolean
+        encrypted:
+          type: boolean
+      description: 'Expected: Updated Name and description of dataset'
+    BaseResponseDatasetDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/DatasetDto'
+    DatasetDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        projectId:
+          type: string
+        apiKey:
+          type: string
+        status:
+          type: string
+          enum:
+            - SOFT_DELETED
+            - AVAILABLE
+        public:
+          type: boolean
+        encrypted:
+          type: boolean
+    BaseResponseDatasetDownloadDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/DatasetDownloadDto'
+    DatasetDownloadDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+        tenantId:
+          type: string
+        projectId:
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        id:
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        modifiedBy:
+          type: string
+        datasetId:
+          type: string
+        status:
+          type: string
+          enum:
+            - DOWNLOADING
+            - COMPLETED
+            - FAILED
+            - DELETED
+        downloadUrl:
+          type: string
+        name:
+          type: string
+        files:
+          type: string
+    CopyBlobRequestDto:
+      required:
+        - destinationBlobName
+        - sourceBlobName
+      type: object
+      properties:
+        sourceBucket:
+          type: string
+        destinationBucket:
+          type: string
+        sourceBlobName:
+          type: string
+        destinationBlobName:
+          type: string
+    BaseResponsePageListingDtoTenantProvisionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoTenantProvisionDto'
+    PageListingDtoTenantProvisionDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantProvisionDto'
+    TenantProvisionDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+        tenantId:
+          type: string
+        projectId:
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        id:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+        provisionedTenantId:
+          type: string
+        tenantNamespace:
+          type: string
+        provisioningStatus:
+          type: string
+          enum:
+            - NOT_PROVISIONED
+            - PROVISIONED
+            - DEPROVISIONING
+            - DISABLED
+            - FAILED
+            - SOFT_DELETED
+        createdOn:
+          type: integer
+          format: int64
+        createdBy:
+          type: string
+        modifiedBy:
+          type: string
+        modifiedOn:
+          type: integer
+          format: int64
+        serviceAccountName:
+          type: string
+        tenantName:
+          type: string
+        orchestratorTenantId:
+          type: integer
+          format: int64
+        allocatedAIRobotLicenses:
+          type: integer
+          format: int32
+        allocatedAIGPULicenses:
+          type: integer
+          format: int32
+        blockedAIRobotLicenses:
+          type: integer
+          format: int32
+        blockedAIGPULicenses:
+          type: integer
+          format: int32
+        allocatedDeployments:
+          type: integer
+          format: int32
+        blockedDeployments:
+          type: integer
+          format: int32
+        allocatedGpu:
+          type: integer
+          format: int32
+        blockedGpu:
+          type: integer
+          format: int32
+        subscriptionCode:
+          type: string
+        softDelete:
+          type: boolean
+    BaseResponseTenantProvisionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/TenantProvisionDto'
+    MediaType:
+      type: object
+      properties:
+        type:
+          type: string
+        subtype:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        qualityValue:
+          type: number
+          format: double
+        subtypeSuffix:
+          type: string
+        wildcardType:
+          type: boolean
+        wildcardSubtype:
+          type: boolean
+        charset:
+          type: string
+        concrete:
+          type: boolean
+    BaseResponseSignedURLDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/SignedURLDto'
+    SignedURLDto:
+      type: object
+      properties:
+        signingMethod:
+          type: string
+        url:
+          type: string
+        contentType:
+          type: string
+    BaseResponseListServiceEntryDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceEntryDto'
+    BaseResponsePageListingDtoRunDtoBasePipelineDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoRunDtoBasePipelineDto'
+    PageListingDtoRunDtoBasePipelineDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/RunDtoBasePipelineDto'
+    BaseResponseRunLogsDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/RunLogsDto'
+    RunLogsDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+        tenantId:
+          type: string
+        projectId:
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        runLogs:
+          type: string
+        id:
+          type: string
+        availableForDownload:
+          type: boolean
+    BaseResponsePageListingDtoBasePipelineDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoBasePipelineDto'
+    PageListingDtoBasePipelineDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/BasePipelineDto'
+    BaseResponsePageListingDtoDatasetDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoDatasetDto'
+    PageListingDtoDatasetDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetDto'
+    BaseResponsePageListingDtoDatasetDownloadDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoDatasetDownloadDto'
+    PageListingDtoDatasetDownloadDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetDownloadDto'
+    BaseResponseTokenBasedPageListingDtoBlobMetadata:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/TokenBasedPageListingDtoBlobMetadata'
+    BlobMetadata:
+      type: object
+      properties:
+        blobName:
+          type: string
+        contentType:
+          type: string
+        blobSize:
+          type: integer
+          format: int64
+        createTime:
+          type: integer
+          format: int64
+        mediaLink:
+          type: string
+        blobType:
+          type: string
+          enum:
+            - FILE
+            - DIRECTORY
+    TokenBasedPageListingDtoBlobMetadata:
+      type: object
+      properties:
+        nextPageToken:
+          type: string
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlobMetadata'
+    BaseResponseBoolean:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: boolean
+    BaseResponseObject:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: object

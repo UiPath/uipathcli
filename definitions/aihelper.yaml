@@ -1,0 +1,2944 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-helper
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /v1/project/{projectId}:
+    put:
+      tags:
+        - Helper Project Creation Api
+      operationId: updateProject
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/tenantProvision:
+    post:
+      tags:
+        - Helper Tenant Provision Api
+      operationId: tenantProvision
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantProvisionDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+    delete:
+      tags:
+        - Helper Tenant Provision Api
+      operationId: tenantDeprovision
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantProvisionDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/signedURL/batch:
+    post:
+      tags:
+        - SignedURL Generation Related APIs
+      operationId: getSignedURLBatch
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchSignedUrlDto'
+        required: true
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
+        '400':
+          description: Invalid Input
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
+  /v1/roles:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getAllRoles
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleType
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: roleName
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoRolesDto'
+    post:
+      tags:
+        - Role creation APIs
+      operationId: createRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: isS2SToken
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputRolesDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRolesDto'
+  /v1/roles/users/tenant:
+    post:
+      tags:
+        - Role creation APIs
+      operationId: addUsersToTenantRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: isS2SToken
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRolesAssignmentDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseUserRolesAssignmentDto'
+  /v1/roles/users/project:
+    post:
+      tags:
+        - Role creation APIs
+      operationId: addUsersToProjectRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: isS2SToken
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: false
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRolesAssignmentDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseUserRolesAssignmentDto'
+  /v1/project:
+    post:
+      tags:
+        - Helper Project Creation Api
+      operationId: projectCreation
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestrictProjectDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/audits:
+    get:
+      tags:
+        - AuditLog related APIs
+      operationId: getAuditLogs
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fromTime
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: components
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: searchText
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: entityId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: createdOn
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: DESC
+        - name: isPublic
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoAuditLogDto'
+    post:
+      tags:
+        - AuditLog related APIs
+      summary: Create the Audit Log Entry !!
+      operationId: createAuditLog
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogMessage'
+        required: true
+      responses:
+        '201':
+          description: Audit Log created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseAuditLogDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseAuditLogDto'
+  /v1/roles/{roleId}:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getRoleById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRolesDto'
+    delete:
+      tags:
+        - Role creation APIs
+      operationId: deleteRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+    patch:
+      tags:
+        - Role creation APIs
+      operationId: updateRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputRolesDto'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseRolesDto'
+  /v1/roles/users/tenant/{userId}:
+    patch:
+      tags:
+        - Role creation APIs
+      operationId: deleteUserTenantAllRoles
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRolesMappingUpdate'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/roles/users/project/{userId}/{projectId}:
+    patch:
+      tags:
+        - Role creation APIs
+      operationId: deleteUserProjectAllRoles
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRolesMappingUpdate'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/swagger-config:
+    get:
+      tags:
+        - swagger-ui-config-controller
+      summary: Get Swagger Config
+      operationId: swaggerConfig
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
+  /v1/signedURL:
+    get:
+      tags:
+        - SignedURL Generation Related APIs
+      operationId: getSignedURL
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: Blob Name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: signingMethod
+          in: query
+          description: HttpMethod to Use while Signing the URL
+          required: true
+          schema:
+            type: string
+            enum:
+              - PUT
+              - POST
+              - GET
+        - name: contentType
+          in: query
+          description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
+          required: false
+          schema:
+            $ref: '#/components/schemas/MediaType'
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '400':
+          description: Invalid Input
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+  /v1/roles/users/tenant/{roleId}:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getAllUsersForTenantRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseUsersDto'
+  /v1/roles/users/project/{roleId}:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getAllUsersForProjectRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseUsersDto'
+  /v1/roles/users/allRoles:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getMembers
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: displayName
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: level
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - PROJECT
+              - TENANT
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoUserAndGroupDto'
+  /v1/roles/groups/identity:
+    get:
+      tags:
+        - Role creation APIs
+      operationId: getGroupsFromIdentity
+      parameters:
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseIdentityUserDto'
+  /v1/permissions:
+    get:
+      tags:
+        - Permission related APIs
+      operationId: getPermissions
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: s2sIpRange
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mode
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePermissionsDto'
+      deprecated: true
+  /v1/permissions/users/tenant:
+    get:
+      tags:
+        - Permission related APIs
+      operationId: getAllPermissionsForUserTenantLevel
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListPermissionDto'
+  /v1/permissions/users/project:
+    get:
+      tags:
+        - Permission related APIs
+      operationId: getAllPermissionsForUserProjectLevel
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: project-id
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListPermissionDto'
+  /v1/permissions/permission:validate:
+    get:
+      tags:
+        - Permission related APIs
+      operationId: isActionAllowed
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: s2sIpRange
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: actions
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/permissions/all:
+    get:
+      tags:
+        - Permission related APIs
+      operationId: getAllPermissions
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: level
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListPermissionInfoDto'
+  /v1/directory/search/{partitionId}:
+    get:
+      tags:
+        - Directory related APIs
+      operationId: directorySearch
+      parameters:
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: startsWith
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DirectorySearchDto'
+  /v1/audits/{auditId}:
+    get:
+      tags:
+        - AuditLog related APIs
+      operationId: getAuditLogById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: auditId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseAuditLogDto'
+  /v1/allprojects:
+    get:
+      tags:
+        - Project Access Api
+      operationId: getProjectAccess
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseExplicitProjectsAccessDto'
+  /monitor/queue:
+    get:
+      tags:
+        - RabbitMQ monitoring related APIs
+      description: Get details about RabbitMQ queue properties
+      operationId: getAllQueueDetails
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListRabbitMQQueueDetails'
+  /v1/roles/users/tenant/{roleId}/{userId}:
+    delete:
+      tags:
+        - Role creation APIs
+      operationId: deleteUserTenantRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/roles/users/project/{roleId}/{userId}:
+    delete:
+      tags:
+        - Role creation APIs
+      operationId: deleteUserProjectRole
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: projectId
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseHttpStatus'
+components:
+  schemas:
+    BaseResponseHttpStatus:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: string
+          enum:
+            - 100 CONTINUE
+            - 101 SWITCHING_PROTOCOLS
+            - 102 PROCESSING
+            - 103 CHECKPOINT
+            - 200 OK
+            - 201 CREATED
+            - 202 ACCEPTED
+            - 203 NON_AUTHORITATIVE_INFORMATION
+            - 204 NO_CONTENT
+            - 205 RESET_CONTENT
+            - 206 PARTIAL_CONTENT
+            - 207 MULTI_STATUS
+            - 208 ALREADY_REPORTED
+            - 226 IM_USED
+            - 300 MULTIPLE_CHOICES
+            - 301 MOVED_PERMANENTLY
+            - 302 FOUND
+            - 302 MOVED_TEMPORARILY
+            - 303 SEE_OTHER
+            - 304 NOT_MODIFIED
+            - 305 USE_PROXY
+            - 307 TEMPORARY_REDIRECT
+            - 308 PERMANENT_REDIRECT
+            - 400 BAD_REQUEST
+            - 401 UNAUTHORIZED
+            - 402 PAYMENT_REQUIRED
+            - 403 FORBIDDEN
+            - 404 NOT_FOUND
+            - 405 METHOD_NOT_ALLOWED
+            - 406 NOT_ACCEPTABLE
+            - 407 PROXY_AUTHENTICATION_REQUIRED
+            - 408 REQUEST_TIMEOUT
+            - 409 CONFLICT
+            - 410 GONE
+            - 411 LENGTH_REQUIRED
+            - 412 PRECONDITION_FAILED
+            - 413 PAYLOAD_TOO_LARGE
+            - 413 REQUEST_ENTITY_TOO_LARGE
+            - 414 URI_TOO_LONG
+            - 414 REQUEST_URI_TOO_LONG
+            - 415 UNSUPPORTED_MEDIA_TYPE
+            - 416 REQUESTED_RANGE_NOT_SATISFIABLE
+            - 417 EXPECTATION_FAILED
+            - 418 I_AM_A_TEAPOT
+            - 419 INSUFFICIENT_SPACE_ON_RESOURCE
+            - 420 METHOD_FAILURE
+            - 421 DESTINATION_LOCKED
+            - 422 UNPROCESSABLE_ENTITY
+            - 423 LOCKED
+            - 424 FAILED_DEPENDENCY
+            - 425 TOO_EARLY
+            - 426 UPGRADE_REQUIRED
+            - 428 PRECONDITION_REQUIRED
+            - 429 TOO_MANY_REQUESTS
+            - 431 REQUEST_HEADER_FIELDS_TOO_LARGE
+            - 451 UNAVAILABLE_FOR_LEGAL_REASONS
+            - 500 INTERNAL_SERVER_ERROR
+            - 501 NOT_IMPLEMENTED
+            - 502 BAD_GATEWAY
+            - 503 SERVICE_UNAVAILABLE
+            - 504 GATEWAY_TIMEOUT
+            - 505 HTTP_VERSION_NOT_SUPPORTED
+            - 506 VARIANT_ALSO_NEGOTIATES
+            - 507 INSUFFICIENT_STORAGE
+            - 508 LOOP_DETECTED
+            - 509 BANDWIDTH_LIMIT_EXCEEDED
+            - 510 NOT_EXTENDED
+            - 511 NETWORK_AUTHENTICATION_REQUIRED
+    TenantProvisionDto:
+      type: object
+      properties:
+        tenantId:
+          type: string
+        accountId:
+          type: string
+        forced:
+          type: boolean
+    BatchSignedUrlDto:
+      required:
+        - signingMethod
+      type: object
+      properties:
+        signingMethod:
+          type: string
+          enum:
+            - PUT
+            - POST
+            - GET
+        encodedUrl:
+          type: boolean
+        contentType:
+          type: string
+        blobNames:
+          maxItems: 2147483647
+          minItems: 1
+          type: array
+          items:
+            type: string
+    BaseResponseListSignedURLDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/SignedURLDto'
+    SignedURLDto:
+      type: object
+      properties:
+        signingMethod:
+          type: string
+        url:
+          type: string
+        contentType:
+          type: string
+    InputRolesDto:
+      type: object
+      properties:
+        roleName:
+          type: string
+        roleType:
+          type: string
+          enum:
+            - TENANT
+            - PROJECT
+            - MIXED
+        isDefault:
+          type: boolean
+        isStatic:
+          type: boolean
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionDto'
+    PermissionDto:
+      type: object
+      properties:
+        permission:
+          type: string
+          enum:
+            - DATASET
+            - PIPELINES
+            - DATA_LABELING
+            - ML_PACKAGES
+            - ML_SKILLS
+            - ML_LOGS
+            - SETTINGS
+            - PROJECT
+            - LICENSES
+            - USERS
+            - ROLES
+            - PROFILE
+            - OOB_UPLOAD
+        canCreate:
+          type: boolean
+        canEdit:
+          type: boolean
+        canDelete:
+          type: boolean
+        canView:
+          type: boolean
+    BaseResponseRolesDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/RolesDto'
+    RolePermissionsDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        permission:
+          type: string
+          enum:
+            - DATASET
+            - PIPELINES
+            - DATA_LABELING
+            - ML_PACKAGES
+            - ML_SKILLS
+            - ML_LOGS
+            - SETTINGS
+            - PROJECT
+            - LICENSES
+            - USERS
+            - ROLES
+            - PROFILE
+            - OOB_UPLOAD
+        canCreate:
+          type: boolean
+        canEdit:
+          type: boolean
+        canDelete:
+          type: boolean
+        canView:
+          type: boolean
+        roleId:
+          type: string
+          format: uuid
+    RolesDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        name:
+          type: string
+        displayName:
+          type: string
+        isStatic:
+          type: boolean
+        isDefault:
+          type: boolean
+        type:
+          type: string
+          enum:
+            - TENANT
+            - PROJECT
+            - MIXED
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolePermissionsDto'
+    MemberRoleDto:
+      type: object
+      properties:
+        roleId:
+          type: string
+          format: uuid
+        roleDisplayName:
+          type: string
+    UserAndGroupDto:
+      type: object
+      properties:
+        id:
+          type: string
+        userName:
+          type: string
+        displayName:
+          type: string
+        objectType:
+          type: string
+          enum:
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - User
+            - Robot
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberRoleDto'
+        source:
+          type: string
+    UserRolesAssignmentDto:
+      type: object
+      properties:
+        usersAndGroups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAndGroupDto'
+        roleId:
+          type: array
+          items:
+            type: string
+            format: uuid
+        replace:
+          type: boolean
+    BaseResponseUserRolesAssignmentDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/UserRolesAssignmentDto'
+    RestrictProjectDto:
+      type: object
+      properties:
+        projectId:
+          type: string
+        restrictAccess:
+          type: boolean
+    AuditLogMessage:
+      type: object
+      properties:
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        projectId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        entityId:
+          type: string
+        entityTypeName:
+          type: string
+          enum:
+            - ML_SKILL
+            - ML_PACKAGE
+            - ML_SKILL_VERSION
+            - ML_SERVICE
+            - LICENSE_RESOURCE_MAP
+            - PIPELINE
+            - RUN
+            - SERVICE_ENTRY
+            - DATASET
+            - PROJECT
+        code:
+          type: string
+          enum:
+            - AL_1001
+            - AL_1002
+            - AL_1003
+            - AL_1004
+            - AL_1005
+            - AL_1006
+            - AL_1007
+            - AL_1008
+            - AL_1009
+            - AL_1010
+            - AL_1011
+            - AL_1012
+            - AL_1013
+            - AL_1014
+            - AL_1015
+            - AL_1016
+            - AL_1017
+            - AD_1001
+            - AD_1002
+            - AD_1003
+            - AD_1004
+            - AD_1005
+            - AD_1006
+            - AD_1007
+            - AD_1008
+            - AD_1009
+            - AD_1010
+            - AD_1011
+            - AD_1012
+            - AD_1013
+            - AD_1014
+            - AD_1015
+            - AD_1016
+            - AD_2000
+            - AD_2001
+            - AL_3001
+            - AT_3002
+            - AT_3003
+            - AT_3004
+            - AT_3005
+            - AL_3006
+            - AL_3007
+            - AL_3008
+            - AL_3009
+            - AL_3010
+            - AT_3011
+            - AT_3012
+            - AL_3013
+            - AL_3014
+            - AL_3015
+            - AL_3016
+            - AL_3017
+            - AL_3018
+            - AL_3019
+            - AD_4001
+            - AD_4002
+            - AD_4003
+            - AD_4004
+            - AL_5001
+            - AL_5002
+            - AL_5003
+            - AL_5004
+            - AL_5005
+            - AL_5006
+            - AL_5007
+            - AL_5008
+            - AL_6001
+            - AL_6002
+            - AL_6003
+            - AL_6004
+            - AL_6005
+            - AL_6006
+            - AL_6007
+        message:
+          maxLength: 200
+          minLength: 0
+          type: string
+        data:
+          maxLength: 100
+          minLength: 0
+          type: string
+        severity:
+          maxLength: 50
+          minLength: 0
+          type: string
+        level:
+          maxLength: 50
+          minLength: 0
+          type: string
+        type:
+          type: string
+          enum:
+            - ALERT
+            - AUDIT
+        action:
+          type: string
+          enum:
+            - ADD
+            - UPDATE
+            - DELETE
+        createdOn:
+          type: string
+          format: date-time
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        errorLog:
+          maxLength: 4000
+          minLength: 0
+          type: string
+        entityName:
+          type: string
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+    AuditLogDto:
+      type: object
+      properties:
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        projectId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        entityId:
+          type: string
+        entityTypeName:
+          type: string
+          enum:
+            - ML_SKILL
+            - ML_PACKAGE
+            - ML_SKILL_VERSION
+            - ML_SERVICE
+            - LICENSE_RESOURCE_MAP
+            - PIPELINE
+            - RUN
+            - SERVICE_ENTRY
+            - DATASET
+            - PROJECT
+        code:
+          type: string
+          enum:
+            - AL_1001
+            - AL_1002
+            - AL_1003
+            - AL_1004
+            - AL_1005
+            - AL_1006
+            - AL_1007
+            - AL_1008
+            - AL_1009
+            - AL_1010
+            - AL_1011
+            - AL_1012
+            - AL_1013
+            - AL_1014
+            - AL_1015
+            - AL_1016
+            - AL_1017
+            - AD_1001
+            - AD_1002
+            - AD_1003
+            - AD_1004
+            - AD_1005
+            - AD_1006
+            - AD_1007
+            - AD_1008
+            - AD_1009
+            - AD_1010
+            - AD_1011
+            - AD_1012
+            - AD_1013
+            - AD_1014
+            - AD_1015
+            - AD_1016
+            - AD_2000
+            - AD_2001
+            - AL_3001
+            - AT_3002
+            - AT_3003
+            - AT_3004
+            - AT_3005
+            - AL_3006
+            - AL_3007
+            - AL_3008
+            - AL_3009
+            - AL_3010
+            - AT_3011
+            - AT_3012
+            - AL_3013
+            - AL_3014
+            - AL_3015
+            - AL_3016
+            - AL_3017
+            - AL_3018
+            - AL_3019
+            - AD_4001
+            - AD_4002
+            - AD_4003
+            - AD_4004
+            - AL_5001
+            - AL_5002
+            - AL_5003
+            - AL_5004
+            - AL_5005
+            - AL_5006
+            - AL_5007
+            - AL_5008
+            - AL_6001
+            - AL_6002
+            - AL_6003
+            - AL_6004
+            - AL_6005
+            - AL_6006
+            - AL_6007
+        message:
+          maxLength: 200
+          minLength: 0
+          type: string
+        data:
+          maxLength: 100
+          minLength: 0
+          type: string
+        severity:
+          maxLength: 50
+          minLength: 0
+          type: string
+        level:
+          maxLength: 50
+          minLength: 0
+          type: string
+        type:
+          type: string
+          enum:
+            - ALERT
+            - AUDIT
+        action:
+          type: string
+          enum:
+            - ADD
+            - UPDATE
+            - DELETE
+        createdOn:
+          type: string
+          format: date-time
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        errorLog:
+          maxLength: 4000
+          minLength: 0
+          type: string
+        entityName:
+          type: string
+        metadata:
+          type: object
+          additionalProperties:
+            type: object
+        id:
+          type: string
+    BaseResponseAuditLogDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/AuditLogDto'
+    UserRolesMappingUpdate:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        roles:
+          type: array
+          items:
+            type: string
+            format: uuid
+        delete:
+          type: boolean
+    MediaType:
+      type: object
+      properties:
+        type:
+          type: string
+        subtype:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        qualityValue:
+          type: number
+          format: double
+        charset:
+          type: string
+        concrete:
+          type: boolean
+        wildcardType:
+          type: boolean
+        wildcardSubtype:
+          type: boolean
+        subtypeSuffix:
+          type: string
+    BaseResponseSignedURLDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/SignedURLDto'
+    BaseResponsePageListingDtoRolesDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoRolesDto'
+    PageListingDtoRolesDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/RolesDto'
+    BaseResponseUsersDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/UsersDto'
+    UsersDto:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            type: string
+            format: uuid
+    BaseResponsePageListingDtoUserAndGroupDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoUserAndGroupDto'
+    PageListingDtoUserAndGroupDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAndGroupDto'
+    BaseResponseIdentityUserDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/IdentityUserDto'
+    IdentityDirectoryEntityDto:
+      type: object
+      properties:
+        identifier:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        objectType:
+          type: string
+        source:
+          type: string
+    IdentityGroupDto:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: integer
+          format: int32
+        name:
+          type: string
+        displayName:
+          type: string
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/IdentityDirectoryEntityDto'
+    IdentityUserDto:
+      type: object
+      properties:
+        id:
+          type: string
+        userName:
+          type: string
+        name:
+          type: string
+        surname:
+          type: string
+        email:
+          type: string
+        legacyId:
+          type: integer
+          format: int32
+        groupIDs:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+        groupNames:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/IdentityGroupDto'
+    BaseResponsePermissionsDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PermissionsDto'
+    PermissionsDto:
+      type: object
+      properties:
+        '@odata.context':
+          type: string
+        UserId:
+          type: string
+        Permissions:
+          type: array
+          items:
+            type: string
+        TenantId:
+          type: string
+        AccountId:
+          type: string
+    BaseResponseListPermissionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionDto'
+    BaseResponseBoolean:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: boolean
+    BaseResponseListPermissionInfoDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionInfoDto'
+    PermissionInfoDto:
+      type: object
+      properties:
+        permission:
+          type: string
+          enum:
+            - DATASET
+            - PIPELINES
+            - DATA_LABELING
+            - ML_PACKAGES
+            - ML_SKILLS
+            - ML_LOGS
+            - SETTINGS
+            - PROJECT
+            - LICENSES
+            - USERS
+            - ROLES
+            - PROFILE
+            - OOB_UPLOAD
+        permissionAccess:
+          type: string
+          enum:
+            - READ
+            - ALL
+    DirectorySearchDto:
+      type: object
+      properties:
+        identifier:
+          type: string
+        source:
+          type: string
+        identityName:
+          type: string
+        displayName:
+          type: string
+        email:
+          type: string
+        type:
+          type: integer
+          format: int32
+    BaseResponsePageListingDtoAuditLogDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoAuditLogDto'
+    PageListingDtoAuditLogDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogDto'
+    BaseResponseExplicitProjectsAccessDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/ExplicitProjectsAccessDto'
+    ExplicitProjectsAccessDto:
+      type: object
+      properties:
+        projectPermission:
+          $ref: '#/components/schemas/PermissionDto'
+        projectIds:
+          type: array
+          items:
+            type: string
+    BaseResponseListRabbitMQQueueDetails:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/RabbitMQQueueDetails'
+    RabbitMQQueueDetails:
+      type: object
+      properties:
+        name:
+          type: string
+        messages:
+          type: integer
+          format: int32

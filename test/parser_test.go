@@ -87,6 +87,8 @@ func TestCustomOperationName(t *testing.T) {
 	t.Run("OperationIdWithSlash", func(t *testing.T) { CustomOperationName(t, "my/operation", "my-operation") })
 	t.Run("OperationIdWithUnderscore", func(t *testing.T) { CustomOperationName(t, "my_operation", "my-operation") })
 	t.Run("UppercaseOperationId", func(t *testing.T) { CustomOperationName(t, "MY_Operation", "my-operation") })
+	t.Run("CamelCaseOperationId", func(t *testing.T) { CustomOperationName(t, "myOperationName", "my-operation-name") })
+	t.Run("AlreadySnakeCasedOperationId", func(t *testing.T) { CustomOperationName(t, "my-Operation-Name", "my-operation-name") })
 }
 
 func CustomOperationName(t *testing.T, operationId string, expectedName string) {
@@ -383,7 +385,15 @@ components:
 	}
 }
 
-func TestSnakeCaseBodyParameter(t *testing.T) {
+func TestCustomParameterName(t *testing.T) {
+	t.Run("SimpleParameter", func(t *testing.T) { CustomParameterName(t, "myparam", "--myparam") })
+	t.Run("ParameterWithDollarSign", func(t *testing.T) { CustomParameterName(t, "$myparam", "--myparam") })
+	t.Run("UppercaseParameter", func(t *testing.T) { CustomParameterName(t, "MY-PARAMETER", "--my-parameter") })
+	t.Run("CamelCaseParameter", func(t *testing.T) { CustomParameterName(t, "myParameterName", "--my-parameter-name") })
+	t.Run("AlreadySnakeCasedParameter", func(t *testing.T) { CustomParameterName(t, "my-Parameter-Name", "--my-parameter-name") })
+}
+
+func CustomParameterName(t *testing.T, name string, expectedParameter string) {
 	definition := `
 paths:
   /validate:
@@ -393,7 +403,7 @@ paths:
           application/json:
             schema:
               properties:
-                myParameter:
+                ` + name + `:
                   type: string
 `
 	context := NewContextBuilder().
@@ -402,9 +412,8 @@ paths:
 
 	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
 
-	expected := "--my-parameter"
-	if !strings.Contains(result.StdOut, expected) {
-		t.Errorf("stdout does not contain snake cased parameter, expected: %v, got: %v", expected, result.StdOut)
+	if !strings.Contains(result.StdOut, expectedParameter) {
+		t.Errorf("stdout does not contain properly cased parameter, expected: %v, got: %v", expectedParameter, result.StdOut)
 	}
 }
 
