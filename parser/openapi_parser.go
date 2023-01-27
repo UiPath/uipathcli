@@ -45,6 +45,7 @@ func (p OpenApiParser) getName(method string, route string, operation openapi3.O
 	}
 	name = strings.ReplaceAll(name, "/", "-")
 	name = strings.ReplaceAll(name, "_", "-")
+	name = ToSnakeCase(name)
 	return strings.ToLower(name)
 }
 
@@ -83,8 +84,9 @@ func (p OpenApiParser) getSchemaType(schema openapi3.Schema) string {
 }
 
 func (p OpenApiParser) getParameterName(fieldName string) string {
-	name := ToSnakeCase(fieldName)
-	return strings.ReplaceAll(name, "$", "")
+	name := strings.ReplaceAll(fieldName, "$", "")
+	name = ToSnakeCase(name)
+	return strings.ToLower(name)
 }
 
 func (p OpenApiParser) getType(schemaRef *openapi3.SchemaRef) string {

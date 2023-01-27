@@ -1,0 +1,4521 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-pkgmanager
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /v1/tenants/{tenantId}:
+    get:
+      tags:
+        - Tenant Controller related APIs
+      description: Get Tenant by id
+      operationId: getTenantById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+    put:
+      tags:
+        - Tenant Controller related APIs
+      description: Update the tenant
+      operationId: updateTenant
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tenantId
+          in: path
+          description: 'Expected: tenant id for the tenant to be updated'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: Tenant updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+    delete:
+      tags:
+        - Tenant Controller related APIs
+      description: delete the tenant
+      operationId: deleteTenant
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the tenant'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tenantId
+          in: path
+          description: 'Expected: tenant id for the tenant to be deleted'
+          required: true
+          schema:
+            type: string
+        - name: deletePackage
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Tenant deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/tenants:
+    get:
+      tags:
+        - Tenant Controller related APIs
+      description: Fetch Tenants
+      operationId: getTenants
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who is fetching Tenants'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the One who is fetching Tenants'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who is fetching Tenants'
+          required: true
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: displayName
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: isPublic
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: Tenants retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
+    post:
+      tags:
+        - Tenant Controller related APIs
+      description: Create a tenant
+      operationId: createTenant
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the tenant if not public'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the tenant if not public'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the tenant if not public'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: publicAccountId
+          in: query
+          description: 'Expected: AccountId to be made Public'
+          required: false
+          schema:
+            type: string
+        - name: publicTenantId
+          in: query
+          description: 'Expected: TenantId to be made public'
+          required: false
+          schema:
+            type: string
+        - name: displayName
+          in: query
+          description: 'Expected: DisplayName of the tenant'
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Tenant Created Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+  /v1/projects:
+    get:
+      tags:
+        - Project Controller related APIs
+      description: Fetch list of projects
+      operationId: getProjects
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: exactMatchOnName
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
+    post:
+      tags:
+        - Project Controller related APIs
+      description: Create a project
+      operationId: createProject
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s creating project'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s creating project'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s creating project'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequestDto'
+        required: true
+      responses:
+        '201':
+          description: Project Created Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+        '409':
+          description: Project with same name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+  /v1/projects/{projectId}:
+    get:
+      tags:
+        - Project Controller related APIs
+      description: Get Project by id
+      operationId: getProjectById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: projectId
+          in: path
+          description: 'Expected: uuid String corresponding to projectId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+    post:
+      tags:
+        - Project Controller related APIs
+      description: Update a project
+      operationId: updateProject
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s updating project'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s updating project'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s updating project'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectRequestDto'
+        required: true
+      responses:
+        '201':
+          description: Project Updated Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseProjectDto'
+    delete:
+      tags:
+        - Project Controller related APIs
+      description: Soft delete a project
+      operationId: deleteProject
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s deleting project'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s deleting project'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who''s deleting project'
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Project Deleted Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/mlpackages:
+    get:
+      tags:
+        - ML package related APIs
+      description: Fetch ML packages
+      operationId: getMLPackages
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: status
+          in: query
+          description: ML Package statuses to be matched while fetching package
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DEPLOYING
+                - PURGED
+                - DEPLOYED
+                - VALIDATION_FAILED
+                - UNDEPLOYED
+                - VALIDATING
+                - THREAT_DETECTED
+                - FAILED
+                - SOFT_DELETED
+            default: []
+        - name: mlPackageOwnedByAccountId
+          in: query
+          description: AccountId of the Public Tenant whose Public MLPackages the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByTenantId
+          in: query
+          description: TenantId of the Public Tenant whose Public MLPackages the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByProjectId
+          in: query
+          description: ProjectId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackages retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
+    post:
+      tags:
+        - ML package related APIs
+      description: Create MLPackage with already uploaded content
+      operationId: createMLPackage
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlPackageCreationType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ML_PACKAGE_CLONE
+              - ML_PACKAGE_VERSION_CLONE
+              - ML_PACKAGE_IMPORT
+              - ML_PACKAGE_VERSION_IMPORT
+              - ML_PACKAGE_UPLOAD
+              - ML_PACKAGE_VERSION_UPLOAD
+              - ML_PACKAGE_OOB_UPLOAD
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageMetaDataDto_ViewWithTenantDetails'
+        required: true
+      responses:
+        '201':
+          description: MLPackage created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+  /v1/mlpackages/{mlPackageId}/versions:
+    get:
+      tags:
+        - MLPackage versions related APIs
+      description: Fetch MLPackage versions with the search criteria
+      operationId: getVersions
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - VALIDATING
+                - VALIDATION_FAILED
+                - UNDEPLOYED
+                - DEPLOYING
+                - DEPLOYED
+                - PURGED
+                - THREAT_DETECTED
+                - SOFT_DELETED
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: createdOn
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: DESC
+        - name: runId
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: mlPackageOwnedByAccountId
+          in: query
+          description: AccountId of the Public Tenant whose Public MLPackages the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByTenantId
+          in: query
+          description: TenantId of the Public Tenant whose Public MLPackages the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByProjectId
+          in: query
+          description: ProjectId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackage version/versions retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
+    post:
+      tags:
+        - MLPackage versions related APIs
+      description: Create new MLPackage version with already uploaded content
+      operationId: createMLPackageVersion
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+        - name: mlPackageCreationType
+          in: query
+          description: Differentiate between type of ML package version creation
+          required: false
+          schema:
+            type: string
+            enum:
+              - ML_PACKAGE_CLONE
+              - ML_PACKAGE_VERSION_CLONE
+              - ML_PACKAGE_IMPORT
+              - ML_PACKAGE_VERSION_IMPORT
+              - ML_PACKAGE_UPLOAD
+              - ML_PACKAGE_VERSION_UPLOAD
+              - ML_PACKAGE_OOB_UPLOAD
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageMetaDataDto'
+        required: true
+      responses:
+        '201':
+          description: MLPackage version created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+    delete:
+      tags:
+        - MLPackage versions related APIs
+      description: Delete multiple MLPackage versions
+      operationId: deleteMultipleMLPackageVersionsById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              description: 'Expected: list of uuid Strings corresponding to mlPackageVersionId'
+              items:
+                type: string
+        required: true
+      responses:
+        '200':
+          description: ' MLPackage versions deleted successfully'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListString'
+  /v1/mlpackages/{mlPackageId}/versions/clone:
+    post:
+      tags:
+        - MLPackage versions related APIs
+      description: Clone new MLPackage version with already uploaded content
+      operationId: cloneMLPackageVersion
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageCloneDto'
+        required: true
+      responses:
+        '201':
+          description: MLPackage version created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+  /v1/mlpackages/import:
+    post:
+      tags:
+        - ML package related APIs
+      description: Import MLPackage/Version with uploaded content
+      operationId: importMLPackage
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlPackageCreationType
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ML_PACKAGE_IMPORT
+            enum:
+              - ML_PACKAGE_CLONE
+              - ML_PACKAGE_VERSION_CLONE
+              - ML_PACKAGE_IMPORT
+              - ML_PACKAGE_VERSION_IMPORT
+              - ML_PACKAGE_UPLOAD
+              - ML_PACKAGE_VERSION_UPLOAD
+              - ML_PACKAGE_OOB_UPLOAD
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageMetaDataDto_ViewWithTenantDetails'
+        required: true
+      responses:
+        '201':
+          description: MLPackage created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+  /v1/mlpackages/clone:
+    post:
+      tags:
+        - ML package related APIs
+      description: Clone MLPackage with existing OOB package
+      operationId: cloneMLPackage
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageCloneDto_ViewWithTenantDetails'
+        required: true
+      responses:
+        '201':
+          description: MLPackage created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+  /v1/mlpackagelanguageversions:
+    get:
+      tags:
+        - ML package Language related APIs
+      description: Fetch list of MLPackage Language versions
+      operationId: getMLPackageLanguageVersions
+      parameters:
+        - name: mlPackageLanguage
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: imageType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - SERVING
+              - TRAINING
+        - name: processor
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - CPU
+              - GPU
+        - name: version
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: MLPackage Language versions retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+    post:
+      tags:
+        - ML package Language related APIs
+      description: Create MLPackage Language version
+      operationId: createMLPackageLanguageVersion
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageLanguageVersionMetadataDto'
+        required: true
+      responses:
+        '201':
+          description: MLPackage Language version created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+  /v1/mlpackagelanguageversions/{mlPackageLanguage}/{version}:
+    post:
+      tags:
+        - ML package Language related APIs
+      description: Create MLPackage Language version for specific language
+      operationId: createMLPackageLanguageVersionsForSpecificLanguage
+      parameters:
+        - name: mlPackageLanguage
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/MLPackageLanguageVersionMetadataDto'
+        required: true
+      responses:
+        '201':
+          description: MLPackage Language versions created successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+  /v1/mlpackagelanguageversions/{mlPackageLanguageVersionId}:
+    get:
+      tags:
+        - ML package Language related APIs
+      description: Get MLPackage Language version by id
+      operationId: getMLPackageLanguageVersionById
+      parameters:
+        - name: mlPackageLanguageVersionId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageLanguageVersionId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackage Language version retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+    post:
+      tags:
+        - ML package Language related APIs
+      description: Update MLPackage Language version
+      operationId: updateMLPackageLanguageVersion
+      parameters:
+        - name: mlPackageLanguageVersionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageLanguageVersionUpdateMetadataDto'
+        required: true
+      responses:
+        '201':
+          description: MLPackage Language version Updated Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+    delete:
+      tags:
+        - ML package Language related APIs
+      description: Delete a MLPackage Language version
+      operationId: deleteMLPackageLanguageVersion
+      parameters:
+        - name: mlPackageLanguageVersionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+          description: MLPackage Language version Deleted Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/migrate/tenants:
+    post:
+      tags:
+        - tenant-rbac-migration-controller
+      description: Migrate tenants for RBAC
+      operationId: migrateTenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/TenantRbacMigrationRequestDto'
+        required: true
+      responses:
+        '202':
+          description: Tenants migration request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/migrate/tenants/self:
+    post:
+      tags:
+        - tenant-rbac-migration-controller
+      description: Self Migrate tenant for RBAC
+      operationId: selfMigrateTenant
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who''s creating project'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId of the One who''s creating project'
+          required: true
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Tenants migration request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/migrate/tenants/all:
+    post:
+      tags:
+        - tenant-rbac-migration-controller
+      description: Migrate all tenants for RBAC
+      operationId: migrateAllTenants
+      responses:
+        '202':
+          description: Tenants migration request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/mlpackages/{mlPackageId}/versions/{versionId}:
+    get:
+      tags:
+        - MLPackage versions related APIs
+      description: Get MLPackage version by id
+      operationId: getMLPackageVersionById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+        - name: versionId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageVersionId'
+          required: true
+          schema:
+            type: string
+        - name: publicTenantCheck
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+        - name: mlPackageOwnedByAccountId
+          in: query
+          description: AccountId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByTenantId
+          in: query
+          description: TenantId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByProjectId
+          in: query
+          description: ProjectId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: processor
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - CPU
+              - GPU
+        - name: imageType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - SERVING
+              - TRAINING
+      responses:
+        '200':
+          description: MLPackage version retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+    patch:
+      tags:
+        - MLPackage versions related APIs
+      description: Update MLPackageVersion of a Tenant to Public
+      operationId: updateMLPackageVersionVisibility
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+        - name: versionId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageVersionId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLPackageVersionPublicUpdateDto'
+        required: true
+      responses:
+        '200':
+          description: MLPackageVersion Visibility Updated Successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
+  /v1/tenants/migrated/check:
+    get:
+      tags:
+        - Tenant Controller related APIs
+      description: Check if the tenant is migrated
+      operationId: checkTenantMigrated
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: TenantId'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Tenant Migration check successful
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/tenants/check:
+    get:
+      tags:
+        - Tenant Controller related APIs
+      description: Check For Public Tenant
+      operationId: checkPublicTenant
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who is fetching Public Tenants'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the One who is fetching Public Tenants'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who is fetching Public Tenants'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: PublicTenants retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/signedURL:
+    get:
+      tags:
+        - SignedURL Generation Related APIs
+      operationId: getSignedURL
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlPackageName
+          in: query
+          description: Package Name to be Uploaded
+          required: true
+          schema:
+            type: string
+        - name: signingMethod
+          in: query
+          description: HttpMethod to Use while Signing the URL
+          required: true
+          schema:
+            type: string
+            enum:
+              - PUT
+              - POST
+              - GET
+        - name: encodedUrl
+          in: query
+          description: Flag if values are URL encoded
+          required: false
+          schema:
+            type: string
+            default: 'false'
+        - name: contentType
+          in: query
+          description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
+          required: true
+          schema:
+            $ref: '#/components/schemas/MediaType'
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '400':
+          description: Invalid Input
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+  /v1/projects/user:
+    get:
+      tags:
+        - Project Controller related APIs
+      description: get all projects for the user
+      operationId: getProjectsForUser
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMapStringListProjects'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMapStringListProjects'
+  /v1/projects/search:
+    get:
+      tags:
+        - Project Controller related APIs
+      description: Check if Project exists by name
+      operationId: checkUniqueName
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            maxLength: 50
+            minLength: 0
+            pattern: '[a-zA-Z_][a-zA-Z0-9_ ]*'
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '409':
+          description: Project name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/projects/public:
+    get:
+      tags:
+        - Project Controller related APIs
+      description: Fetch list of public projects
+      operationId: getPublicProjects
+      parameters:
+        - name: account-id
+          in: header
+          description: 'Expected: AccountId of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          description: 'Expected: Tenant of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          description: 'Expected: UserId of the One who is fetching Projects'
+          required: true
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: tenantIds
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+            default: []
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ''
+        - name: exactMatchOnName
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Projects retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListProjectDto'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListProjectDto'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListProjectDto'
+  /v1/mlpackages/{mlPackageId}:
+    get:
+      tags:
+        - ML package related APIs
+      description: Get MLPackage by id
+      operationId: getMLPackageById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+        - name: mlPackageOwnedByAccountId
+          in: query
+          description: AccountId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByTenantId
+          in: query
+          description: TenantId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: mlPackageOwnedByProjectId
+          in: query
+          description: ProjectId of the Public Tenant whose Public MLPackage the customer is interested in
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          description: ML Package statuses to be ignore while fetching package
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - DEPLOYING
+                - PURGED
+                - DEPLOYED
+                - VALIDATION_FAILED
+                - UNDEPLOYED
+                - VALIDATING
+                - THREAT_DETECTED
+                - FAILED
+                - SOFT_DELETED
+            default: []
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackage retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+  /v1/mlpackages/search:
+    get:
+      tags:
+        - ML package related APIs
+      description: Check if MLPackage exists by name
+      operationId: checkUniqueMLPackageName
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            maxLength: 36
+            minLength: 0
+            pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
+            type: string
+      responses:
+        '200':
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '409':
+          description: MLPackage name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v1/mlpackagelanguages:
+    get:
+      tags:
+        - ML package Language related APIs
+      description: Fetch ML package languages
+      operationId: getMLPackageLanguages
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+      responses:
+        '200':
+          description: MLPackageLanguages retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+  /v1/mlpackagelanguages/{mlPackageLanguage}/versions:
+    get:
+      tags:
+        - ML package Language related APIs
+      description: Fetch ML package language Versions
+      operationId: getMLPackageLanguageVersions_1
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization-required
+          in: header
+          required: false
+          schema:
+            type: boolean
+            default: true
+        - name: mlPackageLanguage
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackageLanguageVersions retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+        '404':
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
+  /v1/mlpackages/{mlPackageId}/versions/allundeployed:
+    delete:
+      tags:
+        - MLPackage versions related APIs
+      description: Delete all undeployed MLPackage versions
+      operationId: deleteAllUndeployed
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlPackageId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: ' MLPackage versions deleted successfully'
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListString'
+  /v1/mlpackages/versions/{versionId}:
+    delete:
+      tags:
+        - MLPackage versions related APIs
+      description: Delete MLPackage version
+      operationId: deleteMLPackageVersion
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: versionId
+          in: path
+          description: 'Expected: uuid String corresponding to mlPackageVersionId'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: MLPackage version deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '404':
+          description: MLPackage version is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '406':
+          description: MLPackage version cannot be deleted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        '500':
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+components:
+  schemas:
+    TenantUpdateDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - NOT_PROVISIONED
+            - PROVISIONED
+            - DEPROVISIONING
+            - DISABLED
+            - FAILED
+            - SOFT_DELETED
+        active:
+          type: boolean
+    BaseResponseTenantResponseDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/TenantResponseDto'
+    TenantResponseDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - NOT_PROVISIONED
+            - PROVISIONED
+            - DEPROVISIONING
+            - DISABLED
+            - FAILED
+            - SOFT_DELETED
+        displayName:
+          type: string
+        public:
+          type: boolean
+        active:
+          type: boolean
+    ProjectRequestDto:
+      type: object
+      properties:
+        name:
+          maxLength: 50
+          minLength: 0
+          pattern: '[a-zA-Z_][a-zA-Z0-9_ ]*'
+          type: string
+          description: Name of project
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Description of project
+        restrictAccess:
+          type: boolean
+          description: restrictAccess for a Project
+      description: 'Expected: Updated Name and description of project'
+    BaseResponseProjectDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/ProjectDto'
+    ProjectDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        name:
+          type: string
+        description:
+          type: string
+        activePipelines:
+          type: integer
+          format: int32
+        deployedPackages:
+          type: integer
+          format: int32
+        restrictAccess:
+          type: boolean
+        status:
+          type: string
+          enum:
+            - CREATED
+            - SOFT_DELETED
+            - DELETING
+    MLPackageMetaDataDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        memory:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        cpu:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        gpu:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        name:
+          maxLength: 36
+          minLength: 0
+          pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
+          type: string
+          description: Docker compatible mlPackageName, for MLPackage Metadata
+        displayName:
+          maxLength: 50
+          minLength: 0
+          type: string
+          description: Display name of Model
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackage Metadata
+        inputType:
+          type: string
+          description: Valid for MLPackage Metadata
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        changeLog:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackageVersion Metadata
+        mlPackageLanguage:
+          type: string
+          description: Valid for any Metadata
+        languageVersion:
+          type: integer
+          description: Valid for any Metadata
+          format: int32
+        processorType:
+          type: string
+          description: Valid for any Metadata
+          enum:
+            - CPU
+            - GPU
+        inputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        outputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        stagingUri:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Required for both Metadata in case of already uploaded(signed url) file
+        retrainable:
+          type: boolean
+          description: Denotes whether model is retrainable
+        projectId:
+          type: string
+          description: Project Id of ml package
+        settings:
+          type: array
+          description: List of settings to configure model
+          items:
+            $ref: '#/components/schemas/SettingDto_ViewWithTenantDetails'
+        config:
+          $ref: '#/components/schemas/PackageConfigDto_ViewWithTenantDetails'
+        parametersFileJSON:
+          type: string
+          description: Parameter.json file in string
+        imagePath:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Image path for the already pushed docker image of the package
+        version:
+          type: integer
+          description: Version
+          format: int32
+        trainingVersion:
+          type: integer
+          description: Custom training version of ML package
+          format: int32
+        customVersion:
+          maxLength: 64
+          minLength: 0
+          pattern: '[a-zA-Z0-9][a-zA-Z0-9_.-]*'
+          type: string
+          description: Custom Version for models
+        tenantName:
+          type: string
+          description: Tenant for OOB models
+        projectName:
+          type: string
+          description: Project for OOB models & import
+        projectDescription:
+          type: string
+          description: ProjectDescription for OOB models & import
+        contentUri:
+          type: string
+          description: ContentUri for OOB models
+        minAIFabricVersion:
+          type: string
+          description: Min Supported AIFabric Version
+        baseImageCpu:
+          type: string
+          description: BaseImage for CPU
+        baseImageGpu:
+          type: string
+          description: BaseImage for GPU
+        tagsAndLabels:
+          type: string
+          description: ML package tags and labels
+        mlpackageCreationType:
+          type: string
+          enum:
+            - ML_PACKAGE_CLONE
+            - ML_PACKAGE_VERSION_CLONE
+            - ML_PACKAGE_IMPORT
+            - ML_PACKAGE_VERSION_IMPORT
+            - ML_PACKAGE_UPLOAD
+            - ML_PACKAGE_VERSION_UPLOAD
+            - ML_PACKAGE_OOB_UPLOAD
+      description: Metadata to be sent in MLPackage/Version create requests. Description or changelog is mandatory as appropriate
+    PackageConfigDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        service:
+          $ref: '#/components/schemas/ServiceDto_ViewWithTenantDetails'
+        release:
+          $ref: '#/components/schemas/ReleaseDto_ViewWithTenantDetails'
+        publicUriPrefix:
+          type: string
+        cvProxyCurrentImageTag:
+          type: string
+        cvProxyEnvVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/SettingDto_ViewWithTenantDetails'
+      description: Package configuration for public skills
+    ReleaseDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        models:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    ServiceDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        target:
+          type: string
+    SettingDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+    BaseResponseMLPackageDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLPackageDto_ViewWithTenantDetails'
+    MLPackageDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        projectId:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        icon:
+          type: object
+          properties:
+            binaryStream:
+              type: object
+        type:
+          type: string
+          enum:
+            - CLASSIFIER
+        status:
+          type: string
+          enum:
+            - DEPLOYING
+            - PURGED
+            - DEPLOYED
+            - VALIDATION_FAILED
+            - UNDEPLOYED
+            - VALIDATING
+            - THREAT_DETECTED
+            - FAILED
+            - SOFT_DELETED
+        description:
+          type: string
+        inputType:
+          type: string
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        lastUploadedVersion:
+          type: integer
+          format: int32
+        latestVersionInputDescription:
+          type: string
+        latestVersionOutputDescription:
+          type: string
+        lastVersionUploadedOn:
+          type: string
+          format: date-time
+        latestVersionMemory:
+          type: number
+          format: float
+        latestVersionCpu:
+          type: number
+          format: float
+        latestVersionGpu:
+          type: number
+          format: float
+        latestVersionLanguage:
+          type: string
+        latestTrainingVersion:
+          type: integer
+          format: int32
+        isPublic:
+          type: boolean
+        mlPackageVersions:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/MLPackageVersionDto_ViewWithTenantDetails'
+        mlPackageOwnedByAccountId:
+          type: string
+        mlPackageOwnedByTenantId:
+          type: string
+        mlPackageOwnedByProjectId:
+          type: string
+        sourcePackageId:
+          type: string
+        sourcePackageName:
+          type: string
+        retrainable:
+          type: boolean
+        tmModel:
+          type: boolean
+        hasCustomVersion:
+          type: boolean
+    MLPackageVersionDto_ViewWithTenantDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        projectId:
+          type: string
+        defaultValue:
+          type: string
+        status:
+          type: string
+          enum:
+            - VALIDATING
+            - VALIDATION_FAILED
+            - UNDEPLOYED
+            - DEPLOYING
+            - DEPLOYED
+            - PURGED
+            - THREAT_DETECTED
+            - SOFT_DELETED
+        version:
+          type: integer
+          format: int32
+        changeLog:
+          type: string
+        author:
+          type: string
+        mlPackageLanguage:
+          type: string
+          enum:
+            - PYTHON2X
+            - PYTHON3X
+            - PYTHON27
+            - PYTHON36
+            - PYTHON37
+            - PYTHON38
+            - PYTHON36_GPU
+            - PYTHON37_GPU
+            - PYTHON38_GPU
+            - MOJO_PIPELINE
+            - PYTHON36_TRAINER
+            - PYTHON37_TRAINER
+            - PYTHON38_TRAINER
+            - PYTHON36_GPU_TRAINER
+            - PYTHON37_GPU_TRAINER
+            - PYTHON38_GPU_TRAINER
+            - PYTHON36_DU
+            - PYTHON36_DU_GPU
+            - PYTHON36_DU_TRAINER
+            - PYTHON36_DU_GPU_TRAINER
+            - PYTHON37_DU
+            - PYTHON37_DU_GPU
+            - PYTHON37_DU_TRAINER
+            - PYTHON37_DU_GPU_TRAINER
+            - PYTHON36_CV
+            - PYTHON36_CV_GPU
+            - PYTHON36_CV_TM
+            - PYTHON38_OPENCV
+            - PYTHON39
+        contentUri:
+          type: string
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        tags:
+          type: string
+        inputType:
+          type: string
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        inputDescription:
+          type: string
+        outputDescription:
+          type: string
+        mlPackageId:
+          type: string
+        cpu:
+          type: number
+          format: float
+        gpu:
+          type: number
+          format: float
+        memory:
+          type: number
+          format: float
+        isPublic:
+          type: boolean
+        isPublicTenant:
+          type: boolean
+        mlPackageName:
+          type: string
+        description:
+          type: string
+        activityDetail:
+          type: string
+        activityDocumentation:
+          type: string
+        activityVersion:
+          type: string
+        isMLPackagePublic:
+          type: boolean
+        mlPackageDisplayName:
+          type: string
+        retrainable:
+          type: boolean
+        trainingVersion:
+          type: integer
+          format: int32
+        sourcePackageVersionId:
+          type: string
+        settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SettingDto_ViewWithTenantDetails'
+        config:
+          $ref: '#/components/schemas/PackageConfigDto_ViewWithTenantDetails'
+        imagePath:
+          type: string
+        parametersFileJSON:
+          type: string
+        sourcePackageVersion:
+          type: integer
+          format: int32
+        sourcePackageTrainingVersion:
+          type: integer
+          format: int32
+        sourcePackageName:
+          type: string
+        languageVersion:
+          type: integer
+          format: int32
+        minAIFabricVersion:
+          type: string
+        runId:
+          type: string
+        customVersion:
+          type: string
+        baseImage:
+          type: string
+        runtimeImage:
+          type: string
+        languageGroup:
+          type: string
+        language:
+          type: string
+    MLPackageMetaDataDto:
+      type: object
+      properties:
+        memory:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        cpu:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        gpu:
+          minimum: 0
+          type: number
+          description: Valid for any Metadata
+          format: float
+        name:
+          maxLength: 36
+          minLength: 0
+          pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
+          type: string
+          description: Docker compatible mlPackageName, for MLPackage Metadata
+        displayName:
+          maxLength: 50
+          minLength: 0
+          type: string
+          description: Display name of Model
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackage Metadata
+        inputType:
+          type: string
+          description: Valid for MLPackage Metadata
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        changeLog:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackageVersion Metadata
+        mlPackageLanguage:
+          type: string
+          description: Valid for any Metadata
+        languageVersion:
+          type: integer
+          description: Valid for any Metadata
+          format: int32
+        processorType:
+          type: string
+          description: Valid for any Metadata
+          enum:
+            - CPU
+            - GPU
+        inputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        outputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        stagingUri:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Required for both Metadata in case of already uploaded(signed url) file
+        retrainable:
+          type: boolean
+          description: Denotes whether model is retrainable
+        projectId:
+          type: string
+          description: Project Id of ml package
+        settings:
+          type: array
+          description: List of settings to configure model
+          items:
+            $ref: '#/components/schemas/SettingDto'
+        config:
+          $ref: '#/components/schemas/PackageConfigDto'
+        parametersFileJSON:
+          type: string
+          description: Parameter.json file in string
+        imagePath:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Image path for the already pushed docker image of the package
+        version:
+          type: integer
+          description: Version
+          format: int32
+        trainingVersion:
+          type: integer
+          description: Custom training version of ML package
+          format: int32
+        customVersion:
+          maxLength: 64
+          minLength: 0
+          pattern: '[a-zA-Z0-9][a-zA-Z0-9_.-]*'
+          type: string
+          description: Custom Version for models
+        tenantName:
+          type: string
+          description: Tenant for OOB models
+        projectName:
+          type: string
+          description: Project for OOB models & import
+        projectDescription:
+          type: string
+          description: ProjectDescription for OOB models & import
+        contentUri:
+          type: string
+          description: ContentUri for OOB models
+        minAIFabricVersion:
+          type: string
+          description: Min Supported AIFabric Version
+        baseImageCpu:
+          type: string
+          description: BaseImage for CPU
+        baseImageGpu:
+          type: string
+          description: BaseImage for GPU
+        tagsAndLabels:
+          type: string
+          description: ML package tags and labels
+        mlpackageCreationType:
+          type: string
+          enum:
+            - ML_PACKAGE_CLONE
+            - ML_PACKAGE_VERSION_CLONE
+            - ML_PACKAGE_IMPORT
+            - ML_PACKAGE_VERSION_IMPORT
+            - ML_PACKAGE_UPLOAD
+            - ML_PACKAGE_VERSION_UPLOAD
+            - ML_PACKAGE_OOB_UPLOAD
+      description: Metadata to be sent in MLPackage/Version create requests. Description or changelog is mandatory as appropriate
+    PackageConfigDto:
+      type: object
+      properties:
+        service:
+          $ref: '#/components/schemas/ServiceDto'
+        release:
+          $ref: '#/components/schemas/ReleaseDto'
+        publicUriPrefix:
+          type: string
+        cvProxyCurrentImageTag:
+          type: string
+        cvProxyEnvVariables:
+          type: array
+          items:
+            $ref: '#/components/schemas/SettingDto'
+      description: Package configuration for public skills
+    ReleaseDto:
+      type: object
+      properties:
+        models:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+    ServiceDto:
+      type: object
+      properties:
+        target:
+          type: string
+    SettingDto:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+    BaseResponseMLPackageVersionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLPackageVersionDto'
+    MLPackageVersionDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        projectId:
+          type: string
+        defaultValue:
+          type: string
+        status:
+          type: string
+          enum:
+            - VALIDATING
+            - VALIDATION_FAILED
+            - UNDEPLOYED
+            - DEPLOYING
+            - DEPLOYED
+            - PURGED
+            - THREAT_DETECTED
+            - SOFT_DELETED
+        version:
+          type: integer
+          format: int32
+        changeLog:
+          type: string
+        author:
+          type: string
+        mlPackageLanguage:
+          type: string
+          enum:
+            - PYTHON2X
+            - PYTHON3X
+            - PYTHON27
+            - PYTHON36
+            - PYTHON37
+            - PYTHON38
+            - PYTHON36_GPU
+            - PYTHON37_GPU
+            - PYTHON38_GPU
+            - MOJO_PIPELINE
+            - PYTHON36_TRAINER
+            - PYTHON37_TRAINER
+            - PYTHON38_TRAINER
+            - PYTHON36_GPU_TRAINER
+            - PYTHON37_GPU_TRAINER
+            - PYTHON38_GPU_TRAINER
+            - PYTHON36_DU
+            - PYTHON36_DU_GPU
+            - PYTHON36_DU_TRAINER
+            - PYTHON36_DU_GPU_TRAINER
+            - PYTHON37_DU
+            - PYTHON37_DU_GPU
+            - PYTHON37_DU_TRAINER
+            - PYTHON37_DU_GPU_TRAINER
+            - PYTHON36_CV
+            - PYTHON36_CV_GPU
+            - PYTHON36_CV_TM
+            - PYTHON38_OPENCV
+            - PYTHON39
+        contentUri:
+          type: string
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        tags:
+          type: string
+        inputType:
+          type: string
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        inputDescription:
+          type: string
+        outputDescription:
+          type: string
+        mlPackageId:
+          type: string
+        cpu:
+          type: number
+          format: float
+        gpu:
+          type: number
+          format: float
+        memory:
+          type: number
+          format: float
+        isPublic:
+          type: boolean
+        isPublicTenant:
+          type: boolean
+        mlPackageName:
+          type: string
+        description:
+          type: string
+        activityDetail:
+          type: string
+        activityDocumentation:
+          type: string
+        activityVersion:
+          type: string
+        isMLPackagePublic:
+          type: boolean
+        mlPackageDisplayName:
+          type: string
+        retrainable:
+          type: boolean
+        trainingVersion:
+          type: integer
+          format: int32
+        sourcePackageVersionId:
+          type: string
+        settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/SettingDto'
+        config:
+          $ref: '#/components/schemas/PackageConfigDto'
+        imagePath:
+          type: string
+        parametersFileJSON:
+          type: string
+        sourcePackageVersion:
+          type: integer
+          format: int32
+        sourcePackageTrainingVersion:
+          type: integer
+          format: int32
+        sourcePackageName:
+          type: string
+        languageVersion:
+          type: integer
+          format: int32
+        minAIFabricVersion:
+          type: string
+        runId:
+          type: string
+        customVersion:
+          type: string
+        baseImage:
+          type: string
+        runtimeImage:
+          type: string
+        languageGroup:
+          type: string
+        language:
+          type: string
+    MLPackageCloneDto:
+      required:
+        - mlPackageOwnedByAccountId
+        - mlPackageOwnedByProjectId
+        - mlPackageOwnedByTenantId
+        - sourcePackageId
+        - sourcePackageVersionId
+      type: object
+      properties:
+        name:
+          maxLength: 36
+          minLength: 0
+          pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
+          type: string
+          description: Docker compatible mlPackageName, for MLPackage Metadata
+        displayName:
+          maxLength: 50
+          minLength: 0
+          type: string
+          description: Display name of Model
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackage Metadata
+        changeLog:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackageVersion Metadata
+        projectId:
+          type: string
+          description: Project Id of ml package
+        inputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        outputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        mlPackageOwnedByAccountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: Account Id of source ml package
+        mlPackageOwnedByTenantId:
+          type: string
+          description: Tenant Id of source ml package
+        mlPackageOwnedByProjectId:
+          type: string
+          description: Project Id of source ml package
+        sourcePackageId:
+          type: string
+          description: Source ml package id
+        sourcePackageVersionId:
+          type: string
+          description: Source ml package version id
+        settings:
+          type: array
+          description: List of settings to configure model
+          items:
+            $ref: '#/components/schemas/SettingDto'
+        stagingUri:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Staging url to import ML package from blob storage while cloning
+        mlPackageCloneType:
+          type: string
+          description: ML package clone type to distinguish between clone and import
+          enum:
+            - ML_PACKAGE_CLONE
+            - ML_PACKAGE_VERSION_CLONE
+            - ML_PACKAGE_IMPORT
+            - ML_PACKAGE_VERSION_IMPORT
+            - ML_PACKAGE_UPLOAD
+            - ML_PACKAGE_VERSION_UPLOAD
+            - ML_PACKAGE_OOB_UPLOAD
+        parametersFileJSON:
+          type: string
+          description: Parameter.json file in string
+        imagePath:
+          type: string
+          description: ImagePath to import ML package from registry while importing for public models
+        mlPackageLanguage:
+          type: string
+          description: Language used for model
+        languageVersion:
+          type: integer
+          description: Language version for model
+          format: int32
+        retrainable:
+          type: boolean
+          description: Denotes whether model is retrainable
+        minAIFabricVersion:
+          type: string
+          description: Min Supported AIFabric Version
+        processor:
+          type: string
+          description: Processor type preferred by Model
+          enum:
+            - CPU
+            - GPU
+        trainingVersion:
+          type: integer
+          description: Training version of Model
+          format: int32
+        version:
+          type: integer
+          description: Version of Model
+          format: int32
+        customVersion:
+          type: string
+          description: Custom version of Model
+      description: Metadata to be sent in MLPackage/Version create requests for OOB/DU models.
+    MLPackageCloneDto_ViewWithTenantDetails:
+      required:
+        - mlPackageOwnedByAccountId
+        - mlPackageOwnedByProjectId
+        - mlPackageOwnedByTenantId
+        - sourcePackageId
+        - sourcePackageVersionId
+      type: object
+      properties:
+        name:
+          maxLength: 36
+          minLength: 0
+          pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
+          type: string
+          description: Docker compatible mlPackageName, for MLPackage Metadata
+        displayName:
+          maxLength: 50
+          minLength: 0
+          type: string
+          description: Display name of Model
+        description:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackage Metadata
+        changeLog:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for MLPackageVersion Metadata
+        projectId:
+          type: string
+          description: Project Id of ml package
+        inputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        outputDescription:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Valid for any Metadata
+        mlPackageOwnedByAccountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+          description: Account Id of source ml package
+        mlPackageOwnedByTenantId:
+          type: string
+          description: Tenant Id of source ml package
+        mlPackageOwnedByProjectId:
+          type: string
+          description: Project Id of source ml package
+        sourcePackageId:
+          type: string
+          description: Source ml package id
+        sourcePackageVersionId:
+          type: string
+          description: Source ml package version id
+        settings:
+          type: array
+          description: List of settings to configure model
+          items:
+            $ref: '#/components/schemas/SettingDto_ViewWithTenantDetails'
+        stagingUri:
+          maxLength: 2048
+          minLength: 0
+          type: string
+          description: Staging url to import ML package from blob storage while cloning
+        mlPackageCloneType:
+          type: string
+          description: ML package clone type to distinguish between clone and import
+          enum:
+            - ML_PACKAGE_CLONE
+            - ML_PACKAGE_VERSION_CLONE
+            - ML_PACKAGE_IMPORT
+            - ML_PACKAGE_VERSION_IMPORT
+            - ML_PACKAGE_UPLOAD
+            - ML_PACKAGE_VERSION_UPLOAD
+            - ML_PACKAGE_OOB_UPLOAD
+        parametersFileJSON:
+          type: string
+          description: Parameter.json file in string
+        imagePath:
+          type: string
+          description: ImagePath to import ML package from registry while importing for public models
+        mlPackageLanguage:
+          type: string
+          description: Language used for model
+        languageVersion:
+          type: integer
+          description: Language version for model
+          format: int32
+        retrainable:
+          type: boolean
+          description: Denotes whether model is retrainable
+        minAIFabricVersion:
+          type: string
+          description: Min Supported AIFabric Version
+        processor:
+          type: string
+          description: Processor type preferred by Model
+          enum:
+            - CPU
+            - GPU
+        trainingVersion:
+          type: integer
+          description: Training version of Model
+          format: int32
+        version:
+          type: integer
+          description: Version of Model
+          format: int32
+        customVersion:
+          type: string
+          description: Custom version of Model
+      description: Metadata to be sent in MLPackage/Version create requests for OOB/DU models.
+    MLPackageLanguageVersionMetadataDto:
+      required:
+        - baseImage
+        - imageType
+        - languageGroup
+        - mlPackageLanguage
+        - processor
+        - version
+      type: object
+      properties:
+        version:
+          type: integer
+          description: Integer MLPackage Language version
+          format: int32
+        mlPackageLanguage:
+          type: string
+          description: MLPackage Language
+        processor:
+          type: string
+          description: Processor Type
+          enum:
+            - CPU
+            - GPU
+        imageType:
+          type: string
+          description: Image Type
+          enum:
+            - SERVING
+            - TRAINING
+        languageGroup:
+          type: string
+          description: Language group
+        baseImage:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Base Image
+        runtimeImage:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: RunTime Image
+        displayName:
+          maxLength: 50
+          minLength: 0
+          type: string
+          description: Display name of MLPackage Language version
+      description: Metadata to be sent in MLPackageLanguage/Version create requests.
+    BaseResponseMLPackageLanguageVersionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLPackageLanguageVersionDto'
+    MLPackageLanguageVersionDto:
+      type: object
+      properties:
+        version:
+          type: integer
+          format: int32
+        mlPackageLanguage:
+          type: string
+        languageGroup:
+          type: string
+        id:
+          type: string
+        baseImage:
+          type: string
+        runtimeImage:
+          type: string
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        imageType:
+          type: string
+          enum:
+            - SERVING
+            - TRAINING
+        displayName:
+          type: string
+    BaseResponseListMLPackageLanguageVersionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLPackageLanguageVersionDto'
+    MLPackageLanguageVersionUpdateMetadataDto:
+      required:
+        - baseImage
+        - languageGroup
+      type: object
+      properties:
+        languageGroup:
+          type: string
+          description: Language group
+        baseImage:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Base Image
+        runtimeImage:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: RunTime Image
+      description: Metadata to be sent in MLPackageLanguage/Version update requests.
+    TenantRbacMigrationRequestDto:
+      required:
+        - accountId
+        - tenantId
+      type: object
+      properties:
+        tenantId:
+          type: string
+          description: Expected UUID. Tenant-key for migration
+        accountId:
+          type: string
+          description: Expected UUID. Account-key for provisioning
+    BaseResponseString:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: string
+    MLPackageVersionPublicUpdateDto:
+      type: object
+      properties:
+        id:
+          type: string
+        mlPackageId:
+          type: string
+        author:
+          type: string
+        isPublic:
+          type: boolean
+        mlPackageName:
+          type: string
+        description:
+          type: string
+        inputDescription:
+          type: string
+        outputDescription:
+          type: string
+        activityDetail:
+          type: string
+        activityDocumentation:
+          type: string
+        activityVersion:
+          type: string
+        changeLog:
+          type: string
+    BaseResponsePageListingDtoTenantResponseDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoTenantResponseDto'
+    PageListingDtoTenantResponseDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantResponseDto'
+    BaseResponseBoolean:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: boolean
+    MediaType:
+      type: object
+      properties:
+        type:
+          type: string
+        subtype:
+          type: string
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+        qualityValue:
+          type: number
+          format: double
+        wildcardType:
+          type: boolean
+        wildcardSubtype:
+          type: boolean
+        subtypeSuffix:
+          type: string
+        charset:
+          type: string
+        concrete:
+          type: boolean
+    BaseResponseSignedURLDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/SignedURLDto'
+    SignedURLDto:
+      type: object
+      properties:
+        signingMethod:
+          type: string
+        url:
+          type: string
+        contentType:
+          type: string
+    BaseResponsePageListingDtoProjectDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoProjectDto'
+    PageListingDtoProjectDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectDto'
+    BaseResponseMapStringListProjects:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/Projects'
+    Projects:
+      required:
+        - name
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        name:
+          type: string
+          description: Name of the Project
+        description:
+          type: string
+          description: Description of the project
+        activePipelines:
+          type: integer
+          description: Active pipelines
+          format: int32
+        deployedPackages:
+          type: integer
+          description: Deployed packages
+          format: int32
+        status:
+          type: string
+          description: Status of the Project
+          enum:
+            - CREATED
+            - SOFT_DELETED
+            - DELETING
+        restrictAccess:
+          type: boolean
+          description: Restrict access
+        softDeletedOn:
+          type: integer
+          description: Soft Delete On
+          format: int64
+        projectDto:
+          $ref: '#/components/schemas/ProjectDto'
+      description: Project Meta Data
+    BaseResponseListProjectDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProjectDto'
+    BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoMLPackageDto_ViewWithModificationDetails'
+    MLPackageDto_ViewWithModificationDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        projectId:
+          type: string
+        name:
+          type: string
+        displayName:
+          type: string
+        status:
+          type: string
+          enum:
+            - DEPLOYING
+            - PURGED
+            - DEPLOYED
+            - VALIDATION_FAILED
+            - UNDEPLOYED
+            - VALIDATING
+            - THREAT_DETECTED
+            - FAILED
+            - SOFT_DELETED
+        description:
+          type: string
+        inputType:
+          type: string
+          enum:
+            - JSON
+            - FILE
+            - FILE_LIST
+        lastUploadedVersion:
+          type: integer
+          format: int32
+        latestVersionInputDescription:
+          type: string
+        latestVersionOutputDescription:
+          type: string
+        lastVersionUploadedOn:
+          type: string
+          format: date-time
+        latestVersionMemory:
+          type: number
+          format: float
+        latestVersionCpu:
+          type: number
+          format: float
+        latestVersionGpu:
+          type: number
+          format: float
+        latestVersionLanguage:
+          type: string
+        latestTrainingVersion:
+          type: integer
+          format: int32
+        isPublic:
+          type: boolean
+        mlPackageOwnedByAccountId:
+          type: string
+        mlPackageOwnedByTenantId:
+          type: string
+        mlPackageOwnedByProjectId:
+          type: string
+        sourcePackageId:
+          type: string
+        sourcePackageName:
+          type: string
+        retrainable:
+          type: boolean
+        tmModel:
+          type: boolean
+        hasCustomVersion:
+          type: boolean
+    PageListingDtoMLPackageDto_ViewWithModificationDetails:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLPackageDto_ViewWithModificationDetails'
+    BaseResponsePageListingDtoMLPackageVersionDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoMLPackageVersionDto'
+    PageListingDtoMLPackageVersionDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLPackageVersionDto'
+    BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLPackageLanguageVersionDto_ViewWithModificationDetails'
+    MLPackageLanguageVersionDto_ViewWithModificationDetails:
+      type: object
+      properties:
+        version:
+          type: integer
+          format: int32
+        mlPackageLanguage:
+          type: string
+        languageGroup:
+          type: string
+        id:
+          type: string
+        baseImage:
+          type: string
+        runtimeImage:
+          type: string
+        processor:
+          type: string
+          enum:
+            - CPU
+            - GPU
+        imageType:
+          type: string
+          enum:
+            - SERVING
+            - TRAINING
+        displayName:
+          type: string
+    BaseResponseListString:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            type: string
