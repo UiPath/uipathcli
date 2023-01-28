@@ -130,7 +130,7 @@ go tool cover --html=coverage.out
 The CLI supports a pluggable infrastructure which allows you to implement complex custom commands. The [`DigitizeCommand`](plugin/digitizer/digitize_command.go) is an example for a custom command which abstracts away the complexity of the async digitization API. The digitizer API requires you to upload a file, followed by polling the status API until the digitization finished in order to retrieve the digitization result. The `DigitizeCommand` allows the user to just invoke one command for uploading the file and retrieving the result:
 
 ```bash
-./uipathcli digitizer digitize --file file:///documents/invoice.pdf
+uipathcli digitizer digitize --file file:///documents/invoice.pdf
 ```
 
 returns
@@ -163,7 +163,7 @@ func (c CreateCommand) Command() plugin.Command {
   // Provides the definition of the command like name, description and parameters
 }
 
-func (c CreateCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+func (c CreateCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
   // Invoked when the CLI command is executed
 }
 ```
@@ -180,7 +180,7 @@ func (c CreateCommand) Command() plugin.Command {
 }
 ```
 
-3. Implement `Execute(...)` function which performs the operation of the command. The `context` parameters gives you all the input provided by the user and `output` can be used to write information on standard output.
+3. Implement `Execute(...)` function which performs the operation of the command. The `context` parameters gives you all the input provided by the user and `writer` can be used to write information on standard output and `logger` for debug output.
 
 4. Register the command with the `uipathcli` in [`main.go`](main.go)
 
@@ -213,7 +213,7 @@ func (c StatusCommand) Command() plugin.Command {
   return *plugin.NewCommand("myservice", "status", "", []plugin.CommandParameter{}, true)
 }
 
-func (c StatusCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+func (c StatusCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
   return fmt.Errorf("Status command not supported")
 }
 ```

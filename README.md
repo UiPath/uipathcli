@@ -263,7 +263,7 @@ EOT
 Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
 
 ```bash
-./uipathcli metering ping
+uipathcli metering ping
 ```
 
 ## Commands and arguments
@@ -271,7 +271,7 @@ Once you have created the configuration file with the proper secrets, org and te
 CLI commands consist of three main parts:
 
 ```bash
-./uipathcli <service-name> <operation-name> <arguments>
+uipathcli <service-name> <operation-name> <arguments>
 ```
 
 - `<service-name>`: The CLI discovers the existing OpenAPI specifications and shows each of them as a separate service
@@ -281,7 +281,7 @@ CLI commands consist of three main parts:
 Example:
 
 ```bash
-./uipathcli metering validate --product-name "DU" --model-name "my-model"
+uipathcli metering validate --product-name "DU" --model-name "my-model"
 ```
 
 ### Basic arguments
@@ -289,7 +289,7 @@ Example:
 The CLI supports string, integer, floating point and boolean arguments. The arguments are automatically converted to the type defined in the OpenAPI specification:
 
 ```bash
-./uipathcli product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
+uipathcli product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
 ```
 
 ### Array arguments
@@ -297,7 +297,7 @@ The CLI supports string, integer, floating point and boolean arguments. The argu
 Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean and object arrays.
 
 ```bash
-./uipathcli product list --name-filter "my-product,new-product"
+uipathcli product list --name-filter "my-product,new-product"
 ```
 
 ### Nested Object arguments
@@ -305,7 +305,7 @@ Array arguments can be passed as comma-separated strings and are automatically c
 More complex nested objects can be passed as semi-colon separated list of property assigments:
 
 ```bash
-./uipathcli product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
+uipathcli product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
 ```
 
 The command creates the following JSON body in the HTTP request:
@@ -329,13 +329,13 @@ The command creates the following JSON body in the HTTP request:
 File content can be uploaded directly from a command line argument. The following command will upload a file with the content `hello-world`:
 
 ```bash
-./uipathcli digitizer digitize --file "hello-world"
+uipathcli digitizer digitize --file "hello-world"
 ```
 
 CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
 
 ```bash
-./uipathcli digitizer digitize ---file file:///documents/invoice.pdf
+uipathcli digitizer digitize ---file file:///documents/invoice.pdf
 ```
 
 ## Standard input (stdin) / Pipes
@@ -343,15 +343,78 @@ CLI arguments can also refer to files on disk. This command reads the invoice fr
 You can pipe JSON into the CLI as stdin and it will be used as the request body instead of CLI parameters. The following example reads an orchestrator setting, modifies the value using `jq` and pipes the output back into to the CLI to update it:
 
 ```bash
-./uipathcli orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | ./uipathcli orchestrator settings-putbyid
+uipathcli orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | uipathcli orchestrator settings-putbyid
 ```
+
+## Output formats
+
+The CLI supports multiple output formats:
+
+- `json` (default): HTTP response is rendered as prettified json on standard output. The output can be used to pipe into `jq` or other command line utilities which support json.
+
+- `text`: Fields are tab-separated and rows are outputted on separate lines. This output can be easily processed by standard unix tools like `cut`, `grep`, `sort`, etc...
+
+In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
+
+```bash
+uipathcli metering ping --output text
+
+du-prod-du-we-g-dns westeurope  westeurope  2023-01-27T10:56:59.8477522Z  23.1-105-main.v3105ad
+```
+
+```bash
+uipathcli orchestrator users-get --query "value[].[Name, CreationTime]" --output text | while IFS=$'\t' read -r name creation_time; do
+    echo "User ${name} was created at ${creation_time}"
+done
+
+User Administrator was created at 2023-01-25T12:49:18.907Z
+User Thomas was created at 2023-01-26T10:35:15.736Z
+```
+
+## Queries
+
+The CLI supports [JMESPath queries](https://jmespath.org/tutorial.html) to filter and modify the service response on the client-side. This does not replace server-side filtering which is more efficient and works across paginated results. JMESPath queries simply allow you to modify the CLI output only without the need to install any external tools.
+
+Examples:
+
+```bash
+# Select only the name of all returned users
+uipathcli orchestrator users-get --query "value[].Name"
+
+[
+  "Administrator",
+  "Automation User",
+  "Automation Developer"
+]
+```
+
+```bash
+# Select the first user with the name "Administrator"
+uipathcli orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
+
+{
+  "Id": 123456,
+  "CreationTime": "2023-01-27T10:45:24.763Z",
+  "Name": "Administrator",
+  ...
+}
+```
+
+```bash
+# Sort the users by creation time and get the name of last created user
+uipathcli orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].Name"
+
+"Automation Developer"
+```
+
+
 
 ## Debug
 
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
 
 ```bash
-./uipathcli metering ping --debug
+uipathcli metering ping --debug
 ```
 
 ```bash
@@ -391,6 +454,7 @@ profiles:
     header:
       X-UIPATH-License: <your-api-key>
       X-UIPATH-MLService: MLSERVICE_TIEMODEL
+    output: text
   - name: alpha
     uri: https://alpha.uipath.com
     auth:
@@ -404,13 +468,13 @@ profiles:
 If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
 
 ```bash
-./uipathcli metering ping --profile alpha
+uipathcli metering ping --profile alpha
 ```
 
 You can also change the profile using an environment variable (`UIPATH_PROFILE`):
 
 ```bash
-UIPATH_PROFILE=alpha ./uipathcli metering ping
+UIPATH_PROFILE=alpha uipathcli metering ping
 ```
 
 ## Global Arguments
@@ -420,9 +484,11 @@ You can either pass global arguments as CLI parameters, set an env variable or s
 | Name | Env-Variable | Type | Default Value | Description |
 | ----------- | ----------- | ----------- | ----------- | ----------- |
 | `--debug` | `UIPATH_DEBUG` | `boolean` | `false` | Show debug output |
-| `--profile` | `UIPATH_PROFILE` | `string` | `default` | Use profile from configuration file |
-| `--uri` | `UIPATH_URI` | `uri` | `https://cloud.uipath.com` | URL override |
 | `--insecure` | `UIPATH_INSECURE` | `boolean` | `false` |*Warning: Disables HTTPS certificate checks* |
+| `--output` | `UIPATH_OUTPUT` | `string` | `json` | Response output format, supported values: json and text |
+| `--profile` | `UIPATH_PROFILE` | `string` | `default` | Use profile from configuration file |
+| `--query` | | `string` | | [JMESPath queries](https://jmespath.org/) for transforming the output |
+| `--uri` | `UIPATH_URI` | `uri` | `https://cloud.uipath.com` | URL override |
 
 ## FAQ
 
@@ -447,7 +513,7 @@ profiles:
 And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
-./uipathcli metering ping --profile automationsuite
+uipathcli metering ping --profile automationsuite
 ```
 
 ### How to contribute?

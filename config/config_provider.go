@@ -86,6 +86,7 @@ func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 		},
 		Insecure: profile.Insecure,
 		Debug:    profile.Debug,
+		Output:   profile.Output,
 	}
 }
 

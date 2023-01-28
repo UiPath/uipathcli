@@ -252,3 +252,30 @@ paths:
 		t.Errorf("Should not require header parameter when provided by config, got %v", result.StdErr)
 	}
 }
+
+func TestOutputFromConfig(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    output: text
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, `{"a":"foo","b":1.1}`).
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	expectedOutput := "foo\t1.1\n"
+	if result.StdOut != expectedOutput {
+		t.Errorf("Should output text format, got %v", result.StdOut)
+	}
+}

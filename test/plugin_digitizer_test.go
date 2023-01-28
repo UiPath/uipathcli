@@ -149,7 +149,8 @@ paths:
 
 	expectedResult := `{
   "status": "Done"
-}`
+}
+`
 	if result.StdOut != expectedResult {
 		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}

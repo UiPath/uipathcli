@@ -16,7 +16,8 @@ import (
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
 )
 
 type HttpExecutor struct {
@@ -146,7 +147,7 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 
-func (e HttpExecutor) Call(context ExecutionContext, output io.Writer) error {
+func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
 	if err != nil {
 		return err
@@ -175,20 +176,18 @@ func (e HttpExecutor) Call(context ExecutionContext, output io.Writer) error {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: context.Insecure},
 	}
 	client := &http.Client{Transport: transport}
-	logger := utils.HttpLogger{
-		Output: output,
-		Debug:  context.Debug,
-	}
-	err = logger.LogRequest(request)
-	if err != nil {
-		return err
-	}
+	logger.LogRequest(*log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, body))
 	response, err := e.send(client, request)
 	if err != nil {
 		return fmt.Errorf("Error sending request: %v", err)
 	}
 	defer response.Body.Close()
-	err = logger.LogResponse(response)
+	responseBody, err := io.ReadAll(response.Body)
+	if err != nil {
+		return fmt.Errorf("Error reading response body: %v", err)
+	}
+	logger.LogResponse(*log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, responseBody))
+	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, responseBody))
 	if err != nil {
 		return err
 	}

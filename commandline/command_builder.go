@@ -9,6 +9,8 @@ import (
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/urfave/cli/v2"
 )
@@ -18,6 +20,12 @@ const debugFlagName = "debug"
 const profileFlagName = "profile"
 const uriFlagName = "uri"
 const helpFlagName = "help"
+
+const outputFormatFlagName = "output"
+const outputFormatJson = "json"
+const outputFormatText = "text"
+
+const queryFlagName = "query"
 
 type CommandBuilder struct {
 	Input          []byte
@@ -92,6 +100,20 @@ func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 	return flags
 }
 
+func (b CommandBuilder) outputFormat(config config.Config, context *cli.Context) (string, error) {
+	outputFormat := context.String(outputFormatFlagName)
+	if outputFormat == "" {
+		outputFormat = config.Output
+	}
+	if outputFormat == "" {
+		outputFormat = outputFormatJson
+	}
+	if outputFormat != outputFormatJson && outputFormat != outputFormatText {
+		return "", fmt.Errorf("Invalid output format '%s', allowed values: %s, %s", outputFormat, outputFormatJson, outputFormatText)
+	}
+	return outputFormat, nil
+}
+
 func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
@@ -136,11 +158,39 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
-func (b CommandBuilder) executeCommand(context executor.ExecutionContext, output io.Writer) error {
-	if context.Plugin != nil {
-		return b.PluginExecutor.Call(context, output)
+func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
+	if context.Debug {
+		return &log.DebugLogger{
+			Output: writer,
+		}
 	}
-	return b.Executor.Call(context, output)
+	return &log.DefaultLogger{}
+}
+
+func (b CommandBuilder) outputWriter(context executor.ExecutionContext, writer io.Writer, format string, query string) output.OutputWriter {
+	var transformer output.Transformer = output.DefaultTransformer{}
+	if query != "" {
+		transformer = output.JmesPathTransformer{
+			Query: query,
+		}
+	}
+	if format == outputFormatText {
+		return &output.TextOutputWriter{
+			Output:      writer,
+			Transformer: transformer,
+		}
+	}
+	return &output.JsonOutputWriter{
+		Output:      writer,
+		Transformer: transformer,
+	}
+}
+
+func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	if context.Plugin != nil {
+		return b.PluginExecutor.Call(context, writer, logger)
+	}
+	return b.Executor.Call(context, writer, logger)
 }
 
 func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
@@ -158,6 +208,11 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if config == nil {
 				return fmt.Errorf("Could not find profile '%s'", profileName)
 			}
+			outputFormat, err := b.outputFormat(*config, context)
+			if err != nil {
+				return err
+			}
+			query := context.String(queryFlagName)
 
 			baseUri, err := b.createBaseUri(definition, *config, context)
 			if err != nil {
@@ -222,7 +277,9 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			go func(context executor.ExecutionContext, writer *io.PipeWriter) {
 				defer wg.Done()
 				defer writer.Close()
-				err = b.executeCommand(context, writer)
+				outputWriter := b.outputWriter(context, writer, outputFormat, query)
+				logger := b.logger(context, writer)
+				err = b.executeCommand(context, outputWriter, logger)
 			}(*executionContext, writer)
 
 			wg.Wait()
@@ -305,6 +362,8 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Comman
 				"--" + profileFlagName,
 				"--" + uriFlagName,
 				"--" + helpFlagName,
+				"--" + outputFormatFlagName,
+				"--" + queryFlagName,
 			}
 			handler := AutoCompleteHandler{}
 			words := handler.Find(commandText, commands, exclude)
@@ -406,6 +465,19 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			EnvVars: []string{"UIPATH_INSECURE"},
 			Value:   false,
 			Hidden:  hidden,
+		},
+		&cli.StringFlag{
+			Name:    outputFormatFlagName,
+			Usage:   fmt.Sprintf("Set output format: %s (default), %s", outputFormatJson, outputFormatText),
+			EnvVars: []string{"UIPATH_OUTPUT"},
+			Value:   "",
+			Hidden:  hidden,
+		},
+		&cli.StringFlag{
+			Name:   queryFlagName,
+			Usage:  "Perform JMESPath query on output",
+			Value:  "",
+			Hidden: hidden,
 		},
 	}
 }

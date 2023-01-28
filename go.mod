@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/getkin/kin-openapi v0.112.0
+	github.com/jmespath/go-jmespath v0.4.0
 	github.com/urfave/cli/v2 v2.23.7
 	golang.org/x/sys v0.3.0
 	gopkg.in/yaml.v2 v2.4.0
