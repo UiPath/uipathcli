@@ -95,17 +95,21 @@ paths:
 	if !strings.HasPrefix(stdout[7], expected) {
 		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[7])
 	}
-	expected = "{"
+	expected = `{"hello":"world"}`
 	if stdout[9] != expected {
 		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[9])
 	}
+	expected = "{"
+	if stdout[12] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[12])
+	}
 	expected = `  "hello": "world"`
-	if stdout[10] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[10])
+	if stdout[13] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[13])
 	}
 	expected = "}"
-	if stdout[11] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[11])
+	if stdout[14] != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[14])
 	}
 }
 

@@ -2,11 +2,12 @@ package executor
 
 import (
 	"errors"
-	"io"
 	"net/url"
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
 )
 
@@ -58,7 +59,7 @@ func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthRe
 	}
 }
 
-func (e PluginExecutor) Call(context ExecutionContext, output io.Writer) error {
+func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	auth, err := e.executeAuthenticators(context.BaseUri, context.AuthConfig, context.Debug, context.Insecure)
 	if err != nil {
 		return err
@@ -70,7 +71,6 @@ func (e PluginExecutor) Call(context ExecutionContext, output io.Writer) error {
 		context.BaseUri,
 		pluginAuth,
 		pluginParams,
-		context.Insecure,
-		context.Debug)
-	return context.Plugin.Execute(*pluginContext, output)
+		context.Insecure)
+	return context.Plugin.Execute(*pluginContext, writer, logger)
 }

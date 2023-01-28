@@ -2,10 +2,11 @@ package test
 
 import (
 	"fmt"
-	"io"
 	"strings"
 	"testing"
 
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
 )
 
@@ -91,8 +92,32 @@ paths:
 
 	result := runCli([]string{"mypluginservice", "my-plugin-command"}, context)
 
-	if !strings.Contains(result.StdOut, "Simple plugin command output") {
-		t.Errorf("Expected plugin command to show up, but got: %v", result.StdOut)
+	if !strings.Contains(result.StdOut, "Simple plugin output") {
+		t.Errorf("Expected plugin command to show response data, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "Simple plugin logging output") {
+		t.Errorf("Expected plugin command to not show debug log, but got: %v", result.StdOut)
+	}
+}
+
+func TestPluginShowsDebugOutput(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: This should not be shown
+      operationId: my-plugin-command
+`
+
+	context := NewContextBuilder().
+		WithDefinition("mypluginservice", definition).
+		WithCommandPlugin(SimplePluginCommand{}).
+		Build()
+
+	result := runCli([]string{"mypluginservice", "my-plugin-command", "--debug"}, context)
+
+	if !strings.Contains(result.StdOut, "Simple plugin logging output") {
+		t.Errorf("Expected plugin command to show debug log, but got: %v", result.StdOut)
 	}
 }
 
@@ -201,22 +226,6 @@ func TestPluginContextParameterValue(t *testing.T) {
 	}
 }
 
-func TestPluginContextDebugFlag(t *testing.T) {
-	pluginCommand := ContextPluginCommand{}
-	context := NewContextBuilder().
-		WithDefinition("mypluginservice", "").
-		WithCommandPlugin(&pluginCommand).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
-		Build()
-
-	runCli([]string{"mypluginservice", "my-plugin-command", "--debug"}, context)
-
-	if !pluginCommand.Context.Debug {
-		t.Errorf("Expected debug flag to be true, but got: %v", pluginCommand.Context.Debug)
-	}
-}
-
 func TestPluginShowsParameter(t *testing.T) {
 	context := NewContextBuilder().
 		WithDefinition("mypluginservice", "").
@@ -269,9 +278,9 @@ func (c SimplePluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-plugin-command", "This is a simple plugin command", []plugin.CommandParameter{}, false)
 }
 
-func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
-	output.Write([]byte("Simple plugin command output"))
-	return nil
+func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	logger.Log("Simple plugin logging output")
+	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "https", map[string][]string{}, []byte("Simple plugin output")))
 }
 
 type ContextPluginCommand struct {
@@ -284,9 +293,9 @@ func (c ContextPluginCommand) Command() plugin.Command {
 	}, false)
 }
 
-func (c *ContextPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+func (c *ContextPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	c.Context = context
-	output.Write([]byte("Success"))
+	logger.Log("Success")
 	return nil
 }
 
@@ -296,7 +305,7 @@ func (c ErrorPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-failed-command", "This command always fails", []plugin.CommandParameter{}, false)
 }
 
-func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	return fmt.Errorf("Internal server error when calling mypluginservice")
 }
 
@@ -306,7 +315,7 @@ func (c HideOperationPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice", "my-hidden-command", "This command should not be shown", []plugin.CommandParameter{}, true)
 }
 
-func (c HideOperationPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
+func (c HideOperationPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	return fmt.Errorf("my-hidden-command is not supported")
 }
 
@@ -318,7 +327,7 @@ func (c ParametrizedPluginCommand) Command() plugin.Command {
 	}, false)
 }
 
-func (c ParametrizedPluginCommand) Execute(context plugin.ExecutionContext, output io.Writer) error {
-	output.Write([]byte("Parametrized plugin command output"))
+func (c ParametrizedPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	logger.Log("Parametrized plugin command output")
 	return nil
 }

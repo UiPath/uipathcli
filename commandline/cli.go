@@ -109,7 +109,7 @@ func (c Cli) run(args []string, configData []byte, definitionData []DefinitionDa
 		Name:            "uipathcli",
 		Usage:           "Command-Line Interface for UiPath Services",
 		UsageText:       "uipathcli <service> <operation> --parameter",
-		Version:         "1.0.0",
+		Version:         "1.0",
 		Flags:           flags,
 		Commands:        commands,
 		Writer:          c.StdOut,

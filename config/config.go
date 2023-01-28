@@ -13,6 +13,7 @@ type Config struct {
 	Auth     AuthConfig
 	Insecure bool
 	Debug    bool
+	Output   string
 }
 
 type AuthConfig struct {

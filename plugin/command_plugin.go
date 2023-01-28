@@ -1,8 +1,11 @@
 package plugin
 
-import "io"
+import (
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
+)
 
 type CommandPlugin interface {
 	Command() Command
-	Execute(context ExecutionContext, output io.Writer) error
+	Execute(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error
 }

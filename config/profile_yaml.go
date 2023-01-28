@@ -9,4 +9,5 @@ type profileYaml struct {
 	Auth     map[string]interface{} `yaml:"auth,omitempty"`
 	Insecure bool                   `yaml:"insecure,omitempty"`
 	Debug    bool                   `yaml:"debug,omitempty"`
+	Output   string                 `yaml:"output,omitempty"`
 }
