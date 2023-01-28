@@ -178,13 +178,25 @@ func runCli(args []string, context Context) Result {
 		commandPlugins = append(commandPlugins, context.CommandPlugin)
 	}
 
+	data := []commandline.DefinitionData{
+		*commandline.NewDefinitionData(context.DefinitionName, []byte(context.DefinitionData)),
+	}
 	cli := commandline.Cli{
 		StdIn:  context.StdIn,
 		StdOut: stdout,
 		StdErr: stderr,
-		Parser: parser.OpenApiParser{},
+		DefinitionProvider: commandline.DefinitionProvider{
+			DefinitionStore: commandline.DefinitionStore{
+				Definitions: data,
+			},
+			Parser:         parser.OpenApiParser{},
+			CommandPlugins: commandPlugins,
+		},
 		ConfigProvider: config.ConfigProvider{
-			ConfigFileName: context.ConfigFile,
+			ConfigStore: config.ConfigStore{
+				Config:     []byte(context.Config),
+				ConfigFile: context.ConfigFile,
+			},
 		},
 		Executor: executor.HttpExecutor{
 			Authenticators: authenticators,
@@ -192,17 +204,13 @@ func runCli(args []string, context Context) Result {
 		PluginExecutor: executor.PluginExecutor{
 			Authenticators: authenticators,
 		},
-		CommandPlugins: commandPlugins,
-	}
-	data := []commandline.DefinitionData{
-		*commandline.NewDefinitionData(context.DefinitionName, []byte(context.DefinitionData)),
 	}
 	args = append([]string{"uipath"}, args...)
 	input := []byte{}
 	if context.StdIn != nil {
 		input = context.StdIn.Bytes()
 	}
-	err := cli.Run(args, []byte(context.Config), data, input)
+	err := cli.Run(args, input)
 
 	return Result{
 		Error:         err,

@@ -140,6 +140,32 @@ paths:
 	}
 }
 
+func TestMainParsesBuiltInDefinitions(t *testing.T) {
+	t.Run("aiappmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aiappmanager", "get-apps") })
+	t.Run("aideployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aideployer", "update-mlskill") })
+	t.Run("aihelper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aihelper", "get-project-acces") })
+	t.Run("aitrainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aitrainer", "create-dataset") })
+	t.Run("digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "digitizer", "digitize") })
+	t.Run("events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "events", "create-subscription") })
+	t.Run("metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "metering", "track") })
+	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "users-get-by-id") })
+	t.Run("storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "storage", "presigned-url") })
+}
+
+func MainParsesBuiltInDefinitions(t *testing.T, name string, expected string) {
+	definitionDir, _ := os.Getwd()
+	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Join(definitionDir, "definitions/"))
+
+	os.Args = []string{"uipathcli", name}
+	output := captureOutput(t, func() {
+		main()
+	})
+
+	if !strings.Contains(output, expected) {
+		t.Errorf("Expected %s in output, but got: %v", expected, output)
+	}
+}
+
 func captureOutput(t *testing.T, runnable func()) string {
 	realStdout := os.Stdout
 	reader, fakeStdout, err := os.Pipe()
@@ -169,12 +195,14 @@ func captureOutput(t *testing.T, runnable func()) string {
 }
 
 func createFile(t *testing.T, directory string, name string) string {
-	path := filepath.Join(os.TempDir(), randomDirectoryName(), directory, name)
+	extensions := strings.TrimPrefix(filepath.Ext(name), ".")
+	filename := strings.TrimSuffix(name, filepath.Ext(name)) + ".*" + extensions
+	path := filepath.Join(os.TempDir(), randomDirectoryName(), directory, filename)
 	err := os.MkdirAll(filepath.Dir(path), 0700)
 	if err != nil {
 		t.Fatal(err)
 	}
-	tempFile, err := os.CreateTemp(filepath.Dir(path), name)
+	tempFile, err := os.CreateTemp(filepath.Dir(path), filename)
 	if err != nil {
 		t.Fatal(err)
 	}
