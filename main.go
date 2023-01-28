@@ -21,13 +21,12 @@ import (
 
 const DefinitionsDirectory = "definitions"
 
-func readDefinition(path string) (*commandline.DefinitionData, error) {
-	name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+func readDefinition(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading definition file '%s': %v", path, err)
 	}
-	return commandline.NewDefinitionData(name, data), nil
+	return data, nil
 }
 
 func definitionsPath() (string, error) {
@@ -43,7 +42,7 @@ func definitionsPath() (string, error) {
 	return definitionsDirectory, nil
 }
 
-func readDefinitions() ([]commandline.DefinitionData, error) {
+func readDefinitions(definitionName string) ([]commandline.DefinitionData, error) {
 	definitionsDirectory, err := definitionsPath()
 	if err != nil {
 		return nil, err
@@ -56,9 +55,14 @@ func readDefinitions() ([]commandline.DefinitionData, error) {
 	result := []commandline.DefinitionData{}
 	for _, file := range files {
 		path := filepath.Join(definitionsDirectory, file.Name())
-		data, err := readDefinition(path)
-		if err != nil {
-			return nil, err
+		name := strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
+		data := commandline.NewDefinitionData(name, []byte{})
+		if definitionName == name {
+			content, err := readDefinition(path)
+			if err != nil {
+				return nil, err
+			}
+			data = commandline.NewDefinitionData(name, content)
 		}
 		result = append(result, *data)
 	}
@@ -156,13 +160,28 @@ func readStdIn() []byte {
 	return []byte{}
 }
 
+func requiredDefinition(args []string) string {
+	if len(args) <= 1 {
+		return ""
+	}
+	if strings.HasPrefix(args[1], "--") {
+		return ""
+	}
+	if len(args) == 5 && args[1] == "autocomplete" && args[2] == "complete" && args[3] == "--command" {
+		autocompleteArgs := strings.Split(args[4], " ")
+		return requiredDefinition(autocompleteArgs)
+	}
+	return args[1]
+}
+
 func main() {
 	cfgFile, cfgData, err := readConfiguration()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
-	definitions, err := readDefinitions()
+	definitionName := requiredDefinition(os.Args)
+	definitions, err := readDefinitions(definitionName)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(132)

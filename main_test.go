@@ -114,6 +114,32 @@ paths:
 	}
 }
 
+func TestMainAutocompletesCommand(t *testing.T) {
+	config := createFile(t, ".uipathcli", "config")
+	definition := createFile(t, "definitions", "service-a.yaml")
+	os.WriteFile(definition, []byte(`
+paths:
+  /ping:
+    get:
+      summary: This is a simple get operation
+      operationId: ping
+`), 0600)
+
+	t.Setenv("UIPATHCLI_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Dir(definition))
+
+	os.Args = []string{"uipathcli", "autocomplete", "complete", "--command", "upathcli service-a p"}
+	output := captureOutput(t, func() {
+		main()
+	})
+
+	expected := `ping
+`
+	if output != expected {
+		t.Errorf("Expected operation name %s in autocomplete output, but got: %v", expected, output)
+	}
+}
+
 func captureOutput(t *testing.T, runnable func()) string {
 	realStdout := os.Stdout
 	reader, fakeStdout, err := os.Pipe()
