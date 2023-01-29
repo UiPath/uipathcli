@@ -4,16 +4,27 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-type PluginConfigProvider struct{}
+type PluginConfigProvider struct {
+	PluginConfigStore PluginConfigStore
+	pluginConfig      PluginConfig
+}
 
-func (cp *PluginConfigProvider) Parse(data []byte) (*PluginConfig, error) {
-	var pluginsYaml pluginsYaml
-	err := yaml.Unmarshal(data, &pluginsYaml)
+func (cp *PluginConfigProvider) Load() error {
+	data, err := cp.PluginConfigStore.Read()
 	if err != nil {
-		return nil, err
+		return err
 	}
-	config := cp.convertToConfig(pluginsYaml)
-	return &config, nil
+	var pluginsYaml pluginsYaml
+	err = yaml.Unmarshal(data, &pluginsYaml)
+	if err != nil {
+		return err
+	}
+	cp.pluginConfig = cp.convertToConfig(pluginsYaml)
+	return nil
+}
+
+func (cp PluginConfigProvider) Config() PluginConfig {
+	return cp.pluginConfig
 }
 
 func (cp PluginConfigProvider) convertToConfig(plugins pluginsYaml) PluginConfig {

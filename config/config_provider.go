@@ -2,24 +2,24 @@ package config
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"gopkg.in/yaml.v2"
 )
 
 const DefaultProfile = "default"
-const configFilePermissions = 0600
-const configDirectoryPermissions = 0700
 
 type ConfigProvider struct {
-	profiles       []profileYaml
-	ConfigFileName string
+	profiles    []profileYaml
+	ConfigStore ConfigStore
 }
 
-func (cp *ConfigProvider) Load(data []byte) error {
+func (cp *ConfigProvider) Load() error {
+	data, err := cp.ConfigStore.Read()
+	if err != nil {
+		return err
+	}
 	var config profilesYaml
-	err := yaml.Unmarshal(data, &config)
+	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		return fmt.Errorf("Error parsing configuration file: %v", err)
 	}
@@ -51,15 +51,7 @@ func (cp *ConfigProvider) Update(profileName string, auth map[string]interface{}
 	if err != nil {
 		return fmt.Errorf("Error updating configuration: %v", err)
 	}
-	err = os.MkdirAll(filepath.Dir(cp.ConfigFileName), configDirectoryPermissions)
-	if err != nil {
-		return fmt.Errorf("Error creating configuration folder: %v", err)
-	}
-	err = os.WriteFile(cp.ConfigFileName, data, configFilePermissions)
-	if err != nil {
-		return fmt.Errorf("Error updating configuration file: %v", err)
-	}
-	return nil
+	return cp.ConfigStore.Write(data)
 }
 
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {

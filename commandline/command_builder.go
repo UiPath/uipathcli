@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"strings"
 	"sync"
 
 	"github.com/UiPath/uipathcli/config"
@@ -28,12 +29,13 @@ const outputFormatText = "text"
 const queryFlagName = "query"
 
 type CommandBuilder struct {
-	Input          []byte
-	StdIn          io.Reader
-	StdOut         io.Writer
-	ConfigProvider config.ConfigProvider
-	Executor       executor.Executor
-	PluginExecutor executor.Executor
+	Input              []byte
+	StdIn              io.Reader
+	StdOut             io.Writer
+	ConfigProvider     config.ConfigProvider
+	Executor           executor.Executor
+	PluginExecutor     executor.Executor
+	DefinitionProvider DefinitionProvider
 }
 
 func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) []byte {
@@ -343,7 +345,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 	}
 }
 
-func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Command) *cli.Command {
+func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "complete",
 		Description: "Returns the autocomplete suggestions",
@@ -365,6 +367,11 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Comman
 				"--" + outputFormatFlagName,
 				"--" + queryFlagName,
 			}
+			args := strings.Split(commandText, " ")
+			commands, err := b.createServiceCommands(args)
+			if err != nil {
+				return err
+			}
 			handler := AutoCompleteHandler{}
 			words := handler.Find(commandText, commands, exclude)
 			for _, word := range words {
@@ -376,7 +383,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(commands []*cli.Comman
 	}
 }
 
-func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.Command {
+func (b CommandBuilder) createAutoCompleteCommand() *cli.Command {
 	return &cli.Command{
 		Name:        "autocomplete",
 		Description: "Commands for autocompletion",
@@ -385,7 +392,7 @@ func (b CommandBuilder) createAutoCompleteCommand(commands []*cli.Command) *cli.
 		},
 		Subcommands: []*cli.Command{
 			b.createAutoCompleteEnableCommand(),
-			b.createAutoCompleteCompleteCommand(commands),
+			b.createAutoCompleteCompleteCommand(),
 		},
 		HideHelp: true,
 	}
@@ -426,15 +433,35 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 	}
 }
 
-func (b CommandBuilder) Create(definitions []parser.Definition) []*cli.Command {
+func (b CommandBuilder) loadDefinitions(args []string) ([]parser.Definition, error) {
+	if len(args) <= 1 || strings.HasPrefix(args[1], "--") {
+		return b.DefinitionProvider.Index()
+	}
+	return b.DefinitionProvider.Load(args[1])
+}
+
+func (b CommandBuilder) createServiceCommands(args []string) ([]*cli.Command, error) {
+	definitions, err := b.loadDefinitions(args)
+	if err != nil {
+		return nil, err
+	}
 	commands := []*cli.Command{}
 	for _, e := range definitions {
 		command := b.createServiceCommand(e)
 		commands = append(commands, command)
 	}
-	autocompleteCommand := b.createAutoCompleteCommand(commands)
+	return commands, nil
+}
+
+func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
+	servicesCommands, err := b.createServiceCommands(args)
+	if err != nil {
+		return nil, err
+	}
+	autocompleteCommand := b.createAutoCompleteCommand()
 	configCommand := b.createConfigCommand()
-	return append(commands, autocompleteCommand, configCommand)
+	commands := append(servicesCommands, autocompleteCommand, configCommand)
+	return commands, nil
 }
 
 func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
