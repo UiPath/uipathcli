@@ -187,7 +187,8 @@ func runCli(args []string, context Context) Result {
 		StdErr: stderr,
 		DefinitionProvider: commandline.DefinitionProvider{
 			DefinitionStore: commandline.DefinitionStore{
-				Definitions: data,
+				DefinitionFiles: []string{context.DefinitionName},
+				Definitions:     data,
 			},
 			Parser:         parser.OpenApiParser{},
 			CommandPlugins: commandPlugins,
