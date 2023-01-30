@@ -141,15 +141,15 @@ paths:
 }
 
 func TestMainParsesBuiltInDefinitions(t *testing.T) {
-	t.Run("aiappmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aiappmanager", "get-apps") })
-	t.Run("aideployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aideployer", "update-mlskill") })
-	t.Run("aihelper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aihelper", "get-project-acces") })
-	t.Run("aitrainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aitrainer", "create-dataset") })
-	t.Run("digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "digitizer", "digitize") })
-	t.Run("events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "events", "create-subscription") })
-	t.Run("metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "metering", "track") })
+	t.Run("ai-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-appmanager", "get-apps") })
+	t.Run("ai-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-deployer", "update-mlskill") })
+	t.Run("ai-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-helper", "get-project-acces") })
+	t.Run("ai-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-trainer", "create-dataset") })
+	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-digitizer", "digitize") })
+	t.Run("ai-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-events", "create-subscription") })
+	t.Run("ai-metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-metering", "track") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "users-get-by-id") })
-	t.Run("storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "storage", "presigned-url") })
+	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-storage", "presigned-url") })
 }
 
 func MainParsesBuiltInDefinitions(t *testing.T, name string, expected string) {
