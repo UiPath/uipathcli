@@ -9,20 +9,13 @@ import (
 
 type DefinitionStore struct {
 	DefinitionDirectory string
+	DefinitionFiles     []string
 	Definitions         []DefinitionData
 }
 
 const DefinitionsDirectory = "definitions"
 
-func (s DefinitionStore) Names() ([]string, error) {
-	if s.Definitions != nil {
-		names := []string{}
-		for _, definition := range s.Definitions {
-			names = append(names, definition.Name)
-		}
-		return names, nil
-	}
-
+func (s *DefinitionStore) Names() ([]string, error) {
 	definitionFiles, err := s.discoverDefinitions()
 	if err != nil {
 		return nil, err
@@ -30,14 +23,13 @@ func (s DefinitionStore) Names() ([]string, error) {
 	return s.definitionNames(definitionFiles), nil
 }
 
-func (s DefinitionStore) Read(name string) (*DefinitionData, error) {
+func (s *DefinitionStore) Read(name string) (*DefinitionData, error) {
 	if s.Definitions != nil {
 		for _, definition := range s.Definitions {
 			if name == definition.Name {
 				return &definition, nil
 			}
 		}
-		return nil, nil
 	}
 
 	definitionFiles, err := s.discoverDefinitions()
@@ -47,13 +39,21 @@ func (s DefinitionStore) Read(name string) (*DefinitionData, error) {
 
 	for _, path := range definitionFiles {
 		if name == s.definitionName(path) {
-			return s.readDefinition(path)
+			definition, err := s.readDefinition(path)
+			if definition != nil {
+				s.Definitions = append(s.Definitions, *definition)
+			}
+			return definition, err
 		}
 	}
 	return nil, nil
 }
 
-func (s DefinitionStore) discoverDefinitions() ([]string, error) {
+func (s *DefinitionStore) discoverDefinitions() ([]string, error) {
+	if s.DefinitionFiles != nil {
+		return s.DefinitionFiles, nil
+	}
+
 	definitionsDirectory, err := s.definitionsPath()
 	if err != nil {
 		return nil, err
@@ -70,6 +70,7 @@ func (s DefinitionStore) discoverDefinitions() ([]string, error) {
 			definitionFiles = append(definitionFiles, path)
 		}
 	}
+	s.DefinitionFiles = definitionFiles
 	return definitionFiles, nil
 }
 

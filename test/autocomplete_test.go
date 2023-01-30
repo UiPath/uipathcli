@@ -5,6 +5,44 @@ import (
 	"testing"
 )
 
+func TestAutocompleteServicePrefixMatch(t *testing.T) {
+	definition := `
+paths:
+  /ping/{id}:
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli my"}, context)
+
+	expectedWords := "myservice\n"
+	if result.StdOut != expectedWords {
+		t.Errorf("Did not return the expected autocomplete words, expected: %v, got: %v", expectedWords, result.StdOut)
+	}
+}
+
+func TestAutocompleteServiceContainsMatch(t *testing.T) {
+	definition := `
+paths:
+  /ping/{id}:
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli serv"}, context)
+
+	expectedWords := "myservice\n"
+	if result.StdOut != expectedWords {
+		t.Errorf("Did not return the expected autocomplete words, expected: %v, got: %v", expectedWords, result.StdOut)
+	}
+}
+
 func TestAutocompleteNoMatch(t *testing.T) {
 	definition := `
 paths:

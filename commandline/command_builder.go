@@ -368,10 +368,11 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 				"--" + queryFlagName,
 			}
 			args := strings.Split(commandText, " ")
-			commands, err := b.createServiceCommands(args)
+			definitions, err := b.loadAutocompleteDefinitions(args)
 			if err != nil {
 				return err
 			}
+			commands := b.createServiceCommands(definitions)
 			handler := AutoCompleteHandler{}
 			words := handler.Find(commandText, commands, exclude)
 			for _, word := range words {
@@ -437,27 +438,35 @@ func (b CommandBuilder) loadDefinitions(args []string) ([]parser.Definition, err
 	if len(args) <= 1 || strings.HasPrefix(args[1], "--") {
 		return b.DefinitionProvider.Index()
 	}
-	return b.DefinitionProvider.Load(args[1])
-}
-
-func (b CommandBuilder) createServiceCommands(args []string) ([]*cli.Command, error) {
-	definitions, err := b.loadDefinitions(args)
-	if err != nil {
+	definition, err := b.DefinitionProvider.Load(args[1])
+	if definition == nil {
 		return nil, err
 	}
+	return []parser.Definition{*definition}, err
+}
+
+func (b CommandBuilder) loadAutocompleteDefinitions(args []string) ([]parser.Definition, error) {
+	if len(args) <= 2 {
+		return b.DefinitionProvider.Index()
+	}
+	return b.loadDefinitions(args)
+}
+
+func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) []*cli.Command {
 	commands := []*cli.Command{}
 	for _, e := range definitions {
 		command := b.createServiceCommand(e)
 		commands = append(commands, command)
 	}
-	return commands, nil
+	return commands
 }
 
 func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
-	servicesCommands, err := b.createServiceCommands(args)
+	definitions, err := b.loadDefinitions(args)
 	if err != nil {
 		return nil, err
 	}
+	servicesCommands := b.createServiceCommands(definitions)
 	autocompleteCommand := b.createAutoCompleteCommand()
 	configCommand := b.createConfigCommand()
 	commands := append(servicesCommands, autocompleteCommand, configCommand)
