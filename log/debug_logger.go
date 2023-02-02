@@ -8,7 +8,8 @@ import (
 )
 
 type DebugLogger struct {
-	Output io.Writer
+	Output      io.Writer
+	ErrorOutput io.Writer
 }
 
 func (l DebugLogger) writeHeaders(header http.Header) {
@@ -46,4 +47,8 @@ func (l DebugLogger) LogResponse(response ResponseInfo) {
 
 func (l DebugLogger) Log(message string) {
 	fmt.Fprint(l.Output, message)
+}
+
+func (l DebugLogger) LogError(message string) {
+	fmt.Fprint(l.ErrorOutput, message)
 }
