@@ -26,13 +26,16 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %v", err))
 	}
-	requestUrl, err := url.Parse(ctx.Request.URL)
-	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
-	}
-	identityBaseUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
-	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", identityBaseUri, err))
+	identityBaseUri := config.IdentityUri
+	if identityBaseUri == nil {
+		requestUrl, err := url.Parse(ctx.Request.URL)
+		if err != nil {
+			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
+		}
+		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
+		if err != nil {
+			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+		}
 	}
 	token, err := a.retrieveToken(*identityBaseUri, *config, ctx.Insecure)
 	if err != nil {
@@ -165,7 +168,15 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*OAuthAuthentic
 	if err != nil {
 		return nil, err
 	}
-	return NewOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes), nil
+	var uri *url.URL
+	uriString, err := a.parseRequiredString(ctx.Config, "uri")
+	if err == nil {
+		uri, err = url.Parse(uriString)
+		if err != nil {
+			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
+		}
+	}
+	return NewOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, uri), nil
 }
 
 func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
