@@ -20,7 +20,7 @@ import (
 type DigitizeCommand struct{}
 
 func (c DigitizeCommand) Command() plugin.Command {
-	return *plugin.NewCommand("digitizer", "digitize", "Start digitization for the input file", []plugin.CommandParameter{
+	return *plugin.NewCommand("du-digitizer", "digitize", "Start digitization for the input file", []plugin.CommandParameter{
 		*plugin.NewCommandParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true),
 	}, false)
 }
