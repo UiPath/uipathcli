@@ -8,6 +8,8 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
+	"strings"
 	"time"
 
 	"github.com/UiPath/uipathcli/log"
@@ -114,7 +116,7 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext) 
 		return nil, []byte{}, err
 	}
 
-	uri := fmt.Sprintf("%s://%s/%s/%s/du_/api/digitizer/digitize/start?api-version=1", context.BaseUri.Scheme, context.BaseUri.Host, org, tenant)
+	uri := c.formatUri(context.BaseUri, org, tenant) + "/digitize/start?api-version=1"
 	body, contentType, err := c.createBody(*file)
 	if err != nil {
 		return nil, []byte{}, err
@@ -128,6 +130,13 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext) 
 		request.Header.Add(key, value)
 	}
 	return request, body, nil
+}
+
+func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) string {
+	path := baseUri.RawPath
+	path = strings.ReplaceAll(path, "{organization}", org)
+	path = strings.ReplaceAll(path, "{tenant}", tenant)
+	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
 func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context plugin.ExecutionContext) (*http.Request, error) {
