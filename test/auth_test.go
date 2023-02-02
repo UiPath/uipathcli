@@ -1,6 +1,7 @@
 package test
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -86,6 +87,36 @@ paths:
 	authorization := result.RequestHeader["authorization"]
 	if authorization != "Bearer my-jwt-access-token" {
 		t.Errorf("Expected bearer token from identity, but got: %v", authorization)
+	}
+}
+
+func TestBearerAuthWithInvalidIdentityUriConfig(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+      uri: -invalid-uri%
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	if !strings.Contains(result.Error.Error(), "Error parsing identity uri") {
+		t.Errorf("Expected identity uri parsing error, but got: %v", result.Error)
 	}
 }
 

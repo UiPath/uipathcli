@@ -95,7 +95,7 @@ func TestOAuthAuthenticatorInvalidIdentityUrl(t *testing.T) {
 		Cache: cache.FileCache{},
 	}
 	result := authenticator.Auth(*context)
-	if result.Error != `Invalid identity url '<nil>': parse ":///identity_": missing protocol scheme` {
+	if result.Error != `Invalid identity url 'INVALID-URL': parse ":///identity_": missing protocol scheme` {
 		t.Errorf("Expected error with invalid request url, but got: %v", result.Error)
 	}
 }
@@ -144,6 +144,34 @@ func TestOAuthFlowSuccessful(t *testing.T) {
 
 	context := createAuthContext(identityUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
+	performLogin(loginUrl, t)
+
+	result := <-resultChannel
+	if result.Error != "" {
+		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
+	}
+	authorizationHeader := result.RequestHeader["Authorization"]
+	if authorizationHeader != "Bearer my-access-token" {
+		t.Errorf("Expected JWT bearer token in authorization header, but got: %v", authorizationHeader)
+	}
+}
+
+func TestOAuthFlowWithCustomIdentityUri(t *testing.T) {
+	identityServerFake := identityServerFake{
+		ResponseStatus: 200,
+		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
+	}
+	identityUrl := identityServerFake.Start(t)
+	config := map[string]interface{}{
+		"clientId":    strconv.Itoa(rand.Int()),
+		"redirectUri": "http://localhost:0",
+		"scopes":      "OR.Users",
+		"uri":         identityUrl.String() + "/identity_",
+	}
+	request := NewAuthenticatorRequest("no-url", map[string]string{})
+	context := NewAuthenticatorContext("login", config, false, false, *request)
+
+	loginUrl, resultChannel := callAuthenticator(*context)
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel

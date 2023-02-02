@@ -19,14 +19,16 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %v", err))
 	}
-
-	url, err := url.Parse(ctx.Request.URL)
-	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
-	}
-	identityBaseUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", url.Scheme, url.Host))
-	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+	identityBaseUri := config.IdentityUri
+	if identityBaseUri == nil {
+		requestUrl, err := url.Parse(ctx.Request.URL)
+		if err != nil {
+			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
+		}
+		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
+		if err != nil {
+			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+		}
 	}
 
 	identityClient := identityClient(a)
@@ -56,7 +58,15 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthent
 	if err != nil {
 		return nil, err
 	}
-	return NewBearerAuthenticatorConfig(clientId, clientSecret), nil
+	var uri *url.URL
+	uriString, err := a.parseRequiredString(ctx.Config, "uri")
+	if err == nil {
+		uri, err = url.Parse(uriString)
+		if err != nil {
+			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
+		}
+	}
+	return NewBearerAuthenticatorConfig(clientId, clientSecret, uri), nil
 }
 
 func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
