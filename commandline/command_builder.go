@@ -32,6 +32,7 @@ type CommandBuilder struct {
 	Input              []byte
 	StdIn              io.Reader
 	StdOut             io.Writer
+	StdErr             io.Writer
 	ConfigProvider     config.ConfigProvider
 	Executor           executor.Executor
 	PluginExecutor     executor.Executor
@@ -160,13 +161,16 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
-func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
+func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer, errorWriter io.Writer) log.Logger {
 	if context.Debug {
 		return &log.DebugLogger{
-			Output: writer,
+			Output:      writer,
+			ErrorOutput: errorWriter,
 		}
 	}
-	return &log.DefaultLogger{}
+	return &log.DefaultLogger{
+		ErrorOutput: errorWriter,
+	}
 }
 
 func (b CommandBuilder) outputWriter(context executor.ExecutionContext, writer io.Writer, format string, query string) output.OutputWriter {
@@ -268,19 +272,26 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				operation.Plugin)
 
 			var wg sync.WaitGroup
-			wg.Add(2)
+			wg.Add(3)
 			reader, writer := io.Pipe()
 			go func(reader *io.PipeReader) {
 				defer wg.Done()
 				defer reader.Close()
 				io.Copy(b.StdOut, reader)
 			}(reader)
+			errorReader, errorWriter := io.Pipe()
+			go func(errorReader *io.PipeReader) {
+				defer wg.Done()
+				defer errorReader.Close()
+				io.Copy(b.StdErr, errorReader)
+			}(errorReader)
 
 			go func(context executor.ExecutionContext, writer *io.PipeWriter) {
 				defer wg.Done()
 				defer writer.Close()
+				defer errorWriter.Close()
 				outputWriter := b.outputWriter(context, writer, outputFormat, query)
-				logger := b.logger(context, writer)
+				logger := b.logger(context, writer, errorWriter)
 				err = b.executeCommand(context, outputWriter, logger)
 			}(*executionContext, writer)
 

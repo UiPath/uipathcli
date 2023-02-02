@@ -147,6 +147,20 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 
+func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *ProgressBar) io.Reader {
+	if length == -1 || length < 10*1024*1024 {
+		return reader
+	}
+	progressReader := NewProgressReader(reader, func(progress Progress) {
+		displayText := text
+		if progress.Completed {
+			displayText = completedText
+		}
+		progressBar.Update(displayText, progress.BytesRead, length, progress.BytesPerSecond)
+	})
+	return progressReader
+}
+
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
 	if err != nil {
@@ -156,7 +170,10 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	if err != nil {
 		return err
 	}
-	request, err := http.NewRequest(context.Method, uri.String(), bytes.NewReader(body))
+	uploadBar := NewProgressBar(logger)
+	uploadReader := e.progressReader("uploading...", "completing upload...", bytes.NewReader(body), int64(len(body)), uploadBar)
+	defer uploadBar.Remove()
+	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
 	}
@@ -181,8 +198,11 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	if err != nil {
 		return fmt.Errorf("Error sending request: %v", err)
 	}
+	downloadBar := NewProgressBar(logger)
+	downloadReader := e.progressReader("downloading...", "completing download...", response.Body, response.ContentLength, downloadBar)
+	defer downloadBar.Remove()
 	defer response.Body.Close()
-	responseBody, err := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(downloadReader)
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %v", err)
 	}

@@ -30,6 +30,7 @@ func (c Cli) run(args []string, input []byte) error {
 		Input:              input,
 		StdIn:              c.StdIn,
 		StdOut:             c.StdOut,
+		StdErr:             c.StdErr,
 		ConfigProvider:     c.ConfigProvider,
 		Executor:           c.Executor,
 		PluginExecutor:     c.PluginExecutor,
