@@ -1,4 +1,4 @@
-package executor
+package utils
 
 type Progress struct {
 	BytesRead      int64

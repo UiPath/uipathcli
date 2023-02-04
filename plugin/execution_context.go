@@ -7,12 +7,14 @@ type ExecutionContext struct {
 	Auth       AuthResult
 	Parameters []ExecutionParameter
 	Insecure   bool
+	Debug      bool
 }
 
 func NewExecutionContext(
 	baseUri url.URL,
 	auth AuthResult,
 	parameters []ExecutionParameter,
-	insecure bool) *ExecutionContext {
-	return &ExecutionContext{baseUri, auth, parameters, insecure}
+	insecure bool,
+	debug bool) *ExecutionContext {
+	return &ExecutionContext{baseUri, auth, parameters, insecure, debug}
 }

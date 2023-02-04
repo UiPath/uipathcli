@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -280,7 +281,7 @@ func (c SimplePluginCommand) Command() plugin.Command {
 
 func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	logger.Log("Simple plugin logging output")
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "https", map[string][]string{}, []byte("Simple plugin output")))
+	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "https", map[string][]string{}, bytes.NewReader([]byte("Simple plugin output"))))
 }
 
 type ContextPluginCommand struct {

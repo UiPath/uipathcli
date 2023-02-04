@@ -1,10 +1,7 @@
 package commandline
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -46,24 +43,12 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
-func (c TypeConverter) readFile(path string) (executor.FileReference, error) {
-	data, err := os.ReadFile(path)
-	if err != nil && errors.Is(err, os.ErrNotExist) {
-		return executor.FileReference{}, fmt.Errorf("File '%s' not found", path)
-	}
-	if err != nil {
-		return executor.FileReference{}, fmt.Errorf("Error reading file '%s': %v", path, err)
-	}
-	filename := filepath.Base(path)
-	return *executor.NewFileReference(filename, data), nil
-}
-
 func (c TypeConverter) convertToBinary(value string, parameter parser.Parameter) (executor.FileReference, error) {
 	if strings.HasPrefix(value, filePrefix) {
 		path := strings.TrimPrefix(value, filePrefix)
-		return c.readFile(path)
+		return *executor.NewFileReference(path), nil
 	}
-	return *executor.NewFileReference(parameter.Name, []byte(value)), nil
+	return *executor.NewFileReferenceData(parameter.Name, []byte(value)), nil
 }
 
 func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {

@@ -1,7 +1,8 @@
-package executor
+package utils
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"unicode/utf8"
 
@@ -31,7 +32,7 @@ func (b *ProgressBar) Remove() {
 }
 
 func (b ProgressBar) render(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
-	percent := float64(currentBytes) / float64(totalBytes) * 100.0
+	percent := math.Min(float64(currentBytes)/float64(totalBytes)*100.0, 100.0)
 	barCount := int(percent / 5.0)
 	bar := strings.Repeat("█", barCount) + strings.Repeat(" ", 20-barCount)
 	totalBytesFormatted, unit := b.formatBytes(totalBytes)

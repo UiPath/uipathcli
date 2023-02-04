@@ -31,8 +31,8 @@ func (l DebugLogger) writeHeaders(header http.Header) {
 func (l *DebugLogger) LogRequest(request RequestInfo) {
 	fmt.Fprintf(l.Output, "%s %s %s\n", request.Method, request.Url, request.Protocol)
 	l.writeHeaders(request.Header)
-	fmt.Fprint(l.Output, string(request.Body))
-	if len(request.Body) > 0 {
+	n, _ := io.Copy(l.Output, request.Body)
+	if n > 0 {
 		fmt.Fprint(l.Output, "\n\n")
 	}
 	fmt.Fprint(l.Output, "\n")
@@ -41,7 +41,7 @@ func (l *DebugLogger) LogRequest(request RequestInfo) {
 func (l DebugLogger) LogResponse(response ResponseInfo) {
 	fmt.Fprintf(l.Output, "%s %s\n", response.Protocol, response.Status)
 	l.writeHeaders(response.Header)
-	fmt.Fprint(l.Output, string(response.Body))
+	io.Copy(l.Output, response.Body)
 	fmt.Fprint(l.Output, "\n\n\n")
 }
 

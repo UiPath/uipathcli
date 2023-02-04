@@ -39,17 +39,20 @@ type CommandBuilder struct {
 	DefinitionProvider DefinitionProvider
 }
 
-func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) []byte {
-	input := b.Input
-	if len(input) == 0 && len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
+func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (*executor.FileReference, error) {
+	if len(b.Input) > 0 {
+		return executor.NewFileReferenceData(parser.RawBodyParameterName, b.Input), nil
+	}
+	if len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
 		switch value := bodyParameters[0].Value.(type) {
 		case executor.FileReference:
-			input = value.Data
+			return &value, nil
 		default:
-			input = []byte(fmt.Sprintf("%v", value))
+			data := []byte(fmt.Sprintf("%v", value))
+			return executor.NewFileReferenceData(parser.RawBodyParameterName, data), nil
 		}
 	}
-	return input
+	return nil, nil
 }
 
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
@@ -252,7 +255,10 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if err != nil {
 				return err
 			}
-			input := b.getBodyInput(bodyParameters)
+			input, err := b.getBodyInput(bodyParameters)
+			if err != nil {
+				return err
+			}
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
 			executionContext := executor.NewExecutionContext(
