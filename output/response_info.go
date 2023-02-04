@@ -1,13 +1,15 @@
 package output
 
+import "io"
+
 type ResponseInfo struct {
 	StatusCode int
 	Status     string
 	Protocol   string
 	Header     map[string][]string
-	Body       []byte
+	Body       io.Reader
 }
 
-func NewResponseInfo(statusCode int, status string, protocol string, header map[string][]string, body []byte) *ResponseInfo {
+func NewResponseInfo(statusCode int, status string, protocol string, header map[string][]string, body io.Reader) *ResponseInfo {
 	return &ResponseInfo{statusCode, status, protocol, header, body}
 }

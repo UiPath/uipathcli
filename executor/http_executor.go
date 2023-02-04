@@ -18,6 +18,7 @@ import (
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 type HttpExecutor struct {
@@ -39,58 +40,65 @@ func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []Execu
 	}
 }
 
-func (e HttpExecutor) createForm(parameters []ExecutionParameter) ([]byte, string, error) {
-	var b bytes.Buffer
-	writer := multipart.NewWriter(&b)
+func (e HttpExecutor) calculateMultipartSize(parameters []ExecutionParameter) int64 {
+	result := int64(0)
+	for _, parameter := range parameters {
+		switch v := parameter.Value.(type) {
+		case string:
+			result = result + int64(len(v))
+		case FileReference:
+			data, size, err := v.Data()
+			if err == nil {
+				defer data.Close()
+				result = result + size
+			}
+		}
+	}
+	return result
+}
+
+func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []ExecutionParameter) error {
 	for _, parameter := range parameters {
 		switch v := parameter.Value.(type) {
 		case string:
 			w, err := writer.CreateFormField(parameter.Name)
 			if err != nil {
-				return []byte{}, "", fmt.Errorf("Error creating form field '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error creating form field '%s': %v", parameter.Name, err)
 			}
 			_, err = w.Write([]byte(v))
 			if err != nil {
-				return []byte{}, "", fmt.Errorf("Error writing form field '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error writing form field '%s': %v", parameter.Name, err)
 			}
 		case FileReference:
-			w, err := writer.CreateFormFile(parameter.Name, v.Filename)
+			w, err := writer.CreateFormFile(parameter.Name, v.Filename())
 			if err != nil {
-				return []byte{}, "", fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
 			}
-			_, err = w.Write(v.Data)
+			data, _, err := v.Data()
 			if err != nil {
-				return []byte{}, "", fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+				return err
+			}
+			defer data.Close()
+			_, err = io.Copy(w, data)
+			if err != nil {
+				return fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
 			}
 		}
 	}
-	writer.Close()
-	return b.Bytes(), writer.FormDataContentType(), nil
+	return nil
 }
 
-func (e HttpExecutor) createJson(contentType string, parameters []ExecutionParameter) ([]byte, string, error) {
-	var body = map[string]interface{}{}
+func (e HttpExecutor) serializeJson(body io.Writer, parameters []ExecutionParameter) error {
+	var data = map[string]interface{}{}
 	for _, parameter := range parameters {
-		body[parameter.Name] = parameter.Value
+		data[parameter.Name] = parameter.Value
 	}
-	result, err := json.Marshal(body)
+	result, err := json.Marshal(data)
 	if err != nil {
-		return []byte{}, "", fmt.Errorf("Error creating body: %v", err)
+		return fmt.Errorf("Error creating body: %v", err)
 	}
-	return result, contentType, nil
-}
-
-func (e HttpExecutor) createBody(contentType string, body []byte, bodyParameters []ExecutionParameter, formParameters []ExecutionParameter) ([]byte, string, error) {
-	if len(body) > 0 {
-		return body, contentType, nil
-	}
-	if len(formParameters) > 0 {
-		return e.createForm(formParameters)
-	}
-	if len(bodyParameters) > 0 {
-		return e.createJson(contentType, bodyParameters)
-	}
-	return []byte{}, contentType, nil
+	body.Write(result)
+	return nil
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
@@ -119,18 +127,6 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 	return result, nil
 }
 
-func (e HttpExecutor) send(client *http.Client, req *http.Request) (*http.Response, error) {
-	var resp *http.Response
-	var err error
-	for i := 0; i < 3; i++ {
-		resp, err = client.Do(req)
-		if err == nil && resp.StatusCode < 500 {
-			return resp, nil
-		}
-	}
-	return resp, err
-}
-
 func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
 	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
 	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
@@ -147,11 +143,11 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 
-func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *ProgressBar) io.Reader {
+func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
 	if length == -1 || length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := NewProgressReader(reader, func(progress Progress) {
+	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
@@ -161,26 +157,122 @@ func (e HttpExecutor) progressReader(text string, completedText string, reader i
 	return progressReader
 }
 
+func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) (string, int64) {
+	contentLength := e.calculateMultipartSize(parameters)
+	formWriter := multipart.NewWriter(bodyWriter)
+	go func() {
+		defer bodyWriter.Close()
+		defer formWriter.Close()
+		err := e.writeMultipartForm(formWriter, parameters)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+	}()
+	return formWriter.FormDataContentType(), contentLength
+}
+
+func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input FileReference, errorChan chan error) {
+	go func() {
+		defer bodyWriter.Close()
+		data, _, err := input.Data()
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		defer data.Close()
+		_, err = io.Copy(bodyWriter, data)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+	}()
+}
+
+func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
+	go func() {
+		defer bodyWriter.Close()
+		err := e.serializeJson(bodyWriter, parameters)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+	}()
+}
+
+func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64) {
+	bodyReader, bodyWriter := io.Pipe()
+	if context.Input != nil {
+		e.writeInputBody(bodyWriter, *context.Input, errorChan)
+		data, size, err := context.Input.Data()
+		if err == nil {
+			defer data.Close()
+		}
+		return bodyReader, context.ContentType, size
+	}
+	if len(context.FormParameters) > 0 {
+		contentType, contentLength := e.writeMultipartBody(bodyWriter, context.FormParameters, errorChan)
+		return bodyReader, contentType, contentLength
+	}
+	if len(context.BodyParameters) > 0 {
+		e.writeJsonBody(bodyWriter, context.BodyParameters, errorChan)
+		return bodyReader, context.ContentType, -1
+	}
+	bodyWriter.Close()
+	return bodyReader, context.ContentType, -1
+}
+
+func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan chan error) (*http.Response, error) {
+	responseChan := make(chan *http.Response)
+	go func(client *http.Client, request *http.Request) {
+		response, err := client.Do(request)
+		if err != nil {
+			errorChan <- err
+			return
+		}
+		responseChan <- response
+	}(client, request)
+
+	select {
+	case err := <-errorChan:
+		return nil, err
+	case response := <-responseChan:
+		return response, nil
+	}
+}
+
+func (e HttpExecutor) LogRequest(logger log.Logger, request *http.Request) {
+	buffer := &bytes.Buffer{}
+	buffer.ReadFrom(request.Body)
+	body := buffer.Bytes()
+	request.Body = io.NopCloser(bytes.NewReader(body))
+	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
+	logger.LogRequest(*requestInfo)
+}
+
+func (e HttpExecutor) LogResponse(logger log.Logger, response *http.Response, body []byte) {
+	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
+	logger.LogResponse(*responseInfo)
+}
+
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
 	if err != nil {
 		return err
 	}
-	body, contentType, err := e.createBody(context.ContentType, context.Body, context.BodyParameters, context.FormParameters)
-	if err != nil {
-		return err
-	}
-	uploadBar := NewProgressBar(logger)
-	uploadReader := e.progressReader("uploading...", "completing upload...", bytes.NewReader(body), int64(len(body)), uploadBar)
+	requestError := make(chan error)
+	bodyReader, contentType, contentLength := e.writeBody(context, requestError)
+	uploadBar := utils.NewProgressBar(logger)
+	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 	defer uploadBar.Remove()
 	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
+	if err != nil {
+		return fmt.Errorf("Error preparing request: %v", err)
+	}
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
 	}
 	e.addHeaders(request, context.HeaderParameters)
-	if err != nil {
-		return fmt.Errorf("Error preparing request: %v", err)
-	}
 	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
 	if err != nil {
 		return err
@@ -193,21 +285,23 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: context.Insecure},
 	}
 	client := &http.Client{Transport: transport}
-	logger.LogRequest(*log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, body))
-	response, err := e.send(client, request)
+	if context.Debug {
+		e.LogRequest(logger, request)
+	}
+	response, err := e.send(client, request, requestError)
 	if err != nil {
 		return fmt.Errorf("Error sending request: %v", err)
 	}
-	downloadBar := NewProgressBar(logger)
-	downloadReader := e.progressReader("downloading...", "completing download...", response.Body, response.ContentLength, downloadBar)
+	downloadBar := utils.NewProgressBar(logger)
+	downloadReader := e.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()
 	defer response.Body.Close()
-	responseBody, err := io.ReadAll(downloadReader)
+	body, err := io.ReadAll(downloadReader)
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %v", err)
 	}
-	logger.LogResponse(*log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, responseBody))
-	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, responseBody))
+	e.LogResponse(logger, response, body)
+	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {
 		return err
 	}

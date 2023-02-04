@@ -123,9 +123,13 @@ func (w TextOutputWriter) writeBody(body []byte) error {
 }
 
 func (w TextOutputWriter) WriteResponse(response ResponseInfo) error {
-	if len(response.Body) == 0 && response.StatusCode >= 400 {
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
+	if len(body) == 0 && response.StatusCode >= 400 {
 		fmt.Fprintf(w.Output, "%s %s\n", response.Protocol, response.Status)
 		return nil
 	}
-	return w.writeBody(response.Body)
+	return w.writeBody(body)
 }

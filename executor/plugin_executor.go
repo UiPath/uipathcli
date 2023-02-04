@@ -37,7 +37,7 @@ func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParamete
 		name := parameter.Name
 		value := parameter.Value
 		if fileReference, ok := parameter.Value.(FileReference); ok {
-			value = *plugin.NewFileParameter(fileReference.Filename, fileReference.Data)
+			value = *plugin.NewFileParameter(fileReference.path, fileReference.filename, fileReference.data)
 		}
 		result = append(result, *plugin.NewExecutionParameter(name, value))
 	}
@@ -71,6 +71,7 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 		context.BaseUri,
 		pluginAuth,
 		pluginParams,
-		context.Insecure)
+		context.Insecure,
+		context.Debug)
 	return context.Plugin.Execute(*pluginContext, writer, logger)
 }

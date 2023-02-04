@@ -131,6 +131,16 @@ func TestDigitizeSuccessfully(t *testing.T) {
 `
 
 	definition := `
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/digitizer
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
 paths:
   /digitize:
     get:
