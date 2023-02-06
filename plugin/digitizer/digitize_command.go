@@ -186,8 +186,10 @@ func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context
 }
 
 func (c DigitizeCommand) calculateMultipartSize(file *plugin.FileParameter) int64 {
-	data, size, _ := file.Data()
-	defer data.Close()
+	data, size, err := file.Data()
+	if err == nil {
+		defer data.Close()
+	}
 	return size
 }
 
