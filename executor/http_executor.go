@@ -218,7 +218,9 @@ func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) 
 		e.writeJsonBody(bodyWriter, context.BodyParameters, errorChan)
 		return bodyReader, context.ContentType, -1
 	}
-	bodyWriter.Close()
+	go func() {
+		defer bodyWriter.Close()
+	}()
 	return bodyReader, context.ContentType, -1
 }
 

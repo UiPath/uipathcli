@@ -70,6 +70,34 @@ paths:
 	}
 }
 
+func TestDigitizeFileDoesNotExistShowsValidationError(t *testing.T) {
+	config := `profiles:
+- name: default
+  path:
+    organization: my-org
+    tenant: my-tenant
+`
+
+	definition := `
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := NewContextBuilder().
+		WithConfig(config).
+		WithDefinition("du-digitizer", definition).
+		WithCommandPlugin(plugin_digitizer.DigitizeCommand{}).
+		Build()
+
+	result := runCli([]string{"du-digitizer", "digitize", "--file", "file://does-not-exist"}, context)
+
+	if !strings.Contains(result.StdErr, "Error sending request: File 'does-not-exist' not found") {
+		t.Errorf("Expected stderr to show that file was not found, but got: %v", result.StdErr)
+	}
+}
+
 func TestDigitizeWithoutOrganizationShowsValidationError(t *testing.T) {
 	definition := `
 paths:
