@@ -16,7 +16,7 @@ paths:
   /v1/runs/{runId}:
     get:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Get Run by id
       operationId: getRunById
       parameters:
@@ -82,7 +82,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
     put:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Update a Run
       operationId: updateRun
       parameters:
@@ -153,7 +153,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseRunDtoBasePipelineDto'
     delete:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Delete Run by id
       operationId: deleteRunById
       parameters:
@@ -226,7 +226,7 @@ paths:
   /v1/pipelines/{pipelineId}:
     get:
       tags:
-        - Training pipeline related APIs
+        - TrainingPipeline
       description: Get Pipeline by id
       operationId: getPipelineById
       parameters:
@@ -292,7 +292,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseBasePipelineDto'
     put:
       tags:
-        - Training pipeline related APIs
+        - TrainingPipeline
       description: Update a Pipeline
       operationId: updatePipeline
       parameters:
@@ -358,7 +358,7 @@ paths:
   /v1/trainerTenant:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get tenants
       operationId: getTenants
       parameters:
@@ -433,7 +433,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
     post:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Provision tenant to Training
       operationId: provisionTenant
       parameters:
@@ -480,7 +480,7 @@ paths:
   /v1/trainerTenant/refreshExpiringSasUrl:
     post:
       tags:
-        - Tenant APIs
+        - Tenant
       operationId: refreshExpiringSasUrlForTenants
       responses:
         '200':
@@ -492,7 +492,7 @@ paths:
   /v1/serviceentries:
     get:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Fetch service entries with the search criteria
       operationId: getServiceEntries
       parameters:
@@ -582,7 +582,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
     post:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Service entry creation
       operationId: createServiceEntry
       parameters:
@@ -643,7 +643,7 @@ paths:
   /v1/runs:
     get:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Fetch Runs
       operationId: getRuns
       parameters:
@@ -768,7 +768,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoRunDtoBasePipelineDto'
     post:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Start a schedule run for trigger pipeline
       operationId: startRun
       parameters:
@@ -829,7 +829,7 @@ paths:
   /v1/pipelines:
     get:
       tags:
-        - Training pipeline related APIs
+        - TrainingPipeline
       description: Fetch Pipelines
       operationId: getPipelines
       parameters:
@@ -915,7 +915,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoBasePipelineDto'
     post:
       tags:
-        - Training pipeline related APIs
+        - TrainingPipeline
       description: Create a pipeline
       operationId: createPipeline
       parameters:
@@ -976,7 +976,7 @@ paths:
   /v1/datasets:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Fetch list of datasets '
       operationId: getDatasets
       parameters:
@@ -1081,7 +1081,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDto'
     post:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Create a dataset
       operationId: createDataset
       parameters:
@@ -1156,7 +1156,7 @@ paths:
   /v1/datasets:download:
     get:
       tags:
-        - Dataset Download Controller related APIs
+        - Dataset
       description: Get Dataset downloads list
       operationId: getDatasetDownloads
       parameters:
@@ -1239,7 +1239,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoDatasetDownloadDto'
     post:
       tags:
-        - Dataset Download Controller related APIs
+        - Dataset
       description: Start Downloading the Dataset
       operationId: initiateDatasetDownload
       parameters:
@@ -1305,7 +1305,7 @@ paths:
   /v1/datasets/{datasetId}:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Get Dataset by id
       operationId: getDatasetById
       parameters:
@@ -1377,7 +1377,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseDatasetDto'
     post:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Update a dataset
       operationId: updateDataset
       parameters:
@@ -1451,7 +1451,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseDatasetDto'
     delete:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Delete a dataset
       operationId: deleteDataset
       parameters:
@@ -1520,7 +1520,7 @@ paths:
   /v1/datasets/{datasetId}/rotateKey:
     post:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Rotate API key
       operationId: rotateKey
       parameters:
@@ -1595,7 +1595,7 @@ paths:
   /v1/datasets/{datasetId}/copyBlob:
     post:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Copy blob from one location to another inside dataset
       operationId: copyBlob
       parameters:
@@ -1654,7 +1654,7 @@ paths:
   /v1/trainerTenant/{tenantId}:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get Tenant by id
       operationId: getTenantById
       parameters:
@@ -1700,7 +1700,7 @@ paths:
   /v1/signedURL:
     get:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrlGeneration
       operationId: getSignedURL
       parameters:
         - name: account-id
@@ -1794,7 +1794,7 @@ paths:
   /v1/signedURL/public:
     get:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrlGeneration
       operationId: getPublicSignedURL
       parameters:
         - name: api-key
@@ -1864,7 +1864,7 @@ paths:
   /v1/runs/logs/{runId}:
     get:
       tags:
-        - Training run related APIs
+        - TrainingRun
       description: Fetch Run Logs
       operationId: getRunLogs
       parameters:
@@ -1930,7 +1930,7 @@ paths:
   /v1/datasets/{datasetId}/signedURL:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Signed URL for read and update operations. '
       operationId: getDatasetSignedURL
       parameters:
@@ -2014,7 +2014,7 @@ paths:
   /v1/datasets/{datasetId}/files:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Lists files/directory in a dataset '
       operationId: listDataset
       parameters:
@@ -2095,7 +2095,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseTokenBasedPageListingDtoBlobMetadata'
     delete:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Delete files/directory in a dataset '
       operationId: deleteFileForDataset
       parameters:
@@ -2171,7 +2171,7 @@ paths:
   /v1/datasets/search:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Check if Dataset exists by name '
       operationId: checkUniqueName
       parameters:
@@ -2245,7 +2245,7 @@ paths:
   /v1/datasets/listPipelineArtifacts:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Fetch list of pipeline artifacts '
       operationId: listPipelineArtifacts
       parameters:
@@ -2319,7 +2319,7 @@ paths:
   /v1/datasets/listDataset:
     get:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: 'Fetch list of blobs '
       operationId: getListDataset
       parameters:
@@ -2405,7 +2405,7 @@ paths:
   /v1/trainerTenant/{tenantIdToDeprovision}:
     delete:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Deprovision tenant and its resources
       operationId: deProvisionTenant
       parameters:
@@ -2457,7 +2457,7 @@ paths:
   /v1/serviceentries/{serviceEntryId}:
     delete:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Delete Service entry
       operationId: deleteServiceEntry
       parameters:
@@ -2524,7 +2524,7 @@ paths:
   /v1/datasets:download/{datasetDownloadId}:
     delete:
       tags:
-        - Dataset Download Controller related APIs
+        - Dataset
       description: Delete a Downloaded Dataset
       operationId: deleteDatasetDownload
       parameters:
@@ -2577,7 +2577,7 @@ paths:
   /v1/datasets/files:
     delete:
       tags:
-        - Dataset Controller related APIs
+        - Dataset
       description: Delete files
       operationId: deleteFile
       parameters:

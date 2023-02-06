@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"sort"
 	"strings"
 	"sync"
 
@@ -37,6 +38,12 @@ type CommandBuilder struct {
 	Executor           executor.Executor
 	PluginExecutor     executor.Executor
 	DefinitionProvider DefinitionProvider
+}
+
+func (b CommandBuilder) sort(commands []*cli.Command) {
+	sort.Slice(commands, func(i, j int) bool {
+		return commands[i].Name < commands[j].Name
+	})
 }
 
 func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (*executor.FileReference, error) {
@@ -309,10 +316,47 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 	}
 }
 
+func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.Command {
+	return &cli.Command{
+		Name:        operation.Category.Name,
+		Description: operation.Category.Description,
+		Flags: []cli.Flag{
+			b.HelpFlag(),
+		},
+		HideHelp: true,
+	}
+}
+
+func (b CommandBuilder) createServiceCommandCategory(definition parser.Definition, operation parser.Operation, categories map[string]*cli.Command) (bool, *cli.Command) {
+	isNewCategory := false
+	operationCommand := b.createOperationCommand(definition, operation)
+	command, found := categories[operation.Category.Name]
+	if !found {
+		command = b.createCategoryCommand(operation)
+		categories[operation.Category.Name] = command
+		isNewCategory = true
+	}
+	command.Subcommands = append(command.Subcommands, operationCommand)
+	return isNewCategory, command
+}
+
 func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.Command {
+	categories := map[string]*cli.Command{}
 	commands := []*cli.Command{}
-	for _, operations := range definition.Operations {
-		commands = append(commands, b.createOperationCommand(definition, operations))
+	for _, operation := range definition.Operations {
+		if operation.Category == nil {
+			command := b.createOperationCommand(definition, operation)
+			commands = append(commands, command)
+			continue
+		}
+		isNewCategory, command := b.createServiceCommandCategory(definition, operation, categories)
+		if isNewCategory {
+			commands = append(commands, command)
+		}
+	}
+	b.sort(commands)
+	for _, command := range commands {
+		b.sort(command.Subcommands)
 	}
 
 	return &cli.Command{

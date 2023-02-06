@@ -15,8 +15,6 @@ servers:
 paths:
   /signature/{objectKey}:
     post:
-      tags:
-        - Signature
       summary: Generate pre-signed URL
       description: This route generates a presigned URL which can be used to upload and download a specific object.
       operationId: presigned-url
@@ -83,8 +81,6 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
   /store:
     get:
-      tags:
-        - Storage
       summary: List objects
       description: "This route lists all the storage objects which optionally match a given prefix.\r\n            \r\nIt uses continuation tokens to support pagination."
       operationId: list
@@ -137,8 +133,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     post:
-      tags:
-        - Storage
       summary: Delete all objects matching prefix
       description: This route deletes all objects which match the given deletePrefix.
       operationId: batch-delete
@@ -187,8 +181,6 @@ paths:
                 $ref: '#/components/schemas/ProblemDetails'
   /store/{objectKey}:
     head:
-      tags:
-        - Storage
       summary: Get object metadata
       description: This route returns the object metadata in form of HTTP headers without the file content.
       operationId: metadata
@@ -239,8 +231,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     get:
-      tags:
-        - Storage
       summary: Download file from storage
       description: This route returns the file content for the given object key.
       operationId: download
@@ -291,8 +281,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     put:
-      tags:
-        - Storage
       summary: Upload file to storage
       description: This route uploads the file content to storage.
       operationId: upload
@@ -343,8 +331,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
     delete:
-      tags:
-        - Storage
       summary: Delete object
       description: This route deletes the object with the given object key and its metadata from storage
       operationId: delete

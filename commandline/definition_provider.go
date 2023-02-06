@@ -72,7 +72,11 @@ func (p DefinitionProvider) applyPlugins(definition *parser.Definition) {
 
 func (p DefinitionProvider) applyPluginCommand(plugin plugin.CommandPlugin, command plugin.Command, definition *parser.Definition) {
 	parameters := p.convertToParameters(command.Parameters)
-	operation := parser.NewOperation(command.Name, command.Description, "", "", "application/json", parameters, plugin, command.Hidden)
+	var category *parser.OperationCategory
+	if command.Category != nil {
+		category = parser.NewOperationCategory(command.Category.Name, command.Category.Description)
+	}
+	operation := parser.NewOperation(command.Name, command.Description, "", "", "application/json", parameters, plugin, command.Hidden, category)
 	for i := range definition.Operations {
 		if definition.Operations[i].Name == command.Name {
 			definition.Operations[i] = *operation

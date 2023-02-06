@@ -197,6 +197,37 @@ paths:
 	}
 }
 
+func TestGetRequestWithCategory(t *testing.T) {
+	definition := `
+paths:
+  /ping/{id}:
+    parameters:
+    - name: id
+      in: path
+      required: true
+      description: The id
+      schema:
+        type: string
+    get:
+      operationId: ping
+      summary: Simple ping
+      tags:
+        - MyCategory
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "my-category", "ping", "--id", "my-id"}, context)
+
+	expected := "/ping/my-id"
+	if !strings.Contains(result.RequestUrl, expected) {
+		t.Errorf("Request url did not contain parameter value, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
 func TestGetRequestWithQueryParameter(t *testing.T) {
 	definition := `
 paths:

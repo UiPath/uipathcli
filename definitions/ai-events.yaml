@@ -12,6 +12,11 @@ servers:
     tenant:
       description: The tenant name (or id)
       default: my-tenant
+tags:
+- name: Events
+  description: Publisher operations
+- name: Subscription
+  description: Reader operations
 paths:
   /events:
     post:
@@ -37,7 +42,7 @@ paths:
           description: Success
   /subscription:
     post:
-      operationId: create-subscription
+      operationId: create
       tags:
         - Subscription
       summary: Create a new subscription with the given name and start receiving events.
@@ -59,7 +64,7 @@ paths:
           description: Success
   /subscription/webhook:
     post:
-      operationId: create-subscription-webhook
+      operationId: create-webhook
       tags:
         - Subscription
       summary: Create a new subscription with the given name and provided webhook url and start receiving events.
@@ -81,7 +86,7 @@ paths:
           description: Success
   /subscription/{name}:
     delete:
-      operationId: delete-subscription
+      operationId: delete
       tags:
         - Subscription
       summary: Delete subscriptions

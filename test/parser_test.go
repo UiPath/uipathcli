@@ -129,6 +129,127 @@ paths:
 	}
 }
 
+func TestCategory(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      tags:
+        - MyCategory
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice"}, context)
+
+	expected := "my-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoryCommands(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      tags:
+      - MyCategory
+      operationId: create
+    get:
+      tags:
+        - MyCategory
+      operationId: list
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	if !strings.Contains(result.StdOut, "create") || !strings.Contains(result.StdOut, "list") {
+		t.Errorf("stdout does not contain all commands, got: %v", result.StdOut)
+	}
+}
+
+func TestCategoryDescription(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      tags:
+        - MyCategory
+      summary: Simple ping
+tags:
+- name: MyCategory
+  description: This is a description for my category
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	expected := "This is a description for my category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category description, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoryCommandsSorted(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      tags:
+      - MyCategory
+      operationId: bbbbb
+    get:
+      tags:
+        - MyCategory
+      operationId: aaaaa
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
+		t.Errorf("category commands are not sorted, got: %v", result.StdOut)
+	}
+}
+
+func TestCategoryMixedWithNoCategory(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      operationId: simple
+    get:
+      tags:
+        - MyCategory
+      operationId: inside-category
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice"}, context)
+
+	if !strings.Contains(result.StdOut, "simple") {
+		t.Errorf("Does not contain command outside of category, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "my-category") {
+		t.Errorf("Does not contain category, got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "inside-category") {
+		t.Errorf("Should not contain command inside of the category, got: %v", result.StdOut)
+	}
+}
+
 func TestParameterDescription(t *testing.T) {
 	definition := `
 paths:

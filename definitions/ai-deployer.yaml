@@ -16,7 +16,7 @@ paths:
   /v1/tenant/{tenantIdToProvision}/consume:
     put:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Update provisioned tenant for consuming cpu and gpu slots
       operationId: updateTenantLicenseConsumption
       parameters:
@@ -68,7 +68,7 @@ paths:
   /v1/mlskills/stop/{mlSkillId}:
     put:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Stop ML Skill
       operationId: stopMLSkill
       parameters:
@@ -146,7 +146,7 @@ paths:
   /v1/tenant:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get tenants
       operationId: getTenants
       parameters:
@@ -221,7 +221,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
     post:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Provision tenant for ML Skills deployment
       operationId: provisionTenant
       parameters:
@@ -268,7 +268,7 @@ paths:
   /v1/serviceentries:
     get:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Fetch service entries with the search criteria
       operationId: getServiceEntries
       parameters:
@@ -358,7 +358,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
     post:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Service entry creation
       operationId: createServiceEntry
       parameters:
@@ -419,7 +419,7 @@ paths:
   /v1/replication:
     post:
       tags:
-        - ML Skill replication APIs
+        - MlSkillReplication
       description: ML Skill replication
       operationId: replicateMLSkills
       requestBody:
@@ -444,7 +444,7 @@ paths:
   /v1/mlskills:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Fetch ML Skills with the search by name criteria
       operationId: getMLSkills
       parameters:
@@ -560,7 +560,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillDto'
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill creation
       operationId: createMLSkill
       parameters:
@@ -626,7 +626,7 @@ paths:
   /v1/mlskills/{mlSkillId}:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill by id
       operationId: getMLSkillById
       parameters:
@@ -696,7 +696,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill updation
       operationId: updateMLSkill
       parameters:
@@ -777,7 +777,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
     delete:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Delete ML Skill
       operationId: deleteMLSkill
       parameters:
@@ -855,7 +855,7 @@ paths:
   /v1/mlskills/{mlSkillId}/rollback:
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill Rollback
       operationId: rollBackMLSkill
       parameters:
@@ -926,7 +926,7 @@ paths:
   /v1/migration:
     post:
       tags:
-        - ML skills migration related APIs
+        - MlSkillMigration
       description: 'Undeploy and redeploy existing ML Skills '
       operationId: migrateMLSkills
       parameters:
@@ -964,7 +964,7 @@ paths:
   /v1/migration/baseimage:
     post:
       tags:
-        - ML skills migration related APIs
+        - MlSkillMigration
       description: ML Skills base image migration
       operationId: migrateMLSkillsBaseImage
       requestBody:
@@ -989,7 +989,7 @@ paths:
   /v1/hitcount:
     post:
       tags:
-        - Hit Count APIs
+        - HitCount
       description: Update Hit Counts
       operationId: updateHitCount
       requestBody:
@@ -1014,7 +1014,7 @@ paths:
   /v1/cleanup/versions/undeployfailed:
     post:
       tags:
-        - ML skills cleanup related APIs
+        - MlSkillCleanUp
       description: Cleanup undeploy failed ML Skills
       operationId: cleanupUndeployFailedMLSkillVersions
       responses:
@@ -1033,7 +1033,7 @@ paths:
   /api/tenantserviceinstances:
     post:
       tags:
-        - Eager Provisioning APIs
+        - EagerProvisioning
       description: Provision tenant for ML Skills deployment via Eager Provisioning
       operationId: eagerProvisionTenant
       parameters:
@@ -1075,7 +1075,7 @@ paths:
   /api/tenantserviceinstances/{serviceType}/{tenantId}/restore:
     post:
       tags:
-        - Eager Provisioning APIs
+        - EagerProvisioning
       description: Restore the tenant from soft-deleted state
       operationId: recoverTenant
       parameters:
@@ -1121,7 +1121,7 @@ paths:
   /v1/tenant/{tenantIdToProvision}:
     patch:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Update provisioned tenant for ML Skills deployment
       operationId: updateTenant
       parameters:
@@ -1173,7 +1173,7 @@ paths:
   /api/tenantserviceinstances/{serviceType}/{tenantId}:
     get:
       tags:
-        - Eager Provisioning APIs
+        - EagerProvisioning
       description: Get provisioning details of a tenant
       operationId: getTenantDetails_1
       parameters:
@@ -1208,7 +1208,7 @@ paths:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
     delete:
       tags:
-        - Eager Provisioning APIs
+        - EagerProvisioning
       description: De-Provision tenant and its k8 resources (hard-delete/soft-delete)
       operationId: eagerDeprovisionTenant
       parameters:
@@ -1253,7 +1253,7 @@ paths:
                 $ref: '#/components/schemas/TenantDeleteStatusDto'
     patch:
       tags:
-        - Eager Provisioning APIs
+        - EagerProvisioning
       description: Enable/disable tenant
       operationId: updateTenant_1
       parameters:
@@ -1294,7 +1294,7 @@ paths:
   /v1/tenantlicensestats/{tenantIdToProvision}/licenses:
     get:
       tags:
-        - Tenant License Stats APIs
+        - TenantLicense
       description: Get license usage for a tenant
       operationId: getLicenseDetail
       parameters:
@@ -1340,7 +1340,7 @@ paths:
   /v1/tenantlicensestats/licenses:
     get:
       tags:
-        - Tenant License Stats APIs
+        - TenantLicense
       description: Get license usage for own tenant
       operationId: getLicenseDetailForOwnTenant
       parameters:
@@ -1381,7 +1381,7 @@ paths:
   /v1/tenant/{tenantIdToProvision}/licenses:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get license usage for a tenant
       operationId: getLicenseDetails
       parameters:
@@ -1427,7 +1427,7 @@ paths:
   /v1/tenant/tenantdetails:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get tenant details
       operationId: getTenantDetails
       parameters:
@@ -1458,7 +1458,7 @@ paths:
   /v1/tenant/merged:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get merged list of tenants
       operationId: getMergedTenants
       parameters:
@@ -1503,7 +1503,7 @@ paths:
   /v1/tenant/licenses:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get license usage for own tenant
       operationId: getLicenseDetailsForOwnTenant
       parameters:
@@ -1544,7 +1544,7 @@ paths:
   /v1/mlskills/{mlSkillId}/versions:
     get:
       tags:
-        - ML Skill Version related APIs
+        - MlSkillVersion
       description: Fetch mlSkillVersions for a ML Skill in a paginated manner
       operationId: getMLSkillVersions
       parameters:
@@ -1635,7 +1635,7 @@ paths:
   /v1/mlskills/{mlSkillId}/replicas:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill replicas for a particular mlskillId
       operationId: getMLSkillReplicas
       parameters:
@@ -1695,7 +1695,7 @@ paths:
   /v1/mlskills/{mlSkillId}/ping:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill current status
       operationId: pingMLSkill
       parameters:
@@ -1766,7 +1766,7 @@ paths:
   /v1/mlskills/{mlSkillId}/logs/{replicaId}:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill Run Logs for a particular pod name
       operationId: getMLSkillLogs
       parameters:
@@ -1832,7 +1832,7 @@ paths:
   /v1/mlskills/search:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: 'Check if MLSkill exists by name '
       operationId: checkUniqueName
       parameters:
@@ -1898,7 +1898,7 @@ paths:
   /v1/mlskills/refresh:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Update current status of ML skills for a tenant
       operationId: refreshMLSkills
       parameters:
@@ -1964,7 +1964,7 @@ paths:
   /v1/mlskills/inactivityperiod:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill Inactivity period list for a tenant
       operationId: getInactivePeriod
       parameters:
@@ -2019,7 +2019,7 @@ paths:
   /v1/mlskills/countbystatus:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skills count by status
       operationId: getMLSkillsCountByStatus
       parameters:
@@ -2079,7 +2079,7 @@ paths:
   /v1/mlpackageimages/exist:
     get:
       tags:
-        - ML package image related APIs
+        - MlPackage
       operationId: checkIfMLPackageImageExists
       parameters:
         - name: account-id
@@ -2160,7 +2160,7 @@ paths:
   /v1/aiunits/isaiunitenabled:
     get:
       tags:
-        - AI UNITS APIs
+        - AiUnits
       description: Get if AIUnits is enabled for the account
       operationId: getIsAIUnitEnabled
       parameters:
@@ -2191,7 +2191,7 @@ paths:
   /v1/tenant/{tenantIdToDeprovision}:
     delete:
       tags:
-        - Tenant APIs
+        - Tenant
       description: De-Provision tenant and its resources
       operationId: deProvisionTenant
       parameters:
@@ -2243,7 +2243,7 @@ paths:
   /v1/serviceentries/{serviceEntryId}:
     delete:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Delete Service entry
       operationId: deleteServiceEntry
       parameters:

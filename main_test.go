@@ -141,22 +141,23 @@ paths:
 }
 
 func TestMainParsesBuiltInDefinitions(t *testing.T) {
-	t.Run("ai-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-appmanager", "get-apps") })
-	t.Run("ai-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-deployer", "update-mlskill") })
-	t.Run("ai-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-helper", "get-project-acces") })
-	t.Run("ai-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-trainer", "create-dataset") })
+	t.Run("ai-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-appmanager app", "get-apps") })
+	t.Run("ai-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-deployer ml-skill", "update-mlskill") })
+	t.Run("ai-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-helper project", "get-project-acces") })
+	t.Run("ai-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-trainer dataset", "create-dataset") })
 	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-digitizer", "digitize") })
-	t.Run("ai-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-events", "create-subscription") })
+	t.Run("ai-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-events subscription", "create") })
 	t.Run("ai-metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-metering", "track") })
-	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "users-get-by-id") })
+	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator users", "get-by-id") })
+	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "assets") })
 	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-storage", "presigned-url") })
 }
 
-func MainParsesBuiltInDefinitions(t *testing.T, name string, expected string) {
+func MainParsesBuiltInDefinitions(t *testing.T, command string, expected string) {
 	definitionDir, _ := os.Getwd()
 	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Join(definitionDir, "definitions/"))
 
-	os.Args = []string{"uipathcli", name}
+	os.Args = strings.Split("uipathcli "+command, " ")
 	output := captureOutput(t, func() {
 		main()
 	})
