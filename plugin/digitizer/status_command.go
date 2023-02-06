@@ -11,7 +11,10 @@ import (
 type StatusCommand struct{}
 
 func (c StatusCommand) Command() plugin.Command {
-	return *plugin.NewCommand("du-digitizer", "status", "Get Digitization Operation Result", []plugin.CommandParameter{}, true)
+	return *plugin.NewCommand("du").
+		WithCategory("digitization", "Document Digitization").
+		WithOperation("status", "Get Digitization Operation Result").
+		IsHidden()
 }
 
 func (c StatusCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {

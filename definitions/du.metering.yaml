@@ -15,6 +15,8 @@ servers:
 paths:
   /alive:
     get:
+      tags:
+        - Metering
       operationId: alive
       summary: Checks if the service is operating properly and can connect to its redis dependency.
       description: "This route returns basic information about the services health.\r\nIt is also used as liveness probe."
@@ -25,6 +27,8 @@ paths:
           description: Bad Request
   /ping:
     get:
+      tags:
+        - Metering
       operationId: ping
       summary: Basic ping route which returns status code 200 when the web server is up and running
       description: "This route returns basic information about where the metering service is deployed.\r\nIt is also used as readiness probe."
@@ -43,6 +47,8 @@ paths:
                 $ref: '#/components/schemas/PingResponse'
   /track:
     post:
+      tags:
+        - Metering
       operationId: track
       summary: License validation, tracking and consumption
       description: "The operation supports two types of authentication (API key or JWT token with account id).\r\nCalls License Accountant to consume specified number of units\r\n\r\nHeaders (API key auth):\r\n- X-UIPATH-License: API key\r\n\r\nHeaders (JWT bearer token auth):\r\n- Authorization: Bearer token...\r\n- X-UIPATH-Internal-AccountId: account-id set by the location services"
@@ -123,6 +129,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /validate:
     post:
+      tags:
+        - Metering
       operationId: validate
       summary: License validation without consumption
       description: "Validates the given API key or JWT bearer token and returns whether the provided account still has units available.\r\n\r\nHeaders (API key auth):\r\n- X-UIPATH-License: API key\r\n\r\nHeaders (JWT bearer token auth):\r\n- Authorization: Bearer token...\r\n- X-UIPATH-Internal-AccountId: account-id set by the location services"

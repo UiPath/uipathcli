@@ -127,13 +127,13 @@ func (b CommandBuilder) outputFormat(config config.Config, context *cli.Context)
 	return outputFormat, nil
 }
 
-func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (url.URL, error) {
+func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.Config, context *cli.Context) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
-		return definition.BaseUri, err
+		return operation.BaseUri, err
 	}
 
-	builder := NewUriBuilder(definition.BaseUri)
+	builder := NewUriBuilder(operation.BaseUri)
 	builder.OverrideUri(config.Uri)
 	builder.OverrideUri(uriArgument)
 	return builder.Uri(), nil
@@ -230,7 +230,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			}
 			query := context.String(queryFlagName)
 
-			baseUri, err := b.createBaseUri(definition, *config, context)
+			baseUri, err := b.createBaseUri(operation, *config, context)
 			if err != nil {
 				return err
 			}
@@ -412,8 +412,9 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 		Description: "Returns the autocomplete suggestions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "command",
-				Usage: "The command to autocomplete",
+				Name:     "command",
+				Usage:    "The command to autocomplete",
+				Required: true,
 			},
 			b.HelpFlag(),
 		},

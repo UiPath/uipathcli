@@ -141,16 +141,16 @@ paths:
 }
 
 func TestMainParsesBuiltInDefinitions(t *testing.T) {
-	t.Run("ai-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-appmanager app", "get-apps") })
-	t.Run("ai-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-deployer ml-skill", "update-mlskill") })
-	t.Run("ai-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-helper project", "get-project-acces") })
-	t.Run("ai-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-trainer dataset", "create-dataset") })
-	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-digitizer", "digitize") })
-	t.Run("ai-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-events subscription", "create") })
-	t.Run("ai-metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "ai-metering", "track") })
+	t.Run("aicenter-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter app", "get-apps") })
+	t.Run("aicenter-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter ml-skill", "update-mlskill") })
+	t.Run("aicenter-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter project", "get-project-acces") })
+	t.Run("aicenter-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter dataset", "create-dataset") })
+	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du digitization", "digitize") })
+	t.Run("du-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du events", "create-subscription") })
+	t.Run("du-metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du metering", "track") })
+	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du storage", "presigned-url") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator users", "get-by-id") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "assets") })
-	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du-storage", "presigned-url") })
 }
 
 func MainParsesBuiltInDefinitions(t *testing.T, command string, expected string) {

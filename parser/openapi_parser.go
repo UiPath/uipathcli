@@ -185,34 +185,34 @@ func (p OpenApiParser) getCategory(operation openapi3.Operation, document openap
 	return nil
 }
 
-func (p OpenApiParser) parseOperation(method string, route string, operation openapi3.Operation, routeParameters openapi3.Parameters, document openapi3.T) Operation {
+func (p OpenApiParser) parseOperation(method string, baseUri url.URL, route string, operation openapi3.Operation, routeParameters openapi3.Parameters, document openapi3.T) Operation {
 	category := p.getCategory(operation, document)
 	name := p.getName(method, route, category, operation)
 	contentType, parameters := p.parseOperationParameters(operation, routeParameters)
-	return *NewOperation(name, operation.Summary, method, route, contentType, parameters, nil, false, category)
+	return *NewOperation(name, operation.Summary, method, baseUri, route, contentType, parameters, nil, false, category)
 }
 
-func (p OpenApiParser) parsePath(route string, pathItem openapi3.PathItem, document openapi3.T) []Operation {
+func (p OpenApiParser) parsePath(baseUri url.URL, route string, pathItem openapi3.PathItem, document openapi3.T) []Operation {
 	operations := []Operation{}
 	for method := range pathItem.Operations() {
 		operation := pathItem.GetOperation(method)
-		operations = append(operations, p.parseOperation(method, route, *operation, pathItem.Parameters, document))
+		operations = append(operations, p.parseOperation(method, baseUri, route, *operation, pathItem.Parameters, document))
 	}
 	return operations
 }
 
 func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, error) {
-	operations := []Operation{}
-	for path := range document.Paths {
-		pathItem := document.Paths.Find(path)
-		operations = append(operations, p.parsePath(path, *pathItem, document)...)
-	}
 	uri, err := p.getUri(document)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing server URL: %v", err)
 	}
+	operations := []Operation{}
+	for path := range document.Paths {
+		pathItem := document.Paths.Find(path)
+		operations = append(operations, p.parsePath(*uri, path, *pathItem, document)...)
+	}
 	title := p.getTitle(document)
-	return NewDefinition(name, *uri, title, operations), nil
+	return NewDefinition(name, title, operations), nil
 }
 
 func (p OpenApiParser) Parse(name string, data []byte) (*Definition, error) {

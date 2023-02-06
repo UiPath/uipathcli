@@ -45,7 +45,7 @@ func (l DebugLogger) LogResponse(response ResponseInfo) {
 	fmt.Fprint(l.Output, "\n\n\n")
 }
 
-func (l DebugLogger) Log(message string) {
+func (l DebugLogger) LogDebug(message string) {
 	fmt.Fprint(l.Output, message)
 }
 

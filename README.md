@@ -151,7 +151,7 @@ Successfully configured uipathcli
 After that the CLI should be ready and you can validate that it is working by invoking one of the services:
 
 ```bash
-uipathcli ai-metering ping
+uipathcli du metering ping
 ```
 
 Response:
@@ -263,7 +263,7 @@ EOT
 Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
 
 ```bash
-uipathcli ai-metering ping
+uipathcli du metering ping
 ```
 
 ## Commands and arguments
@@ -281,7 +281,7 @@ uipathcli <service-name> <operation-name> <arguments>
 Example:
 
 ```bash
-uipathcli ai-metering validate --product-name "DU" --model-name "my-model"
+uipathcli du metering validate --product-name "DU" --model-name "my-model"
 ```
 
 ### Basic arguments
@@ -357,7 +357,7 @@ The CLI supports multiple output formats:
 In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
 
 ```bash
-uipathcli ai-metering ping --output text
+uipathcli du metering ping --output text
 
 du-prod-du-we-g-dns westeurope  westeurope  2023-01-27T10:56:59.8477522Z  23.1-105-main.v3105ad
 ```
@@ -414,7 +414,7 @@ uipathcli orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].N
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
 
 ```bash
-uipathcli ai-metering ping --debug
+uipathcli du metering ping --debug
 ```
 
 ```bash
@@ -468,13 +468,13 @@ profiles:
 If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
 
 ```bash
-uipathcli ai-metering ping --profile alpha
+uipathcli du metering ping --profile alpha
 ```
 
 You can also change the profile using an environment variable (`UIPATH_PROFILE`):
 
 ```bash
-UIPATH_PROFILE=alpha uipathcli ai-metering ping
+UIPATH_PROFILE=alpha uipathcli du metering ping
 ```
 
 ## Global Arguments
@@ -513,7 +513,7 @@ profiles:
 And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
-uipathcli ai-metering ping --profile automationsuite
+uipathcli du metering ping --profile automationsuite
 ```
 
 ### How to contribute?

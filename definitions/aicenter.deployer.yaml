@@ -1294,7 +1294,7 @@ paths:
   /v1/tenantlicensestats/{tenantIdToProvision}/licenses:
     get:
       tags:
-        - TenantLicense
+        - Tenant
       description: Get license usage for a tenant
       operationId: getLicenseDetail
       parameters:
@@ -1340,7 +1340,7 @@ paths:
   /v1/tenantlicensestats/licenses:
     get:
       tags:
-        - TenantLicense
+        - Tenant
       description: Get license usage for own tenant
       operationId: getLicenseDetailForOwnTenant
       parameters:

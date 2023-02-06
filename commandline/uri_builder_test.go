@@ -28,8 +28,11 @@ func TestOverrideUri(t *testing.T) {
 	t.Run("TestOverrideUriSetsPath", func(t *testing.T) {
 		OverrideUri(t, "http://localhost:5000/mypath", "/otherpath", "http://localhost:5000/otherpath")
 	})
-	t.Run("TestOverrideUriTrimsSlash", func(t *testing.T) {
-		OverrideUri(t, "http://localhost:5000/mypath/", "/otherpath/", "http://localhost:5000/otherpath")
+	t.Run("TestOverrideUriWithSlashSetPath", func(t *testing.T) {
+		OverrideUri(t, "http://localhost:5000/mypath/myresource", "http://localhost:5000/", "http://localhost:5000/")
+	})
+	t.Run("TestOverrideUriWithoutSlashKeepsPath", func(t *testing.T) {
+		OverrideUri(t, "http://localhost:5000/mypath/myresource", "https://cloud.uipath.com", "https://cloud.uipath.com/mypath/myresource")
 	})
 	t.Run("TestOverrideUriMultiplePathSegments", func(t *testing.T) {
 		OverrideUri(t, "https://cloud.uipath.com/mypath/myresource/", "otherpath", "https://cloud.uipath.com/otherpath")

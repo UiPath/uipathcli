@@ -688,3 +688,140 @@ paths:
 		t.Errorf("stdout does not contain input parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestMultipleDefinitions(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      summary: Update a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice1", definition1).
+		WithDefinition("myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"--help"}, context)
+
+	expected := "myservice1"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain service name from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "myservice2"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain service name from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestMergesMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      summary: Update a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "--help"}, context)
+
+	expected := "Create a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Update a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoriesFromMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /resource:
+    post:
+      tags:
+        - FirstCategory
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /resource:
+    delete:
+      tags:
+        - SecondCategory
+      summary: Delete a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "--help"}, context)
+
+	expected := "first-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "second-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestMergesCategoriesFromMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      tags:
+        - CommonCategory
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      tags:
+        - CommonCategory
+      summary: Update a resource
+  /delete:
+    post:
+      tags:
+        - AdditionalCategory
+      summary: Delete a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "common-category", "--help"}, context)
+
+	expected := "Create a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Update a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Delete a resource"
+	if strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout contains operation from wrong category, expected: %v, got: %v", expected, result.StdOut)
+	}
+}

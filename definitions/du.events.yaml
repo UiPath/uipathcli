@@ -12,11 +12,6 @@ servers:
     tenant:
       description: The tenant name (or id)
       default: my-tenant
-tags:
-- name: Events
-  description: Publisher operations
-- name: Subscription
-  description: Reader operations
 paths:
   /events:
     post:
@@ -42,9 +37,9 @@ paths:
           description: Success
   /subscription:
     post:
-      operationId: create
+      operationId: create-subscription
       tags:
-        - Subscription
+        - Events
       summary: Create a new subscription with the given name and start receiving events.
       description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
       requestBody:
@@ -64,9 +59,9 @@ paths:
           description: Success
   /subscription/webhook:
     post:
-      operationId: create-webhook
+      operationId: create-subscription-webhook
       tags:
-        - Subscription
+        - Events
       summary: Create a new subscription with the given name and provided webhook url and start receiving events.
       description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
       requestBody:
@@ -86,9 +81,9 @@ paths:
           description: Success
   /subscription/{name}:
     delete:
-      operationId: delete
+      operationId: delete-subscription
       tags:
-        - Subscription
+        - Events
       summary: Delete subscriptions
       description: "Deletes an existing subscription with the given name.\r\n            \r\nThis operation is idempotent which means deleting an already deleted subscription will simply succeed."
       parameters:
@@ -105,7 +100,7 @@ paths:
     get:
       operationId: read
       tags:
-        - Subscription
+        - Events
       summary: Read event
       description: "Use existing subscription and wait for an event to be received.\r\n            \r\nThe connection is kept open until the wait time expired or an event is available and being dispatched."
       parameters:
@@ -138,7 +133,7 @@ paths:
     post:
       operationId: event-heartbeat
       tags:
-        - Subscription
+        - Events
       summary: Notifies the service that the caller needs more time and is still processing the event.
       description: Resets the timeout for rescheduling a dispatched event.
       parameters:
@@ -167,7 +162,7 @@ paths:
     post:
       operationId: event-success
       tags:
-        - Subscription
+        - Events
       summary: Mark the event as successfully processed
       description: "Mark the received event as success.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
       parameters:
@@ -196,7 +191,7 @@ paths:
     post:
       operationId: event-failure
       tags:
-        - Subscription
+        - Events
       summary: Mark the event as failure
       description: "Mark the received event as failure.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
       parameters:

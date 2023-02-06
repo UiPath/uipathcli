@@ -26,14 +26,15 @@ type ContextBuilder struct {
 func NewContextBuilder() *ContextBuilder {
 	return &ContextBuilder{
 		context: Context{
-			Responses: map[string]ResponseData{},
+			Definitions: []commandline.DefinitionData{},
+			Responses:   map[string]ResponseData{},
 		},
 	}
 }
 
 func (b *ContextBuilder) WithDefinition(name string, data string) *ContextBuilder {
-	b.context.DefinitionName = name
-	b.context.DefinitionData = data
+	definitionData := commandline.NewDefinitionData(name, []byte(data))
+	b.context.Definitions = append(b.context.Definitions, *definitionData)
 	return b
 }
 
@@ -82,12 +83,10 @@ type ResponseData struct {
 }
 
 type Context struct {
-	Config         string
-	ConfigFile     string
-	StdIn          *bytes.Buffer
-	DefinitionName string
-	DefinitionData string
-
+	Config           string
+	ConfigFile       string
+	StdIn            *bytes.Buffer
+	Definitions      []commandline.DefinitionData
 	Responses        map[string]ResponseData
 	IdentityResponse ResponseData
 	CommandPlugin    plugin.CommandPlugin
@@ -178,8 +177,9 @@ func runCli(args []string, context Context) Result {
 		commandPlugins = append(commandPlugins, context.CommandPlugin)
 	}
 
-	data := []commandline.DefinitionData{
-		*commandline.NewDefinitionData(context.DefinitionName, []byte(context.DefinitionData)),
+	definitionFiles := []string{}
+	for _, data := range context.Definitions {
+		definitionFiles = append(definitionFiles, data.Name+".yaml")
 	}
 	cli := commandline.Cli{
 		StdIn:  context.StdIn,
@@ -187,8 +187,8 @@ func runCli(args []string, context Context) Result {
 		StdErr: stderr,
 		DefinitionProvider: commandline.DefinitionProvider{
 			DefinitionStore: commandline.DefinitionStore{
-				DefinitionFiles: []string{context.DefinitionName},
-				Definitions:     data,
+				DefinitionFiles: definitionFiles,
+				Definitions:     context.Definitions,
 			},
 			Parser:         parser.OpenApiParser{},
 			CommandPlugins: commandPlugins,

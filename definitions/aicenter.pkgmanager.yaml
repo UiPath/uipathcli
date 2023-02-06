@@ -16,7 +16,7 @@ paths:
   /v1/tenants/{tenantId}:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Get Tenant by id
       operationId: getTenantById
       parameters:
@@ -61,7 +61,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
     put:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Update the tenant
       operationId: updateTenant
       parameters:
@@ -115,7 +115,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
     delete:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: delete the tenant
       operationId: deleteTenant
       parameters:
@@ -170,7 +170,7 @@ paths:
   /v1/tenants:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Fetch Tenants
       operationId: getTenants
       parameters:
@@ -245,7 +245,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
     post:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Create a tenant
       operationId: createTenant
       parameters:
@@ -306,7 +306,7 @@ paths:
   /v1/projects:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Fetch list of projects
       operationId: getProjects
       parameters:
@@ -402,7 +402,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
     post:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Create a project
       operationId: createProject
       parameters:
@@ -472,7 +472,7 @@ paths:
   /v1/projects/{projectId}:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Get Project by id
       operationId: getProjectById
       parameters:
@@ -544,7 +544,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
     post:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Update a project
       operationId: updateProject
       parameters:
@@ -618,7 +618,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
     delete:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Soft delete a project
       operationId: deleteProject
       parameters:
@@ -681,7 +681,7 @@ paths:
   /v1/mlpackages:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Fetch ML packages
       operationId: getMLPackages
       parameters:
@@ -821,7 +821,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Create MLPackage with already uploaded content
       operationId: createMLPackage
       parameters:
@@ -900,7 +900,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions:
     get:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Fetch MLPackage versions with the search criteria
       operationId: getVersions
       parameters:
@@ -1047,7 +1047,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
     post:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Create new MLPackage version with already uploaded content
       operationId: createMLPackageVersion
       parameters:
@@ -1132,7 +1132,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete multiple MLPackage versions
       operationId: deleteMultipleMLPackageVersionsById
       parameters:
@@ -1207,7 +1207,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/clone:
     post:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Clone new MLPackage version with already uploaded content
       operationId: cloneMLPackageVersion
       parameters:
@@ -1279,7 +1279,7 @@ paths:
   /v1/mlpackages/import:
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Import MLPackage/Version with uploaded content
       operationId: importMLPackage
       parameters:
@@ -1354,7 +1354,7 @@ paths:
   /v1/mlpackages/clone:
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Clone MLPackage with existing OOB package
       operationId: cloneMLPackage
       parameters:
@@ -1420,7 +1420,7 @@ paths:
   /v1/mlpackagelanguageversions:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch list of MLPackage Language versions
       operationId: getMLPackageLanguageVersions
       parameters:
@@ -1472,7 +1472,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Create MLPackage Language version
       operationId: createMLPackageLanguageVersion
       requestBody:
@@ -1497,7 +1497,7 @@ paths:
   /v1/mlpackagelanguageversions/{mlPackageLanguage}/{version}:
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Create MLPackage Language version for specific language
       operationId: createMLPackageLanguageVersionsForSpecificLanguage
       parameters:
@@ -1536,7 +1536,7 @@ paths:
   /v1/mlpackagelanguageversions/{mlPackageLanguageVersionId}:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Get MLPackage Language version by id
       operationId: getMLPackageLanguageVersionById
       parameters:
@@ -1567,7 +1567,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Update MLPackage Language version
       operationId: updateMLPackageLanguageVersion
       parameters:
@@ -1597,7 +1597,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
     delete:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Delete a MLPackage Language version
       operationId: deleteMLPackageLanguageVersion
       parameters:
@@ -1622,7 +1622,7 @@ paths:
   /v1/migrate/tenants:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Migrate tenants for RBAC
       operationId: migrateTenants
       requestBody:
@@ -1643,7 +1643,7 @@ paths:
   /v1/migrate/tenants/self:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Self Migrate tenant for RBAC
       operationId: selfMigrateTenant
       parameters:
@@ -1674,7 +1674,7 @@ paths:
   /v1/migrate/tenants/all:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Migrate all tenants for RBAC
       operationId: migrateAllTenants
       responses:
@@ -1687,7 +1687,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/{versionId}:
     get:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Get MLPackage version by id
       operationId: getMLPackageVersionById
       parameters:
@@ -1810,7 +1810,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
     patch:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Update MLPackageVersion of a Tenant to Public
       operationId: updateMLPackageVersionVisibility
       parameters:
@@ -1888,7 +1888,7 @@ paths:
   /v1/tenants/migrated/check:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Check if the tenant is migrated
       operationId: checkTenantMigrated
       parameters:
@@ -1926,7 +1926,7 @@ paths:
   /v1/tenants/check:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Check For Public Tenant
       operationId: checkPublicTenant
       parameters:
@@ -1970,7 +1970,7 @@ paths:
   /v1/signedURL:
     get:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrlGeneration
       operationId: getSignedURL
       parameters:
         - name: account-id
@@ -2059,7 +2059,7 @@ paths:
   /v1/projects/user:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: get all projects for the user
       operationId: getProjectsForUser
       parameters:
@@ -2114,7 +2114,7 @@ paths:
   /v1/projects/search:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Check if Project exists by name
       operationId: checkUniqueName
       parameters:
@@ -2183,7 +2183,7 @@ paths:
   /v1/projects/public:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Fetch list of public projects
       operationId: getPublicProjects
       parameters:
@@ -2262,7 +2262,7 @@ paths:
   /v1/mlpackages/{mlPackageId}:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Get MLPackage by id
       operationId: getMLPackageById
       parameters:
@@ -2377,7 +2377,7 @@ paths:
   /v1/mlpackages/search:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Check if MLPackage exists by name
       operationId: checkUniqueMLPackageName
       parameters:
@@ -2451,7 +2451,7 @@ paths:
   /v1/mlpackagelanguages:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch ML package languages
       operationId: getMLPackageLanguages
       parameters:
@@ -2518,7 +2518,7 @@ paths:
   /v1/mlpackagelanguages/{mlPackageLanguage}/versions:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch ML package language Versions
       operationId: getMLPackageLanguageVersions_1
       parameters:
@@ -2590,7 +2590,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/allundeployed:
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete all undeployed MLPackage versions
       operationId: deleteAllUndeployed
       parameters:
@@ -2656,7 +2656,7 @@ paths:
   /v1/mlpackages/versions/{versionId}:
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete MLPackage version
       operationId: deleteMLPackageVersion
       parameters:
