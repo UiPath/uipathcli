@@ -3,15 +3,15 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-helper
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  - url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-helper
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
 paths:
   /v1/project/{projectId}:
     put:
@@ -55,7 +55,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -64,7 +64,7 @@ paths:
   /v1/tenantProvision:
     post:
       tags:
-        - Tenant
+        - Provisioning
       operationId: tenantProvision
       requestBody:
         content:
@@ -73,7 +73,7 @@ paths:
               $ref: '#/components/schemas/TenantProvisionDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -81,7 +81,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseHttpStatus'
     delete:
       tags:
-        - Tenant
+        - Provisioning
       operationId: tenantDeprovision
       requestBody:
         content:
@@ -90,7 +90,7 @@ paths:
               $ref: '#/components/schemas/TenantProvisionDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -99,7 +99,7 @@ paths:
   /v1/signedURL/batch:
     post:
       tags:
-        - SignedUrlGeneration
+        - SignedUrl
       operationId: getSignedURLBatch
       parameters:
         - name: account-id
@@ -144,20 +144,20 @@ paths:
               $ref: '#/components/schemas/BatchSignedUrlDto'
         required: true
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListSignedURLDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -240,7 +240,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -299,7 +299,7 @@ paths:
               $ref: '#/components/schemas/InputRolesDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -359,7 +359,7 @@ paths:
               $ref: '#/components/schemas/UserRolesAssignmentDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -424,7 +424,7 @@ paths:
               $ref: '#/components/schemas/UserRolesAssignmentDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -478,7 +478,7 @@ paths:
               $ref: '#/components/schemas/RestrictProjectDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -602,7 +602,7 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -661,14 +661,14 @@ paths:
               $ref: '#/components/schemas/AuditLogMessage'
         required: true
       responses:
-        '201':
-          description: Audit Log created successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseAuditLogDto'
-        '500':
-          description: Internal server error
+        "201":
+          description: Audit Log created successfully
           content:
             '*/*':
               schema:
@@ -721,7 +721,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -774,7 +774,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -833,7 +833,7 @@ paths:
               $ref: '#/components/schemas/InputRolesDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -893,7 +893,7 @@ paths:
               $ref: '#/components/schemas/UserRolesMappingUpdate'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -958,16 +958,31 @@ paths:
               $ref: '#/components/schemas/UserRolesMappingUpdate'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/swagger-config:
+    get:
+      tags:
+        - Swagger
+      summary: Get Swagger Config
+      operationId: swaggerConfig
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: object
+                additionalProperties:
+                  type: object
   /v1/signedURL:
     get:
       tags:
-        - SignedUrlGeneration
+        - SignedUrl
       operationId: getSignedURL
       parameters:
         - name: account-id
@@ -1027,20 +1042,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -1093,7 +1108,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1152,7 +1167,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1239,7 +1254,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1272,7 +1287,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1335,7 +1350,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1384,7 +1399,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1437,7 +1452,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1495,7 +1510,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1548,7 +1563,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1591,7 +1606,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1656,7 +1671,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1704,7 +1719,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1713,11 +1728,11 @@ paths:
   /monitor/queue:
     get:
       tags:
-        - RabbitMQMonitoring
+        - Rabbitmq
       description: Get details about RabbitMQ queue properties
       operationId: getAllQueueDetails
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1777,7 +1792,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1842,7 +1857,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -2609,14 +2624,14 @@ components:
           format: double
         charset:
           type: string
-        concrete:
-          type: boolean
         wildcardType:
           type: boolean
         wildcardSubtype:
           type: boolean
         subtypeSuffix:
           type: string
+        concrete:
+          type: boolean
     BaseResponseSignedURLDto:
       type: object
       properties:

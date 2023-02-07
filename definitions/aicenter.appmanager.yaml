@@ -3,20 +3,20 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-appmanager
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  - url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-appmanager
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
 paths:
   /v1/app/{appId}/files/{fileId}/status:
     get:
       tags:
-        - import
+        - Import
       operationId: getLabellingFileStatus
       parameters:
         - name: account-id
@@ -60,7 +60,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -68,7 +68,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseLabellingFileStatusDto'
     put:
       tags:
-        - import
+        - Import
       operationId: setLabellingFileStatus
       parameters:
         - name: account-id
@@ -118,7 +118,7 @@ paths:
               $ref: '#/components/schemas/LabellingFileStatusRequestDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -127,7 +127,7 @@ paths:
   /v1/app/template/{appId}:
     get:
       tags:
-        - labelling-template
+        - Labelling
       operationId: getLabellingTemplate
       parameters:
         - name: account-id
@@ -166,7 +166,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -174,7 +174,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseLabellingAppTemplateDto'
     put:
       tags:
-        - labelling-template
+        - Labelling
       operationId: updateLabellingTemplate
       parameters:
         - name: account-id
@@ -219,7 +219,7 @@ paths:
               $ref: '#/components/schemas/LabellingAppTemplateRequestDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -228,7 +228,7 @@ paths:
   /v1/tenant/status:
     post:
       tags:
-        - tenant
+        - Tenant
       operationId: updateTenantStatusSessionInDataManager
       parameters:
         - name: account-id
@@ -253,7 +253,7 @@ paths:
               $ref: '#/components/schemas/TenantStatusUpdateDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -262,7 +262,7 @@ paths:
   /v1/app:
     get:
       tags:
-        - app
+        - App
       description: 'Fetch list of services '
       operationId: getApps_1
       parameters:
@@ -369,7 +369,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: exactMatchOnName
           in: query
           required: false
@@ -383,27 +383,27 @@ paths:
             type: string
             default: ASC
       responses:
-        '200':
+        "200":
           description: Services retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoAppDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoAppDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoAppDto'
     post:
       tags:
-        - app
+        - App
       description: 'Provision app/external tool session '
       operationId: provisionAppSession
       parameters:
@@ -429,20 +429,20 @@ paths:
               $ref: '#/components/schemas/AppProvisionDto'
         required: true
       responses:
-        '202':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseAppDto'
+        "202":
           description: Accepted
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseAppDto'
-        '400':
+        "400":
           description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseAppDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -450,7 +450,7 @@ paths:
   /v1/app/{appId}/files:
     get:
       tags:
-        - import
+        - Import
       operationId: getAllLabellingFiles
       parameters:
         - name: account-id
@@ -522,7 +522,7 @@ paths:
             type: string
             default: ASC
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -530,7 +530,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoLabellingFileDto'
     post:
       tags:
-        - import
+        - Import
       operationId: importLabellingFile
       parameters:
         - name: account-id
@@ -574,7 +574,7 @@ paths:
               $ref: '#/components/schemas/LabellingFileRequestDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -582,7 +582,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseLabellingFileDto'
     delete:
       tags:
-        - import
+        - Import
       operationId: deleteFile
       parameters:
         - name: account-id
@@ -630,7 +630,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -639,7 +639,7 @@ paths:
   /v1/app/task/{appId}:
     post:
       tags:
-        - action-task
+        - ActionTask
       operationId: createActionTask
       parameters:
         - name: account-id
@@ -684,7 +684,7 @@ paths:
               $ref: '#/components/schemas/TaskCreateRequestDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -693,7 +693,7 @@ paths:
   /v1/app/task/{appId}/activity:
     post:
       tags:
-        - action-task
+        - ActionTask
       operationId: createActivityActionTask
       parameters:
         - name: account-id
@@ -743,7 +743,7 @@ paths:
               $ref: '#/components/schemas/TaskCreateRequestDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -752,7 +752,7 @@ paths:
   /v1/permission:
     get:
       tags:
-        - permission
+        - Permission
       description: Check user action is allowed
       operationId: isValidAction
       parameters:
@@ -782,20 +782,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: User action is allowed
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '403':
-          description: User action not allowed
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
-          description: Internal server error
+        "403":
+          description: User action not allowed
           content:
             '*/*':
               schema:
@@ -803,7 +803,7 @@ paths:
   /v1/oobtemplates:
     get:
       tags:
-        - labelling-oob-template
+        - Labelling
       operationId: getLabellingOobTemplates
       parameters:
         - name: account-id
@@ -836,7 +836,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -845,7 +845,7 @@ paths:
   /v1/oobtemplates/{oobtemplateId}:
     get:
       tags:
-        - labelling-oob-template
+        - Labelling
       operationId: getLabellingOobTemplate
       parameters:
         - name: account-id
@@ -884,7 +884,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -893,7 +893,7 @@ paths:
   /v1/labellingfiles/stats/{appId}:
     get:
       tags:
-        - labelling-file
+        - Labelling
       operationId: getLabellingFileStats
       parameters:
         - name: account-id
@@ -927,7 +927,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -936,7 +936,7 @@ paths:
   /v1/dataset/{datasetId}/apps:
     get:
       tags:
-        - dataset
+        - Dataset
       operationId: getApps
       parameters:
         - name: account-id
@@ -965,20 +965,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListAppDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListAppDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseListAppDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -986,7 +986,7 @@ paths:
   /v1/app/task/folders:
     get:
       tags:
-        - action-task
+        - ActionTask
       operationId: getFoldersInTenantForUser
       parameters:
         - name: account-id
@@ -1017,9 +1017,9 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1028,7 +1028,7 @@ paths:
   /v1/app/{appId}:
     delete:
       tags:
-        - app
+        - App
       description: Delete app resource
       operationId: deleteResource
       parameters:
@@ -1074,25 +1074,25 @@ paths:
           schema:
             type: string
       responses:
-        '202':
+        "202":
           description: App deletion request submitted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '400':
+        "400":
           description: App cannot be deleted
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
+        "404":
           description: App is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':

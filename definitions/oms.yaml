@@ -1,9 +1,14 @@
 openapi: 3.0.1
 info:
   title: Organization Management Service API
-  version: '1.0'
+  version: "1.0"
 servers:
-  - url: https://cloud.uipath.com/uipatcleitzc/portal_/api/organization
+  - url: https://cloud.uipath.com/{organization}/portal_/organization
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
 paths:
   /api/organization/{organizationGuid}/apikey:
     post:
@@ -36,7 +41,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -60,7 +65,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -95,7 +100,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -113,7 +118,7 @@ paths:
         - Discovery
       operationId: GetOrganizationUrlCatalogue
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -159,7 +164,7 @@ paths:
               file:
                 style: form
       responses:
-        '200':
+        "200":
           description: Success
     delete:
       tags:
@@ -182,7 +187,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/files:
     get:
@@ -202,7 +207,7 @@ paths:
             allOf:
               - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.FileType'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -253,7 +258,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Leads.StudioDownloadedDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api-internal/onprem/api/EmitBusinessTelemetry:
     post:
@@ -261,7 +266,7 @@ paths:
         - OnPremBusinessTelemetry
       operationId: EmitTelemetryEvents
       responses:
-        '200':
+        "200":
           description: Success
   /onprem/api/organization:
     post:
@@ -287,7 +292,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand'
       responses:
-        '200':
+        "200":
           description: Success
   /onprem/api/organization/getAllOrganizations:
     get:
@@ -310,7 +315,7 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -335,7 +340,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
     get:
       tags:
@@ -349,7 +354,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -374,7 +379,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -416,7 +421,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -458,7 +463,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/services:
     get:
@@ -473,7 +478,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -521,7 +526,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -563,7 +568,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/availableservices:
     get:
@@ -587,7 +592,7 @@ paths:
           schema:
             type: boolean
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -629,7 +634,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
       responses:
-        '201':
+        "201":
           description: Success
   /pgov/api/organization:
     post:
@@ -655,7 +660,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/supportedregions:
     get:
@@ -663,7 +668,7 @@ paths:
         - Organization
       operationId: GetAllSupportedRegions
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -692,7 +697,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/operations/{operationId}:
     get:
@@ -712,7 +717,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -751,7 +756,7 @@ paths:
             allOf:
               - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -794,7 +799,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/services/{serviceType}:
     patch:
@@ -832,7 +837,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/services/{serviceType}/status/{serviceStatus}:
     patch:
@@ -858,7 +863,7 @@ paths:
             allOf:
               - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
       responses:
-        '200':
+        "200":
           description: Success
   /api/migration/{organizationId}/properties/destination:
     get:
@@ -872,7 +877,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -890,7 +895,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -908,7 +913,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -945,7 +950,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -982,7 +987,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1019,7 +1024,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1056,7 +1061,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1093,7 +1098,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1130,7 +1135,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1167,7 +1172,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1204,7 +1209,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /api/migration/{organizationId}/finalize/destination:
     post:
@@ -1237,7 +1242,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /api/migration/{organizationId}/rollback/source:
     post:
@@ -1270,7 +1275,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1307,7 +1312,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1344,7 +1349,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
@@ -1381,7 +1386,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto'
       responses:
-        '201':
+        "201":
           description: Success
     get:
       tags:
@@ -1412,7 +1417,7 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -1449,7 +1454,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -1479,7 +1484,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
     patch:
       tags:
@@ -1517,7 +1522,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/tenants/{tenantGuid}/services:
     get:
@@ -1538,7 +1543,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -1592,7 +1597,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto'
       responses:
-        '200':
+        "200":
           description: Success
     post:
       tags:
@@ -1630,7 +1635,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/tenants/{tenantGuid}/{active}:
     post:
@@ -1656,7 +1661,7 @@ paths:
           schema:
             type: boolean
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/tenants/{tenantGuid}/maintenance:
     patch:
@@ -1694,7 +1699,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/tenants/{tenantGuid}/services/{serviceType}:
     patch:
@@ -1751,7 +1756,7 @@ paths:
               allOf:
                 - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
       responses:
-        '200':
+        "200":
           description: Success
   /api/organization/{organizationGuid}/tenants/{tenantGuid}/services/{serviceType}/status/{serviceStatus}:
     patch:
@@ -1783,7 +1788,7 @@ paths:
             allOf:
               - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
       responses:
-        '200':
+        "200":
           description: Success
 components:
   schemas:

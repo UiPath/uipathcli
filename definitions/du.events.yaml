@@ -2,24 +2,14 @@ openapi: 3.0.1
 info:
   title: UiPath.DocumentUnderstanding.Events.Api
   version: v1
-servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/eventservice
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
 paths:
   /events:
     post:
-      operationId: publish
       tags:
         - Events
       summary: Publish a new event
       description: "Publish a new event.\r\nThis operation is idempotent.In case you provide the same event id, the event is simply ignored.\r\nThis makes it easy to retry this operation when the communication is interrupted or any failure occured."
+      operationId: publish
       requestBody:
         description: The event to publish
         content:
@@ -33,15 +23,22 @@ paths:
             schema:
               $ref: '#/components/schemas/PublishEventRequest'
       responses:
-        '200':
+        "200":
+          description: Success
+  /metrics:
+    get:
+      tags:
+        - Events
+      responses:
+        "200":
           description: Success
   /subscription:
     post:
-      operationId: create-subscription
       tags:
         - Events
       summary: Create a new subscription with the given name and start receiving events.
       description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
+      operationId: create-subscription
       requestBody:
         description: The request containing subscription info
         content:
@@ -55,15 +52,15 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateSubscriptionRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /subscription/webhook:
     post:
-      operationId: create-subscription-webhook
       tags:
         - Events
       summary: Create a new subscription with the given name and provided webhook url and start receiving events.
       description: "This operation is idempotent. In case you create a subscription with the same name and configuration,\r\nyou will be able to continue processing any events which have been published to this subscription.\r\nThis can be useful, when the client is temporarily unavailable but wants to make sure that events are\r\nstill being enqueued and can be picked up at a later point in time (connectivity problems, client crashed\r\nor is temporarily not processing messages)."
+      operationId: create-webhook-subscription
       requestBody:
         description: The request containing subscription info
         content:
@@ -77,15 +74,15 @@ paths:
             schema:
               $ref: '#/components/schemas/CreateWebhookSubscriptionRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /subscription/{name}:
     delete:
-      operationId: delete-subscription
       tags:
         - Events
       summary: Delete subscriptions
       description: "Deletes an existing subscription with the given name.\r\n            \r\nThis operation is idempotent which means deleting an already deleted subscription will simply succeed."
+      operationId: delete-subscription
       parameters:
         - name: name
           in: path
@@ -94,15 +91,15 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Success
   /subscription/{name}/event:
     get:
-      operationId: read
       tags:
         - Events
       summary: Read event
       description: "Use existing subscription and wait for an event to be received.\r\n            \r\nThe connection is kept open until the wait time expired or an event is available and being dispatched."
+      operationId: read
       parameters:
         - name: name
           in: path
@@ -117,7 +114,7 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "200":
           description: Success
           content:
             text/plain:
@@ -131,11 +128,11 @@ paths:
                 $ref: '#/components/schemas/GetEventResponse'
   /subscription/{name}/event/heartbeat:
     post:
-      operationId: event-heartbeat
       tags:
         - Events
       summary: Notifies the service that the caller needs more time and is still processing the event.
       description: Resets the timeout for rescheduling a dispatched event.
+      operationId: event-heartbeat
       parameters:
         - name: name
           in: path
@@ -156,15 +153,15 @@ paths:
             schema:
               $ref: '#/components/schemas/HeartbeatEventRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /subscription/{name}/event/success:
     post:
-      operationId: event-success
       tags:
         - Events
       summary: Mark the event as successfully processed
       description: "Mark the received event as success.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
+      operationId: event-success
       parameters:
         - name: name
           in: path
@@ -185,15 +182,15 @@ paths:
             schema:
               $ref: '#/components/schemas/SuccessEventRequest'
       responses:
-        '200':
+        "200":
           description: Success
   /subscription/{name}/event/failure:
     post:
-      operationId: event-failure
       tags:
         - Events
       summary: Mark the event as failure
       description: "Mark the received event as failure.\r\n            \r\nThis operation is idempotent. Sending result twice will simply succeed.\r\nIn case the service does not receive a result, the event is going to be requeued and\r\nhanded out the next time get event is called."
+      operationId: event-failure
       parameters:
         - name: name
           in: path
@@ -214,8 +211,18 @@ paths:
             schema:
               $ref: '#/components/schemas/FailureEventRequest'
       responses:
-        '200':
+        "200":
           description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/FailEventResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FailEventResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/FailEventResponse'
 components:
   schemas:
     CreateSubscriptionRequest:
@@ -225,9 +232,11 @@ components:
       type: object
       properties:
         name:
+          minLength: 1
           type: string
           description: The subscription name
         topic:
+          minLength: 1
           type: string
           description: The topic to subscribe to
       additionalProperties: false
@@ -239,22 +248,37 @@ components:
       type: object
       properties:
         name:
+          minLength: 1
           type: string
           description: The subscription name
         topic:
+          minLength: 1
           type: string
           description: The topic to subscribe to
         webhook:
           $ref: '#/components/schemas/Webhook'
       additionalProperties: false
+    FailEventResponse:
+      type: object
+      properties:
+        requeued:
+          type: boolean
+          description: True if the event was successfully requeued
+      additionalProperties: false
+      description: The event failure response.
     FailureEventRequest:
       required:
         - deliveryId
       type: object
       properties:
         deliveryId:
+          minLength: 1
           type: string
           description: The delivery id
+        reason:
+          type: string
+          description: The failure reason
+          nullable: true
         requeue:
           type: boolean
           description: Whether the event should be requeued for the next client to be picked up
@@ -290,6 +314,7 @@ components:
       type: object
       properties:
         deliveryId:
+          minLength: 1
           type: string
           description: The delivery id
       additionalProperties: false
@@ -301,17 +326,24 @@ components:
       type: object
       properties:
         id:
+          minLength: 1
           type: string
           description: The event id
         topic:
+          minLength: 1
           type: string
           description: The event topic
         data:
+          minLength: 1
           type: string
           description: The event data
         partitionKey:
           type: string
           description: "The partition key for this event.\r\n            \r\nThis key is used for balancing events across multiple partitions.\r\nEvents are handed out to each subscriber in a round-robin fashion\r\nacross all used partitions."
+          nullable: true
+        delay:
+          type: string
+          description: "The event to be consumed by subscribers after delay.\r\nDelay to be provided in ISO_8601 Durations format"
           nullable: true
       additionalProperties: false
       description: The event
@@ -321,6 +353,7 @@ components:
       type: object
       properties:
         deliveryId:
+          minLength: 1
           type: string
           description: The delivery id
       additionalProperties: false
@@ -330,6 +363,7 @@ components:
       type: object
       properties:
         url:
+          minLength: 1
           type: string
           description: The Webhook Url
       additionalProperties: false
@@ -341,3 +375,13 @@ components:
       bearerFormat: JWT
 security:
   - BearerToken: []
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/eventservice
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant

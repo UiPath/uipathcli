@@ -1,22 +1,11 @@
 openapi: 3.0.1
 info:
   title: Document Understanding REST APIs Preview
-  description: 'Digitization Service for reading all text from images or PDFs, supporting various OCR types, used on demand, defaulting to the in-house built UiPath Document OCR. Supported file types: JPEG, PNG, BMP, GIF, PDF and TIFF'
-  version: '1.0'
-servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/digitizer
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  description: 'Digitization Service for reading all text from images or PDFs, supporting various OCR types, used on demand, defaulting to the in-house built UiPath Document OCR. Supported file types: JPEG, PNG, PDF and TIFF'
+  version: "1.0"
 paths:
   /digitize/start:
     post:
-      operationId: digitize
       tags:
         - Digitization
       summary: Start Digitization Operation
@@ -28,9 +17,8 @@ paths:
           required: true
           schema:
             enum:
-              - '1'
+              - "1"
             type: string
-            default: '1'
         - name: x-uipath-apply-ocr-on-pdf
           in: header
           description: 'Specify whether or not to apply OCR on PDFs. Defaults to **yes** if not specified. Supported options: **yes**, **no**, **auto**.'
@@ -52,40 +40,36 @@ paths:
                 file:
                   type: string
                   format: binary
-                  description: The file to digitize
-              required:
-                - file
             encoding:
               file:
                 style: form
       responses:
-        '202':
+        "202":
           description: Digitization Operation Accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.StartDigitizationResponse'
-        '400':
+        "400":
           description: Bad Request
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Infrastructure.ErrorResponse'
-        '500':
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Infrastructure.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
-        '415':
+        "415":
           description: Unsupported media type
-        '503':
+        "503":
           description: Service Unavailable
-  '/digitize/result/{operationId}':
+  /digitize/result/{operationId}:
     get:
-      operationId: status
       tags:
         - Digitization
       summary: Get Digitization Operation Result
@@ -97,35 +81,34 @@ paths:
           required: true
           schema:
             enum:
-              - '1'
-            type: string            
-            default: '1'
+              - "1"
+            type: string
         - name: operationId
           in: path
           description: ID of the Digitization Operation.
           required: true
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.PublicGetDigitizeJobResponse'
-        '500':
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.LegacyPublicGetDigitizeJobResponse'
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Digitizer.Api.Infrastructure.ErrorResponse'
-        '401':
+        "401":
           description: Unauthorized
-        '404':
+        "404":
           description: Operation not found
-        '503':
+        "503":
           description: Service Unavailable
 components:
   schemas:
-    UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.PublicGetDigitizeJobResponse:
+    UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.LegacyPublicGetDigitizeJobResponse:
       type: object
       properties:
         status:
@@ -268,12 +251,12 @@ components:
           type: string
           description: The time the operation was created
           format: date-time
-          example: '2022-06-21T13:49:00.4971596Z'
+          example: "2022-06-21T13:49:00.4971596Z"
         lastUpdatedDateTime:
           type: string
           description: The last time the operation was updated
           format: date-time
-          example: '2022-06-21T13:49:10.1105179Z'
+          example: "2022-06-21T13:49:10.1105179Z"
       additionalProperties: false
     UiPath.DocumentUnderstanding.Digitizer.Api.Controllers.Models.StartDigitizationResponse:
       type: object
@@ -305,12 +288,22 @@ components:
   securitySchemes:
     oauth2:
       type: oauth2
-      description: 'In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/automation-cloud/docs/managing-external-applications">external application</A> with the <b>Du.Digitization.Api</b> scope. After the external application is registered, you can use the App ID & App Secret with the <b>Du.Digitization.Api</b> scope in order to Authorize.'
+      description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/automation-cloud/docs/managing-external-applications">external application</A> with the <b>Du.Digitization.Api</b> scope. After the external application is registered, you can use the App ID & App Secret with the <b>Du.Digitization.Api</b> scope in order to Authorize.
       flows:
         clientCredentials:
-          tokenUrl: https://cloud.uipath.com/identity_/connect/token
+          tokenUrl: https://alpha.uipath.com/identity_/connect/token
           scopes:
             Du.Digitization.Api: Digitizer Api Scope
 security:
   - oauth2:
       - Du.Digitization.Api
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/digitizer
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
