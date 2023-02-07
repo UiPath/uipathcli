@@ -51,8 +51,10 @@ func TestEnableAutocompletePowershellCreatesProfileFile(t *testing.T) {
 	expectedFileContent := `
 $uipathcli_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
+    $padLength = $cursorPosition - $commandAst.Extent.StartOffset
+    $textToComplete = $commandAst.ToString().PadRight($padLength, ' ').Substring(0, $padLength)
     $command, $params = $commandAst.ToString() -split " ", 2
-    & $command autocomplete complete --command "$commandAst" | foreach-object {
+    & $command autocomplete complete --command "$textToComplete" | foreach-object {
         [system.management.automation.completionresult]::new($_, $_, 'parametervalue', $_)
     }
 }
@@ -79,8 +81,10 @@ func TestEnableAutocompletePowershellUpdatesExistingProfileFile(t *testing.T) {
 should not change
 $uipathcli_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
+    $padLength = $cursorPosition - $commandAst.Extent.StartOffset
+    $textToComplete = $commandAst.ToString().PadRight($padLength, ' ').Substring(0, $padLength)
     $command, $params = $commandAst.ToString() -split " ", 2
-    & $command autocomplete complete --command "$commandAst" | foreach-object {
+    & $command autocomplete complete --command "$textToComplete" | foreach-object {
         [system.management.automation.completionresult]::new($_, $_, 'parametervalue', $_)
     }
 }
