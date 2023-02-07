@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/url"
+	"sort"
 	"strings"
 	"sync"
 
@@ -37,6 +38,12 @@ type CommandBuilder struct {
 	Executor           executor.Executor
 	PluginExecutor     executor.Executor
 	DefinitionProvider DefinitionProvider
+}
+
+func (b CommandBuilder) sort(commands []*cli.Command) {
+	sort.Slice(commands, func(i, j int) bool {
+		return commands[i].Name < commands[j].Name
+	})
 }
 
 func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (*executor.FileReference, error) {
@@ -120,13 +127,13 @@ func (b CommandBuilder) outputFormat(config config.Config, context *cli.Context)
 	return outputFormat, nil
 }
 
-func (b CommandBuilder) createBaseUri(definition parser.Definition, config config.Config, context *cli.Context) (url.URL, error) {
+func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.Config, context *cli.Context) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
-		return definition.BaseUri, err
+		return operation.BaseUri, err
 	}
 
-	builder := NewUriBuilder(definition.BaseUri)
+	builder := NewUriBuilder(operation.BaseUri)
 	builder.OverrideUri(config.Uri)
 	builder.OverrideUri(uriArgument)
 	return builder.Uri(), nil
@@ -223,7 +230,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			}
 			query := context.String(queryFlagName)
 
-			baseUri, err := b.createBaseUri(definition, *config, context)
+			baseUri, err := b.createBaseUri(operation, *config, context)
 			if err != nil {
 				return err
 			}
@@ -309,10 +316,47 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 	}
 }
 
+func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.Command {
+	return &cli.Command{
+		Name:        operation.Category.Name,
+		Description: operation.Category.Description,
+		Flags: []cli.Flag{
+			b.HelpFlag(),
+		},
+		HideHelp: true,
+	}
+}
+
+func (b CommandBuilder) createServiceCommandCategory(definition parser.Definition, operation parser.Operation, categories map[string]*cli.Command) (bool, *cli.Command) {
+	isNewCategory := false
+	operationCommand := b.createOperationCommand(definition, operation)
+	command, found := categories[operation.Category.Name]
+	if !found {
+		command = b.createCategoryCommand(operation)
+		categories[operation.Category.Name] = command
+		isNewCategory = true
+	}
+	command.Subcommands = append(command.Subcommands, operationCommand)
+	return isNewCategory, command
+}
+
 func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.Command {
+	categories := map[string]*cli.Command{}
 	commands := []*cli.Command{}
-	for _, operations := range definition.Operations {
-		commands = append(commands, b.createOperationCommand(definition, operations))
+	for _, operation := range definition.Operations {
+		if operation.Category == nil {
+			command := b.createOperationCommand(definition, operation)
+			commands = append(commands, command)
+			continue
+		}
+		isNewCategory, command := b.createServiceCommandCategory(definition, operation, categories)
+		if isNewCategory {
+			commands = append(commands, command)
+		}
+	}
+	b.sort(commands)
+	for _, command := range commands {
+		b.sort(command.Subcommands)
 	}
 
 	return &cli.Command{
@@ -368,8 +412,9 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 		Description: "Returns the autocomplete suggestions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:  "command",
-				Usage: "The command to autocomplete",
+				Name:     "command",
+				Usage:    "The command to autocomplete",
+				Required: true,
 			},
 			b.HelpFlag(),
 		},

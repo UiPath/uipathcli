@@ -21,9 +21,10 @@ import (
 type DigitizeCommand struct{}
 
 func (c DigitizeCommand) Command() plugin.Command {
-	return *plugin.NewCommand("du-digitizer", "digitize", "Start digitization for the input file", []plugin.CommandParameter{
-		*plugin.NewCommandParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true),
-	}, false)
+	return *plugin.NewCommand("du").
+		WithCategory("digitization", "Document Digitization").
+		WithOperation("digitize", "Start digitization for the input file").
+		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true)
 }
 
 func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -155,9 +156,13 @@ func (c DigitizeCommand) progressReader(text string, completedText string, reade
 }
 
 func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) string {
-	path := baseUri.RawPath
+	path := baseUri.Path
+	if baseUri.Path == "" {
+		path = "/{organization}/{tenant}/du_/api/digitizer"
+	}
 	path = strings.ReplaceAll(path, "{organization}", org)
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
+	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 

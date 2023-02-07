@@ -172,11 +172,11 @@ func (c CreateCommand) Execute(context plugin.ExecutionContext, writer output.Ou
 
 ```go
 func (c CreateCommand) Command() plugin.Command {
-  return *plugin.NewCommand("myservice", "create-product", "Creates a product", []plugin.CommandParameter{
-    *plugin.NewCommandParameter("id", plugin.ParameterTypeInteger, "The product id", true),
-    *plugin.NewCommandParameter("name", plugin.ParameterTypeString, "The product name", true),
-    *plugin.NewCommandParameter("description", plugin.ParameterTypeString, "The product description", false),
-  }, false)
+  return *plugin.NewCommand("myservice").
+      WithOperation("create-product", "Creates a product").
+      WithParameter("id", plugin.ParameterTypeInteger, "The product id", true).
+      WithParameter("name", plugin.ParameterTypeString, "The product name", true).
+      WithParameter("description", plugin.ParameterTypeString, "The product description", false)
 }
 ```
 
@@ -210,7 +210,9 @@ You can also hide an existing command by setting the hidden flag:
 type StatusCommand struct{}
 
 func (c StatusCommand) Command() plugin.Command {
-  return *plugin.NewCommand("myservice", "status", "", []plugin.CommandParameter{}, true)
+  return *plugin.NewCommand("myservice").
+      WithOperation("status", "").
+      IsHidden()
 }
 
 func (c StatusCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {

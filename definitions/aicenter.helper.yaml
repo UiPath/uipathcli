@@ -3,20 +3,20 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-helper
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  - url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-helper
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
 paths:
   /v1/project/{projectId}:
     put:
       tags:
-        - Helper Project Creation Api
+        - Project
       operationId: updateProject
       parameters:
         - name: account-id
@@ -55,7 +55,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -64,7 +64,7 @@ paths:
   /v1/tenantProvision:
     post:
       tags:
-        - Helper Tenant Provision Api
+        - Provisioning
       operationId: tenantProvision
       requestBody:
         content:
@@ -73,7 +73,7 @@ paths:
               $ref: '#/components/schemas/TenantProvisionDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -81,7 +81,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseHttpStatus'
     delete:
       tags:
-        - Helper Tenant Provision Api
+        - Provisioning
       operationId: tenantDeprovision
       requestBody:
         content:
@@ -90,7 +90,7 @@ paths:
               $ref: '#/components/schemas/TenantProvisionDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -99,7 +99,7 @@ paths:
   /v1/signedURL/batch:
     post:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrl
       operationId: getSignedURLBatch
       parameters:
         - name: account-id
@@ -144,20 +144,20 @@ paths:
               $ref: '#/components/schemas/BatchSignedUrlDto'
         required: true
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListSignedURLDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseListSignedURLDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -165,7 +165,7 @@ paths:
   /v1/roles:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getAllRoles
       parameters:
         - name: account-id
@@ -240,7 +240,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -248,7 +248,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoRolesDto'
     post:
       tags:
-        - Role creation APIs
+        - Role
       operationId: createRole
       parameters:
         - name: account-id
@@ -299,7 +299,7 @@ paths:
               $ref: '#/components/schemas/InputRolesDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -308,7 +308,7 @@ paths:
   /v1/roles/users/tenant:
     post:
       tags:
-        - Role creation APIs
+        - Role
       operationId: addUsersToTenantRole
       parameters:
         - name: account-id
@@ -359,7 +359,7 @@ paths:
               $ref: '#/components/schemas/UserRolesAssignmentDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -368,7 +368,7 @@ paths:
   /v1/roles/users/project:
     post:
       tags:
-        - Role creation APIs
+        - Role
       operationId: addUsersToProjectRole
       parameters:
         - name: account-id
@@ -424,7 +424,7 @@ paths:
               $ref: '#/components/schemas/UserRolesAssignmentDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -433,7 +433,7 @@ paths:
   /v1/project:
     post:
       tags:
-        - Helper Project Creation Api
+        - Project
       operationId: projectCreation
       parameters:
         - name: account-id
@@ -478,7 +478,7 @@ paths:
               $ref: '#/components/schemas/RestrictProjectDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -487,7 +487,7 @@ paths:
   /v1/audits:
     get:
       tags:
-        - AuditLog related APIs
+        - AuditLog
       operationId: getAuditLogs
       parameters:
         - name: account-id
@@ -602,7 +602,7 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -610,7 +610,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoAuditLogDto'
     post:
       tags:
-        - AuditLog related APIs
+        - AuditLog
       summary: Create the Audit Log Entry !!
       operationId: createAuditLog
       parameters:
@@ -661,14 +661,14 @@ paths:
               $ref: '#/components/schemas/AuditLogMessage'
         required: true
       responses:
-        '201':
-          description: Audit Log created successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseAuditLogDto'
-        '500':
-          description: Internal server error
+        "201":
+          description: Audit Log created successfully
           content:
             '*/*':
               schema:
@@ -676,7 +676,7 @@ paths:
   /v1/roles/{roleId}:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getRoleById
       parameters:
         - name: account-id
@@ -721,7 +721,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -729,7 +729,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseRolesDto'
     delete:
       tags:
-        - Role creation APIs
+        - Role
       operationId: deleteRole
       parameters:
         - name: account-id
@@ -774,7 +774,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -782,7 +782,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseHttpStatus'
     patch:
       tags:
-        - Role creation APIs
+        - Role
       operationId: updateRole
       parameters:
         - name: account-id
@@ -833,7 +833,7 @@ paths:
               $ref: '#/components/schemas/InputRolesDto'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -842,7 +842,7 @@ paths:
   /v1/roles/users/tenant/{userId}:
     patch:
       tags:
-        - Role creation APIs
+        - Role
       operationId: deleteUserTenantAllRoles
       parameters:
         - name: account-id
@@ -893,7 +893,7 @@ paths:
               $ref: '#/components/schemas/UserRolesMappingUpdate'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -902,7 +902,7 @@ paths:
   /v1/roles/users/project/{userId}/{projectId}:
     patch:
       tags:
-        - Role creation APIs
+        - Role
       operationId: deleteUserProjectAllRoles
       parameters:
         - name: account-id
@@ -958,7 +958,7 @@ paths:
               $ref: '#/components/schemas/UserRolesMappingUpdate'
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -967,11 +967,11 @@ paths:
   /v1/swagger-config:
     get:
       tags:
-        - swagger-ui-config-controller
+        - Swagger
       summary: Get Swagger Config
       operationId: swaggerConfig
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -982,7 +982,7 @@ paths:
   /v1/signedURL:
     get:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrl
       operationId: getSignedURL
       parameters:
         - name: account-id
@@ -1042,20 +1042,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -1063,7 +1063,7 @@ paths:
   /v1/roles/users/tenant/{roleId}:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getAllUsersForTenantRole
       parameters:
         - name: account-id
@@ -1108,7 +1108,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1117,7 +1117,7 @@ paths:
   /v1/roles/users/project/{roleId}:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getAllUsersForProjectRole
       parameters:
         - name: account-id
@@ -1167,7 +1167,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1176,7 +1176,7 @@ paths:
   /v1/roles/users/allRoles:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getMembers
       parameters:
         - name: account-id
@@ -1254,7 +1254,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1263,7 +1263,7 @@ paths:
   /v1/roles/groups/identity:
     get:
       tags:
-        - Role creation APIs
+        - Role
       operationId: getGroupsFromIdentity
       parameters:
         - name: user-id
@@ -1287,7 +1287,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1296,7 +1296,7 @@ paths:
   /v1/permissions:
     get:
       tags:
-        - Permission related APIs
+        - Permission
       operationId: getPermissions
       parameters:
         - name: account-id
@@ -1350,7 +1350,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1360,7 +1360,7 @@ paths:
   /v1/permissions/users/tenant:
     get:
       tags:
-        - Permission related APIs
+        - Permission
       operationId: getAllPermissionsForUserTenantLevel
       parameters:
         - name: account-id
@@ -1399,7 +1399,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1408,7 +1408,7 @@ paths:
   /v1/permissions/users/project:
     get:
       tags:
-        - Permission related APIs
+        - Permission
       operationId: getAllPermissionsForUserProjectLevel
       parameters:
         - name: account-id
@@ -1452,7 +1452,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1461,7 +1461,7 @@ paths:
   /v1/permissions/permission:validate:
     get:
       tags:
-        - Permission related APIs
+        - Permission
       operationId: isActionAllowed
       parameters:
         - name: account-id
@@ -1510,7 +1510,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1519,7 +1519,7 @@ paths:
   /v1/permissions/all:
     get:
       tags:
-        - Permission related APIs
+        - Permission
       operationId: getAllPermissions
       parameters:
         - name: account-id
@@ -1563,7 +1563,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1572,7 +1572,7 @@ paths:
   /v1/directory/search/{partitionId}:
     get:
       tags:
-        - Directory related APIs
+        - Directory
       operationId: directorySearch
       parameters:
         - name: authorization
@@ -1606,7 +1606,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1617,7 +1617,7 @@ paths:
   /v1/audits/{auditId}:
     get:
       tags:
-        - AuditLog related APIs
+        - AuditLog
       operationId: getAuditLogById
       parameters:
         - name: account-id
@@ -1671,7 +1671,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1680,7 +1680,7 @@ paths:
   /v1/allprojects:
     get:
       tags:
-        - Project Access Api
+        - Project
       operationId: getProjectAccess
       parameters:
         - name: account-id
@@ -1719,7 +1719,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1728,11 +1728,11 @@ paths:
   /monitor/queue:
     get:
       tags:
-        - RabbitMQ monitoring related APIs
+        - Rabbitmq
       description: Get details about RabbitMQ queue properties
       operationId: getAllQueueDetails
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1741,7 +1741,7 @@ paths:
   /v1/roles/users/tenant/{roleId}/{userId}:
     delete:
       tags:
-        - Role creation APIs
+        - Role
       operationId: deleteUserTenantRole
       parameters:
         - name: account-id
@@ -1792,7 +1792,7 @@ paths:
             type: string
             format: uuid
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1801,7 +1801,7 @@ paths:
   /v1/roles/users/project/{roleId}/{userId}:
     delete:
       tags:
-        - Role creation APIs
+        - Role
       operationId: deleteUserProjectRole
       parameters:
         - name: account-id
@@ -1857,7 +1857,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -2624,14 +2624,14 @@ components:
           format: double
         charset:
           type: string
-        concrete:
-          type: boolean
         wildcardType:
           type: boolean
         wildcardSubtype:
           type: boolean
         subtypeSuffix:
           type: string
+        concrete:
+          type: boolean
     BaseResponseSignedURLDto:
       type: object
       properties:

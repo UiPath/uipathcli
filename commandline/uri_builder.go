@@ -23,9 +23,11 @@ func (b *UriBuilder) OverrideUri(overrideUri *url.URL) {
 	}
 	if overrideUri != nil && overrideUri.Path != "" {
 		path = overrideUri.Path
+		if !strings.HasPrefix(path, "/") {
+			path = "/" + path
+		}
 	}
-	normalizedPath := strings.Trim(path, "/")
-	uri, _ := url.Parse(fmt.Sprintf("%s://%s/%s", scheme, host, normalizedPath))
+	uri, _ := url.Parse(fmt.Sprintf("%s://%s%s", scheme, host, path))
 	b.uri = *uri
 }
 

@@ -1,0 +1,2795 @@
+openapi: 3.0.1
+info:
+  title: Organization Management Service API
+  version: "1.0"
+servers:
+  - url: https://cloud.uipath.com/{organization}/portal_/organization
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+paths:
+  /api/organization/{organizationGuid}/apikey:
+    post:
+      tags:
+        - ApiKey
+      operationId: AddOrUpdateApiKey
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+    get:
+      tags:
+        - ApiKey
+      operationId: GetApiKeys
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto'
+  /api/mlservice/{licenceType}:
+    get:
+      tags:
+        - ApiKey
+      operationId: GetMLServiceDetails
+      parameters:
+        - name: licenceType
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ApiKeyType'
+        - name: mlServiceKey
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.MLServiceDetailsDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.MLServiceDetailsDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.MLServiceDetailsDto'
+  /api/discovery:
+    get:
+      tags:
+        - Discovery
+      operationId: GetOrganizationUrlCatalogue
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto'
+  /api/organization/{organizationGuid}/file:
+    post:
+      tags:
+        - File
+      operationId: UpsertFileToOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.FileType'
+        - name: label
+          in: query
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        "200":
+          description: Success
+    delete:
+      tags:
+        - File
+      operationId: DeleteFileFromOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.FileType'
+        - name: label
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/files:
+    get:
+      tags:
+        - File
+      operationId: GetFileUris
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: type
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.FileType'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  format: uri
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  format: uri
+            text/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+                  format: uri
+  /api/leads/studio-downloaded/{accountId}:
+    put:
+      tags:
+        - Leads
+      operationId: StudioDownloaded
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Leads.StudioDownloadedDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Leads.StudioDownloadedDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Leads.StudioDownloadedDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Leads.StudioDownloadedDto'
+      responses:
+        "200":
+          description: Success
+  /api-internal/onprem/api/EmitBusinessTelemetry:
+    post:
+      tags:
+        - OnPremBusinessTelemetry
+      operationId: EmitTelemetryEvents
+      responses:
+        "200":
+          description: Success
+  /onprem/api/organization:
+    post:
+      tags:
+        - OnPremOrganization
+      operationId: CreateOrganizationOnPrem
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand'
+      responses:
+        "200":
+          description: Success
+  /onprem/api/organization/getAllOrganizations:
+    get:
+      tags:
+        - OnPremOrganization
+      operationId: GetAllActiveOrganizationsOnPrem
+      parameters:
+        - name: searchTerm
+          in: query
+          schema:
+            type: string
+        - name: top
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.GetAllOrgsPaginatedReponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.GetAllOrgsPaginatedReponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.GetAllOrgsPaginatedReponseDto'
+  /onprem/api/organization/{organizationGuid}:
+    delete:
+      tags:
+        - OnPremOrganization
+      operationId: DeleteOrganizationOnPrem
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+    get:
+      tags:
+        - OnPremOrganization
+      operationId: GetOrganizationOnPrem
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+  /api/organization/{organizationGuid}:
+    get:
+      tags:
+        - Organization
+      operationId: GetOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+    patch:
+      tags:
+        - Organization
+      operationId: UpdateOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto'
+    post:
+      tags:
+        - Organization
+      operationId: DeleteOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/services:
+    get:
+      tags:
+        - Organization
+      operationId: GetAllOrganizationServices
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+    post:
+      tags:
+        - Organization
+      operationId: AddServiceToOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+    patch:
+      tags:
+        - Organization
+      operationId: UpdateServiceStatusInOrganization
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/availableservices:
+    get:
+      tags:
+        - Organization
+      operationId: GetAllAvailableOrganizationServices
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scope
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.LocationService.LocationClient.Scope'
+        - name: isCanaryTenant
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ServiceMetadataDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ServiceMetadataDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ServiceMetadataDto'
+  /api/organization:
+    post:
+      tags:
+        - Organization
+      operationId: CreateOrganization
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+      responses:
+        "201":
+          description: Success
+  /pgov/api/organization:
+    post:
+      tags:
+        - Organization
+      operationId: CreateOrganizationAAD
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand'
+      responses:
+        "200":
+          description: Success
+  /api/organization/supportedregions:
+    get:
+      tags:
+        - Organization
+      operationId: GetAllSupportedRegions
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.RegionDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.RegionDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.RegionDto'
+  /api/organization/user:
+    delete:
+      tags:
+        - Organization
+      operationId: DeleteUser
+      parameters:
+        - name: userEmailId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/operations/{operationId}:
+    get:
+      tags:
+        - Organization
+      operationId: GetOperationDetails
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: operationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.CommandDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.CommandDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.CommandDto'
+  /api/organization/{organizationId}/selectScaleunit:
+    get:
+      tags:
+        - Organization
+      operationId: ResolveScaleUnitFor
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: subscriptionType
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_SubscriptionType'
+        - name: serviceType
+          in: query
+          schema:
+            type: string
+        - name: region
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ScaleUnitDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ScaleUnitDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ScaleUnitDto'
+  /api/organization/{organizationGuid}/deleteByOperator:
+    delete:
+      tags:
+        - Organization
+      operationId: DeleteOrganizationByOperator
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/services/{serviceType}:
+    patch:
+      tags:
+        - OrganizationService
+      operationId: UpdateOrganizationServiceInstanceScaleUnits
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/services/{serviceType}/status/{serviceStatus}:
+    patch:
+      tags:
+        - OrganizationService
+      operationId: UpdateOrganizationServiceInstanceStatus
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: serviceStatus
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{organizationId}/properties/destination:
+    get:
+      tags:
+        - PartitionMove
+      operationId: GetPartitionMigrationPropertiesForDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.PropertiesResponse'
+  /api/migration/{organizationId}/properties/source:
+    get:
+      tags:
+        - PartitionMove
+      operationId: GetPartitionMigrationPropertiesForSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.PropertiesResponse'
+  /api/migration/{organizationId}/compatibility_report/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: GenerateDataCompatibilityReportOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportResponse'
+  /api/migration/{organizationId}/compatibility_report/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: GenerateDataCompatibilityReportOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportResponse'
+  /api/migration/{organizationId}/pre_maintenance_data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunPreMaintenanceDataMoveOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{organizationId}/pre_maintenance_data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunPreMaintenanceDataMoveOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{organizationId}/maintenance_mode/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: StartMaintenanceModeOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeResponse'
+  /api/migration/{organizationId}/maintenance_mode/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: StartMaintenanceModeOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeResponse'
+  /api/migration/{organizationId}/data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunDataMoveOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{organizationId}/data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunDataMoveOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{organizationId}/finalize/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: FinalizeOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{organizationId}/finalize/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: FinalizeOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{organizationId}/rollback/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RollbackMigrationOnSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackResponse'
+  /api/migration/{organizationId}/rollback/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RollbackMigrationOnDestination
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackResponse'
+  /api/migration/{organizationId}/delete/source:
+    delete:
+      tags:
+        - PartitionMove
+      operationId: DeletePartitionFromSource
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteResponse'
+  /api/organization/{organizationGuid}/tenants:
+    post:
+      tags:
+        - Tenant
+      operationId: CreateTenant
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto'
+      responses:
+        "201":
+          description: Success
+    get:
+      tags:
+        - Tenant
+      operationId: GetAllTenants
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: query
+          schema:
+            type: string
+        - name: tenantStatus
+          in: query
+          schema:
+            type: string
+        - name: serviceStatus
+          in: query
+          schema:
+            type: string
+        - name: includeTenantServices
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+  /api/organization/{organizationGuid}/tenants/{tenantGuid}:
+    get:
+      tags:
+        - Tenant
+      operationId: GetTenant
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+    delete:
+      tags:
+        - Tenant
+      operationId: DeleteTenant
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+    patch:
+      tags:
+        - Tenant
+      operationId: UpdateTenant
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/tenants/{tenantGuid}/services:
+    get:
+      tags:
+        - Tenant
+      operationId: GetAllTenantServices
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantServiceInstanceDto'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantServiceInstanceDto'
+            text/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantServiceInstanceDto'
+    patch:
+      tags:
+        - TenantService
+      operationId: ChangeTenantServiceStatus
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto'
+      responses:
+        "200":
+          description: Success
+    post:
+      tags:
+        - TenantService
+      operationId: AddOrRemoveTenantServices
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/tenants/{tenantGuid}/{active}:
+    post:
+      tags:
+        - Tenant
+      operationId: ChangeTenantStatus
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: active
+          in: path
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Success
+  /api/organization/tenants/{tenantGuid}/maintenance:
+    patch:
+      tags:
+        - Tenant
+      operationId: SetTenantMaintenanceMode
+      parameters:
+        - name: x-UiPath-Internal-AccountId
+          in: header
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/tenants/{tenantGuid}/services/{serviceType}:
+    patch:
+      tags:
+        - TenantService
+      operationId: UpdateServiceInstance
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: requestType
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.RequestType'
+        - name: orchestrationInstanceId
+          in: query
+          schema:
+            type: string
+        - name: isHardDelete
+          in: query
+          schema:
+            type: boolean
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto'
+      responses:
+        "200":
+          description: Success
+  /api/organization/{organizationGuid}/tenants/{tenantGuid}/services/{serviceType}/status/{serviceStatus}:
+    patch:
+      tags:
+        - TenantService
+      operationId: UpdateTenantServiceInstanceStatus
+      parameters:
+        - name: organizationGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantGuid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: serviceStatus
+          in: path
+          required: true
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
+      responses:
+        "200":
+          description: Success
+components:
+  schemas:
+    UiPath.Platform.FirstPartyService.FirstPartyServiceClient.ServiceInstanceStatus:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      type: integer
+      format: int32
+    UiPath.Platform.Leads.StudioDownloadedDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        accountId:
+          type: string
+          nullable: true
+        accountUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationName:
+          type: string
+          nullable: true
+        edition:
+          type: string
+          nullable: true
+        userLanguage:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.LicenseAccountant.Client.ProductCodeStatus:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    UiPath.Platform.LicenseResourceManager.Client.ProductRequested:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UiPath.Platform.LocationService.LocationClient.ProvisioningMode:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    UiPath.Platform.LocationService.LocationClient.Scope:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Application.Dto.ApiKeyType:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.AddRemoveTenantServiceRequestDto:
+      type: object
+      properties:
+        services:
+          type: object
+          additionalProperties:
+            type: boolean
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ApiKeyDto:
+      required:
+        - organizationId
+        - type
+      type: object
+      properties:
+        organizationId:
+          type: string
+        value:
+          type: string
+          nullable: true
+        type:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ApiKeyType'
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ChangeTenantServiceStatusRequestDto:
+      type: object
+      properties:
+        serviceTypeServiceStatusMap:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateOrganizationCommand:
+      type: object
+      properties:
+        organizationName:
+          type: string
+          nullable: true
+        companyEmail:
+          type: string
+          nullable: true
+        ownerUserId:
+          type: string
+          format: uuid
+        legacyOwnerUserId:
+          type: integer
+          format: int64
+        country:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        termsAndConditionsAccepted:
+          type: boolean
+        id:
+          type: string
+          format: uuid
+        type:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_SubscriptionType'
+          nullable: true
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        marketingConsent:
+          type: boolean
+          nullable: true
+        jobTitle:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        useEmailAsUsername:
+          type: boolean
+        activationData:
+          type: string
+          nullable: true
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+        isCreatorNonAdmin:
+          type: boolean
+        isEmailVerified:
+          type: boolean
+        customProperties:
+          type: object
+          additionalProperties: {}
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.CreateTenantRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        isDefaultTenant:
+          type: boolean
+        color:
+          type: string
+          nullable: true
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+        services:
+          type: array
+          items:
+            type: string
+          nullable: true
+        customProperties:
+          type: object
+          additionalProperties: {}
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.DeleteOrganizationCommand:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+        deletionQuestion:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.OnPrem.CreateOrganizationOnPremCommand:
+      type: object
+      properties:
+        organizationName:
+          type: string
+          nullable: true
+        adminUserName:
+          type: string
+          nullable: true
+        adminFirstName:
+          type: string
+          nullable: true
+        adminLastName:
+          type: string
+          nullable: true
+        adminEmail:
+          type: string
+          nullable: true
+        adminPassword:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        adminUserId:
+          type: string
+          format: uuid
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.RequestType:
+      enum:
+        - 0
+        - 1
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceInstanceUpdateDto:
+      type: object
+      properties:
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.FirstPartyService.FirstPartyServiceClient.ServiceInstanceStatus'
+          nullable: true
+        isHardDelete:
+          type: boolean
+        routingAddressId:
+          type: string
+          format: uuid
+          nullable: true
+        managementAddressId:
+          type: string
+          format: uuid
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.ServiceStatusUpdateDto:
+      type: object
+      properties:
+        serviceType:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+        targetStatus:
+          type: string
+          nullable: true
+        reason:
+          type: string
+          nullable: true
+        operationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.SetTenantMaintenanceDto:
+      type: object
+      properties:
+        isTenantInMaintenance:
+          type: boolean
+        previousTenantStatus:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantServiceInstanceDto:
+      type: object
+      properties:
+        licenseList:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.LicenseResourceManager.Client.ProductRequested'
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          format: uuid
+        region:
+          type: string
+          nullable: true
+        tenant:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto'
+          nullable: true
+        serviceInstanceSettings:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Request.TenantUpdateDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        color:
+          type: string
+          nullable: true
+        services:
+          type: object
+          additionalProperties:
+            type: boolean
+          nullable: true
+        customProperties:
+          type: object
+          additionalProperties: {}
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.CommandDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        workflowInstanceId:
+          type: string
+          nullable: true
+        entityType:
+          type: string
+          nullable: true
+        entityId:
+          type: string
+          format: uuid
+        operationStatus:
+          type: string
+          nullable: true
+        errorMessage:
+          type: string
+          nullable: true
+        errorTrace:
+          type: string
+          nullable: true
+        customData:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto:
+      type: object
+      properties:
+        organizationUrl:
+          type: string
+          nullable: true
+        organization_Url:
+          type: string
+          nullable: true
+        tenantsUrl:
+          type: string
+          nullable: true
+        tenants_Url:
+          type: string
+          nullable: true
+        tenants:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto_TenantForDiscoveryDto'
+          nullable: true
+        userLicenseUrl:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto_ServiceInstanceForDiscoveryDto:
+      type: object
+      properties:
+        licenseUrl:
+          type: string
+          nullable: true
+        licenseProductsUrl:
+          type: string
+          nullable: true
+        leaseUrl:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto_TenantForDiscoveryDto:
+      type: object
+      properties:
+        tenantUrl:
+          type: string
+          nullable: true
+        serviceInstances:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.DiscoveryDto_ServiceInstanceForDiscoveryDto'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.GetAllOrgsPaginatedReponseDto:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int64
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.MLServiceDetailsDto:
+      type: object
+      properties:
+        accountId:
+          type: integer
+          format: int64
+        accountGlobalId:
+          type: string
+          nullable: true
+        licenseStatus:
+          type: string
+          nullable: true
+        subscriptionPlan:
+          type: string
+          nullable: true
+        licenseCount:
+          type: integer
+          format: int64
+        licenseType:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ApiKeyType'
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        logicalName:
+          type: string
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        country:
+          type: string
+          nullable: true
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_OrganizationStatus'
+        tenantsUrl:
+          type: string
+          nullable: true
+        tenants_Url:
+          type: string
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+        language:
+          type: string
+          nullable: true
+        organizationServiceInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto'
+          nullable: true
+        operationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.OrganizationServiceInstanceDto:
+      type: object
+      properties:
+        serviceType:
+          type: string
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        uri:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ServiceDtoStatus'
+        friendlyUrl:
+          type: string
+          format: uri
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        operationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.RegionDto:
+      type: object
+      properties:
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ScaleUnitDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        serviceType:
+          type: string
+          nullable: true
+        region:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.ServiceMetadataDto:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        serviceLicenseStatus:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.LicenseAccountant.Client.ProductCodeStatus'
+        provisioningMode:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.LocationService.LocationClient.ProvisioningMode'
+        supportedRegions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+        defaultRegion:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        color:
+          type: string
+          nullable: true
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+        tenantServiceInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantServiceInstanceDto'
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ServiceDtoStatus'
+        tenantUrl:
+          type: string
+          nullable: true
+        tenant_Url:
+          type: string
+          nullable: true
+        createdBy:
+          type: string
+          format: uuid
+        createdOn:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+          format: uuid
+        updatedOn:
+          type: string
+          format: date-time
+        isCanaryTenant:
+          type: boolean
+        operationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.Response.TenantServiceInstanceDto:
+      type: object
+      properties:
+        serviceType:
+          type: string
+          nullable: true
+        url:
+          type: string
+          format: uri
+          nullable: true
+        uri:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.ServiceDtoStatus'
+        friendlyUrl:
+          type: string
+          format: uri
+          nullable: true
+        id:
+          type: string
+          format: uuid
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Application.Dto.ServiceDtoStatus:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Application.Dto.UpdateOrganizationCommand:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        logicalName:
+          type: string
+          nullable: true
+        language:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Data.Entities.FileType:
+      enum:
+        - 1
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Data.Entities.Organization:
+      required:
+        - id
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_OrganizationStatus'
+        createdOn:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+          format: uuid
+        companyEmail:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        region:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.Service.Constants.Region'
+          nullable: true
+        language:
+          type: string
+          nullable: true
+        updatedBy:
+          type: string
+          format: uuid
+          nullable: true
+        updatedOn:
+          type: string
+          format: date-time
+          nullable: true
+        logicalName:
+          type: string
+          nullable: true
+        tenantsUrl:
+          type: string
+          nullable: true
+        organizationServiceInstances:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationServiceInstance'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_OrganizationStatus:
+      enum:
+        - 1
+        - 2
+        - 3
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_SubscriptionType:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+      type: integer
+      format: int32
+    UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationServiceInstance:
+      required:
+        - createdBy
+        - createdOn
+        - id
+        - organizationId
+        - scaleUnitId
+        - serviceType
+        - status
+      type: object
+      properties:
+        createdBy:
+          type: string
+          format: uuid
+        createdOn:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+          format: uuid
+        updatedOn:
+          type: string
+          format: date-time
+        id:
+          type: string
+          format: uuid
+        status:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus'
+        serviceType:
+          type: string
+        scaleUnitId:
+          type: string
+          format: uuid
+        organizationId:
+          type: string
+          format: uuid
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization'
+          nullable: true
+        uri:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.OrganizationManagementService.Data.Entities.ServiceStatus:
+      enum:
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+        - 10
+      type: integer
+      format: int32
+    UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        compatibilityStage:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        sourceScaleUnitId:
+          type: string
+          nullable: true
+        destinationScaleUnitId:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        peerProperties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        intermediaryStorageSAS:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        dataVerificationCheckSum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.DeleteResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest:
+      type: object
+      properties:
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.PropertiesResponse:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        scope:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Partition.Move.Workflow.Dto.RollbackResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Service.Constants.Region:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 9
+      type: integer
+      format: int32
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []

@@ -3,20 +3,20 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-pkgmanager
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  - url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-pkgmanager
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
 paths:
   /v1/tenants/{tenantId}:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Get Tenant by id
       operationId: getTenantById
       parameters:
@@ -41,27 +41,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
+        "200":
           description: Tenant retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseTenantResponseDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
     put:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Update the tenant
       operationId: updateTenant
       parameters:
@@ -101,13 +101,13 @@ paths:
               $ref: '#/components/schemas/TenantUpdateDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant updated successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -115,7 +115,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
     delete:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: delete the tenant
       operationId: deleteTenant
       parameters:
@@ -155,13 +155,13 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: Tenant deleted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -170,7 +170,7 @@ paths:
   /v1/tenants:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Fetch Tenants
       operationId: getTenants
       parameters:
@@ -225,27 +225,27 @@ paths:
             type: boolean
             default: true
       responses:
-        '200':
+        "200":
           description: Tenants retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantResponseDto'
     post:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Create a tenant
       operationId: createTenant
       parameters:
@@ -291,14 +291,14 @@ paths:
           schema:
             type: string
       responses:
-        '201':
-          description: Tenant Created Successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseTenantResponseDto'
-        '500':
-          description: Internal server error
+        "201":
+          description: Tenant Created Successfully
           content:
             '*/*':
               schema:
@@ -306,7 +306,7 @@ paths:
   /v1/projects:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Fetch list of projects
       operationId: getProjects
       parameters:
@@ -348,7 +348,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: exactMatchOnName
           in: query
           required: false
@@ -382,27 +382,27 @@ paths:
             type: string
             default: ASC
       responses:
-        '200':
+        "200":
           description: Projects retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoProjectDto'
     post:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Create a project
       operationId: createProject
       parameters:
@@ -451,20 +451,20 @@ paths:
               $ref: '#/components/schemas/ProjectRequestDto'
         required: true
       responses:
-        '201':
+        "201":
           description: Project Created Successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
-        '409':
-          description: Project with same name already exists
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
-        '500':
-          description: Internal server error
+        "409":
+          description: Project with same name already exists
           content:
             '*/*':
               schema:
@@ -472,7 +472,7 @@ paths:
   /v1/projects/{projectId}:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Get Project by id
       operationId: getProjectById
       parameters:
@@ -524,27 +524,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Project retrieved successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
-        '500':
-          description: Internal server error
+        "200":
+          description: Project retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
     post:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Update a project
       operationId: updateProject
       parameters:
@@ -604,13 +604,13 @@ paths:
               $ref: '#/components/schemas/ProjectRequestDto'
         required: true
       responses:
-        '201':
+        "201":
           description: Project Updated Successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -618,7 +618,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseProjectDto'
     delete:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Soft delete a project
       operationId: deleteProject
       parameters:
@@ -666,13 +666,13 @@ paths:
           schema:
             type: string
       responses:
-        '201':
+        "201":
           description: Project Deleted Successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -681,7 +681,7 @@ paths:
   /v1/mlpackages:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Fetch ML packages
       operationId: getMLPackages
       parameters:
@@ -736,7 +736,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: pageNum
           in: query
           required: false
@@ -801,27 +801,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: MLPackages retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageDto_ViewWithModificationDetails'
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Create MLPackage with already uploaded content
       operationId: createMLPackage
       parameters:
@@ -885,13 +885,13 @@ paths:
               $ref: '#/components/schemas/MLPackageMetaDataDto_ViewWithTenantDetails'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -900,7 +900,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions:
     get:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Fetch MLPackage versions with the search criteria
       operationId: getVersions
       parameters:
@@ -997,7 +997,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: fields
           in: query
           required: false
@@ -1027,27 +1027,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: MLPackage version/versions retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLPackageVersionDto'
     post:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Create new MLPackage version with already uploaded content
       operationId: createMLPackageVersion
       parameters:
@@ -1118,13 +1118,13 @@ paths:
               $ref: '#/components/schemas/MLPackageMetaDataDto'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage version created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1132,7 +1132,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete multiple MLPackage versions
       operationId: deleteMultipleMLPackageVersionsById
       parameters:
@@ -1192,13 +1192,13 @@ paths:
                 type: string
         required: true
       responses:
-        '200':
+        "200":
           description: ' MLPackage versions deleted successfully'
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1207,7 +1207,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/clone:
     post:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Clone new MLPackage version with already uploaded content
       operationId: cloneMLPackageVersion
       parameters:
@@ -1264,13 +1264,13 @@ paths:
               $ref: '#/components/schemas/MLPackageCloneDto'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage version created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1279,7 +1279,7 @@ paths:
   /v1/mlpackages/import:
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Import MLPackage/Version with uploaded content
       operationId: importMLPackage
       parameters:
@@ -1339,13 +1339,13 @@ paths:
               $ref: '#/components/schemas/MLPackageMetaDataDto_ViewWithTenantDetails'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1354,7 +1354,7 @@ paths:
   /v1/mlpackages/clone:
     post:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Clone MLPackage with existing OOB package
       operationId: cloneMLPackage
       parameters:
@@ -1405,13 +1405,13 @@ paths:
               $ref: '#/components/schemas/MLPackageCloneDto_ViewWithTenantDetails'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1420,7 +1420,7 @@ paths:
   /v1/mlpackagelanguageversions:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch list of MLPackage Language versions
       operationId: getMLPackageLanguageVersions
       parameters:
@@ -1452,27 +1452,27 @@ paths:
             type: integer
             format: int32
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
+        "200":
           description: MLPackage Language versions retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Create MLPackage Language version
       operationId: createMLPackageLanguageVersion
       requestBody:
@@ -1482,14 +1482,14 @@ paths:
               $ref: '#/components/schemas/MLPackageLanguageVersionMetadataDto'
         required: true
       responses:
-        '201':
-          description: MLPackage Language version created successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
-        '500':
-          description: Internal server error
+        "201":
+          description: MLPackage Language version created successfully
           content:
             '*/*':
               schema:
@@ -1497,7 +1497,7 @@ paths:
   /v1/mlpackagelanguageversions/{mlPackageLanguage}/{version}:
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Create MLPackage Language version for specific language
       operationId: createMLPackageLanguageVersionsForSpecificLanguage
       parameters:
@@ -1521,13 +1521,13 @@ paths:
                 $ref: '#/components/schemas/MLPackageLanguageVersionMetadataDto'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage Language versions created successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1536,7 +1536,7 @@ paths:
   /v1/mlpackagelanguageversions/{mlPackageLanguageVersionId}:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Get MLPackage Language version by id
       operationId: getMLPackageLanguageVersionById
       parameters:
@@ -1547,27 +1547,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
+        "200":
           description: MLPackage Language version retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
     post:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Update MLPackage Language version
       operationId: updateMLPackageLanguageVersion
       parameters:
@@ -1583,13 +1583,13 @@ paths:
               $ref: '#/components/schemas/MLPackageLanguageVersionUpdateMetadataDto'
         required: true
       responses:
-        '201':
+        "201":
           description: MLPackage Language version Updated Successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1597,7 +1597,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLPackageLanguageVersionDto'
     delete:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Delete a MLPackage Language version
       operationId: deleteMLPackageLanguageVersion
       parameters:
@@ -1607,14 +1607,14 @@ paths:
           schema:
             type: string
       responses:
-        '201':
-          description: MLPackage Language version Deleted Successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "201":
+          description: MLPackage Language version Deleted Successfully
           content:
             '*/*':
               schema:
@@ -1622,7 +1622,7 @@ paths:
   /v1/migrate/tenants:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Migrate tenants for RBAC
       operationId: migrateTenants
       requestBody:
@@ -1634,7 +1634,7 @@ paths:
                 $ref: '#/components/schemas/TenantRbacMigrationRequestDto'
         required: true
       responses:
-        '202':
+        "202":
           description: Tenants migration request accepted successfully
           content:
             '*/*':
@@ -1643,7 +1643,7 @@ paths:
   /v1/migrate/tenants/self:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Self Migrate tenant for RBAC
       operationId: selfMigrateTenant
       parameters:
@@ -1665,7 +1665,7 @@ paths:
           schema:
             type: string
       responses:
-        '202':
+        "202":
           description: Tenants migration request accepted successfully
           content:
             '*/*':
@@ -1674,11 +1674,11 @@ paths:
   /v1/migrate/tenants/all:
     post:
       tags:
-        - tenant-rbac-migration-controller
+        - Tenant
       description: Migrate all tenants for RBAC
       operationId: migrateAllTenants
       responses:
-        '202':
+        "202":
           description: Tenants migration request accepted successfully
           content:
             '*/*':
@@ -1687,7 +1687,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/{versionId}:
     get:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Get MLPackage version by id
       operationId: getMLPackageVersionById
       parameters:
@@ -1790,27 +1790,27 @@ paths:
               - SERVING
               - TRAINING
       responses:
-        '200':
+        "200":
           description: MLPackage version retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
     patch:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Update MLPackageVersion of a Tenant to Public
       operationId: updateMLPackageVersionVisibility
       parameters:
@@ -1873,13 +1873,13 @@ paths:
               $ref: '#/components/schemas/MLPackageVersionPublicUpdateDto'
         required: true
       responses:
-        '200':
+        "200":
           description: MLPackageVersion Visibility Updated Successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageVersionDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1888,7 +1888,7 @@ paths:
   /v1/tenants/migrated/check:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Check if the tenant is migrated
       operationId: checkTenantMigrated
       parameters:
@@ -1911,13 +1911,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tenant Migration check successful
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1926,7 +1926,7 @@ paths:
   /v1/tenants/check:
     get:
       tags:
-        - Tenant Controller related APIs
+        - Tenant
       description: Check For Public Tenant
       operationId: checkPublicTenant
       parameters:
@@ -1949,20 +1949,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: PublicTenants retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1970,7 +1970,7 @@ paths:
   /v1/signedURL:
     get:
       tags:
-        - SignedURL Generation Related APIs
+        - SignedUrl
       operationId: getSignedURL
       parameters:
         - name: account-id
@@ -2030,7 +2030,7 @@ paths:
           required: false
           schema:
             type: string
-            default: 'false'
+            default: "false"
         - name: contentType
           in: query
           description: 'ContentType of the data getting uploaded Ex: text/plain, application/zip etc any valid Spring Http MediaType'
@@ -2038,20 +2038,20 @@ paths:
           schema:
             $ref: '#/components/schemas/MediaType'
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseSignedURLDto'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '400':
+        "400":
           description: Invalid Input
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseSignedURLDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -2059,7 +2059,7 @@ paths:
   /v1/projects/user:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: get all projects for the user
       operationId: getProjectsForUser
       parameters:
@@ -2099,14 +2099,14 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: Request processed successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMapStringListProjects'
-        '500':
-          description: Internal server error
+        "200":
+          description: Request processed successfully
           content:
             '*/*':
               schema:
@@ -2114,7 +2114,7 @@ paths:
   /v1/projects/search:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Check if Project exists by name
       operationId: checkUniqueName
       parameters:
@@ -2162,20 +2162,20 @@ paths:
             pattern: '[a-zA-Z_][a-zA-Z0-9_ ]*'
             type: string
       responses:
-        '200':
-          description: Request processed successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseBoolean'
-        '409':
+        "409":
           description: Project name already exists
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
+        "500":
           description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        "200":
+          description: Request processed successfully
           content:
             '*/*':
               schema:
@@ -2183,7 +2183,7 @@ paths:
   /v1/projects/public:
     get:
       tags:
-        - Project Controller related APIs
+        - Project
       description: Fetch list of public projects
       operationId: getPublicProjects
       parameters:
@@ -2233,7 +2233,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: exactMatchOnName
           in: query
           required: false
@@ -2241,20 +2241,20 @@ paths:
             type: boolean
             default: false
       responses:
-        '200':
+        "200":
           description: Projects retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListProjectDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListProjectDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -2262,7 +2262,7 @@ paths:
   /v1/mlpackages/{mlPackageId}:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Get MLPackage by id
       operationId: getMLPackageById
       parameters:
@@ -2356,20 +2356,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
+        "200":
           description: MLPackage retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseMLPackageDto_ViewWithTenantDetails'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -2377,7 +2377,7 @@ paths:
   /v1/mlpackages/search:
     get:
       tags:
-        - ML package related APIs
+        - MlPackage
       description: Check if MLPackage exists by name
       operationId: checkUniqueMLPackageName
       parameters:
@@ -2430,20 +2430,20 @@ paths:
             pattern: '[a-zA-Z][a-zA-Z0-9_]*[a-zA-Z0-9]'
             type: string
       responses:
-        '200':
-          description: Request processed successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseBoolean'
-        '409':
+        "409":
           description: MLPackage name already exists
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
+        "500":
           description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        "200":
+          description: Request processed successfully
           content:
             '*/*':
               schema:
@@ -2451,7 +2451,7 @@ paths:
   /v1/mlpackagelanguages:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch ML package languages
       operationId: getMLPackageLanguages
       parameters:
@@ -2497,20 +2497,20 @@ paths:
             type: boolean
             default: true
       responses:
-        '200':
+        "200":
           description: MLPackageLanguages retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -2518,7 +2518,7 @@ paths:
   /v1/mlpackagelanguages/{mlPackageLanguage}/versions:
     get:
       tags:
-        - ML package Language related APIs
+        - MlPackage
       description: Fetch ML package language Versions
       operationId: getMLPackageLanguageVersions_1
       parameters:
@@ -2569,20 +2569,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: MLPackageLanguageVersions retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLPackageLanguageVersionDto_ViewWithModificationDetails'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -2590,7 +2590,7 @@ paths:
   /v1/mlpackages/{mlPackageId}/versions/allundeployed:
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete all undeployed MLPackage versions
       operationId: deleteAllUndeployed
       parameters:
@@ -2641,13 +2641,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ' MLPackage versions deleted successfully'
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -2656,7 +2656,7 @@ paths:
   /v1/mlpackages/versions/{versionId}:
     delete:
       tags:
-        - MLPackage versions related APIs
+        - MlPackage
       description: Delete MLPackage version
       operationId: deleteMLPackageVersion
       parameters:
@@ -2707,26 +2707,26 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: MLPackage version deleted successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: MLPackage version is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        '406':
+        "406":
           description: MLPackage version cannot be deleted
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "200":
+          description: MLPackage version deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "500":
           description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "404":
+          description: MLPackage version is not found
           content:
             '*/*':
               schema:
@@ -4182,13 +4182,13 @@ components:
         qualityValue:
           type: number
           format: double
+        charset:
+          type: string
         wildcardType:
           type: boolean
         wildcardSubtype:
           type: boolean
         subtypeSuffix:
-          type: string
-        charset:
           type: string
         concrete:
           type: boolean

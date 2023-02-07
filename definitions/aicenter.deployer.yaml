@@ -3,20 +3,20 @@ info:
   title: OpenAPI definition
   version: v0
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-deployer
-  description: The production url
-  variables:
-    organization:
-      description: The organization name (or id)
-      default: my-org
-    tenant:
-      description: The tenant name (or id)
-      default: my-tenant
+  - url: https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-deployer
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
 paths:
   /v1/tenant/{tenantIdToProvision}/consume:
     put:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Update provisioned tenant for consuming cpu and gpu slots
       operationId: updateTenantLicenseConsumption
       parameters:
@@ -47,20 +47,20 @@ paths:
               $ref: '#/components/schemas/TenantLicenseConsumptionDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant updated successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -68,7 +68,7 @@ paths:
   /v1/mlskills/stop/{mlSkillId}:
     put:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Stop ML Skill
       operationId: stopMLSkill
       parameters:
@@ -119,26 +119,26 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: MLSkill stopped successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: MLSkill is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        '406':
+        "406":
           description: MLSkill cannot be stopped
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "200":
+          description: MLSkill stopped successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "404":
+          description: MLSkill is not found
           content:
             '*/*':
               schema:
@@ -146,7 +146,7 @@ paths:
   /v1/tenant:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get tenants
       operationId: getTenants
       parameters:
@@ -170,7 +170,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: provisioningStatus
           in: query
           required: false
@@ -201,27 +201,27 @@ paths:
             format: int32
             default: 10
       responses:
-        '200':
-          description: Tenant/Tenants retrieved successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
-        '500':
-          description: Internal server error
+        "200":
+          description: Tenant/Tenants retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoTenantProvisionDto'
     post:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Provision tenant for ML Skills deployment
       operationId: provisionTenant
       parameters:
@@ -247,20 +247,20 @@ paths:
               $ref: '#/components/schemas/TenantProvisionLicenseDto'
         required: true
       responses:
-        '201':
+        "201":
           description: Tenant provisioned successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -268,7 +268,7 @@ paths:
   /v1/serviceentries:
     get:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Fetch service entries with the search criteria
       operationId: getServiceEntries
       parameters:
@@ -344,13 +344,13 @@ paths:
               - INACTIVE
               - FAILED
       responses:
-        '200':
+        "200":
           description: ML Skills retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -358,7 +358,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseListServiceEntryDto'
     post:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Service entry creation
       operationId: createServiceEntry
       parameters:
@@ -404,14 +404,14 @@ paths:
               $ref: '#/components/schemas/ServiceEntryCreationRequest'
         required: true
       responses:
-        '201':
-          description: Service entry created successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseServiceEntryDto'
-        '500':
-          description: Internal server error
+        "201":
+          description: Service entry created successfully
           content:
             '*/*':
               schema:
@@ -419,7 +419,7 @@ paths:
   /v1/replication:
     post:
       tags:
-        - ML Skill replication APIs
+        - MlSkill
       description: ML Skill replication
       operationId: replicateMLSkills
       requestBody:
@@ -429,13 +429,13 @@ paths:
               $ref: '#/components/schemas/MLSkillReplicationDto'
         required: true
       responses:
-        '200':
+        "200":
           description: ML Skill replication started successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -444,7 +444,7 @@ paths:
   /v1/mlskills:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Fetch ML Skills with the search by name criteria
       operationId: getMLSkills
       parameters:
@@ -493,7 +493,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: pageNum
           in: query
           required: false
@@ -546,13 +546,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skills retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -560,7 +560,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillDto'
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill creation
       operationId: createMLSkill
       parameters:
@@ -611,14 +611,14 @@ paths:
               $ref: '#/components/schemas/MLSkillCreationRequest'
         required: true
       responses:
-        '202':
-          description: ML Skill creation request accepted successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
-        '500':
-          description: Internal server error
+        "202":
+          description: ML Skill creation request accepted successfully
           content:
             '*/*':
               schema:
@@ -626,7 +626,7 @@ paths:
   /v1/mlskills/{mlSkillId}:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill by id
       operationId: getMLSkillById
       parameters:
@@ -676,27 +676,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skill retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
-        '404':
-          description: The resource is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource is not found
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill updation
       operationId: updateMLSkill
       parameters:
@@ -763,13 +763,13 @@ paths:
               $ref: '#/components/schemas/MLSkillUpdateRequest'
         required: true
       responses:
-        '202':
+        "202":
           description: ML Skill updation request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -777,7 +777,7 @@ paths:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
     delete:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Delete ML Skill
       operationId: deleteMLSkill
       parameters:
@@ -828,26 +828,26 @@ paths:
           schema:
             type: string
       responses:
-        '200':
-          description: MLSkill deleted successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseObject'
-        '404':
-          description: MLSkill is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseObject'
-        '406':
+        "406":
           description: MLSkill cannot be deleted
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseObject'
-        '500':
+        "500":
           description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "404":
+          description: MLSkill is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "200":
+          description: MLSkill deleted successfully
           content:
             '*/*':
               schema:
@@ -855,7 +855,7 @@ paths:
   /v1/mlskills/{mlSkillId}/rollback:
     post:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: ML Skill Rollback
       operationId: rollBackMLSkill
       parameters:
@@ -911,13 +911,13 @@ paths:
             schema:
               $ref: '#/components/schemas/MLSkillLicenseUpdateRequest'
       responses:
-        '202':
+        "202":
           description: ML Skill rollback request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -926,7 +926,7 @@ paths:
   /v1/migration:
     post:
       tags:
-        - ML skills migration related APIs
+        - MlSkill
       description: 'Undeploy and redeploy existing ML Skills '
       operationId: migrateMLSkills
       parameters:
@@ -935,7 +935,7 @@ paths:
           required: false
           schema:
             type: string
-            default: ''
+            default: ""
         - name: isIstioMigration
           in: query
           required: false
@@ -949,13 +949,13 @@ paths:
               $ref: '#/components/schemas/SkillsMigrationRequestBaseDto'
         required: true
       responses:
-        '202':
+        "202":
           description: ML Skills migration request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -964,7 +964,7 @@ paths:
   /v1/migration/baseimage:
     post:
       tags:
-        - ML skills migration related APIs
+        - MlSkill
       description: ML Skills base image migration
       operationId: migrateMLSkillsBaseImage
       requestBody:
@@ -974,14 +974,14 @@ paths:
               $ref: '#/components/schemas/SkillsMigrationRequestDto'
         required: true
       responses:
-        '202':
-          description: ML Skills base image migration request accepted successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "202":
+          description: ML Skills base image migration request accepted successfully
           content:
             '*/*':
               schema:
@@ -989,7 +989,7 @@ paths:
   /v1/hitcount:
     post:
       tags:
-        - Hit Count APIs
+        - HitCount
       description: Update Hit Counts
       operationId: updateHitCount
       requestBody:
@@ -999,14 +999,14 @@ paths:
               $ref: '#/components/schemas/HitCountDto'
         required: true
       responses:
-        '200':
-          description: Update Hit Count successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseObject'
-        '500':
-          description: Internal server error
+        "200":
+          description: Update Hit Count successfully
           content:
             '*/*':
               schema:
@@ -1014,17 +1014,17 @@ paths:
   /v1/cleanup/versions/undeployfailed:
     post:
       tags:
-        - ML skills cleanup related APIs
+        - MlSkill
       description: Cleanup undeploy failed ML Skills
       operationId: cleanupUndeployFailedMLSkillVersions
       responses:
-        '202':
+        "202":
           description: Undeploy failed ML Skill version cleanup request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1033,7 +1033,7 @@ paths:
   /api/tenantserviceinstances:
     post:
       tags:
-        - Eager Provisioning APIs
+        - Provisioning
       description: Provision tenant for ML Skills deployment via Eager Provisioning
       operationId: eagerProvisionTenant
       parameters:
@@ -1054,20 +1054,20 @@ paths:
               $ref: '#/components/schemas/EagerTenantProvisioningDto'
         required: true
       responses:
-        '201':
+        "201":
           description: Tenant provisioned successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1075,7 +1075,7 @@ paths:
   /api/tenantserviceinstances/{serviceType}/{tenantId}/restore:
     post:
       tags:
-        - Eager Provisioning APIs
+        - Provisioning
       description: Restore the tenant from soft-deleted state
       operationId: recoverTenant
       parameters:
@@ -1106,13 +1106,13 @@ paths:
               $ref: '#/components/schemas/TenantRestoreDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant restored successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/TenantRestoreStatusDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1121,7 +1121,7 @@ paths:
   /v1/tenant/{tenantIdToProvision}:
     patch:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Update provisioned tenant for ML Skills deployment
       operationId: updateTenant
       parameters:
@@ -1152,20 +1152,20 @@ paths:
               $ref: '#/components/schemas/TenantProvisionLicenseDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant updated successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1173,7 +1173,7 @@ paths:
   /api/tenantserviceinstances/{serviceType}/{tenantId}:
     get:
       tags:
-        - Eager Provisioning APIs
+        - Provisioning
       description: Get provisioning details of a tenant
       operationId: getTenantDetails_1
       parameters:
@@ -1188,27 +1188,27 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/EagerProvisioningDetailDto'
+        "200":
           description: Tenant details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/EagerProvisioningDetailDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
     delete:
       tags:
-        - Eager Provisioning APIs
+        - Provisioning
       description: De-Provision tenant and its k8 resources (hard-delete/soft-delete)
       operationId: eagerDeprovisionTenant
       parameters:
@@ -1239,13 +1239,13 @@ paths:
               $ref: '#/components/schemas/TenantDeleteDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant deprovisioning request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/TenantDeleteStatusDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1253,7 +1253,7 @@ paths:
                 $ref: '#/components/schemas/TenantDeleteStatusDto'
     patch:
       tags:
-        - Eager Provisioning APIs
+        - Provisioning
       description: Enable/disable tenant
       operationId: updateTenant_1
       parameters:
@@ -1279,13 +1279,13 @@ paths:
               $ref: '#/components/schemas/TenantUpdateDto'
         required: true
       responses:
-        '200':
+        "200":
           description: Tenant updated successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -1294,7 +1294,7 @@ paths:
   /v1/tenantlicensestats/{tenantIdToProvision}/licenses:
     get:
       tags:
-        - Tenant License Stats APIs
+        - Tenant
       description: Get license usage for a tenant
       operationId: getLicenseDetail
       parameters:
@@ -1319,20 +1319,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tenant license details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1340,7 +1340,7 @@ paths:
   /v1/tenantlicensestats/licenses:
     get:
       tags:
-        - Tenant License Stats APIs
+        - Tenant
       description: Get license usage for own tenant
       operationId: getLicenseDetailForOwnTenant
       parameters:
@@ -1360,20 +1360,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tenant license details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1381,7 +1381,7 @@ paths:
   /v1/tenant/{tenantIdToProvision}/licenses:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get license usage for a tenant
       operationId: getLicenseDetails
       parameters:
@@ -1406,20 +1406,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tenant license details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1427,7 +1427,7 @@ paths:
   /v1/tenant/tenantdetails:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get tenant details
       operationId: getTenantDetails
       parameters:
@@ -1437,20 +1437,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
+        "200":
           description: Tenant details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
-        '404':
+        "404":
           description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseTenantProvisionDto'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -1458,7 +1458,7 @@ paths:
   /v1/tenant/merged:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get merged list of tenants
       operationId: getMergedTenants
       parameters:
@@ -1482,20 +1482,20 @@ paths:
             format: int32
             default: 10
       responses:
-        '200':
+        "200":
           description: Tenants retrieved and merged successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMergedTenantDto'
-        '401':
-          description: Call to Orchestrator Unauthorized
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMergedTenantDto'
-        '500':
-          description: Internal server error
+        "401":
+          description: Call to Orchestrator Unauthorized
           content:
             '*/*':
               schema:
@@ -1503,7 +1503,7 @@ paths:
   /v1/tenant/licenses:
     get:
       tags:
-        - Tenant APIs
+        - Tenant
       description: Get license usage for own tenant
       operationId: getLicenseDetailsForOwnTenant
       parameters:
@@ -1523,20 +1523,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Tenant license details successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseLicenseDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -1544,7 +1544,7 @@ paths:
   /v1/mlskills/{mlSkillId}/versions:
     get:
       tags:
-        - ML Skill Version related APIs
+        - MlSkill
       description: Fetch mlSkillVersions for a ML Skill in a paginated manner
       operationId: getMLSkillVersions
       parameters:
@@ -1620,14 +1620,14 @@ paths:
             type: string
             default: DESC
       responses:
-        '200':
-          description: MLSkills retrieved successfully
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillVersionDto'
-        '500':
-          description: Internal server error
+        "200":
+          description: MLSkills retrieved successfully
           content:
             '*/*':
               schema:
@@ -1635,7 +1635,7 @@ paths:
   /v1/mlskills/{mlSkillId}/replicas:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill replicas for a particular mlskillId
       operationId: getMLSkillReplicas
       parameters:
@@ -1686,7 +1686,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1695,7 +1695,7 @@ paths:
   /v1/mlskills/{mlSkillId}/ping:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill current status
       operationId: pingMLSkill
       parameters:
@@ -1745,20 +1745,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skill retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: The resource is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource is not found
           content:
             '*/*':
               schema:
@@ -1766,7 +1766,7 @@ paths:
   /v1/mlskills/{mlSkillId}/logs/{replicaId}:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill Run Logs for a particular pod name
       operationId: getMLSkillLogs
       parameters:
@@ -1823,7 +1823,7 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -1832,7 +1832,7 @@ paths:
   /v1/mlskills/search:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: 'Check if MLSkill exists by name '
       operationId: checkUniqueName
       parameters:
@@ -1877,20 +1877,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        "200":
           description: Request processed successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '409':
+        "409":
           description: MLSkill name already exists
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:
@@ -1898,7 +1898,7 @@ paths:
   /v1/mlskills/refresh:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Update current status of ML skills for a tenant
       operationId: refreshMLSkills
       parameters:
@@ -1943,20 +1943,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skill retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillRefreshDto'
-        '404':
-          description: The resource is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillRefreshDto'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource is not found
           content:
             '*/*':
               schema:
@@ -1964,7 +1964,7 @@ paths:
   /v1/mlskills/inactivityperiod:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skill Inactivity period list for a tenant
       operationId: getInactivePeriod
       parameters:
@@ -2004,13 +2004,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skill inactivity period returned successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseMLSkillInactivePeriodThreshold'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -2019,7 +2019,7 @@ paths:
   /v1/mlskills/countbystatus:
     get:
       tags:
-        - ML Skill related APIs
+        - MlSkill
       description: Get ML Skills count by status
       operationId: getMLSkillsCountByStatus
       parameters:
@@ -2064,13 +2064,13 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: ML Skills count by status retrieved successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseListMLSkillsCountByStatusDto'
-        '500':
+        "500":
           description: Internal server error
           content:
             '*/*':
@@ -2079,7 +2079,7 @@ paths:
   /v1/mlpackageimages/exist:
     get:
       tags:
-        - ML package image related APIs
+        - MlPackage
       operationId: checkIfMLPackageImageExists
       parameters:
         - name: account-id
@@ -2151,7 +2151,7 @@ paths:
               - CPU
               - GPU
       responses:
-        '200':
+        "200":
           description: OK
           content:
             '*/*':
@@ -2160,7 +2160,7 @@ paths:
   /v1/aiunits/isaiunitenabled:
     get:
       tags:
-        - AI UNITS APIs
+        - AiUnits
       description: Get if AIUnits is enabled for the account
       operationId: getIsAIUnitEnabled
       parameters:
@@ -2169,21 +2169,26 @@ paths:
           required: true
           schema:
             type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
       responses:
-        '200':
+        "200":
           description: AIUnits info successfully returned
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseBoolean'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -2191,7 +2196,7 @@ paths:
   /v1/tenant/{tenantIdToDeprovision}:
     delete:
       tags:
-        - Tenant APIs
+        - Tenant
       description: De-Provision tenant and its resources
       operationId: deProvisionTenant
       parameters:
@@ -2222,20 +2227,20 @@ paths:
             type: boolean
             default: false
       responses:
-        '202':
+        "202":
           description: Tenant deprovisioning request accepted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '404':
-          description: The resource you were trying to reach is not found
+        "500":
+          description: Internal server error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
-        '500':
-          description: Internal server error
+        "404":
+          description: The resource you were trying to reach is not found
           content:
             '*/*':
               schema:
@@ -2243,7 +2248,7 @@ paths:
   /v1/serviceentries/{serviceEntryId}:
     delete:
       tags:
-        - Service entry related APIs
+        - ServiceEntry
       description: Delete Service entry
       operationId: deleteServiceEntry
       parameters:
@@ -2289,20 +2294,20 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "200":
           description: Service entry deleted successfully
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseObject'
-        '404':
+        "404":
           description: Service entry is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseObject'
-        '500':
-          description: Internal server error
           content:
             '*/*':
               schema:

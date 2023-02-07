@@ -129,6 +129,127 @@ paths:
 	}
 }
 
+func TestCategory(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      tags:
+        - MyCategory
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice"}, context)
+
+	expected := "my-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoryCommands(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      tags:
+      - MyCategory
+      operationId: create
+    get:
+      tags:
+        - MyCategory
+      operationId: list
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	if !strings.Contains(result.StdOut, "create") || !strings.Contains(result.StdOut, "list") {
+		t.Errorf("stdout does not contain all commands, got: %v", result.StdOut)
+	}
+}
+
+func TestCategoryDescription(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      tags:
+        - MyCategory
+      summary: Simple ping
+tags:
+- name: MyCategory
+  description: This is a description for my category
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	expected := "This is a description for my category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category description, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoryCommandsSorted(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      tags:
+      - MyCategory
+      operationId: bbbbb
+    get:
+      tags:
+        - MyCategory
+      operationId: aaaaa
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "my-category"}, context)
+
+	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
+		t.Errorf("category commands are not sorted, got: %v", result.StdOut)
+	}
+}
+
+func TestCategoryMixedWithNoCategory(t *testing.T) {
+	definition := `
+paths:
+  /:
+    post:
+      operationId: simple
+    get:
+      tags:
+        - MyCategory
+      operationId: inside-category
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice"}, context)
+
+	if !strings.Contains(result.StdOut, "simple") {
+		t.Errorf("Does not contain command outside of category, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "my-category") {
+		t.Errorf("Does not contain category, got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "inside-category") {
+		t.Errorf("Should not contain command inside of the category, got: %v", result.StdOut)
+	}
+}
+
 func TestParameterDescription(t *testing.T) {
 	definition := `
 paths:
@@ -565,5 +686,142 @@ paths:
 	expected = "--input"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain input parameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestMultipleDefinitions(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      summary: Update a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice1", definition1).
+		WithDefinition("myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"--help"}, context)
+
+	expected := "myservice1"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain service name from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "myservice2"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain service name from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestMergesMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      summary: Update a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "--help"}, context)
+
+	expected := "Create a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Update a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestCategoriesFromMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /resource:
+    post:
+      tags:
+        - FirstCategory
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /resource:
+    delete:
+      tags:
+        - SecondCategory
+      summary: Delete a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "--help"}, context)
+
+	expected := "first-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "second-category"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain category from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestMergesCategoriesFromMultipleDefinitionsWithSameNamePrefix(t *testing.T) {
+	definition1 := `
+paths:
+  /create:
+    post:
+      tags:
+        - CommonCategory
+      summary: Create a resource
+`
+	definition2 := `
+paths:
+  /update:
+    post:
+      tags:
+        - CommonCategory
+      summary: Update a resource
+  /delete:
+    post:
+      tags:
+        - AdditionalCategory
+      summary: Delete a resource
+`
+	context := NewContextBuilder().
+		WithDefinition("myapp.myservice1", definition1).
+		WithDefinition("myapp.myservice2", definition2).
+		Build()
+
+	result := runCli([]string{"myapp", "common-category", "--help"}, context)
+
+	expected := "Create a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from first definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Update a resource"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation from second definition, expected: %v, got: %v", expected, result.StdOut)
+	}
+	expected = "Delete a resource"
+	if strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout contains operation from wrong category, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
