@@ -65,11 +65,16 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 		return err
 	}
 
+	var pluginInput *plugin.FileParameter
+	if context.Input != nil {
+		pluginInput = plugin.NewFileParameter(context.Input.path, context.Input.filename, context.Input.data)
+	}
 	pluginAuth := e.pluginAuth(auth)
 	pluginParams := e.pluginParameters(context)
 	pluginContext := plugin.NewExecutionContext(
 		context.BaseUri,
 		pluginAuth,
+		pluginInput,
 		pluginParams,
 		context.Insecure,
 		context.Debug)

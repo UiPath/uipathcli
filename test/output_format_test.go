@@ -223,3 +223,45 @@ paths:
 		t.Errorf("Expected response body on stdout %v, got: %v", expectedStdOut, result.StdOut)
 	}
 }
+
+func TestTextOutputFormatsIntegers(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      operationId: list
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, `{"id":2600000584}`).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--output", "text"}, context)
+
+	expectedStdOut := "2600000584\n"
+	if result.StdOut != expectedStdOut {
+		t.Errorf("Expected integer on stdout %v, got: %v", expectedStdOut, result.StdOut)
+	}
+}
+
+func TestTextOutputFormatsBooleans(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      operationId: list
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, `{"active":true}`).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--output", "text"}, context)
+
+	expectedStdOut := "true\n"
+	if result.StdOut != expectedStdOut {
+		t.Errorf("Expected boolean on stdout %v, got: %v", expectedStdOut, result.StdOut)
+	}
+}

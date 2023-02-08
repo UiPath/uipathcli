@@ -8,6 +8,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/textproto"
 	"net/url"
 	"strings"
 	"time"
@@ -24,7 +25,8 @@ func (c DigitizeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("du").
 		WithCategory("digitization", "Document Digitization").
 		WithOperation("digitize", "Start digitization for the input file").
-		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true)
+		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true).
+		WithParameter("content-type", plugin.ParameterTypeString, "The content type", false)
 }
 
 func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -120,13 +122,20 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	if err != nil {
 		return nil, err
 	}
-	file, err := c.getFileParameter(context.Parameters)
-	if err != nil {
-		return nil, err
+	file := context.Input
+	if file == nil {
+		file, err = c.getFileParameter(context.Parameters)
+		if err != nil {
+			return nil, err
+		}
+	}
+	contentType, _ := c.getParameter("content-type", context.Parameters)
+	if contentType == "" {
+		contentType = "application/octet-stream"
 	}
 
 	bodyReader, bodyWriter := io.Pipe()
-	contentType, contentLength := c.writeMultipartBody(bodyWriter, file, requestError)
+	contentType, contentLength := c.writeMultipartBody(bodyWriter, file, contentType, requestError)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 
 	uri := c.formatUri(context.BaseUri, org, tenant) + "/digitize/start?api-version=1"
@@ -198,8 +207,11 @@ func (c DigitizeCommand) calculateMultipartSize(file *plugin.FileParameter) int6
 	return size
 }
 
-func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, file *plugin.FileParameter) error {
-	w, err := writer.CreateFormFile("file", file.Filename())
+func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, file *plugin.FileParameter, contentType string) error {
+	filePart := textproto.MIMEHeader{}
+	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, file.Filename()))
+	filePart.Set("Content-Type", contentType)
+	w, err := writer.CreatePart(filePart)
 	if err != nil {
 		return fmt.Errorf("Error creating form field 'file': %v", err)
 	}
@@ -215,13 +227,13 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, file *plug
 	return nil
 }
 
-func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, file *plugin.FileParameter, errorChan chan error) (string, int64) {
+func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, file *plugin.FileParameter, contentType string, errorChan chan error) (string, int64) {
 	contentLength := c.calculateMultipartSize(file)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
 		defer bodyWriter.Close()
 		defer formWriter.Close()
-		err := c.writeMultipartForm(formWriter, file)
+		err := c.writeMultipartForm(formWriter, file, contentType)
 		if err != nil {
 			errorChan <- err
 			return

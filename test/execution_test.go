@@ -1141,8 +1141,6 @@ paths:
 	relativePath, _ := filepath.Rel(currentPath, path)
 	result := runCli([]string{"myservice", "upload", "--input", relativePath}, context)
 
-	fmt.Println(result)
-
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
 		t.Errorf("Content-Type is not application/octet-stream, got: %v", contentType)
