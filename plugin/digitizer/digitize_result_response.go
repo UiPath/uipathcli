@@ -1,5 +1,5 @@
 package digitzer
 
-type digitizeStatusResponse struct {
+type digitizeResultResponse struct {
 	Status string `json:"status"`
 }

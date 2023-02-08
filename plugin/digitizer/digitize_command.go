@@ -101,7 +101,7 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 	if response.StatusCode != http.StatusOK {
 		return true, fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
-	var result digitizeStatusResponse
+	var result digitizeResultResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return true, fmt.Errorf("Error parsing json response: %v", err)
@@ -123,6 +123,7 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 		return nil, err
 	}
 	file := context.Input
+	fmt.Println(file)
 	if file == nil {
 		file, err = c.getFileParameter(context.Parameters)
 		if err != nil {
