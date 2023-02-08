@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -10,8 +11,21 @@ import (
 
 const DefaultServerBaseUrl = "https://cloud.uipath.com"
 const RawBodyParameterName = "$input"
+const CustomParameterNameExtension = "x-name"
 
 type OpenApiParser struct{}
+
+func (p OpenApiParser) customParameterName(extensions map[string]interface{}) string {
+	name := extensions[CustomParameterNameExtension]
+	switch v := name.(type) {
+	case json.RawMessage:
+		var str string
+		json.Unmarshal(v, &str)
+		return str
+	default:
+		return ""
+	}
+}
 
 func (p OpenApiParser) contains(strs []string, str string) bool {
 	for _, s := range strs {
@@ -106,6 +120,10 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	description := ""
 	var defaultValue interface{}
 	if schemaRef != nil {
+		customName := p.customParameterName(schemaRef.Value.Extensions)
+		if customName != "" {
+			name = customName
+		}
 		description = schemaRef.Value.Description
 		defaultValue = schemaRef.Value.Default
 		parameters = p.parseSchemas(schemaRef.Value.Properties, in, schemaRef.Value.Required)
@@ -146,6 +164,10 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	fieldName := param.Name
 	name := p.formatName(fieldName)
+	customName := p.customParameterName(param.Extensions)
+	if customName != "" {
+		name = customName
+	}
 	_type := p.getType(param.Schema)
 	required := param.Required
 	parameters := []Parameter{}

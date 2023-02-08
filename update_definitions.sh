@@ -133,6 +133,25 @@ function update_tags()
 }
 
 ############################################################
+# Sets the x-name extension property for the given parameter
+#
+# Arguments:
+#   - The parameter name
+#   - The custom name to set
+############################################################
+function set_custom_parameter_name()
+{
+  local name="$1"
+  local custom_name="$2"
+  bin/yq '.paths[] |= with(select(.get.parameters != null); (.get.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")' \
+  | bin/yq '.paths[] |= with(select(.post.parameters != null); (.post.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")' \
+  | bin/yq '.paths[] |= with(select(.put.parameters != null); (.put.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")' \
+  | bin/yq '.paths[] |= with(select(.patch.parameters != null); (.patch.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")' \
+  | bin/yq '.paths[] |= with(select(.delete.parameters != null); (.delete.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")' \
+  | bin/yq '.paths[] |= with(select(.head.parameters != null); (.head.parameters[] | select(.name == "'"$name"'"))."x-name" = "'"$custom_name"'")'
+}
+
+############################################################
 # Shortens aicenter tags and groups operations together
 ############################################################
 function update_aicenter_tags() 
@@ -234,6 +253,7 @@ download_definition "https://alpha.uipath.com/$organization/$tenant/du_/api/digi
 echo "Updating orchestrator definition..."
 download_definition "https://alpha.uipath.com/$organization/$tenant/orchestrator_/swagger/v15.0/swagger.json" "v2" \
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/orchestrator_" \
+| set_custom_parameter_name "X-UIPATH-OrganizationUnitId" "folder-id" \
 | save_definition "orchestrator"
 
 echo "Updating aicenter.helper definition..."
