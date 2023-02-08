@@ -130,7 +130,7 @@ go tool cover --html=coverage.out
 The CLI supports a pluggable infrastructure which allows you to implement complex custom commands. The [`DigitizeCommand`](plugin/digitizer/digitize_command.go) is an example for a custom command which abstracts away the complexity of the async digitization API. The digitizer API requires you to upload a file, followed by polling the status API until the digitization finished in order to retrieve the digitization result. The `DigitizeCommand` allows the user to just invoke one command for uploading the file and retrieving the result:
 
 ```bash
-uipathcli digitizer digitize --file file:///documents/invoice.pdf
+uipathcli digitizer digitize --file documents/invoice.pdf
 ```
 
 returns

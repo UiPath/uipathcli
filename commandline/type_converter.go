@@ -9,8 +9,6 @@ import (
 	"github.com/UiPath/uipathcli/parser"
 )
 
-const filePrefix = "file://"
-
 type TypeConverter struct{}
 
 func (c TypeConverter) trim(value string) string {
@@ -44,11 +42,7 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 }
 
 func (c TypeConverter) convertToBinary(value string, parameter parser.Parameter) (executor.FileReference, error) {
-	if strings.HasPrefix(value, filePrefix) {
-		path := strings.TrimPrefix(value, filePrefix)
-		return *executor.NewFileReference(path), nil
-	}
-	return *executor.NewFileReferenceData(parameter.Name, []byte(value)), nil
+	return *executor.NewFileReference(value), nil
 }
 
 func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {
