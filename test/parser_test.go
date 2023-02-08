@@ -703,6 +703,67 @@ components:
 	}
 }
 
+func TestParameterAllOf(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          allOf:
+            - $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--filter"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain filter parameter from allOf schema, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestBodyParameterAllOf(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--name"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain name parameter from allOf schema, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
 func TestFormParameterDescription(t *testing.T) {
 	definition := `
 paths:

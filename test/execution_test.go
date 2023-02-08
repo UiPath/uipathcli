@@ -1149,3 +1149,33 @@ paths:
 		t.Errorf("Request body is not as expected, got: %v", result.RequestBody)
 	}
 }
+
+func TestPostAllOfParameter(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          allOf:
+            - $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--filter", "my-filter"}, context)
+
+	if result.RequestUrl != "/validate?filter=my-filter" {
+		t.Errorf("Url does not contain filter from allOf schema, got: %v", result.RequestUrl)
+	}
+}
