@@ -1,0 +1,2925 @@
+openapi: 3.0.1
+info:
+  title: License Resource Manager Service API
+  version: v1
+servers:
+  - url: https://cloud.uipath.com/{organization}/license_
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+paths:
+  /api/account/{accountId}/user-license/status:
+    get:
+      tags:
+        - Account
+      summary: Returns the UserLicensing status (enabled or disabled) for the organization.
+      operationId: GetUserLicensingStatus
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the user licensing status (enabled or disabled) for the organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLicensingStatusDto'
+    put:
+      tags:
+        - Account
+      summary: Updates the UserLicensing status (enabled or disabled) for the organization.
+      operationId: UpdateUserLicensingStatus
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: enableUserLicensing
+          in: query
+          description: The new status value.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Returns the updated user licensing status (enabled or disabled) for the organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLicensingStatusDto'
+  /api/account/{accountId}/license/remove:
+    delete:
+      tags:
+        - Account
+      summary: Removes the licenses of the organization given as parameter.
+      operationId: RemoveOrganizationLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: License was removed successfully.
+  /api/account/{accountId}/account-license:
+    get:
+      tags:
+        - AccountLicense
+      summary: Gets all account licenses for an organization based on accountId.
+      operationId: GetAccountLicenses
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: forceAllLicenses
+          in: query
+          description: Always return the trial licenses (if any), regardless of the flag `DisableReturnTrialLicenses`. This is useful for services that require the trial licenses. By default this is false.
+          schema:
+            type: boolean
+            default: false
+      responses:
+        "200":
+          description: Returns the list of account licenses for the organization.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountLicenseDto'
+        "404":
+          description: If the organization does not have a main (platform) license.
+    put:
+      tags:
+        - AccountLicense
+      summary: Request allocation of cloud platform license (from BOON Licensing Server).
+      operationId: RequestCloudPlatformLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The license request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountLicenseRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AccountLicenseRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AccountLicenseRequest'
+      responses:
+        "200":
+          description: Returns the account license for the organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLicenseDto'
+        "400":
+          description: If required start and end date are missing for a Business account type.
+  /api/account/{accountId}/account-license/{licenseCode}:
+    put:
+      tags:
+        - AccountLicense
+      summary: Refresh an account license with latest information (from BOON Licensing Server).
+      operationId: RefreshAccountLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code.
+          required: true
+          schema:
+            type: string
+        - name: forceChangedEvents
+          in: query
+          description: To force changed events.
+          schema:
+            type: boolean
+            default: false
+        - name: commandSource
+          in: query
+          description: The application command source.
+          schema:
+            $ref: '#/components/schemas/ApplicationCommandSource'
+      responses:
+        "200":
+          description: Returns the refreshed account license for the organization.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLicenseDto'
+  /api/account/{accountId}/account-license/owner:
+    put:
+      tags:
+        - AccountLicense
+      summary: Update the license owner in the BOON Licensing Server.
+      operationId: UpdateOwnerAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The license owner update request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseOwnerUpdateRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseOwnerUpdateRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseOwnerUpdateRequestDto'
+      responses:
+        "200":
+          description: Returns the list of account licenses for the organization.
+        "400":
+          description: If account type is invalid (currently only FREE is supported).
+  /api/account/{accountId}/account-license/available:
+    get:
+      tags:
+        - AccountLicense
+      operationId: GetAccountAvailableServices
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountAvailableServicesDto'
+  /api/account-license/{accountId}/license/{licenseCode}:
+    put:
+      tags:
+        - AccountLicenseActivation
+      summary: Activate online the licenseCode.
+      operationId: ActivateOnline
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to activate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+        - AccountLicenseActivation
+      summary: Deactivate online the licenseCode.
+      operationId: DeactivateOnline
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to deactivate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/license/trial-per-sku/{licenseCode}:
+    put:
+      tags:
+        - AccountLicenseActivation
+      summary: Activate online the licenseCode. This endpoint can be used only for a trial per sku license.
+      operationId: ActivateTrialPerSkuLicenseOnlineAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to activate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/activation-request:
+    get:
+      tags:
+        - AccountLicenseActivation
+      summary: Create an activation request for activating offline.
+      operationId: GetActivationRequest
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: query
+          description: The license code to activate.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns LicenseActivationRequestDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationRequestDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/trial-per-sku/activation-request:
+    get:
+      tags:
+        - AccountLicenseActivation
+      summary: Create an activation request for activating offline a trial per sku license.
+      operationId: GetTrialPerSkuActivationRequest
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: query
+          description: The license code to activate.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns LicenseActivationRequestDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationRequestDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/license/{licenseCode}/offline:
+    delete:
+      tags:
+        - AccountLicenseActivation
+      summary: Deactivate offline and return a deactivation request.
+      operationId: DeactivateOfflineAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to deactivate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns LicenseActivationRequestDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationRequestDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/license:
+    put:
+      tags:
+        - AccountLicenseActivation
+      summary: Activate offline the license using activation data.
+      operationId: ActivateOffline
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data received from the BooN server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/account-license/{accountId}/trial-per-sku/license:
+    put:
+      tags:
+        - AccountLicenseActivation
+      summary: Activate offline a trial per sku license using activation data.
+      operationId: ActivateTrialPerSkuLicenseOfflineAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Data received from the BooN server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-prem flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/DeploymentType:
+    get:
+      tags:
+        - DeploymentType
+      operationId: GetDeploymentType
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentTypeDto'
+  /api/account/{accountId}/service-licenses/{serviceScopeId}:
+    get:
+      tags:
+        - FrontEndLicense
+      summary: Gets all the tenant service licenses for an organization based on accountId and serviceScopeId.
+      operationId: GetTenantServiceLicensesAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: services
+          in: query
+          description: "The requested services in the tenant. This is for validating the persisted service licenses for this tenant match the requested service list.\r\nIf a service is requested but it has no license associated, LRM will compute an empty license for it.\r\nAn empty service license contains all the products associated with the service, the available quantities for the service,\r\nand a used quantity of 0.\r\nThis offers a fix for the situation when a service exists in OMS, but has no license in LRM. By returning an empty license,\r\nthe customer will be able to configure it in the UI."
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the list of tenant service licenses for the organization and serviceScopeId.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TenantServiceLicenseDto'
+        "404":
+          description: If no license is allocated for that organization and serviceScopeId.
+  /api/account/{accountId}/available-account-licenses:
+    get:
+      tags:
+        - FrontEndLicense
+      summary: Gets all the account total and allocated products.
+      operationId: GetAccountProductUsageAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the list of the products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountProductAllocationDto'
+        "404":
+          description: If no product is found.
+  /api/account/{accountId}/available-service-licenses/{serviceScopeId}:
+    get:
+      tags:
+        - FrontEndLicense
+      summary: Gets service total and allocated products.
+      operationId: GetServiceProductUsageAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: 'Optional: serviceScopeId.'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the list of the products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountProductAllocationDto'
+        "404":
+          description: If no product is found.
+  /api/account/{accountId}/subscription/trial:
+    put:
+      tags:
+        - FrontEndLicense
+      operationId: RequestSubscriptionUpgradeToTrialAsync
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrialToCommunityLeadDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/TrialToCommunityLeadDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TrialToCommunityLeadDto'
+      responses:
+        "200":
+          description: Success
+  /api/account/{accountId}/tenantAllocations:
+    get:
+      tags:
+        - FrontEndLicense
+      summary: Gets the robots allocated per Tenant.
+      operationId: GetTenantAllocations
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the list of the TenantAllocationDto.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountProductAllocationDto'
+  /api/host/{hostAccountId}/license/{licenseCode}:
+    put:
+      tags:
+        - Hoster
+      summary: Activate online the licenseCode for a host organization.
+      operationId: ActivateOnlineForHost
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to activate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-premise flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    delete:
+      tags:
+        - Hoster
+      summary: Deactivate online a host license.
+      operationId: DeactivateOnlineForHost
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to deactivate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-premise flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/host/{hostAccountId}/activation-request:
+    get:
+      tags:
+        - Hoster
+      summary: Create an activation request for activating offline a host license.
+      operationId: GetActivationRequestForHost
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: query
+          description: The license code to activate.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns LicenseActivationRequestDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationRequestDto'
+        "404":
+          description: When feature flag for on-premise flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/host/{hostAccountId}/license:
+    put:
+      tags:
+        - Hoster
+      summary: Activate offline a host license using activation data.
+      operationId: ActivateOfflineForHost
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Activation Data received from the BooN server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "404":
+          description: When feature flag for on-premise flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/host/{hostAccountId}/license/{licenseCode}/offline:
+    delete:
+      tags:
+        - Hoster
+      summary: Deactivate offline and return a deactivation request.
+      operationId: DeactivateOfflineForHost
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: licenseCode
+          in: path
+          description: The license code to deactivate.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns LicenseActivationRequestDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationRequestDto'
+        "404":
+          description: When feature flag for on-premise flows is off.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/host/{hostAccountId}/organization/{organizationId}/license:
+    put:
+      tags:
+        - Hoster
+      summary: Allocate license to an organization from the host license.
+      operationId: AllocateOrganizationLicense
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: organizationId
+          in: path
+          description: The hostAccountId of the organization that gets the allocated license.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The products and quantities to be allocated in the organization license.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AllocateOrganizationLicenseRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AllocateOrganizationLicenseRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AllocateOrganizationLicenseRequest'
+      responses:
+        "200":
+          description: Returns the allocated license.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountLicenseDto'
+        "404":
+          description: When the host license does not exist or the feature flag for on-premise flows is off.
+        "409":
+          description: When the license allocation is not allowed because it exceeds the host license quantities.
+  /api/host/{hostAccountId}/organization/{organizationId}/license/available:
+    get:
+      tags:
+        - Hoster
+      summary: Return the license of an organization and available quantities in hosted environment.
+      operationId: GetOrganizationLicenseAndAvailableProducts
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: organizationId
+          in: path
+          description: The accountId of the organization.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the allocated license.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationLicenseWithAvailableProducts'
+        "404":
+          description: When the host license does not exist or the feature flag for on-prem flows is off.
+  /api/host/{hostAccountId}/organization/{organizationId}/license/remove:
+    delete:
+      tags:
+        - Hoster
+      summary: Remove the license of a hosted or standalone organization.
+      operationId: DeallocateOrganizationLicense
+      parameters:
+        - name: organizationId
+          in: path
+          description: The accountId of the organization whose license will be deallocated.
+          required: true
+          schema:
+            type: string
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID)
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: License was deallocated successfully.
+  /api/host/{hostAccountId}/available-products:
+    get:
+      tags:
+        - Hoster
+      summary: Return the product allocation of the host.
+      operationId: GetHostAvailableProducts
+      parameters:
+        - name: hostAccountId
+          in: path
+          description: The host organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the product allocation.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationLicenseWithAvailableProducts'
+        "404":
+          description: When the host license does not exist or the feature flag for on-prem flows is off.
+  /api/leads/studio-downloaded/{accountId}:
+    put:
+      tags:
+        - Leads
+      operationId: StudioDownloaded
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudioDownloadedDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/StudioDownloadedDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/StudioDownloadedDto'
+      responses:
+        "200":
+          description: Success
+  /api-internal/account-license/refresh-and-downgrade-expired:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Refresh the accounts that are expired and downgrades the expired accounts.
+      operationId: RefreshAndDownGradeExpiredLicenses
+      parameters:
+        - name: batchSize
+          in: query
+          description: The batch size for this operation. Defaults to 10.
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if all requests were processed.
+  /api-internal/account-license/monitor-boon-dlq:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Monitors the Boon DLQ in order to detect the events that failed to be processed.
+      operationId: MonitorBoonDlq
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if the queue was monitored successfully.
+  /api-internal/account-license/reconcile-boon:
+    post:
+      tags:
+        - LicenseMaintenance
+      operationId: ReconcileBoon
+      responses:
+        "200":
+          description: Success
+  /api-internal/account-license/assigned-pool-licenses:
+    delete:
+      tags:
+        - LicenseMaintenance
+      responses:
+        "200":
+          description: Success
+      deprecated: true
+  /api-internal/account-license/clean-trial-per-sku-licenses:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: "Marks expired trial licenses older than a year as disabled in Boon.\r\nSubsequentelty, they will be hard-deleted from LRM when syncronization occurs through the Service Bus."
+      operationId: CleanTrialPerSkuLicenses
+      parameters:
+        - name: batchSize
+          in: query
+          description: The batch size for this operation. Defaults to 10.
+          schema:
+            type: integer
+            format: int32
+            default: 10
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if all requests were processed.
+  /api-internal/account-license/trial-per-sku-data-retention:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: "Evaluates expired trial licenses and triggers the necessary data retention cleanup procedures.\r\nFor trial-per -sku licenses, the policy is to delete OMS data after 90 days.\r\nThe method will evaluate licenses expired exactly 90 days ago."
+      operationId: EvaluateTrialPerSkuDataRetention
+      parameters:
+        - name: date
+          in: query
+          description: "The date for which the license evaluation should be done in UTC Unix timestamp format.\r\nThe default is 0, meaning licensese expired 90 days ago from today will be considered.\r\nIf a date different from 0 is specified, the licenses expired 90 days before the given date will be considered."
+          schema:
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if all requests were processed.
+  /api-internal/account-license/cleanup-ledger:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Cleanup processed Ledger events
+      operationId: CleanupLedger
+      parameters:
+        - name: date
+          in: query
+          schema:
+            type: integer
+            format: int64
+            default: 0
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if all requests were processed.
+  /api/account-license/validate/offline:
+    put:
+      tags:
+        - LicenseValidation
+      summary: Validate the offline license using activation data.
+      operationId: ValidateOffline
+      requestBody:
+        description: Data received from the BooN server.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseActivationDataDto'
+      responses:
+        "200":
+          description: Returns the LicenseActivationResponseDto.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseActivationResponseDto'
+        "422":
+          description: When there is an error from the license library.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /api/migration/{partitionId}/properties/destination:
+    get:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesResponse'
+  /api/migration/{partitionId}/properties/source:
+    get:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesResponse'
+  /api/migration/{partitionId}/compatibility_report/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReportResponse'
+  /api/migration/{partitionId}/compatibility_report/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReportResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/maintenance_mode/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceModeResponse'
+  /api/migration/{partitionId}/maintenance_mode/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceModeResponse'
+  /api/migration/{partitionId}/data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/finalize/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/finalize/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/rollback/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackResponse'
+  /api/migration/{partitionId}/rollback/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackResponse'
+  /api/migration/{partitionId}/delete/source:
+    delete:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+  /api/organization/{partitionId}/organizationserviceinstances/license-resource-manager:
+    delete:
+      tags:
+        - PartitionOperations
+      summary: Hard or soft deletion of a partition
+      parameters:
+        - name: partitionId
+          in: path
+          description: The organization account id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartitionDeletionResponseDto'
+  /api/organization/{partitionId}/organizationserviceinstances/license-resource-manager/restore:
+    post:
+      tags:
+        - PartitionOperations
+      summary: Restores a partition which was previously soft deleted.
+      parameters:
+        - name: partitionId
+          in: path
+          description: The organization account id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartitionRestoreResponseDto'
+  /api/account/{accountId}/service-license/{serviceScopeId}/{serviceType}:
+    put:
+      tags:
+        - ServiceLicense
+      summary: Allocate a service license from an account license.
+      operationId: AllocateServiceLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The allocation request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceLicenseAllocationRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ServiceLicenseAllocationRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ServiceLicenseAllocationRequest'
+      responses:
+        "200":
+          description: Returns the allocated service license.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLicenseDto'
+        "404":
+          description: If no account license is allocated for that organization.
+        "409":
+          description: If cannot allocate the requested number of products.
+    delete:
+      tags:
+        - ServiceLicense
+      summary: Deallocate a service license from an account license.
+      operationId: DeallocateServiceLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If the service license was deallocated.
+        "404":
+          description: If no account license is allocated for that organization.
+    get:
+      tags:
+        - ServiceLicense
+      summary: Get a specific service license for a tenant and service type.
+      operationId: GetServiceLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+        - name: commandSource
+          in: query
+          description: The application command source.
+          schema:
+            $ref: '#/components/schemas/ApplicationCommandSource'
+      responses:
+        "200":
+          description: Returns the service license.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLicenseDto'
+        "410":
+          description: If service license for tenant and service type does not exist.
+  /api/account/{accountId}/service-license/{serviceScopeId}:
+    delete:
+      tags:
+        - ServiceLicense
+      summary: Deallocate tenant licensees from an account license (deallocates all service licenses).
+      operationId: DeallocateAllServiceLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If all the service licences were deallocated.
+    get:
+      tags:
+        - ServiceLicense
+      summary: Get all service licenses for a tenant.
+      operationId: GetServiceLicensesForScopeId
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the service licenses.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLicenseDto'
+        "403":
+          description: If user is not part of the organization.
+  /api/account/{accountId}/service-license:
+    get:
+      tags:
+        - ServiceLicense
+      summary: Get all service licenses for an account.
+      operationId: GetAllServiceLicenses
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the service licenses for the account (if the account is not known it will be an empty list).
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ServiceLicenseDto'
+  /api/account/{accountId}/service-license/{serviceScopeId}/{serviceType}/products:
+    get:
+      tags:
+        - ServiceLicense
+      summary: Get the list of products for a specific service license for a tenant and service type.
+      operationId: GetServiceLicenseProductsAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the service products.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductDto'
+        "410":
+          description: If service license for tenant and service type does not exist.
+  /api/account/{accountId}/service-license/{serviceScopeId}/{serviceType}/status:
+    get:
+      tags:
+        - ServiceLicense
+      summary: Get a specific service license status for a tenant and service type.
+      operationId: GetServiceLicenseStatus
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the service license status.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLicenseStatusDto'
+        "410":
+          description: If service license for tenant and service type does not exist.
+  /api/service-license/{serviceScopeId}/{serviceType}:
+    get:
+      tags:
+        - ServiceLicenseWithoutAccountId
+      summary: Get a specific service license for a tenant and service type.
+      operationId: GetServiceLicenseWithoutAccountId
+      parameters:
+        - name: serviceScopeId
+          in: path
+          description: The Id of the scope that the service is bound to (tenantId, organizationId).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns the service license.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceLicenseDto'
+        "410":
+          description: If service license for tenant and service type does not exist.
+  /api/account/{accountId}/trial-per-sku/services:
+    get:
+      tags:
+        - TrialPerSku
+      summary: Gets trial services
+      operationId: GetTrialServices
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns Current Trials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrialServicesDto'
+  /api/account/{accountId}/trial-per-sku/licenses/in-grace:
+    get:
+      tags:
+        - TrialPerSku
+      summary: Gets Trial per SKU licenses in grace period
+      operationId: GetTrialPerSkuLicensesInGrace
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Returns Current Trial per SKU licenses in grace period.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/account/{accountId}/trial-per-sku/request:
+    post:
+      tags:
+        - TrialPerSku
+      summary: Request a Trial Per Sku license (from BOON Licensing Server).
+      operationId: RequestTrialPerSkuLicense
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The license request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrialPerSkuAllocationRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/TrialPerSkuAllocationRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TrialPerSkuAllocationRequest'
+      responses:
+        "200":
+          description: Returns the allocated Trial Per Service license.
+  /health:
+    get:
+      tags:
+        - ApiHealth
+      operationId: GetHealth
+      responses:
+        "200":
+          description: Api Health
+          content:
+            application/json:
+              schema:
+                type: string
+components:
+  schemas:
+    AccountAvailableServicesDto:
+      type: object
+      properties:
+        services:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    AccountFeatureDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AccountLicenseDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          nullable: true
+        bundleCode:
+          type: string
+          nullable: true
+        endDate:
+          type: integer
+          format: int64
+        gracePeriod:
+          type: integer
+          format: int64
+        licenseCode:
+          type: string
+          nullable: true
+        licenseStatus:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountProductDto'
+          nullable: true
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateDto'
+          nullable: true
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyDto'
+          nullable: true
+        entitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntitlementDefinitionDto'
+          nullable: true
+        startDate:
+          type: integer
+          format: int64
+        subscriptionCode:
+          type: string
+          nullable: true
+        subscriptionPlan:
+          type: string
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+          readOnly: true
+        type:
+          type: string
+          nullable: true
+        parentLicenseCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AccountLicenseRequest:
+      type: object
+      properties:
+        accountType:
+          $ref: '#/components/schemas/AccountType'
+        subscriptionCode:
+          type: string
+          description: "Gets or sets the requested allocation's subscription code.\r\nThis field was introduced as a top-level propriety for controlling the subscriptionCode of license allocations.\r\nIt is used for subscriptions without a direct AccountType correspondent.\r\nThis has priority over the AllocationData field with the same name."
+          nullable: true
+        countryCode:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        organizationName:
+          type: string
+          nullable: true
+        allocationData:
+          type: object
+          additionalProperties: {}
+          nullable: true
+      additionalProperties: false
+    AccountProductAllocationDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        total:
+          type: integer
+          format: int32
+        allocated:
+          type: integer
+          format: int32
+      additionalProperties: false
+    AccountProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+        type:
+          type: string
+          nullable: true
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountFeatureDto'
+          nullable: true
+        consumptionDistributions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConsumptionDistributionDto'
+          nullable: true
+      additionalProperties: false
+    AccountTemplateProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AccountType:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+      type: integer
+      description: Account type for an organization (free, paid etc).
+      format: int32
+    AllocateOrganizationLicenseRequest:
+      type: object
+      properties:
+        productQuantities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductQuantityDto'
+          nullable: true
+        bypassUsageCheck:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    ApplicationCommandSource:
+      enum:
+        - Ui
+        - Job
+        - Test
+      type: string
+      description: Indicates the source of the application command.
+    CompatibilityReportResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ConsumptionDistributionDto:
+      type: object
+      properties:
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+      additionalProperties: false
+    CurrentTrialDto:
+      type: object
+      properties:
+        subscriptionCode:
+          type: string
+          nullable: true
+        expiryDate:
+          type: integer
+          format: int64
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountProductAllocationDto'
+          nullable: true
+        licenseCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DataMoveRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        sourceScaleUnitId:
+          type: string
+          nullable: true
+        destinationScaleUnitId:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        peerProperties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        intermediaryStorageSAS:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DataMoveResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        dataVerificationCheckSum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeleteRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeleteResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeploymentTypeDto:
+      type: object
+      properties:
+        deploymentType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DistributionIntervalDto:
+      type: object
+      properties:
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+          nullable: true
+      additionalProperties: false
+    EntitlementDefinitionDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        requirement:
+          $ref: '#/components/schemas/RequirementDto'
+      additionalProperties: false
+    FeatureDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    FinalizeRequest:
+      type: object
+      properties:
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    FreeTrialDto:
+      type: object
+      properties:
+        subscriptionCode:
+          type: string
+          nullable: true
+        expiryDate:
+          type: integer
+          format: int64
+          nullable: true
+        isExpired:
+          type: boolean
+      additionalProperties: false
+    LegacyRequirementDto:
+      type: object
+      properties:
+        skus:
+          type: array
+          items:
+            type: string
+          nullable: true
+        plans:
+          type: array
+          items:
+            type: string
+          nullable: true
+        level:
+          type: string
+          nullable: true
+        cloudType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LicenseActivationDataDto:
+      type: object
+      properties:
+        activationData:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LicenseActivationRequestDto:
+      type: object
+      properties:
+        operationStatus:
+          type: integer
+          format: int32
+        activationRequest:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LicenseActivationResponseDto:
+      type: object
+      properties:
+        operationStatus:
+          type: integer
+          format: int32
+      additionalProperties: false
+    LicenseData:
+      type: object
+      properties:
+        licenseCode:
+          type: string
+          nullable: true
+        parentLicenseCode:
+          type: string
+          nullable: true
+        bundleCode:
+          type: string
+          nullable: true
+        subscriptionCode:
+          type: string
+          nullable: true
+        licenseStatus:
+          type: string
+          nullable: true
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        gracePeriod:
+          type: integer
+          format: int64
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceProductDto'
+          nullable: true
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/TemplateDto'
+          nullable: true
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyDto'
+          nullable: true
+        entitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/EntitlementDefinitionDto'
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+          readOnly: true
+        boonLicenseCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LicenseOwnerUpdateRequestDto:
+      type: object
+      properties:
+        externalReference:
+          type: string
+          nullable: true
+        countryCode:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+      additionalProperties: false
+    MaintenanceModeRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    MaintenanceModeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    OrganizationLicenseWithAvailableProducts:
+      type: object
+      properties:
+        license:
+          $ref: '#/components/schemas/AccountLicenseDto'
+        productsWithAvailability:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductAvailabilityDto'
+          nullable: true
+      additionalProperties: false
+    PartitionDeletionRequestDto:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        deletionTime:
+          type: string
+          format: date-time
+        isHardDelete:
+          type: boolean
+      additionalProperties: false
+    PartitionDeletionResponseDto:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        isHardDelete:
+          type: boolean
+      additionalProperties: false
+    PartitionRestoreRequestDto:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        updatedTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PartitionRestoreResponseDto:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PolicyDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        requirement:
+          $ref: '#/components/schemas/LegacyRequirementDto'
+      additionalProperties: false
+    ProblemDetails:
+      type: object
+      properties:
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        status:
+          type: integer
+          format: int32
+          nullable: true
+        detail:
+          type: string
+          nullable: true
+        instance:
+          type: string
+          nullable: true
+      additionalProperties: {}
+    ProductAvailabilityDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        availableQuantity:
+          type: integer
+          format: int32
+        consumedQuantity:
+          type: number
+          format: double
+        totalQuantity:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureDto'
+          nullable: true
+      additionalProperties: false
+    ProductQuantityDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ProductRequested:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+      additionalProperties: false
+    PropertiesResponse:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    RequirementDto:
+      type: object
+      properties:
+        skus:
+          type: array
+          items:
+            type: string
+          nullable: true
+        plans:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    RollbackRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RollbackResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ServiceFeatureDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ServiceLicenseAllocationRequest:
+      type: object
+      properties:
+        tenantName:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductRequested'
+          nullable: true
+        bypassUsageCheck:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    ServiceLicenseDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          nullable: true
+        globalId:
+          type: string
+          nullable: true
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        license:
+          $ref: '#/components/schemas/LicenseData'
+        userLicensingEnabled:
+          type: boolean
+        accountLicenseCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ServiceLicenseStatusDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+          nullable: true
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        subscriptionPlan:
+          type: string
+          nullable: true
+        licenseStatus:
+          type: string
+          nullable: true
+        expireDate:
+          type: string
+          format: date-time
+        userLicensingEnabled:
+          type: boolean
+      additionalProperties: false
+    ServiceProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+        allocated:
+          type: integer
+          format: int32
+        type:
+          type: string
+          nullable: true
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceFeatureDto'
+          nullable: true
+        distributionIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/DistributionIntervalDto'
+          nullable: true
+      additionalProperties: false
+    StudioDownloadedDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        accountId:
+          type: string
+          nullable: true
+        accountUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationName:
+          type: string
+          nullable: true
+        edition:
+          type: string
+          nullable: true
+        userLanguage:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TemplateDto:
+      type: object
+      properties:
+        productCode:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountTemplateProductDto'
+          nullable: true
+      additionalProperties: false
+    TenantServiceLicenseDto:
+      type: object
+      properties:
+        serviceType:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/TenantServiceProductDto'
+          nullable: true
+      additionalProperties: false
+    TenantServiceProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+          deprecated: true
+        allocated:
+          type: integer
+          format: int32
+        reserved:
+          type: integer
+          format: int32
+        available:
+          type: number
+          format: double
+        used:
+          type: number
+          format: double
+        allocatedAcrossOtherTenants:
+          type: number
+          format: double
+        consumedByDeletedTenants:
+          type: number
+          format: double
+        totalUnits:
+          type: number
+          format: double
+        consumedAtOrganizationLevel:
+          type: number
+          format: double
+      additionalProperties: false
+    TrialPerSkuAllocationRequest:
+      type: object
+      properties:
+        serviceSubscription:
+          type: string
+          nullable: true
+      additionalProperties: false
+    TrialServicesDto:
+      type: object
+      properties:
+        freeTrials:
+          type: array
+          items:
+            $ref: '#/components/schemas/FreeTrialDto'
+          nullable: true
+        currentTrials:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentTrialDto'
+          nullable: true
+      additionalProperties: false
+    TrialToCommunityLeadDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          nullable: true
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        country:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
+        userLanguage:
+          type: string
+          nullable: true
+        businessEmail:
+          type: string
+          nullable: true
+        organizationName:
+          type: string
+          nullable: true
+        jobLevel:
+          type: string
+          nullable: true
+        department:
+          type: string
+          nullable: true
+        jobTitle:
+          type: string
+          nullable: true
+        accountUrl:
+          type: string
+          format: uri
+          nullable: true
+        accountCreatedDate:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserLicensingStatusDto:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: JWT Authorization header using the Bearer scheme.
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+tags:
+  - name: Account
+    description: API for account operations.
+  - name: AccountLicense
+    description: API for managing account licenses.
+  - name: FrontEndLicense
+    description: API for managing tenant service licenses.
+  - name: LicenseMaintenance
+    description: API for managing account licenses.
+  - name: ServiceLicense
+    description: API for managing service licenses.
+  - name: ServiceLicenseWithoutAccountId
+    description: API for managing service licenses.
+  - name: TrialPerSku
+    description: API for managing trial per sku licenses.
+  - name: Hoster
+    description: API for host operations.

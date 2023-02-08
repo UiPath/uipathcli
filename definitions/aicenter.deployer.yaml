@@ -13,59 +13,7 @@ servers:
         description: The tenant name (or id)
         default: my-tenant
 paths:
-  /v1/tenant/{tenantIdToProvision}/consume:
-    put:
-      tags:
-        - Tenant
-      description: Update provisioned tenant for consuming cpu and gpu slots
-      operationId: updateTenantLicenseConsumption
-      parameters:
-        - name: account-id
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: tenant-id
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: user-id
-          in: header
-          required: true
-          schema:
-            type: string
-        - name: tenantIdToProvision
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantLicenseConsumptionDto'
-        required: true
-      responses:
-        "200":
-          description: Tenant updated successfully
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        "500":
-          description: Internal server error
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-        "404":
-          description: The resource you were trying to reach is not found
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/BaseResponseString'
-  /v1/mlskills/stop/{mlSkillId}:
+  /v2/mlskills/stop/{mlSkillId}:
     put:
       tags:
         - MlSkill
@@ -143,6 +91,624 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseString'
+  /v1/tenant/{tenantIdToProvision}/consume:
+    put:
+      tags:
+        - Tenant
+      description: Update provisioned tenant for consuming cpu and gpu slots
+      operationId: updateTenantLicenseConsumption
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenantIdToProvision
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantLicenseConsumptionDto'
+        required: true
+      responses:
+        "200":
+          description: Tenant updated successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "404":
+          description: The resource you were trying to reach is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v1/mlskills/stop/{mlSkillId}:
+    put:
+      tags:
+        - MlSkill
+      description: Stop ML Skill
+      operationId: stopMLSkill_1
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+      responses:
+        "406":
+          description: MLSkill cannot be stopped
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "200":
+          description: MLSkill stopped successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "404":
+          description: MLSkill is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v2/mlskills:
+    get:
+      tags:
+        - MlSkill
+      description: Fetch ML Skills with the search by name criteria
+      operationId: getMLSkills
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+        - name: pageNum
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 1
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+            default: 10
+        - name: sortBy
+          in: query
+          required: false
+          schema:
+            type: string
+            default: name
+        - name: sortOrder
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ASC
+        - name: fields
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: includedLanguageGroups
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - ALL
+                - DEFAULT
+                - DU
+                - CV
+                - CV_TM
+            default:
+              - DEFAULT
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skills retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponsePageListingDtoMLSkillDto'
+    post:
+      tags:
+        - MlSkill
+      description: ML Skill creation
+      operationId: createMLSkill
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLSkillCreationRequest'
+        required: true
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "200":
+          description: ML Skill already present
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "202":
+          description: ML Skill creation request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+  /v2/mlskills/{mlSkillId}:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skill by id
+      operationId: getMLSkillById
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skill retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "404":
+          description: The resource is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+    post:
+      tags:
+        - MlSkill
+      description: ML Skill updation
+      operationId: updateMLSkill
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: updateType
+          in: query
+          required: false
+          schema:
+            type: string
+            default: UPDATE
+            enum:
+              - UPDATE
+              - CANCEL
+              - RESUME
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLSkillUpdateRequest'
+        required: true
+      responses:
+        "202":
+          description: ML Skill updation request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+    delete:
+      tags:
+        - MlSkill
+      description: Delete ML Skill
+      operationId: deleteMLSkill
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: project-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+      responses:
+        "406":
+          description: MLSkill cannot be deleted
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "404":
+          description: MLSkill is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+        "200":
+          description: MLSkill deleted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseObject'
+  /v2/mlskills/{mlSkillId}/rollback:
+    post:
+      tags:
+        - MlSkill
+      description: ML Skill Rollback
+      operationId: rollBackMLSkill
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MLSkillLicenseUpdateRequest'
+      responses:
+        "202":
+          description: ML Skill rollback request accepted successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillDto'
   /v1/tenant:
     get:
       tags:
@@ -446,7 +1012,7 @@ paths:
       tags:
         - MlSkill
       description: Fetch ML Skills with the search by name criteria
-      operationId: getMLSkills
+      operationId: getMLSkills_1
       parameters:
         - name: account-id
           in: header
@@ -562,7 +1128,7 @@ paths:
       tags:
         - MlSkill
       description: ML Skill creation
-      operationId: createMLSkill
+      operationId: createMLSkill_1
       parameters:
         - name: account-id
           in: header
@@ -628,7 +1194,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skill by id
-      operationId: getMLSkillById
+      operationId: getMLSkillById_1
       parameters:
         - name: account-id
           in: header
@@ -698,7 +1264,7 @@ paths:
       tags:
         - MlSkill
       description: ML Skill updation
-      operationId: updateMLSkill
+      operationId: updateMLSkill_1
       parameters:
         - name: account-id
           in: header
@@ -779,7 +1345,7 @@ paths:
       tags:
         - MlSkill
       description: Delete ML Skill
-      operationId: deleteMLSkill
+      operationId: deleteMLSkill_1
       parameters:
         - name: account-id
           in: header
@@ -857,7 +1423,7 @@ paths:
       tags:
         - MlSkill
       description: ML Skill Rollback
-      operationId: rollBackMLSkill
+      operationId: rollBackMLSkill_1
       parameters:
         - name: account-id
           in: header
@@ -1291,6 +1857,450 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/EagerProvisioningDetailDto'
+  /v2/mlskills/{mlSkillId}/replicas:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skill replicas for a particular mlskillId
+      operationId: getMLSkillReplicas
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillReplicasDto'
+  /v2/mlskills/{mlSkillId}/ping:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skill current status
+      operationId: pingMLSkill
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skill retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+        "404":
+          description: The resource is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseString'
+  /v2/mlskills/{mlSkillId}/logs/{replicaId}:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skill Run Logs for a particular pod name
+      operationId: getMLSkillLogs
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: mlSkillId
+          in: path
+          description: 'Expected: UUID string corresponding to MLSkillId'
+          required: true
+          schema:
+            type: string
+        - name: replicaId
+          in: path
+          description: 'Expected: UUID string corresponding to replicaId'
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillLogsDto'
+  /v2/mlskills/search:
+    get:
+      tags:
+        - MlSkill
+      description: 'Check if MLSkill exists by name '
+      operationId: checkUniqueName
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        "200":
+          description: Request processed successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+        "409":
+          description: MLSkill name already exists
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseBoolean'
+  /v2/mlskills/refresh:
+    get:
+      tags:
+        - MlSkill
+      description: Update current status of ML skills for a tenant
+      operationId: refreshMLSkills
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skill retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillRefreshDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillRefreshDto'
+        "404":
+          description: The resource is not found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillRefreshDto'
+  /v2/mlskills/inactivityperiod:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skill Inactivity period list for a tenant
+      operationId: getInactivePeriod
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skill inactivity period returned successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillInactivePeriodThreshold'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseMLSkillInactivePeriodThreshold'
+  /v2/mlskills/countbystatus:
+    get:
+      tags:
+        - MlSkill
+      description: Get ML Skills count by status
+      operationId: getMLSkillsCountByStatus
+      parameters:
+        - name: account-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: tenant-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: user-id
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: projectId
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: organization-id
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-AccountName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: X-UiPath-Internal-TenantName
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: authorization
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ML Skills count by status retrieved successfully
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLSkillsCountByStatusDto'
+        "500":
+          description: Internal server error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/BaseResponseListMLSkillsCountByStatusDto'
   /v1/tenantlicensestats/{tenantIdToProvision}/licenses:
     get:
       tags:
@@ -1637,7 +2647,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skill replicas for a particular mlskillId
-      operationId: getMLSkillReplicas
+      operationId: getMLSkillReplicas_1
       parameters:
         - name: account-id
           in: header
@@ -1697,7 +2707,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skill current status
-      operationId: pingMLSkill
+      operationId: pingMLSkill_1
       parameters:
         - name: account-id
           in: header
@@ -1768,7 +2778,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skill Run Logs for a particular pod name
-      operationId: getMLSkillLogs
+      operationId: getMLSkillLogs_1
       parameters:
         - name: account-id
           in: header
@@ -1834,7 +2844,7 @@ paths:
       tags:
         - MlSkill
       description: 'Check if MLSkill exists by name '
-      operationId: checkUniqueName
+      operationId: checkUniqueName_1
       parameters:
         - name: account-id
           in: header
@@ -1900,7 +2910,7 @@ paths:
       tags:
         - MlSkill
       description: Update current status of ML skills for a tenant
-      operationId: refreshMLSkills
+      operationId: refreshMLSkills_1
       parameters:
         - name: account-id
           in: header
@@ -1966,7 +2976,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skill Inactivity period list for a tenant
-      operationId: getInactivePeriod
+      operationId: getInactivePeriod_1
       parameters:
         - name: account-id
           in: header
@@ -2021,7 +3031,7 @@ paths:
       tags:
         - MlSkill
       description: Get ML Skills count by status
-      operationId: getMLSkillsCountByStatus
+      operationId: getMLSkillsCountByStatus_1
       parameters:
         - name: account-id
           in: header
@@ -2314,6 +3324,16 @@ paths:
                 $ref: '#/components/schemas/BaseResponseObject'
 components:
   schemas:
+    BaseResponseString:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: string
     TenantLicenseConsumptionDto:
       type: object
       properties:
@@ -2332,137 +3352,6 @@ components:
         modifiedOn:
           type: integer
           format: int64
-    BaseResponseString:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          type: string
-    TenantProvisionLicenseDto:
-      required:
-        - allocatedAIGPULicenses
-        - allocatedAIRobotLicenses
-        - orchestratorTenantId
-        - tenantIdToProvision
-      type: object
-      properties:
-        tenantIdToProvision:
-          type: string
-          description: Expected UUID. Tenant-key for provisioning
-        orchestratorTenantId:
-          minimum: 0
-          type: integer
-          description: 'Expected: Integer. Tenant Id assigned by orchestrator.'
-          format: int64
-        tenantName:
-          type: string
-          description: 'Expected: String. Tenant name assigned by orchestrator.'
-        aifabricEnabled:
-          type: boolean
-          description: Boolean flag to indicate AIFabric enabled or disabled
-          deprecated: true
-        allocatedAIRobotLicenses:
-          minimum: 0
-          type: integer
-          description: 'Expected: Integer. Allocated CPU license for tenant'
-          format: int32
-        allocatedAIGPULicenses:
-          minimum: 0
-          type: integer
-          description: 'Expected: Integer. Allocated GPU license for tenant'
-          format: int32
-        licenseExpiryTime:
-          type: integer
-          description: 'Expected: Long (epoch time). Expiry time of licenses.'
-          format: int64
-    ServiceEntryCreationRequest:
-      type: object
-      properties:
-        hostName:
-          type: string
-        port:
-          type: integer
-          format: int64
-        protocol:
-          type: string
-          enum:
-            - HTTP
-            - HTTPS
-            - TLS
-            - TCP
-            - UDP
-        global:
-          type: boolean
-    BaseResponseServiceEntryDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/ServiceEntryDto'
-    ServiceEntryDto:
-      type: object
-      properties:
-        id:
-          type: string
-        createdBy:
-          maxLength: 50
-          minLength: 0
-          type: string
-        modifiedBy:
-          maxLength: 50
-          minLength: 0
-          type: string
-        accountId:
-          maxLength: 36
-          minLength: 0
-          type: string
-        tenantId:
-          maxLength: 36
-          minLength: 0
-          type: string
-        organizationId:
-          maxLength: 36
-          minLength: 0
-          type: string
-        createdOn:
-          type: string
-          format: date-time
-        modifiedOn:
-          type: string
-          format: date-time
-        hostName:
-          type: string
-        port:
-          type: string
-        protocol:
-          type: string
-          enum:
-            - HTTP
-            - HTTPS
-            - TLS
-            - TCP
-            - UDP
-        status:
-          type: string
-          enum:
-            - ACTIVE
-            - INACTIVE
-            - FAILED
-        global:
-          type: boolean
-    MLSkillReplicationDto:
-      type: object
-      properties:
-        clusterId:
-          type: string
     EnvVarDto:
       type: object
       properties:
@@ -2850,6 +3739,127 @@ components:
         serviceTarget:
           type: string
           description: Service Target for unified du container skill
+    TenantProvisionLicenseDto:
+      required:
+        - allocatedAIGPULicenses
+        - allocatedAIRobotLicenses
+        - orchestratorTenantId
+        - tenantIdToProvision
+      type: object
+      properties:
+        tenantIdToProvision:
+          type: string
+          description: Expected UUID. Tenant-key for provisioning
+        orchestratorTenantId:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Tenant Id assigned by orchestrator.'
+          format: int64
+        tenantName:
+          type: string
+          description: 'Expected: String. Tenant name assigned by orchestrator.'
+        aifabricEnabled:
+          type: boolean
+          description: Boolean flag to indicate AIFabric enabled or disabled
+          deprecated: true
+        allocatedAIRobotLicenses:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Allocated CPU license for tenant'
+          format: int32
+        allocatedAIGPULicenses:
+          minimum: 0
+          type: integer
+          description: 'Expected: Integer. Allocated GPU license for tenant'
+          format: int32
+        licenseExpiryTime:
+          type: integer
+          description: 'Expected: Long (epoch time). Expiry time of licenses.'
+          format: int64
+    ServiceEntryCreationRequest:
+      type: object
+      properties:
+        hostName:
+          type: string
+        port:
+          type: integer
+          format: int64
+        protocol:
+          type: string
+          enum:
+            - HTTP
+            - HTTPS
+            - TLS
+            - TCP
+            - UDP
+        global:
+          type: boolean
+    BaseResponseServiceEntryDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/ServiceEntryDto'
+    ServiceEntryDto:
+      type: object
+      properties:
+        id:
+          type: string
+        createdBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        modifiedBy:
+          maxLength: 50
+          minLength: 0
+          type: string
+        accountId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        tenantId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        organizationId:
+          maxLength: 36
+          minLength: 0
+          type: string
+        createdOn:
+          type: string
+          format: date-time
+        modifiedOn:
+          type: string
+          format: date-time
+        hostName:
+          type: string
+        port:
+          type: string
+        protocol:
+          type: string
+          enum:
+            - HTTP
+            - HTTPS
+            - TLS
+            - TCP
+            - UDP
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - INACTIVE
+            - FAILED
+        global:
+          type: boolean
+    MLSkillReplicationDto:
+      type: object
+      properties:
+        clusterId:
+          type: string
     SkillsMigrationRequestBaseDto:
       type: object
       properties:
@@ -2985,6 +3995,170 @@ components:
         callbackUrl:
           type: string
           description: 'Expected: String. callbackUrl.'
+    BaseResponsePageListingDtoMLSkillDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/PageListingDtoMLSkillDto'
+    PageListingDtoMLSkillDto:
+      type: object
+      properties:
+        pageSize:
+          type: integer
+          format: int32
+        pageNum:
+          type: integer
+          format: int32
+        totalCount:
+          type: integer
+          format: int64
+        dataList:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLSkillDto'
+    BaseResponseMLSkillReplicasDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLSkillReplicasDto'
+    MLSkillReplicasDto:
+      type: object
+      properties:
+        replicas:
+          type: array
+          items:
+            type: string
+    BaseResponseMLSkillLogsDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLSkillLogsDto'
+    MLSkillLogsDto:
+      type: object
+      properties:
+        logs:
+          type: string
+    BaseResponseBoolean:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: boolean
+    BaseResponseMLSkillRefreshDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLSkillRefreshDto'
+    MLSkillRefreshDto:
+      type: object
+      properties:
+        jobStatus:
+          type: string
+          enum:
+            - IN_PROGRESS
+            - FAILED
+            - COMPLETED
+        mlSkillStatusDtos:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLSkillStatusDto'
+    MLSkillStatusDto:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - DEPLOYING
+            - AVAILABLE
+            - UNAVAILABLE
+            - UPDATING
+            - FAILED
+            - PURGED
+            - STOPPED
+    BaseResponseMLSkillInactivePeriodThreshold:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          $ref: '#/components/schemas/MLSkillInactivePeriodThreshold'
+    InactivePeriodThreshold:
+      type: object
+      properties:
+        name:
+          type: string
+        value:
+          type: integer
+          format: int32
+    MLSkillInactivePeriodThreshold:
+      type: object
+      properties:
+        tenantType:
+          type: string
+        inactivePeriodThresholds:
+          type: array
+          items:
+            $ref: '#/components/schemas/InactivePeriodThreshold'
+        defaultThreshold:
+          type: integer
+          format: int32
+    BaseResponseListMLSkillsCountByStatusDto:
+      type: object
+      properties:
+        respCode:
+          type: integer
+          format: int32
+        respMsg:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MLSkillsCountByStatusDto'
+    MLSkillsCountByStatusDto:
+      type: object
+      properties:
+        status:
+          type: string
+          enum:
+            - DEPLOYING
+            - AVAILABLE
+            - UNAVAILABLE
+            - UPDATING
+            - FAILED
+            - PURGED
+            - STOPPED
+        count:
+          type: integer
+          format: int64
     BaseResponseLicenseDto:
       type: object
       properties:
@@ -3200,32 +4374,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ServiceEntryDto'
-    BaseResponsePageListingDtoMLSkillDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/PageListingDtoMLSkillDto'
-    PageListingDtoMLSkillDto:
-      type: object
-      properties:
-        pageSize:
-          type: integer
-          format: int32
-        pageNum:
-          type: integer
-          format: int32
-        totalCount:
-          type: integer
-          format: int64
-        dataList:
-          type: array
-          items:
-            $ref: '#/components/schemas/MLSkillDto'
     BaseResponsePageListingDtoMLSkillVersionDto:
       type: object
       properties:
@@ -3304,144 +4452,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MLSkillVersionDto'
-    BaseResponseMLSkillReplicasDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/MLSkillReplicasDto'
-    MLSkillReplicasDto:
-      type: object
-      properties:
-        replicas:
-          type: array
-          items:
-            type: string
-    BaseResponseMLSkillLogsDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/MLSkillLogsDto'
-    MLSkillLogsDto:
-      type: object
-      properties:
-        logs:
-          type: string
-    BaseResponseBoolean:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          type: boolean
-    BaseResponseMLSkillRefreshDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/MLSkillRefreshDto'
-    MLSkillRefreshDto:
-      type: object
-      properties:
-        jobStatus:
-          type: string
-          enum:
-            - IN_PROGRESS
-            - FAILED
-            - COMPLETED
-        mlSkillStatusDtos:
-          type: array
-          items:
-            $ref: '#/components/schemas/MLSkillStatusDto'
-    MLSkillStatusDto:
-      type: object
-      properties:
-        id:
-          type: string
-        status:
-          type: string
-          enum:
-            - DEPLOYING
-            - AVAILABLE
-            - UNAVAILABLE
-            - UPDATING
-            - FAILED
-            - PURGED
-            - STOPPED
-    BaseResponseMLSkillInactivePeriodThreshold:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          $ref: '#/components/schemas/MLSkillInactivePeriodThreshold'
-    InactivePeriodThreshold:
-      type: object
-      properties:
-        name:
-          type: string
-        value:
-          type: integer
-          format: int32
-    MLSkillInactivePeriodThreshold:
-      type: object
-      properties:
-        tenantType:
-          type: string
-        inactivePeriodThresholds:
-          type: array
-          items:
-            $ref: '#/components/schemas/InactivePeriodThreshold'
-        defaultThreshold:
-          type: integer
-          format: int32
-    BaseResponseListMLSkillsCountByStatusDto:
-      type: object
-      properties:
-        respCode:
-          type: integer
-          format: int32
-        respMsg:
-          type: string
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/MLSkillsCountByStatusDto'
-    MLSkillsCountByStatusDto:
-      type: object
-      properties:
-        status:
-          type: string
-          enum:
-            - DEPLOYING
-            - AVAILABLE
-            - UNAVAILABLE
-            - UPDATING
-            - FAILED
-            - PURGED
-            - STOPPED
-        count:
-          type: integer
-          format: int64
     TenantDeleteDto:
       required:
         - organizationId

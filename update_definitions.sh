@@ -285,3 +285,13 @@ download_definition "https://alpha.uipath.com/$organization/$tenant/aifabric_/ai
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/aifabric_/ai-appmanager" \
 | update_aicenter_tags \
 | save_definition "aicenter.appmanager"
+
+echo "Updating license definition..."
+download_definition "https://alpha.uipath.com/$organization/license_/swagger/v1/swagger.json" \
+| update_server_url "https://cloud.uipath.com/{organization}/license_" \
+| save_definition "license"
+
+echo "Updating studio definition..."
+download_definition "https://alpha.uipath.com/$organization/studio_/backend/swagger/v1/swagger.json" \
+| update_server_url "https://cloud.uipath.com/{organization}/studio_/backend" \
+| save_definition "studio"
