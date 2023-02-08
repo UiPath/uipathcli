@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -861,14 +862,16 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--file", "hello-world"}, context)
+	path := createFile(t)
+	os.WriteFile(path, []byte("hello-world"), 0644)
+	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	expected := "multipart/form-data; boundary="
 	if !strings.Contains(contentType, expected) {
 		t.Errorf("Did not set correct content type, expected: %v, got: %v", expected, contentType)
 	}
-	expected = `Content-Disposition: form-data; name="file"; filename="file"`
+	expected = fmt.Sprintf(`Content-Disposition: form-data; name="file"; filename="%s"`, filepath.Base(path))
 	if !strings.Contains(result.RequestBody, expected) {
 		t.Errorf("Did not find Content-Disposition in body, expected: %v, got: %v", expected, result.RequestBody)
 	}
@@ -903,7 +906,7 @@ paths:
 		Build()
 	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
+	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
 	if !strings.Contains(result.RequestBody, expected) {
@@ -1101,7 +1104,7 @@ paths:
 
 	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	result := runCli([]string{"myservice", "upload", "--input", "file://" + path}, context)
+	result := runCli([]string{"myservice", "upload", "--input", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
@@ -1112,7 +1115,7 @@ paths:
 	}
 }
 
-func TestPostWithRawRequestBody(t *testing.T) {
+func TestPostWithRelativeFilePathAsRawRequestBody(t *testing.T) {
 	definition := `
 paths:
   /upload:
@@ -1131,7 +1134,14 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "upload", "--input", "hello-world"}, context)
+	path := createFile(t)
+	os.WriteFile(path, []byte("hello-world"), 0644)
+
+	currentPath, _ := os.Getwd()
+	relativePath, _ := filepath.Rel(currentPath, path)
+	result := runCli([]string{"myservice", "upload", "--input", relativePath}, context)
+
+	fmt.Println(result)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {

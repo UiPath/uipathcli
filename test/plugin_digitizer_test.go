@@ -91,7 +91,7 @@ paths:
 		WithCommandPlugin(plugin_digitizer.DigitizeCommand{}).
 		Build()
 
-	result := runCli([]string{"du", "digitization", "digitize", "--file", "file://does-not-exist"}, context)
+	result := runCli([]string{"du", "digitization", "digitize", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Error sending request: File 'does-not-exist' not found") {
 		t.Errorf("Expected stderr to show that file was not found, but got: %v", result.StdErr)
@@ -119,6 +119,9 @@ paths:
 }
 
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
+	path := createFile(t)
+	os.WriteFile(path, []byte("hello-world"), 0644)
+
 	config := `profiles:
 - name: default
   path:
@@ -140,7 +143,7 @@ paths:
 		WithResponse(400, "validation error").
 		Build()
 
-	result := runCli([]string{"du", "digitization", "digitize", "--file", "hello-world"}, context)
+	result := runCli([]string{"du", "digitization", "digitize", "--file", path}, context)
 
 	if !strings.Contains(result.StdErr, "Digitizer returned status code '400' and body 'validation error'") {
 		t.Errorf("Expected stderr to show that digitizer call failed, but got: %v", result.StdErr)
@@ -183,7 +186,7 @@ paths:
 		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
-	result := runCli([]string{"du", "digitization", "digitize", "--file", "file://" + path}, context)
+	result := runCli([]string{"du", "digitization", "digitize", "--file", path}, context)
 
 	expectedResult := `{
   "status": "Done"
@@ -220,7 +223,7 @@ paths:
 		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
-	result := runCli([]string{"du", "digitization", "digitize", "--file", "file://" + path, "--debug"}, context)
+	result := runCli([]string{"du", "digitization", "digitize", "--file", path, "--debug"}, context)
 
 	if !strings.Contains(result.StdOut, "/digitize/start") {
 		t.Errorf("Expected stdout to show the start digitize operation, but got: %v", result.StdOut)

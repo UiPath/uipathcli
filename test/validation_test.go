@@ -196,7 +196,7 @@ paths:
 		Build()
 	path := filepath.Join(t.TempDir(), "not-found.txt")
 
-	result := runCli([]string{"myservice", "post-validate", "--file", "file://" + path}, context)
+	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := "File '" + path + "' not found"
 	if !strings.Contains(result.StdErr, expected) {
