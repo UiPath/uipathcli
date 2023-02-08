@@ -10,6 +10,7 @@ paths:
         - Digitization
       summary: Start Digitization Operation
       description: "Creates a new digitization operation for the input file.\r\nTo monitor the status of the digitization operation and retrieve the result, use the \"Get Digitization Operation Status\" route."
+      operationId: Digitize
       parameters:
         - name: api-version
           in: query
@@ -74,6 +75,7 @@ paths:
         - Digitization
       summary: Get Digitization Operation Result
       description: "Gets the status and result of the Digitization Operation with the given ID. The status can be one of: \"NotStarted\", \"Running\", \"Succeeded\", \"Failed\".\r\nWhen the status is \"Succeeded\", the result ([Document Object Model](https://docs.uipath.com/activities/docs/dom)) is also included in the response.\r\nWhen the status is \"Failed\", a detailed error message is also included in the response."
+      operationId: DigitizeResult
       parameters:
         - name: api-version
           in: query

@@ -5,6 +5,22 @@ import (
 	"testing"
 )
 
+func TestInvalidDefinitionReturnsError(t *testing.T) {
+	definition := `
+paths: INVALID DEFINITION
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "--help"}, context)
+
+	expected := "Error parsing definition file 'myservice'"
+	if !strings.HasPrefix(result.StdErr, expected) {
+		t.Errorf("Stderr did not contain definition parsing error, expected: %v, got: %v", expected, result.StdErr)
+	}
+}
+
 func TestDefinitionParsedSuccessfully(t *testing.T) {
 	definition := `
 paths:
@@ -250,6 +266,34 @@ paths:
 	}
 }
 
+func TestParameterWithCustomName(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          type: string
+        x-name: my-custom-parameter-name
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	expected := "my-custom-parameter-name"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("Stdout did not contain custom parameter name, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
 func TestParameterDescription(t *testing.T) {
 	definition := `
 paths:
@@ -338,6 +382,34 @@ paths:
 	}
 }
 
+func TestPropertyWithCustomName(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: string
+                  description: This is my parameter
+                  x-name: my-custom-parameter-name
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "create", "--help"}, context)
+
+	expected := "my-custom-parameter-name"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("Stdout did not contain custom parameter name, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
 func TestHelpShowsParameterIsRequired(t *testing.T) {
 	definition := `
 paths:
@@ -628,6 +700,67 @@ components:
 	expected := "--level1"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain myparameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestParameterAllOf(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          allOf:
+            - $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--filter"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain filter parameter from allOf schema, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestBodyParameterAllOf(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/ValidationRequest'
+components:
+  schemas:
+    ValidationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+
+	expected := "--name"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain name parameter from allOf schema, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
 

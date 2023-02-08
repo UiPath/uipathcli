@@ -1141,13 +1141,41 @@ paths:
 	relativePath, _ := filepath.Rel(currentPath, path)
 	result := runCli([]string{"myservice", "upload", "--input", relativePath}, context)
 
-	fmt.Println(result)
-
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
 		t.Errorf("Content-Type is not application/octet-stream, got: %v", contentType)
 	}
 	if result.RequestBody != "hello-world" {
 		t.Errorf("Request body is not as expected, got: %v", result.RequestBody)
+	}
+}
+
+func TestPostAllOfParameter(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          allOf:
+            - $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--filter", "my-filter"}, context)
+
+	if result.RequestUrl != "/validate?filter=my-filter" {
+		t.Errorf("Url does not contain filter from allOf schema, got: %v", result.RequestUrl)
 	}
 }

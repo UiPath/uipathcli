@@ -1,6 +1,7 @@
 package test
 
 import (
+	"bytes"
 	"os"
 	"strings"
 	"testing"
@@ -8,45 +9,45 @@ import (
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 )
 
-func TestStatusOperationIsHidden(t *testing.T) {
+func TestDigitizeResultOperationIsHidden(t *testing.T) {
 	definition := `
 paths:
-  /status:
+  /digitize/result/{operationId}:
     post:
       summary: This command should not be shown
-      operationId: status
+      operationId: digitize-result
 `
 
 	context := NewContextBuilder().
 		WithDefinition("du", definition).
-		WithCommandPlugin(plugin_digitizer.StatusCommand{}).
+		WithCommandPlugin(plugin_digitizer.DigitizeResultCommand{}).
 		Build()
 
 	result := runCli([]string{"du", "digitization", "--help"}, context)
 
-	if strings.Contains(result.StdOut, "status") {
-		t.Errorf("Expected stdout not to show status command, but got: %v", result.StdOut)
+	if strings.Contains(result.StdOut, "digitize-result") {
+		t.Errorf("Expected stdout not to show digitize-result command, but got: %v", result.StdOut)
 	}
 }
 
-func TestStatusOperationIsDisabled(t *testing.T) {
+func TestDigitizeResultOperationIsDisabled(t *testing.T) {
 	definition := `
 paths:
-  /status:
+  /digitize/result/{operationId}:
     post:
       summary: This command should not be shown
-      operationId: status
+      operationId: digitize-result
 `
 
 	context := NewContextBuilder().
 		WithDefinition("du", definition).
-		WithCommandPlugin(plugin_digitizer.StatusCommand{}).
+		WithCommandPlugin(plugin_digitizer.DigitizeResultCommand{}).
 		Build()
 
-	result := runCli([]string{"du", "digitization", "status"}, context)
+	result := runCli([]string{"du", "digitization", "digitize-result"}, context)
 
-	if !strings.Contains(result.StdErr, "Status command not supported") {
-		t.Errorf("Expected stderr to show error that digitizer status command is disabled, but got: %v", result.StdErr)
+	if !strings.Contains(result.StdErr, "Digitize result command not supported") {
+		t.Errorf("Expected stderr to show error that digitize-result command is disabled, but got: %v", result.StdErr)
 	}
 }
 
@@ -230,5 +231,41 @@ paths:
 	}
 	if !strings.Contains(result.StdOut, "/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05") {
 		t.Errorf("Expected stdout to show the get digitize result operation, but got: %v", result.StdOut)
+	}
+}
+
+func TestDigitizeSuccessfullyWithStdIn(t *testing.T) {
+	config := `profiles:
+- name: default
+  path:
+    organization: my-org
+    tenant: my-tenant
+`
+
+	definition := `
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+	stdIn := bytes.Buffer{}
+	stdIn.Write([]byte("hello-world"))
+	context := NewContextBuilder().
+		WithDefinition("du", definition).
+		WithConfig(config).
+		WithCommandPlugin(plugin_digitizer.DigitizeCommand{}).
+		WithStdIn(stdIn).
+		WithResponse(202, `{"operationId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		Build()
+
+	result := runCli([]string{"du", "digitization", "digitize", "--content-type", "application/pdf"}, context)
+
+	expectedResult := `{
+  "status": "Done"
+}
+`
+	if result.StdOut != expectedResult {
+		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}
 }

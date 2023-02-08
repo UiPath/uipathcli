@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -10,8 +11,21 @@ import (
 
 const DefaultServerBaseUrl = "https://cloud.uipath.com"
 const RawBodyParameterName = "$input"
+const CustomParameterNameExtension = "x-name"
 
 type OpenApiParser struct{}
+
+func (p OpenApiParser) customParameterName(extensions map[string]interface{}) string {
+	name := extensions[CustomParameterNameExtension]
+	switch v := name.(type) {
+	case json.RawMessage:
+		var str string
+		json.Unmarshal(v, &str)
+		return str
+	default:
+		return ""
+	}
+}
 
 func (p OpenApiParser) contains(strs []string, str string) bool {
 	for _, s := range strs {
@@ -106,9 +120,14 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	description := ""
 	var defaultValue interface{}
 	if schemaRef != nil {
+		customName := p.customParameterName(schemaRef.Value.Extensions)
+		if customName != "" {
+			name = customName
+		}
 		description = schemaRef.Value.Description
 		defaultValue = schemaRef.Value.Default
-		parameters = p.parseSchemas(schemaRef.Value.Properties, in, schemaRef.Value.Required)
+		propertiesSchemas := p.getPropertiesSchemas(schemaRef.Value)
+		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required)
 	}
 	return *NewParameter(name, _type, description, in, fieldName, required, defaultValue, parameters)
 }
@@ -122,6 +141,19 @@ func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, require
 	return result
 }
 
+func (p OpenApiParser) getPropertiesSchemas(schema *openapi3.Schema) openapi3.Schemas {
+	result := openapi3.Schemas{}
+	for n, p := range schema.Properties {
+		result[n] = p
+	}
+	for _, s := range schema.AllOf {
+		for n, p := range s.Value.Properties {
+			result[n] = p
+		}
+	}
+	return result
+}
+
 func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestBodyRef) (string, []Parameter) {
 	parameters := []Parameter{}
 	if requestBody == nil {
@@ -129,11 +161,13 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 	}
 	content := requestBody.Value.Content.Get("application/json")
 	if content != nil {
-		return "application/json", p.parseSchemas(content.Schema.Value.Properties, ParameterInBody, content.Schema.Value.Required)
+		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
+		return "application/json", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required)
 	}
 	content = requestBody.Value.Content.Get("multipart/form-data")
 	if content != nil {
-		return "multipart/form-data", p.parseSchemas(content.Schema.Value.Properties, ParameterInForm, content.Schema.Value.Required)
+		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
+		return "multipart/form-data", p.parseSchemas(propertiesSchemas, ParameterInForm, content.Schema.Value.Required)
 	}
 	content = requestBody.Value.Content.Get("application/octet-stream")
 	if content != nil {
@@ -146,13 +180,18 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	fieldName := param.Name
 	name := p.formatName(fieldName)
+	customName := p.customParameterName(param.Extensions)
+	if customName != "" {
+		name = customName
+	}
 	_type := p.getType(param.Schema)
 	required := param.Required
 	parameters := []Parameter{}
 	var defaultValue interface{}
 	if param.Schema != nil {
 		defaultValue = param.Schema.Value.Default
-		parameters = p.parseSchemas(param.Schema.Value.Properties, param.In, param.Schema.Value.Required)
+		propertiesSchemas := p.getPropertiesSchemas(param.Schema.Value)
+		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required)
 	}
 	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, parameters)
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"sort"
+	"strconv"
 )
 
 const ObjectSeparator = "\n"
@@ -28,7 +29,7 @@ func (w TextOutputWriter) sortKeys(value map[string]interface{}) []string {
 
 func (w TextOutputWriter) supportedValue(value interface{}) bool {
 	switch value.(type) {
-	case float64, int64, string, bool:
+	case float64, string, bool:
 		return true
 	}
 	return false
@@ -36,7 +37,12 @@ func (w TextOutputWriter) supportedValue(value interface{}) bool {
 
 func (w TextOutputWriter) writeValue(value interface{}) {
 	if w.supportedValue(value) {
-		fmt.Fprintf(w.Output, "%v", value)
+		switch v := value.(type) {
+		case float64:
+			fmt.Fprint(w.Output, strconv.FormatFloat(v, 'f', -1, 64))
+		default:
+			fmt.Fprintf(w.Output, "%v", value)
+		}
 	}
 }
 
