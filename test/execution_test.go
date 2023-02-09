@@ -1179,3 +1179,95 @@ components:
 		t.Errorf("Url does not contain filter from allOf schema, got: %v", result.RequestUrl)
 	}
 }
+
+func TestPostEnumParameter(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      parameters:
+      - name: type
+        in: query
+        required: true
+        description: The type 
+        schema:
+          type: string
+          enum:
+            - username
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "post-validate", "--type", "username"}, context)
+
+	if result.RequestUrl != "/validate?type=username" {
+		t.Errorf("Url does not contain enum value, got: %v", result.RequestUrl)
+	}
+}
+
+func TestPostRequestEnumParameterSuccessfully(t *testing.T) {
+	definition := `
+paths:
+  /user:
+    post:
+      operationId: create-user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                region:
+                  type: integer
+                  enum:
+                    - 1
+                    - 2
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create-user", "--region", "2"}, context)
+
+	expected := `{"region":2}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestRequiredEnumParameterWithDefaultValue(t *testing.T) {
+	definition := `
+paths:
+  /user:
+    post:
+      operationId: create-user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                region:
+                  type: integer
+                  default: 2
+                  enum:
+                    - 1
+                    - 2
+              required:
+                - region
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "create-user"}, context)
+
+	expected := `{"region":2}`
+	if result.RequestBody != expected {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}

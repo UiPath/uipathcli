@@ -119,17 +119,19 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	parameters := []Parameter{}
 	description := ""
 	var defaultValue interface{}
+	var allowedValues []interface{}
 	if schemaRef != nil {
 		customName := p.customParameterName(schemaRef.Value.Extensions)
 		if customName != "" {
 			name = customName
 		}
 		description = schemaRef.Value.Description
-		defaultValue = schemaRef.Value.Default
+		defaultValue = p.getDefaultValue(schemaRef.Value)
+		allowedValues = p.getAllowedValues(schemaRef.Value)
 		propertiesSchemas := p.getPropertiesSchemas(schemaRef.Value)
 		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required)
 	}
-	return *NewParameter(name, _type, description, in, fieldName, required, defaultValue, parameters)
+	return *NewParameter(name, _type, description, in, fieldName, required, defaultValue, allowedValues, parameters)
 }
 
 func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string) []Parameter {
@@ -137,6 +139,27 @@ func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, require
 	for fieldName, schemaRef := range schemas {
 		parsed := p.parseSchema(fieldName, schemaRef, in, requiredFieldnames)
 		result = append(result, parsed)
+	}
+	return result
+}
+
+func (p OpenApiParser) getDefaultValue(schema *openapi3.Schema) interface{} {
+	if schema.Default != nil {
+		return schema.Default
+	}
+	for _, s := range schema.AllOf {
+		if s.Value.Default != nil {
+			return s.Value.Default
+		}
+	}
+	return nil
+}
+
+func (p OpenApiParser) getAllowedValues(schema *openapi3.Schema) []interface{} {
+	result := []interface{}{}
+	result = append(result, schema.Enum...)
+	for _, s := range schema.AllOf {
+		result = append(result, s.Value.Enum...)
 	}
 	return result
 }
@@ -188,12 +211,14 @@ func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	required := param.Required
 	parameters := []Parameter{}
 	var defaultValue interface{}
+	var allowedValues []interface{}
 	if param.Schema != nil {
-		defaultValue = param.Schema.Value.Default
+		defaultValue = p.getDefaultValue(param.Schema.Value)
+		allowedValues = p.getAllowedValues(param.Schema.Value)
 		propertiesSchemas := p.getPropertiesSchemas(param.Schema.Value)
 		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required)
 	}
-	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, parameters)
+	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, allowedValues, parameters)
 }
 
 func (p OpenApiParser) parseParameters(params openapi3.Parameters) []Parameter {

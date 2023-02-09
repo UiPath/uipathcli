@@ -266,6 +266,79 @@ paths:
 	}
 }
 
+func TestMultipleParametersSortedByName(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      summary: list
+      operationId: list
+      parameters:
+      - name: bbbbb
+      - name: aaaaa
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
+		t.Errorf("Expected aaaaa argument to be first, got: %v", result.StdOut)
+	}
+}
+
+func TestMultipleParametersSortedRequiredFirst(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      summary: list
+      operationId: list
+      parameters:
+      - name: bbbbb
+      - name: aaaaa
+      - name: ccccc
+        required: true
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if strings.Index(result.StdOut, "ccccc") >= strings.Index(result.StdOut, "aaaaa") {
+		t.Errorf("Expected required argument to be before aaaaa argument, got: %v", result.StdOut)
+	}
+	if strings.Index(result.StdOut, "ccccc") >= strings.Index(result.StdOut, "bbbbb") {
+		t.Errorf("Expected required argument to be before bbbbb argument, got: %v", result.StdOut)
+	}
+}
+
+func TestMultipleRequiredParametersSortedByName(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    get:
+      summary: list
+      operationId: list
+      parameters:
+      - name: bbbbb
+        required: true
+      - name: aaaaa
+        required: true
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
+		t.Errorf("Expected required argument to be first, got: %v", result.StdOut)
+	}
+}
+
 func TestParameterWithCustomName(t *testing.T) {
 	definition := `
 paths:
@@ -700,6 +773,156 @@ components:
 	expected := "--level1"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain myparameter, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestEnumParameter(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          type: string
+          enum:
+          - Value1
+          - Value2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
+		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
+	}
+}
+
+func TestEnumSchema(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        description: The filter 
+        schema:
+          $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: integer
+      enum:
+        - 0
+        - 1
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "allowed values: 0, 1") {
+		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
+	}
+}
+
+func TestInvalidEnumValueReturnsValidationError(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          type: string
+          enum:
+          - Value1
+          - Value2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--filter", "other-value"}, context)
+
+	expected := "Argument value 'other-value' for --filter is invalid, allowed values: Value1, Value2"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr should show validation error for invalid enum value, got: %v", result.StdErr)
+	}
+}
+
+func TestInvalidEnumIntegerValueReturnsValidationError(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter 
+        schema:
+          type: integer
+          enum:
+          - 1
+          - 2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--filter", "3"}, context)
+
+	expected := "Argument value '3' for --filter is invalid, allowed values: 1, 2"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("stderr should show validation error for invalid enum value, got: %v", result.StdErr)
+	}
+}
+
+func TestEnumAllOf(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: list
+      parameters:
+      - name: filter
+        in: query
+        description: The filter
+        schema:
+          allOf:
+            - $ref: '#/components/schemas/FilterType'
+components:
+  schemas:
+    FilterType:
+      type: string
+      enum:
+        - Value1
+        - Value2
+      default: my-default
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "list", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
+		t.Errorf("stdout does not contain allowed values from allof schema, got: %v", result.StdOut)
 	}
 }
 

@@ -90,15 +90,32 @@ func (b CommandBuilder) parameterRequired(parameter parser.Parameter) bool {
 	return parameter.Required && parameter.DefaultValue == nil
 }
 
+func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
+	if values == nil {
+		return ""
+	}
+	result := ""
+	separator := ""
+	for _, value := range values {
+		result += fmt.Sprintf("%s%v", separator, value)
+		separator = ", "
+	}
+	return result
+}
+
 func (b CommandBuilder) parameterDescription(parameter parser.Parameter) string {
-	required := b.parameterRequired(parameter)
+	description := parameter.Description
 	if parameter.DefaultValue != nil {
-		return fmt.Sprintf("%s (default: %v)", parameter.Description, parameter.DefaultValue)
+		description = fmt.Sprintf("%s (default: %v)", parameter.Description, parameter.DefaultValue)
+	} else if b.parameterRequired(parameter) {
+		description = fmt.Sprintf("%s (required)", parameter.Description)
 	}
-	if required {
-		return fmt.Sprintf("%s (required)", parameter.Description)
+
+	allowedValues := b.formatAllowedValues(parameter.AllowedValues)
+	if allowedValues != "" {
+		return fmt.Sprintf("%s \nallowed values: %s", description, allowedValues)
 	}
-	return parameter.Description
+	return description
 }
 
 func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
@@ -111,6 +128,18 @@ func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 		flags = append(flags, &flag)
 	}
 	return flags
+}
+
+func (b CommandBuilder) sortParameters(parameters []parser.Parameter) {
+	sort.Slice(parameters, func(i, j int) bool {
+		if parameters[i].Required && !parameters[j].Required {
+			return true
+		}
+		if !parameters[i].Required && parameters[j].Required {
+			return false
+		}
+		return parameters[i].Name < parameters[j].Name
+	})
 }
 
 func (b CommandBuilder) outputFormat(config config.Config, context *cli.Context) (string, error) {
@@ -151,18 +180,51 @@ func (b CommandBuilder) parseUriArgument(context *cli.Context) (*url.URL, error)
 	return uriArgument, nil
 }
 
+func (b CommandBuilder) getValue(parameter parser.Parameter, context *cli.Context, config config.Config) string {
+	value := context.String(parameter.Name)
+	if value != "" {
+		return value
+	}
+	value = config.Path[parameter.Name]
+	if value != "" {
+		return value
+	}
+	value = config.Query[parameter.Name]
+	if value != "" {
+		return value
+	}
+	value = config.Header[parameter.Name]
+	if value != "" {
+		return value
+	}
+	if parameter.DefaultValue != nil {
+		return fmt.Sprintf("%v", parameter.DefaultValue)
+	}
+	return ""
+}
+
 func (b CommandBuilder) validateArguments(context *cli.Context, parameters []parser.Parameter, config config.Config) error {
 	err := errors.New("Invalid arguments:")
 	result := true
 	for _, parameter := range parameters {
-		if parameter.Required &&
-			parameter.DefaultValue == nil &&
-			context.String(parameter.Name) == "" &&
-			config.Path[parameter.Name] == "" &&
-			config.Query[parameter.Name] == "" &&
-			config.Header[parameter.Name] == "" {
+		value := b.getValue(parameter, context, config)
+		if parameter.Required && value == "" {
 			result = false
 			err = fmt.Errorf("%w\n  Argument --%s is missing", err, parameter.Name)
+		}
+		if value != "" && len(parameter.AllowedValues) > 0 {
+			valid := false
+			for _, allowedValue := range parameter.AllowedValues {
+				if fmt.Sprintf("%v", allowedValue) == value {
+					valid = true
+					break
+				}
+			}
+			if !valid {
+				allowedValues := b.formatAllowedValues(parameter.AllowedValues)
+				result = false
+				err = fmt.Errorf("%w\n  Argument value '%v' for --%s is invalid, allowed values: %s", err, value, parameter.Name, allowedValues)
+			}
 		}
 	}
 	if result {
@@ -212,7 +274,9 @@ func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer
 func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
 	flags := b.CreateDefaultFlags(true)
 	flags = append(flags, b.HelpFlag())
-	flags = append(flags, b.createFlags(operation.Parameters)...)
+	parameters := operation.Parameters
+	b.sortParameters(parameters)
+	flags = append(flags, b.createFlags(parameters)...)
 
 	return &cli.Command{
 		Name:  operation.Name,
