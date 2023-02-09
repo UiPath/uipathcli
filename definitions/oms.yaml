@@ -112,6 +112,125 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Application.Dto.Response.MLServiceDetailsDto'
+  /api/organization/{organizationId}/organizationserviceinstances/audit:
+    delete:
+      tags:
+        - AuditDelete
+      operationId: DeleteAuditEvents
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationCommand'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationCommand'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationCommand'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationCommand'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationResponseDto'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationResponseDto'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationResponseDto'
+  /api/AuditQuery/{organizationId}:
+    get:
+      tags:
+        - AuditQuery
+      operationId: GetAuditEvents
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: top
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/UiPath.Platform.Paging.SortOrder'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Paging.PagedResult`1[[UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto, UiPath.Platform.Audit.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Paging.PagedResult`1[[UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto, UiPath.Platform.Audit.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Paging.PagedResult`1[[UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto, UiPath.Platform.Audit.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]'
+  /api/AuditQuery/{organizationId}/download:
+    get:
+      tags:
+        - AuditQuery
+      operationId: DownloadAuditEvents
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: language
+          in: query
+          schema:
+            type: string
+        - name: size
+          in: query
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Success
   /api/discovery:
     get:
       tags:
@@ -1355,6 +1474,496 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteResponse'
+  /api/migration/{partitionId}/properties/destination:
+    get:
+      tags:
+        - PartitionMove
+      operationId: GetPartitionMigrationPropertiesForDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.PropertiesResponse'
+  /api/migration/{partitionId}/properties/source:
+    get:
+      tags:
+        - PartitionMove
+      operationId: GetPartitionMigrationPropertiesForSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.PropertiesResponse'
+  /api/migration/{partitionId}/compatibility_report/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: GenerateDataCompatibilityReportOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportResponse'
+  /api/migration/{partitionId}/compatibility_report/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: GenerateDataCompatibilityReportOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunPreMaintenanceDataMoveOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunPreMaintenanceDataMoveOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{partitionId}/maintenance_mode/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: StartMaintenanceModeOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeResponse'
+  /api/migration/{partitionId}/maintenance_mode/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: StartMaintenanceModeOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.MaintenanceModeResponse'
+  /api/migration/{partitionId}/data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunDataMoveOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{partitionId}/data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RunDataMoveOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DataMoveResponse'
+  /api/migration/{partitionId}/finalize/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: FinalizeOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/finalize/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: FinalizeOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/rollback/source:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RollbackMigrationOnSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackResponse'
+  /api/migration/{partitionId}/rollback/destination:
+    post:
+      tags:
+        - PartitionMove
+      operationId: RollbackMigrationOnDestination
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.RollbackResponse'
+  /api/migration/{partitionId}/delete/source:
+    delete:
+      tags:
+        - PartitionMove
+      operationId: DeletePartitionFromSource
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json-patch+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          text/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+          application/*+json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.Platform.Partition.Move.Workflow.Dto.DeleteResponse'
   /api/organization/{organizationGuid}/tenants:
     post:
       tags:
@@ -1792,6 +2401,64 @@ paths:
           description: Success
 components:
   schemas:
+    UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto:
+      type: object
+      properties:
+        createdOn:
+          type: string
+          format: date-time
+        category:
+          type: string
+          nullable: true
+        action:
+          type: string
+          nullable: true
+        auditLogDetails:
+          type: string
+          nullable: true
+        userName:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        detailsVersion:
+          type: string
+          nullable: true
+        source:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationCommand:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        deletionTime:
+          type: string
+          format: date-time
+        isHardDelete:
+          type: boolean
+      additionalProperties: false
+    UiPath.Platform.Audit.Client.Dtos.Organization.DeleteOrganizationResponseDto:
+      type: object
+      properties:
+        isHardDelete:
+          type: boolean
+        organizationId:
+          type: string
+          format: uuid
+        serviceType:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+      additionalProperties: false
     UiPath.Platform.FirstPartyService.FirstPartyServiceClient.ServiceInstanceStatus:
       enum:
         - 0
@@ -2595,6 +3262,24 @@ components:
         - 8
         - 9
         - 10
+      type: integer
+      format: int32
+    ? UiPath.Platform.Paging.PagedResult`1[[UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto, UiPath.Platform.Audit.Client, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]
+    : type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.Audit.Client.Dtos.AuditQueryRecordDto'
+          nullable: true
+      additionalProperties: false
+    UiPath.Platform.Paging.SortOrder:
+      enum:
+        - 0
+        - 1
       type: integer
       format: int32
     UiPath.Platform.Partition.Move.Workflow.Dto.CompatibilityReportRequest:

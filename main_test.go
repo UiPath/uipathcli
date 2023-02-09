@@ -151,6 +151,9 @@ func TestMainParsesBuiltInDefinitions(t *testing.T) {
 	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du storage", "presigned-url") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator users", "get-by-id") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "assets") })
+	t.Run("studio", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "studio", "first-run-experience") })
+	t.Run("license-accountant", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "license", "user-license") })
+	t.Run("license-resource-manager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "license", "service-license") })
 }
 
 func MainParsesBuiltInDefinitions(t *testing.T, command string, expected string) {

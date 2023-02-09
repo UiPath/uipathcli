@@ -1,4 +1,8 @@
 #! /bin/bash
+
+set -o pipefail
+set -e
+
 ############################################################
 # Updates the OpenAPI definitions
 #
@@ -201,6 +205,14 @@ function update_aicenter_tags()
   | update_tags "Training run related APIs" "Training"  
 }
 
+############################################################
+# Bug in license-accountant definition pulls in CLR type
+############################################################
+function remove_clr_type()
+{
+  bin/yq 'del(.. | select(has("clrType")).clrType)'
+}
+
 if [ ! -f "bin/yq" ]; then
   echo "Installing yq..."
   install_yq
@@ -251,7 +263,7 @@ download_definition "https://alpha.uipath.com/$organization/$tenant/du_/api/digi
 | save_definition "du.digitizer"
 
 echo "Updating orchestrator definition..."
-download_definition "https://alpha.uipath.com/$organization/$tenant/orchestrator_/swagger/v15.0/swagger.json" "v2" \
+download_definition "https://alpha.uipath.com/$organization/$tenant/orchestrator_/swagger/v16.0/swagger.json" "v2" \
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/orchestrator_" \
 | set_custom_parameter_name "X-UIPATH-OrganizationUnitId" "folder-id" \
 | save_definition "orchestrator"
@@ -286,10 +298,16 @@ download_definition "https://alpha.uipath.com/$organization/$tenant/aifabric_/ai
 | update_aicenter_tags \
 | save_definition "aicenter.appmanager"
 
-echo "Updating license definition..."
+echo "Updating license.lrm definition..."
 download_definition "https://alpha.uipath.com/$organization/license_/swagger/v1/swagger.json" \
 | update_server_url "https://cloud.uipath.com/{organization}/license_" \
-| save_definition "license"
+| save_definition "license.lrm"
+
+echo "Updating license.la definition..."
+download_definition "https://alpha.uipath.com/$organization/lease_/swagger/v1/swagger.json" \
+| update_server_url "https://cloud.uipath.com/{organization}/lease_" \
+| remove_clr_type \
+| save_definition "license.la"
 
 echo "Updating studio definition..."
 download_definition "https://alpha.uipath.com/$organization/studio_/backend/swagger/v1/swagger.json" \

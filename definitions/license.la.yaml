@@ -1,0 +1,5290 @@
+openapi: 3.0.1
+info:
+  title: License Accountant Service API
+  version: v1
+servers:
+  - url: https://cloud.uipath.com/{organization}/lease_
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+paths:
+  /api/DeploymentType:
+    get:
+      tags:
+        - DeploymentType
+      operationId: GetDeploymentType
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentTypeDto'
+  /api/entitlements/{organizationId}/{tenantId}/{serviceType}/entitlement/{entitlementName}:
+    get:
+      tags:
+        - Entitlements
+      summary: Evaluate if the partition is entitled for entitlement name.
+      operationId: IsEntitled
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entitlementName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If partition is entitled.
+        "410":
+          description: If partition is not entitled.
+    put:
+      tags:
+        - Entitlements
+      summary: Consume entitlement.
+      operationId: Consume
+      parameters:
+        - name: organizationId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tenantId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceType
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: entitlementName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If consumption accepted.
+        "410":
+          description: If partition is not entitled or if consumption is not accepted.
+  /api/lease:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected tenant, service type and product code.
+      operationId: Acquire
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+      deprecated: true
+    delete:
+      tags:
+        - Lease
+      summary: Release a list of license leases.
+      operationId: BulkRelease
+      requestBody:
+        description: The request body containing the list of lease identifiers.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkReleaseLeaseRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/BulkReleaseLeaseRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/BulkReleaseLeaseRequestDto'
+      responses:
+        "200":
+          description: If the lease deletion is successful.
+  /api/lease/{accountId}:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected organization.
+      operationId: AcquireByAdmin
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+  /api/lease/{serviceScopeId}/{serviceType}:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected tenant, service type and product code.
+      operationId: AcquireWithServiceScope
+      parameters:
+        - name: serviceScopeId
+          in: path
+          description: Tenant id (service scope id).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: Service type.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+      deprecated: true
+  /api/lease/{organizationId}/{scopeId}/{scopeType}/{productCode}/lease/{leaseIdentifier}:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected organization, tenant, service type and product code.
+      operationId: AcquireLease
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scopeId
+          in: path
+          description: Scope Identifier for the source license (the license from which the consumption will take place). This can be a organizationId if the consumption is at organization level, a tenantId if consumption is at tenant level, or any other id that identifies a specific license partition.
+          required: true
+          schema:
+            type: string
+        - name: scopeType
+          in: path
+          description: Scope type together with the scopeId uniquely identifies the source license. For example, when consuming at tenant level, we need to identify the license of service that is consuming (in case of RobotUnits, we need to target the Orchestrator license, so this will be identified by scopeId=tenantId + scopeType='orchestrator').
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: Product code.
+          required: true
+          schema:
+            type: string
+        - name: leaseIdentifier
+          in: path
+          description: The lease identifier. This is useful for idempotency (retry) and for implementing the absolute lease consumption model.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+        "400":
+          description: If the license already exists, but with different information.
+        "403":
+          description: If usage check is enforced and there are insufficient credits to create or update the license.
+        "404":
+          description: If the requested scope does not exist or is not licensed.
+        "412":
+          description: If the provided ETag doesn't match the current version in the database.
+    post:
+      tags:
+        - Lease
+      summary: Creates a lease for the selected organization, tenant, service type and product code.
+      operationId: CreateLease
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scopeId
+          in: path
+          description: Scope Identifier for the source license (the license from which the consumption will take place). This can be a organizationId if the consumption is at organization level, a tenantId if consumption is at tenant level, or any other id that identifies a specific license partition.
+          required: true
+          schema:
+            type: string
+        - name: scopeType
+          in: path
+          description: Scope type together with the scopeId uniquely identifies the source license. For example, when consuming at tenant level, we need to identify the license of service that is consuming (in case of RobotUnits, we need to target the Orchestrator license, so this will be identified by scopeId=tenantId + scopeType='orchestrator').
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: Product code.
+          required: true
+          schema:
+            type: string
+        - name: leaseIdentifier
+          in: path
+          description: The lease identifier. This is useful for idempotency (retry) and for implementing the absolute lease consumption model.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the create request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireLeaseRequestDto'
+      responses:
+        "200":
+          description: If the license create is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+        "400":
+          description: If the license already exists, but with different information.
+        "403":
+          description: If usage check is enforced and there are insufficient credits to create or update the license.
+        "404":
+          description: If the requested scope does not exist or is not licensed.
+    get:
+      tags:
+        - Lease
+      summary: Get details about an existing consumption lease acquired for the provided organization, tenant, service type and product code.
+      operationId: GetConsumptionLease
+      parameters:
+        - name: organizationId
+          in: path
+          description: The Organization Id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scopeId
+          in: path
+          description: The Scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: scopeType
+          in: path
+          description: The Scope Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: leaseIdentifier
+          in: path
+          description: The lease identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If a corresponding consumption lease was found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetConsumptionLeaseResponseDto'
+        "400":
+          description: If a corresponding consumption lease was found but it does not match the provided information.
+        "404":
+          description: If no corresponding consumption lease was found.
+  /api/lease/{organizationId}/{serviceScopeId}/{serviceType}:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected tenant, service type and product code.
+      operationId: AcquireForOrganizationWithServiceScope
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization global id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceScopeId
+          in: path
+          description: Tenant id (service scope id).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: Service type.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+  /api/lease/{organizationId}/acquire:
+    put:
+      tags:
+        - Lease
+      summary: Acquires a lease for the selected tenant, service type and product code.
+      operationId: AcquireForOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization global id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/AcquireRequestDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcquireLeaseResponseDto'
+  /api/lease/{leaseIdentifier}:
+    delete:
+      tags:
+        - Lease
+      summary: Release a specific license lease.
+      operationId: Release
+      parameters:
+        - name: leaseIdentifier
+          in: path
+          description: The identifier of the lease.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If the license create or update is successful.
+  /api/lease/organization/{accountId}/release:
+    delete:
+      tags:
+        - Lease
+      summary: Release consumption leases for an organization.
+      operationId: ReleaseConsumptionLeasesForOrganization
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization's account id to identify available leases.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If the lease deletion is successful.
+  /api/lease/{accountId}/{serviceType}/{productCode}/available/count:
+    get:
+      tags:
+        - Lease
+      summary: Return available leases in the context of serviceScopeId serviceType and productCode.
+      operationId: GetAvailableLeasesCountAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The account id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int32
+  /api/lease/{serviceScopeId}/{serviceType}/available/services:
+    put:
+      tags:
+        - Lease
+      summary: Return product codes with their status explained in ProductCodeStatus.
+      operationId: FilterProductCodesWithoutAvailableLeases
+      parameters:
+        - name: serviceScopeId
+          in: path
+          description: The Service scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service type to identify available leases.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of service to be verified if lease exists.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCodeStatusDto'
+      deprecated: true
+  /api/lease/{organizationId}/{serviceScopeId}/{serviceType}/available/services:
+    put:
+      tags:
+        - Lease
+      summary: Return product codes with their status explained in ProductCodeStatus.
+      operationId: FilterProductCodesWithoutAvailableLeasesForOrganization
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization global id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceScopeId
+          in: path
+          description: The Service scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service type to identify available leases.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of service to be verified if lease exists.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/IncomingProductCodesDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductCodeStatusDto'
+  /api/lease/{serviceScopeId}/{serviceType}/{productCode}/consumed:
+    get:
+      tags:
+        - Lease
+      summary: Return the used quantity or zero if there is no license for the requested product. Use it only for consumption products.
+      operationId: GetConsumptionForServiceScopeId
+      parameters:
+        - name: serviceScopeId
+          in: path
+          description: The Service scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Consumed leases returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUsageDto'
+      deprecated: true
+  /api/lease/{organizationId}/{serviceScopeId}/{serviceType}/{productCode}/consumed:
+    get:
+      tags:
+        - Lease
+      summary: Return the used quantity or zero if there is no license for the requested product. Use it only for consumption products.
+      operationId: GetConsumptionForOrganizationIdAndServiceScopeId
+      parameters:
+        - name: organizationId
+          in: path
+          description: Organization global id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceScopeId
+          in: path
+          description: The Service scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Consumed leases returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUsageDto'
+  /api/lease/{organizationId}/{scopeId}/{scopeType}/{productCode}/usage:
+    get:
+      tags:
+        - Lease
+      summary: Return the used quantity or zero if there is no license for the requested product.
+      operationId: GetUsageForProduct
+      parameters:
+        - name: organizationId
+          in: path
+          description: The Organization Id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: scopeId
+          in: path
+          description: The Scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: scopeType
+          in: path
+          description: The Scope Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product usage returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductUsageDto'
+  /api/lease/{organizationId}/{serviceScopeId}/usage:
+    get:
+      tags:
+        - Lease
+      summary: Return the used quantities for all products in licenses belonging to a partition (tenant, machine template etc).
+      operationId: GetConsumptionForPartition
+      parameters:
+        - name: organizationId
+          in: path
+          description: The Organization Id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: serviceScopeId
+          in: path
+          description: The Service scope Id to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceTypes
+          in: query
+          description: The Service Types to be checked.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PartitionProductUsageDto'
+  /api/lease/{organizationId}/usage:
+    put:
+      tags:
+        - Lease
+      summary: Return the used quantities for specified products and intervals.
+      operationId: GetConsumptionForProducts
+      parameters:
+        - name: organizationId
+          in: path
+          description: The Organization Id.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The list of the products for which consumption is requested.
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConsumptionProductUsageRequestDto'
+          text/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConsumptionProductUsageRequestDto'
+          application/*+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ConsumptionProductUsageRequestDto'
+      responses:
+        "200":
+          description: Success.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConsumptionProductUsage'
+  /api/lease/{boonLicenseCode}/{serviceType}/{productCode}/host/consumed:
+    get:
+      tags:
+        - Lease
+      summary: Return the available quantity or zero if there is no license for the requested product. Use it only for consumption products.
+      operationId: GetConsumptionForBoonLicenseCode
+      parameters:
+        - name: boonLicenseCode
+          in: path
+          description: The host boon license code to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The Service Type to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: productCode
+          in: path
+          description: The Product Code to identify available leases.
+          required: true
+          schema:
+            type: string
+        - name: intervalStartDate
+          in: query
+          description: The start date of the interval for which it computes the consumption. Expected as unix epoch time format (e.g. 1658793600).
+          schema:
+            type: integer
+            format: int64
+        - name: intervalEndDate
+          in: query
+          description: The end date of the interval for which it computes the consumption. Expected as unix epoch time format (e.g. 1664063999).
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Consumed leases returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductConsumptionDto'
+  /api/lease/{organizationId}/computeUsage:
+    put:
+      tags:
+        - Lease
+      summary: "Returns the full usage for a list of scopes and product codes.\r\n1. For the organizational level scope (\"portal\") it will also take into consideration the allocation/usage on all the tenants, following the formula:\r\nTotal = Total org units - Allocated across all tenants - Consumed by disabled/deleted tenants.\r\nUsed = SUM(All consumption leases reported at org level)\r\n2. For tenant level scopes it will take into consideration only allocation/usage for that tenant:\r\nTotal = Allocated for tenant.\r\nUsed = Used by tenant."
+      operationId: ComputeUsage
+      parameters:
+        - name: organizationId
+          in: path
+          description: The organization id for which the request is made.
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The request parameters identifying the scopes for which the usage will be computed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComputeUsageRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ComputeUsageRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ComputeUsageRequestDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ScopeUsageDto'
+  /api/tenant/{serviceScopeId}/{serviceType}/license:
+    put:
+      tags:
+        - LicenseAccountant
+      summary: Creates or updates a license for a service.
+      description: "A serviceId is a globally unique identifier for each service.\r\nA service is a tenant of a product instance (Orchestrator tenant, CEH tenant etc)."
+      operationId: UpdateLicense
+      parameters:
+        - name: serviceScopeId
+          in: path
+          description: The (global) unique identifier of the tenant that receives the license.
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The type of the service on this tenant that receives the license.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: A JSON format data containing the actual license.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncomingLicenseDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/IncomingLicenseDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/IncomingLicenseDto'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+  /api/license-changed-event:
+    put:
+      tags:
+        - LicenseChangedEvent
+      summary: processes a license change event.
+      operationId: ProcessLicenseChangeEvent
+      requestBody:
+        description: The license changed event to be processed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LicenseChangedEvent'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/LicenseChangedEvent'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/LicenseChangedEvent'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+  /api-internal/user-license/release-named-licenses:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Releases licenses inherited from groups that have been unused (in the last 3 months).
+      operationId: ReleaseNamedLicenses
+      responses:
+        "200":
+          description: Returns HttpStatus.OK if all requests were processed.
+  /api-internal/lease/aggregate-consumption-leases:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Automatically aggregate old consumption leases.
+      operationId: AggregateConsumptionLeases
+      parameters:
+        - name: productCode
+          in: query
+          description: The code of the product whose consumption leases are to be aggregated.
+          schema:
+            type: string
+        - name: minDate
+          in: query
+          description: The left-hand side of the time interval for lease detection.
+          schema:
+            type: string
+            format: date-time
+        - name: maxDate
+          in: query
+          description: The right-hand side of the time interval for lease detection.
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+  /api-internal/monitor/service-license-changed/dlq:
+    post:
+      tags:
+        - LicenseMaintenance
+      summary: Monitor service license changed DLQ.
+      operationId: MonitorLrmDlq
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+  /api/account/{accountId}/stats/timeline:
+    post:
+      tags:
+        - LicenseStats
+      summary: Get service license usage timeline for given clients and timeline.
+      operationId: GetUsageTimelineAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The request body containing client ids and timeline.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+      responses:
+        "200":
+          description: Returns the service license usage.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductUsageTimelineDto'
+        "401":
+          description: If the user has no rights to see license usage data for account.
+  /api/account/{accountId}/stats/organization/timeline:
+    post:
+      tags:
+        - LicenseStats
+      summary: Get service license usage timeline for given organization and timeline.
+      operationId: GetOrganizationUsageTimelineAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        description: The request body containing the timeline.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductOrganizationUsageRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ProductOrganizationUsageRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ProductOrganizationUsageRequestDto'
+      responses:
+        "200":
+          description: Returns the service license usage.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductOrganizationUsageTimelineDto'
+        "401":
+          description: If the user has no rights to see license usage data for account.
+  /api/account/{accountId}/stats/used:
+    post:
+      tags:
+        - LicenseStats
+      summary: Get products in use statistics.
+      operationId: GetProductsInUseAsync
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The request body containing client ids.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ProductUsageRequestDto'
+      responses:
+        "200":
+          description: Returns the service license usage statistics.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductInUseDto'
+        "401":
+          description: If the user has no rights to see license usage data for account.
+  /api/messagebus/license-refresh-high:
+    post:
+      tags:
+        - MessageBus
+      summary: Processes a low priority license refresh event.
+      operationId: ProcessHighPriorityLicenseRefreshEvent
+      requestBody:
+        description: The event to be processed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+  /api/messagebus/license-refresh-low:
+    post:
+      tags:
+        - MessageBus
+      summary: Processes a high priority license refresh event.
+      operationId: ProcessLowPriorityLicenseRefreshEvent
+      requestBody:
+        description: The event to be processed.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/CloudEvent'
+      responses:
+        "200":
+          description: If the license create or update is successful.
+  /api/migration/{partitionId}/properties/destination:
+    get:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesResponse'
+  /api/migration/{partitionId}/properties/source:
+    get:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertiesResponse'
+  /api/migration/{partitionId}/compatibility_report/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReportResponse'
+  /api/migration/{partitionId}/compatibility_report/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompatibilityReportResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/pre_maintenance_data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/maintenance_mode/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/MaintenanceModeRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceModeResponse'
+  /api/migration/{partitionId}/maintenance_mode/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MaintenanceModeResponse'
+  /api/migration/{partitionId}/data_move/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/data_move/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DataMoveRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataMoveResponse'
+  /api/migration/{partitionId}/finalize/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/finalize/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/FinalizeRequest'
+      responses:
+        "200":
+          description: Success
+  /api/migration/{partitionId}/rollback/source:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackResponse'
+  /api/migration/{partitionId}/rollback/destination:
+    post:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RollbackRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackResponse'
+  /api/migration/{partitionId}/delete/source:
+    delete:
+      tags:
+        - PartitionMove
+      parameters:
+        - name: partitionId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeleteRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponse'
+  /api/organization/{partitionId}/organizationserviceinstances/license-accountant:
+    delete:
+      tags:
+        - PartitionOperations
+      summary: Hard or soft deletion of a partition
+      parameters:
+        - name: partitionId
+          in: path
+          description: The organization account id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PartitionDeletionRequestDto'
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartitionDeletionResponseDto'
+  /api/organization/{partitionId}/organizationserviceinstances/license-accountant/restore:
+    post:
+      tags:
+        - PartitionOperations
+      summary: Restores a partition which was previously soft deleted.
+      parameters:
+        - name: partitionId
+          in: path
+          description: The organization account id.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The body of the acquire request.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/PartitionRestoreRequestDto'
+      responses:
+        "200":
+          description: Returns HttpStatus.OK.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartitionRestoreResponseDto'
+  /api/organization/{partitionId}/organizationserviceinstances/{serviceType}:
+    delete:
+      tags:
+        - PartitionOperations
+      summary: "Executes maintenance operations related to the deletion of sevice type from an organization.\r\nIt removes an user bundle allocations dependent to a service type from all user licenses and group rules within an organization.\r\nThis potentially updates each user license and group rules in an organization and might be a slow operation.\r\nIt is expected that big organizations use group rules, rather than explicit user allocations.\r\n            \r\nUsed by the Data Retention flow to remove user allocations when service instances are deleted from OMS."
+      operationId: DoServiceTypeDeletedOperationsAsync
+      parameters:
+        - name: partitionId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: serviceType
+          in: path
+          description: The service type for which user bundle allocations should be removed.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /api/account/{accountId}/user-license:
+    get:
+      tags:
+        - UserLicense
+      operationId: GetAvailableUserLicensesForAccount
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserLicenseAsProductDto'
+    put:
+      tags:
+        - UserLicense
+      summary: Allocate some user licenses.
+      operationId: AllocateUserLicensesForAccount
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Request that lists the userIds to receive a number of license codes.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserLicenseAllocationRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UserLicenseAllocationRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UserLicenseAllocationRequestDto'
+      responses:
+        "200":
+          description: If all user licenses could be allocated okay.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserLicenseDto'
+        "404":
+          description: If no account license is allocated for the given accountId.
+        "409":
+          description: "If cannot allocate even one license. No other licenses are allocated in this case, so it's all or nothing.\r\n            \r\nCases when a license cannot be allocated:\r\n            \r\n1. At least one case when no available quantities of a license.\r\n2. Requested product code does not exist."
+    delete:
+      tags:
+        - UserLicense
+      summary: "Deletes user licenses for multiple users.\r\nThis includes releasing acquired UBLs, removing explicit allocations etc.\r\nRequires S2S authentication."
+      operationId: DeleteMultipleUserLicenses
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Request that lists the userIds to have UBLs deallocated.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserBundleDeallocationRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UserBundleDeallocationRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UserBundleDeallocationRequestDto'
+      responses:
+        "200":
+          description: When processing went through (even if some UBLs could not be deallocated).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBundleDeallocationResponseDto'
+    post:
+      tags:
+        - UserLicense
+      summary: Endpoint for retrieving the explicit allocations, given a list of user Ids.
+      operationId: RetrieveExplicitAllocations
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: A request containing the list of user Ids.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserExplicitAllocationDto'
+  /api/account/{accountId}/user-license/group/{groupId}:
+    get:
+      tags:
+        - UserLicense
+      summary: This endpoint is called to list all available UBLs for group creation or for editing a specific group.
+      operationId: GetAvailableUserLicensesForAccountForGroupCreationOrEditing
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: The group id (GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupRuleAllocationDto'
+    put:
+      tags:
+        - UserLicense
+      summary: This endpoint is called to allocate or update a group rule.
+      operationId: AllocateGroupRule
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: The group id (GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The list of user bundle licenses to be allocated for this group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupRuleAllocationRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/GroupRuleAllocationRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/GroupRuleAllocationRequestDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupRuleDto'
+    delete:
+      tags:
+        - UserLicense
+      summary: This endpoint is called to deallocate a group rule.
+      operationId: DeallocateGroupRule
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: The group id (GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /api/account/{accountId}/user-license/group/{groupId}/user:
+    delete:
+      tags:
+        - UserLicense
+      summary: Release obsolete user licenses when user is removed from group.
+      operationId: DeleteUsersFromGroup
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: The group id (GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The list of user bundle licenses to be allocated for this group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUsersFromGroupRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/DeleteUsersFromGroupRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/DeleteUsersFromGroupRequestDto'
+      responses:
+        "200":
+          description: Success
+    get:
+      tags:
+        - UserLicense
+      summary: Get the user license allocations per group.
+      operationId: GetUserAllocationsFromGroup
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: The Group Id for which to retrieve the acquired user licenses.
+          required: true
+          schema:
+            type: string
+        - name: top
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+      responses:
+        "200":
+          description: Always.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserAllocationsDtoPagedResult'
+  /api/account/{accountId}/user-license/license/users:
+    post:
+      tags:
+        - UserLicense
+      summary: Get user license allocation for the given userIds.
+      operationId: RetrieveLicenseAllocationForUsers
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: A list of GUIDs representing the userIds.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UserIdsRequestDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserLicenseAllocationDto'
+  /api/account/{accountId}/user-license/group/{groupId}/user/{userId}:
+    delete:
+      tags:
+        - UserLicense
+      operationId: ReleaseUserLicensesAllocatedFromGroup
+      parameters:
+        - name: accountId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /api/account/{accountId}/user-license/{userGlobalId}/availableUserBundles:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the available and allocated user licenses for a specific user.
+      operationId: GetAvailableUserBundles
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: userGlobalId
+          in: path
+          description: Request that lists the userIds to receive a number of license codes.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If there is data for this user id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditableUserBundleDto'
+        "404":
+          description: If no data was found for this user id.
+  /api/account/{accountId}/user-license/ublCodes/explicit:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the distinct available user bundle codes explicitly allocated for this account.
+      operationId: GetExplicitlyAllocatedUserBundleCodes
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/account/{accountId}/user-license/ublCodes/group:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the distinct available user bundle codes from all group rules for this account.
+      operationId: GetBundleCodesFromGroupRule
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+  /api/account/{accountId}/user-license/{userGlobalId}/userBundleLeases:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets all bundle leases for a specific user.
+      operationId: GetAvailableUserBundleLeases
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: userGlobalId
+          in: path
+          description: The user global identifier.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If there is data for this user id.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserBundleLeaseDto'
+  /api/account/{accountId}/user-license/currentUser:
+    delete:
+      tags:
+        - UserLicense
+      summary: "Deletes the user licenses of the user making the request\r\nThis includes releasing acquired UBLs, removing explicit allocations etc."
+      operationId: DeleteLicensesOfCurrentUser
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: When processing went through (even if some UBLs could not be deallocated).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserBundleDeallocationResponseDto'
+  /api/account/{accountId}/user-license/users:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the users with explicit license allocation, with page support.
+      operationId: GetUsersWithAExplicitAllocations
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: If there is data for this user id.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserExplicitAllocationDto'
+        "404":
+          description: If no data was found for this user id.
+  /api/account/{accountId}/user-license/user/page:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the requested page of users with explicit license allocation.
+      operationId: GetUsersWithExplicitAllocationsPage
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: top
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+        - name: userBundleLicenseCodes
+          in: query
+          description: User Bundle License Codes to filter. If empty, no filtering applies.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: If there is data for this user id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExplicitAllocationDtoPagedResult'
+        "404":
+          description: If no data was found for this user id.
+  /api/account/{accountId}/user-license/groups:
+    get:
+      tags:
+        - UserLicense
+      summary: This endpoint is called to list all group UBL allocations for an organization.
+      operationId: GetGroupsAllocations
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupRuleAllocationDto'
+  /api/account/{accountId}/user-license/group/page:
+    get:
+      tags:
+        - UserLicense
+      summary: Gets the requested page of group UBL allocations for an organization.
+      operationId: GetGroupsAllocationPage
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: top
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/SortOrder'
+        - name: userBundleLicenseCodes
+          in: query
+          description: User Bundle License Codes to filter. If empty, no filtering applies.
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupAllocationDtoPagedResult'
+  /api/account/{accountId}/user-license/user/{userId}/allocation:
+    get:
+      tags:
+        - UserLicense
+      summary: Endpoint for retrieving user allocation.
+      operationId: RetrieveUserAllocation
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: A request containing the user Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExplicitAllocationDto'
+  /api/account/{accountId}/user-license/group/{groupId}/allocation:
+    get:
+      tags:
+        - UserLicense
+      summary: Endpoint for retrieving group allocation.
+      operationId: RetrieveGroupAllocation
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: groupId
+          in: path
+          description: A request containing the group Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserExplicitAllocationDto'
+  /api/account/{accountId}/user-license/group:
+    post:
+      tags:
+        - UserLicense
+      summary: Endpoint for retrieving the group allocation rules, given a list of group Ids.
+      operationId: RetrieveGroupAllocations
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: A request containing the list of group Ids.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GroupIdsRequestDto'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/GroupIdsRequestDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/GroupIdsRequestDto'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupAllocationDto'
+  /api/account/{accountId}/user-license/licenseInheritance/{userId}:
+    get:
+      tags:
+        - UserLicense
+      summary: Get license inheritance for a specific user.
+      operationId: GetLicenseInheritance
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: The userId (GUID).
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenseInheritanceDto'
+  /api/account/{accountId}/user-license/session:
+    post:
+      tags:
+        - UserLicensing
+      summary: Starts a user session based on userId and sessionId and returns the acquired user licenses.
+      description: "### StartUserSession ###\r\nThis endpoint marks the beginning of a user session and returns the licenses the user has access to.\r\n            \r\nThis operation is idempotent, you can call it multiple times with the same userId and sessionId and it will not create a new user session.\r\n            \r\nThe organizationId (accountId) is extracted from the JWT Token and validated against the route parameter.\r\n            \r\nThis endpoint requires organization membership authorization."
+      operationId: StartUserSession
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID). This must be the same as the organizationId from the token (prt_id).
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: query
+          description: Unique value (per user) that identifies the session. Same value must be passed when the user session ends.
+          required: true
+          schema:
+            type: string
+        - name: clientType
+          in: query
+          description: "The type of the client application holding the session (studio, robot, apps etc).\r\n            \r\nWhile there are no hard requirements on what values to use here, we recommend to use something meaningful in order to easily identify the application that requested the license.\r\n            \r\nFor example, 1st party services can use the serviceType:\r\n| Application    | ClientType |\r\n|----------------|------------|\r\n| Insights       | insights   |\r\n| Actions        | actions    |\r\n| StudioWeb      | studio     |\r\n| Attended Robot | robot      |\r\n| Studio desktop | studioclassic |"
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: "The requested License Units as body JSON. The values are product codes included in User Bundle Licenses - defined in the BooN server (https://license-stg.uipath.com/products).\r\nFor the calling client, it should not matter if the license is Named or Multiuser. It just requests products it needs to function (from licensing pov).\r\n            \r\nExamples:\r\n| Code   | Description    |\r\n|--------|----------------|\r\n| ATTR   | Attended Robot |\r\n| STDX   | StudioX        |\r\n| STD    | Studio         |\r\n| STDPRO | Studio Pro     |\r\n| APPS   | Action Center  |\r\n| INS    | Insights Designer Unit |"
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestedLicenseUnits'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/RequestedLicenseUnits'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RequestedLicenseUnits'
+        required: true
+      responses:
+        "200":
+          description: On success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLicenseResponse'
+    delete:
+      tags:
+        - UserLicensing
+      summary: Ends a user session based on accountId, userId and sessionId.
+      description: "### EndUserSession ###\r\nThis endpoint marks the end of a user session. It will also release the acquired multiuser UBLs etc.\r\n            \r\nThis operation is idempotent, you can call it multiple times for the same user and sessionId.\r\nIt is safe to call this endpoint even if the StartUserSession was not called. The request will be ignored and successful response (200) will be returned.\r\n            \r\nThe organizationId (accountId) is extracted from the JWT Token and validated against the route parameter.\r\n            \r\nThis endpoint requires organization membership authorization."
+      operationId: EndUserSession
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID). This must be the same as the organizationId from the token (prt_id).
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: query
+          description: Unique value that identifies the session. Must be the same value that was passed on getUserLicense endpoint.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: When processing went through (even if some UBLs could not be de-allocated).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSessionDto'
+  /api/account/{accountId}/user-license/{userId}:
+    get:
+      tags:
+        - UserLicensing
+      summary: Returns the available license units encoded as a JWT for the specific organization/user - similar to StartUserSession endpoint (but without the session information, as there may be multiple sessions opened or none)
+      operationId: GetAcquiredLicenses
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID). This must be the same as the organizationId from the token (prt_id).
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: The user Id.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: On success.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserLicenseStateResponse'
+  /api/account/{accountId}/user-license/{userId}/session:
+    delete:
+      tags:
+        - UserLicensing
+      summary: Ends a user session based on accountId, userId and sessionId.
+      description: "### EndUserSessionWithUserId ###\r\nThis includes releasing acquired UBLs etc.\r\n            \r\nRequires S2S authentication."
+      operationId: EndUserSessionWithUserId
+      parameters:
+        - name: accountId
+          in: path
+          description: The organization account id (Global GUID).
+          required: true
+          schema:
+            type: string
+        - name: userId
+          in: path
+          description: The user Id.
+          required: true
+          schema:
+            type: string
+        - name: sessionId
+          in: query
+          description: Unique value that identifies the session. Must be the same value that was passed on getUserLicense endpoint.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: When processing went through (even if some UBLs could not be de-allocated).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSessionDto'
+components:
+  schemas:
+    AcquireLeaseRequestDto:
+      type: object
+      properties:
+        quantity:
+          type: number
+          format: double
+          nullable: true
+        timestamp:
+          type: string
+          format: date-time
+          nullable: true
+        disableEnforcement:
+          type: boolean
+          nullable: true
+        consumptionType:
+          type: string
+          nullable: true
+        owner:
+          type: string
+          nullable: true
+        etag:
+          type: string
+          nullable: true
+      additionalProperties: false
+    AcquireLeaseResponseDto:
+      type: object
+      properties:
+        leaseIdentifier:
+          type: string
+          nullable: true
+        created:
+          type: boolean
+      additionalProperties: false
+    AcquireRequestDto:
+      type: object
+      properties:
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        quantity:
+          type: number
+          format: double
+          nullable: true
+        leaseIdentifier:
+          type: string
+          nullable: true
+        bypassUsageCheck:
+          type: boolean
+          nullable: true
+      additionalProperties: false
+    Assembly:
+      type: object
+      properties:
+        definedTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TypeInfo'
+          nullable: true
+          readOnly: true
+        exportedTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Type'
+          nullable: true
+          readOnly: true
+        codeBase:
+          type: string
+          nullable: true
+          readOnly: true
+        entryPoint:
+          $ref: '#/components/schemas/MethodInfo'
+        fullName:
+          type: string
+          nullable: true
+          readOnly: true
+        imageRuntimeVersion:
+          type: string
+          nullable: true
+          readOnly: true
+        isDynamic:
+          type: boolean
+          readOnly: true
+        location:
+          type: string
+          nullable: true
+          readOnly: true
+        reflectionOnly:
+          type: boolean
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        isFullyTrusted:
+          type: boolean
+          readOnly: true
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        escapedCodeBase:
+          type: string
+          nullable: true
+          readOnly: true
+        manifestModule:
+          $ref: '#/components/schemas/Module'
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Module'
+          nullable: true
+          readOnly: true
+        globalAssemblyCache:
+          type: boolean
+          readOnly: true
+          deprecated: true
+        hostContext:
+          type: integer
+          format: int64
+          readOnly: true
+        securityRuleSet:
+          $ref: '#/components/schemas/SecurityRuleSet'
+      additionalProperties: false
+    BulkReleaseLeaseRequestDto:
+      type: object
+      properties:
+        leaseIdentifiers:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    CallingConventions:
+      enum:
+        - 1
+        - 2
+        - 3
+        - 32
+        - 64
+      type: integer
+      format: int32
+    CloudEvent:
+      type: object
+      properties:
+        specVersion:
+          $ref: '#/components/schemas/CloudEventsSpecVersion'
+        data:
+          nullable: true
+        dataContentType:
+          type: string
+          nullable: true
+        id:
+          type: string
+          nullable: true
+        dataSchema:
+          type: string
+          format: uri
+          nullable: true
+        source:
+          type: string
+          format: uri
+          nullable: true
+        subject:
+          type: string
+          nullable: true
+        time:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        extensionAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudEventAttribute'
+          nullable: true
+          readOnly: true
+        isValid:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    CloudEventAttribute:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/CloudEventAttributeType'
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        isRequired:
+          type: boolean
+          readOnly: true
+        isExtension:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    CloudEventAttributeType:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    CloudEventsSpecVersion:
+      type: object
+      properties:
+        versionId:
+          type: string
+          nullable: true
+          readOnly: true
+        idAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        dataContentTypeAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        dataSchemaAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        sourceAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        subjectAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        timeAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        typeAttribute:
+          $ref: '#/components/schemas/CloudEventAttribute'
+        requiredAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudEventAttribute'
+          nullable: true
+          readOnly: true
+        optionalAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudEventAttribute'
+          nullable: true
+          readOnly: true
+        allAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CloudEventAttribute'
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    CompatibilityReportResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ComputeUsageRequestDto:
+      type: object
+      properties:
+        scopes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductScopeDto'
+          nullable: true
+      additionalProperties: false
+    ConstructorInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        attributes:
+          $ref: '#/components/schemas/MethodAttributes'
+        methodImplementationFlags:
+          $ref: '#/components/schemas/MethodImplAttributes'
+        callingConvention:
+          $ref: '#/components/schemas/CallingConventions'
+        isAbstract:
+          type: boolean
+          readOnly: true
+        isConstructor:
+          type: boolean
+          readOnly: true
+        isFinal:
+          type: boolean
+          readOnly: true
+        isHideBySig:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isStatic:
+          type: boolean
+          readOnly: true
+        isVirtual:
+          type: boolean
+          readOnly: true
+        isAssembly:
+          type: boolean
+          readOnly: true
+        isFamily:
+          type: boolean
+          readOnly: true
+        isFamilyAndAssembly:
+          type: boolean
+          readOnly: true
+        isFamilyOrAssembly:
+          type: boolean
+          readOnly: true
+        isPrivate:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isConstructedGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethodDefinition:
+          type: boolean
+          readOnly: true
+        containsGenericParameters:
+          type: boolean
+          readOnly: true
+        methodHandle:
+          $ref: '#/components/schemas/RuntimeMethodHandle'
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+      additionalProperties: false
+    ConsumptionProductUsage:
+      type: object
+      properties:
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        used:
+          type: number
+          format: double
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        consumedAtOrganizationLevel:
+          type: number
+          format: double
+        consumedAcrossDeletedServiceScopeIds:
+          type: number
+          format: double
+      additionalProperties: false
+    ConsumptionProductUsageRequestDto:
+      type: object
+      properties:
+        serviceType:
+          type: string
+          nullable: true
+        serviceScopeId:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+      additionalProperties: false
+    CustomAttributeData:
+      type: object
+      properties:
+        attributeType:
+          $ref: '#/components/schemas/Type'
+        constructor:
+          $ref: '#/components/schemas/ConstructorInfo'
+        constructorArguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeTypedArgument'
+          nullable: true
+          readOnly: true
+        namedArguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeNamedArgument'
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    CustomAttributeNamedArgument:
+      type: object
+      properties:
+        memberInfo:
+          $ref: '#/components/schemas/MemberInfo'
+        typedValue:
+          $ref: '#/components/schemas/CustomAttributeTypedArgument'
+        memberName:
+          type: string
+          nullable: true
+          readOnly: true
+        isField:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    CustomAttributeTypedArgument:
+      type: object
+      properties:
+        argumentType:
+          $ref: '#/components/schemas/Type'
+        value:
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    DataMoveRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        sourceScaleUnitId:
+          type: string
+          nullable: true
+        destinationScaleUnitId:
+          type: string
+          nullable: true
+        compatibilityChecksum:
+          type: string
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+        peerProperties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        intermediaryStorageSAS:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DataMoveResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        dataVerificationCheckSum:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeleteRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeleteResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    DeleteUsersFromGroupRequestDto:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    DeploymentTypeDto:
+      type: object
+      properties:
+        deploymentType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    EditableUserBundleDto:
+      type: object
+      properties:
+        availableUserBundles:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserLicenseAsProductDto'
+          nullable: true
+        allocatedUserBundles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+          nullable: true
+        explicitAllocation:
+          type: boolean
+        useExternalLicense:
+          type: boolean
+        groupLicenseInheritance:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupInheritanceDto'
+          nullable: true
+      additionalProperties: false
+    EventAttributes:
+      enum:
+        - 0
+        - 512
+        - 1024
+      type: integer
+      format: int32
+    EventInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        attributes:
+          $ref: '#/components/schemas/EventAttributes'
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        addMethod:
+          $ref: '#/components/schemas/MethodInfo'
+        removeMethod:
+          $ref: '#/components/schemas/MethodInfo'
+        raiseMethod:
+          $ref: '#/components/schemas/MethodInfo'
+        isMulticast:
+          type: boolean
+          readOnly: true
+        eventHandlerType:
+          $ref: '#/components/schemas/Type'
+      additionalProperties: false
+    FieldAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 16
+        - 32
+        - 64
+        - 128
+        - 256
+        - 512
+        - 1024
+        - 4096
+        - 8192
+        - 32768
+        - 38144
+      type: integer
+      format: int32
+    FieldInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        attributes:
+          $ref: '#/components/schemas/FieldAttributes'
+        fieldType:
+          $ref: '#/components/schemas/Type'
+        isInitOnly:
+          type: boolean
+          readOnly: true
+        isLiteral:
+          type: boolean
+          readOnly: true
+        isNotSerialized:
+          type: boolean
+          readOnly: true
+        isPinvokeImpl:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isStatic:
+          type: boolean
+          readOnly: true
+        isAssembly:
+          type: boolean
+          readOnly: true
+        isFamily:
+          type: boolean
+          readOnly: true
+        isFamilyAndAssembly:
+          type: boolean
+          readOnly: true
+        isFamilyOrAssembly:
+          type: boolean
+          readOnly: true
+        isPrivate:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+        fieldHandle:
+          $ref: '#/components/schemas/RuntimeFieldHandle'
+      additionalProperties: false
+    FinalizeRequest:
+      type: object
+      properties:
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    GenericParameterAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 8
+        - 16
+        - 28
+      type: integer
+      format: int32
+    GetConsumptionLeaseResponseDto:
+      type: object
+      properties:
+        leaseIdentifier:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        quantity:
+          type: number
+          format: double
+        scopeId:
+          type: string
+          nullable: true
+        scopeType:
+          type: string
+          nullable: true
+        etag:
+          type: string
+          nullable: true
+        usage:
+          $ref: '#/components/schemas/GetConsumptionLeaseResponseUsage'
+      additionalProperties: false
+    GetConsumptionLeaseResponseUsage:
+      type: object
+      properties:
+        total:
+          type: number
+          format: double
+        used:
+          type: number
+          format: double
+        startDate:
+          type: integer
+          format: int64
+          nullable: true
+        endDate:
+          type: integer
+          format: int64
+          nullable: true
+      additionalProperties: false
+    GroupAllocationDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        userBundleLicenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+        userBundleLeases:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int32
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        orphan:
+          type: boolean
+      additionalProperties: false
+    GroupAllocationDtoPagedResult:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupAllocationDto'
+          nullable: true
+      additionalProperties: false
+    GroupIdsRequestDto:
+      type: object
+      properties:
+        groupIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    GroupInheritanceDto:
+      type: object
+      properties:
+        group:
+          type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    GroupRuleAllocationDto:
+      type: object
+      properties:
+        availableUserBundles:
+          uniqueItems: true
+          type: array
+          items:
+            $ref: '#/components/schemas/UserLicenseAsProductDto'
+          nullable: true
+        allocatedUserBundles:
+          uniqueItems: true
+          type: array
+          items:
+            type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+      additionalProperties: false
+    GroupRuleAllocationRequestDto:
+      type: object
+      properties:
+        userBundleLicenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+          deprecated: true
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+      additionalProperties: false
+    GroupRuleDto:
+      type: object
+      properties:
+        groupId:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    ICustomAttributeProvider:
+      type: object
+      additionalProperties: false
+    IncomingDistributionIntervalDto:
+      type: object
+      properties:
+        startDate:
+          type: integer
+          format: int64
+        endDate:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+          nullable: true
+      additionalProperties: false
+    IncomingEntitlementDefinitionDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        requirement:
+          $ref: '#/components/schemas/IncomingEntitlementRequirementDto'
+      additionalProperties: false
+    IncomingEntitlementRequirementDto:
+      type: object
+      properties:
+        skus:
+          type: array
+          items:
+            type: string
+          nullable: true
+        plans:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    IncomingFeatureDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    IncomingLegacyPolicyRequirementDto:
+      type: object
+      properties:
+        skus:
+          type: array
+          items:
+            type: string
+          nullable: true
+        plans:
+          type: array
+          items:
+            type: string
+          nullable: true
+        level:
+          type: string
+          nullable: true
+        cloudType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    IncomingLicenseDto:
+      type: object
+      properties:
+        bundleCode:
+          type: string
+          nullable: true
+        endDate:
+          type: string
+          nullable: true
+        gracePeriod:
+          type: string
+          nullable: true
+        licenseCode:
+          type: string
+          nullable: true
+        parentLicenseCode:
+          type: string
+          nullable: true
+        licenseStatus:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingProductDto'
+          nullable: true
+        templates:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingTemplateDto'
+          nullable: true
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingPolicyDto'
+          nullable: true
+        entitlements:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingEntitlementDefinitionDto'
+          nullable: true
+        startDate:
+          type: string
+          nullable: true
+        subscriptionCode:
+          type: string
+          nullable: true
+        boonLicenseCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    IncomingPolicyDto:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        requirement:
+          $ref: '#/components/schemas/IncomingLegacyPolicyRequirementDto'
+      additionalProperties: false
+    IncomingProductCodesDto:
+      type: object
+      properties:
+        productCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    IncomingProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingFeatureDto'
+          nullable: true
+        quantity:
+          type: integer
+          format: int32
+        allocated:
+          type: integer
+          format: int32
+        type:
+          type: string
+          nullable: true
+        distributionIntervals:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingDistributionIntervalDto'
+          nullable: true
+      additionalProperties: false
+    IncomingTemplateDto:
+      type: object
+      properties:
+        productCode:
+          type: string
+          nullable: true
+        products:
+          type: array
+          items:
+            $ref: '#/components/schemas/IncomingTemplateProductDto'
+          nullable: true
+      additionalProperties: false
+    IncomingTemplateProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+      additionalProperties: false
+    IntPtr:
+      type: object
+      additionalProperties: false
+    LayoutKind:
+      enum:
+        - 0
+        - 2
+        - 3
+      type: integer
+      format: int32
+    LicenseChangedEvent:
+      type: object
+      properties:
+        accountId:
+          type: string
+          nullable: true
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+      additionalProperties: false
+    LicenseInheritanceDto:
+      type: object
+      properties:
+        currentlyUsedLicense:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupInheritanceDto'
+          nullable: true
+        allGroupLicenseAllocationRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupInheritanceDto'
+          nullable: true
+      additionalProperties: false
+    MaintenanceModeRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    MaintenanceModeResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    MemberInfo:
+      type: object
+      properties:
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+      additionalProperties: false
+    MemberTypes:
+      enum:
+        - 1
+        - 2
+        - 4
+        - 8
+        - 16
+        - 32
+        - 64
+        - 128
+        - 191
+      type: integer
+      format: int32
+    MethodAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 16
+        - 32
+        - 64
+        - 128
+        - 256
+        - 512
+        - 1024
+        - 2048
+        - 4096
+        - 8192
+        - 16384
+        - 32768
+        - 53248
+      type: integer
+      format: int32
+    MethodBase:
+      type: object
+      properties:
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        attributes:
+          $ref: '#/components/schemas/MethodAttributes'
+        methodImplementationFlags:
+          $ref: '#/components/schemas/MethodImplAttributes'
+        callingConvention:
+          $ref: '#/components/schemas/CallingConventions'
+        isAbstract:
+          type: boolean
+          readOnly: true
+        isConstructor:
+          type: boolean
+          readOnly: true
+        isFinal:
+          type: boolean
+          readOnly: true
+        isHideBySig:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isStatic:
+          type: boolean
+          readOnly: true
+        isVirtual:
+          type: boolean
+          readOnly: true
+        isAssembly:
+          type: boolean
+          readOnly: true
+        isFamily:
+          type: boolean
+          readOnly: true
+        isFamilyAndAssembly:
+          type: boolean
+          readOnly: true
+        isFamilyOrAssembly:
+          type: boolean
+          readOnly: true
+        isPrivate:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isConstructedGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethodDefinition:
+          type: boolean
+          readOnly: true
+        containsGenericParameters:
+          type: boolean
+          readOnly: true
+        methodHandle:
+          $ref: '#/components/schemas/RuntimeMethodHandle'
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    MethodImplAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 8
+        - 16
+        - 32
+        - 64
+        - 128
+        - 256
+        - 512
+        - 4096
+        - 65535
+      type: integer
+      format: int32
+    MethodInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        attributes:
+          $ref: '#/components/schemas/MethodAttributes'
+        methodImplementationFlags:
+          $ref: '#/components/schemas/MethodImplAttributes'
+        callingConvention:
+          $ref: '#/components/schemas/CallingConventions'
+        isAbstract:
+          type: boolean
+          readOnly: true
+        isConstructor:
+          type: boolean
+          readOnly: true
+        isFinal:
+          type: boolean
+          readOnly: true
+        isHideBySig:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isStatic:
+          type: boolean
+          readOnly: true
+        isVirtual:
+          type: boolean
+          readOnly: true
+        isAssembly:
+          type: boolean
+          readOnly: true
+        isFamily:
+          type: boolean
+          readOnly: true
+        isFamilyAndAssembly:
+          type: boolean
+          readOnly: true
+        isFamilyOrAssembly:
+          type: boolean
+          readOnly: true
+        isPrivate:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isConstructedGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethod:
+          type: boolean
+          readOnly: true
+        isGenericMethodDefinition:
+          type: boolean
+          readOnly: true
+        containsGenericParameters:
+          type: boolean
+          readOnly: true
+        methodHandle:
+          $ref: '#/components/schemas/RuntimeMethodHandle'
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        returnParameter:
+          $ref: '#/components/schemas/ParameterInfo'
+        returnType:
+          $ref: '#/components/schemas/Type'
+        returnTypeCustomAttributes:
+          $ref: '#/components/schemas/ICustomAttributeProvider'
+      additionalProperties: false
+    Module:
+      type: object
+      properties:
+        assembly:
+          $ref: '#/components/schemas/Assembly'
+        fullyQualifiedName:
+          type: string
+          nullable: true
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        mdStreamVersion:
+          type: integer
+          format: int32
+          readOnly: true
+        moduleVersionId:
+          type: string
+          format: uuid
+          readOnly: true
+        scopeName:
+          type: string
+          nullable: true
+          readOnly: true
+        moduleHandle:
+          $ref: '#/components/schemas/ModuleHandle'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+      additionalProperties: false
+    ModuleHandle:
+      type: object
+      properties:
+        mdStreamVersion:
+          type: integer
+          format: int32
+          readOnly: true
+      additionalProperties: false
+    ParameterAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 4
+        - 8
+        - 16
+        - 4096
+        - 8192
+        - 16384
+        - 32768
+        - 61440
+      type: integer
+      format: int32
+    ParameterInfo:
+      type: object
+      properties:
+        attributes:
+          $ref: '#/components/schemas/ParameterAttributes'
+        member:
+          $ref: '#/components/schemas/MemberInfo'
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        parameterType:
+          $ref: '#/components/schemas/Type'
+        position:
+          type: integer
+          format: int32
+          readOnly: true
+        isIn:
+          type: boolean
+          readOnly: true
+        isLcid:
+          type: boolean
+          readOnly: true
+        isOptional:
+          type: boolean
+          readOnly: true
+        isOut:
+          type: boolean
+          readOnly: true
+        isRetval:
+          type: boolean
+          readOnly: true
+        defaultValue:
+          nullable: true
+          readOnly: true
+        rawDefaultValue:
+          nullable: true
+          readOnly: true
+        hasDefaultValue:
+          type: boolean
+          readOnly: true
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+      additionalProperties: false
+    PartitionDeletionRequestDto:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        deletionTime:
+          type: string
+          format: date-time
+        isHardDelete:
+          type: boolean
+      additionalProperties: false
+    PartitionDeletionResponseDto:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        isHardDelete:
+          type: boolean
+      additionalProperties: false
+    PartitionProductUsageDto:
+      type: object
+      properties:
+        clientId:
+          type: string
+          nullable: true
+        clientType:
+          type: string
+          nullable: true
+        productsUsage:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductUsageDto'
+          nullable: true
+      additionalProperties: false
+    PartitionRestoreRequestDto:
+      type: object
+      properties:
+        callbackUrl:
+          type: string
+          format: uri
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        updatedTime:
+          type: string
+          format: date-time
+        status:
+          type: string
+          nullable: true
+      additionalProperties: false
+    PartitionRestoreResponseDto:
+      type: object
+      properties:
+        tenantId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        status:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProductCodeStatus:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    ProductCodeStatusDto:
+      type: object
+      properties:
+        productCode:
+          type: string
+          nullable: true
+        productCodeStatus:
+          $ref: '#/components/schemas/ProductCodeStatus'
+      additionalProperties: false
+    ProductConsumptionDto:
+      type: object
+      properties:
+        boonLicenseCode:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        consumed:
+          type: number
+          format: double
+        intervalStartDate:
+          type: integer
+          format: int64
+          nullable: true
+        intervalEndDate:
+          type: integer
+          format: int64
+          nullable: true
+      additionalProperties: false
+    ProductInUseDto:
+      type: object
+      properties:
+        clientId:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        used:
+          type: number
+          format: double
+        total:
+          type: number
+          format: double
+      additionalProperties: false
+    ProductOrganizationUsageRequestDto:
+      type: object
+      properties:
+        timePeriod:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ProductOrganizationUsageTimelineDto:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        productCode:
+          type: string
+          nullable: true
+        productUsage:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+          nullable: true
+      additionalProperties: false
+    ProductScopeDto:
+      type: object
+      properties:
+        scopeId:
+          type: string
+          nullable: true
+        scopeType:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProductUsageDto:
+      type: object
+      properties:
+        serviceScopeId:
+          type: string
+          nullable: true
+        serviceType:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        used:
+          type: number
+          format: double
+        total:
+          type: number
+          format: double
+        startDate:
+          type: integer
+          format: int64
+          nullable: true
+        endDate:
+          type: integer
+          format: int64
+          nullable: true
+        usageModel:
+          type: string
+          nullable: true
+      additionalProperties: false
+    ProductUsageRequestDto:
+      type: object
+      properties:
+        clientIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+        timePeriod:
+          type: integer
+          format: int32
+      additionalProperties: false
+    ProductUsageTimelineDto:
+      type: object
+      properties:
+        clientId:
+          type: string
+          nullable: true
+        productCode:
+          type: string
+          nullable: true
+        productUsage:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
+          nullable: true
+      additionalProperties: false
+    PropertiesResponse:
+      type: object
+      properties:
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    PropertyAttributes:
+      enum:
+        - 0
+        - 512
+        - 1024
+        - 4096
+        - 8192
+        - 16384
+        - 32768
+        - 62464
+      type: integer
+      format: int32
+    PropertyInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        module:
+          $ref: '#/components/schemas/Module'
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        propertyType:
+          $ref: '#/components/schemas/Type'
+        attributes:
+          $ref: '#/components/schemas/PropertyAttributes'
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        canRead:
+          type: boolean
+          readOnly: true
+        canWrite:
+          type: boolean
+          readOnly: true
+        getMethod:
+          $ref: '#/components/schemas/MethodInfo'
+        setMethod:
+          $ref: '#/components/schemas/MethodInfo'
+      additionalProperties: false
+    RequestedLicenseUnits:
+      type: object
+      properties:
+        licenseUnits:
+          type: array
+          items:
+            type: string
+          description: The list of all *License Units* the service can handle.
+          nullable: true
+          example:
+            - ATTR
+            - STDX
+            - STD
+            - STDPRO
+      additionalProperties: false
+      description: Response when requesting a user license (via StartUserSession).
+    RollbackRequest:
+      type: object
+      properties:
+        callBackUrl:
+          type: string
+          format: uri
+          nullable: true
+        migrationCorrelationId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RollbackResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: true
+        success:
+          type: boolean
+        reason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    RuntimeFieldHandle:
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/IntPtr'
+      additionalProperties: false
+    RuntimeMethodHandle:
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/IntPtr'
+      additionalProperties: false
+    RuntimeTypeHandle:
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/IntPtr'
+      additionalProperties: false
+    ScopeUsageDto:
+      type: object
+      properties:
+        scopeId:
+          type: string
+          nullable: true
+        scopeType:
+          type: string
+          nullable: true
+        productsUsage:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductUsageDto'
+          nullable: true
+      additionalProperties: false
+    SecurityRuleSet:
+      enum:
+        - 0
+        - 1
+        - 2
+      type: integer
+      format: int32
+    SortOrder:
+      enum:
+        - 0
+        - 1
+      type: integer
+      format: int32
+    StructLayoutAttribute:
+      type: object
+      properties:
+        typeId:
+          nullable: true
+          readOnly: true
+        value:
+          $ref: '#/components/schemas/LayoutKind'
+      additionalProperties: false
+    Type:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        isInterface:
+          type: boolean
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        namespace:
+          type: string
+          nullable: true
+          readOnly: true
+        assemblyQualifiedName:
+          type: string
+          nullable: true
+          readOnly: true
+        fullName:
+          type: string
+          nullable: true
+          readOnly: true
+        assembly:
+          $ref: '#/components/schemas/Assembly'
+        module:
+          $ref: '#/components/schemas/Module'
+        isNested:
+          type: boolean
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        declaringMethod:
+          $ref: '#/components/schemas/MethodBase'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        underlyingSystemType:
+          $ref: '#/components/schemas/Type'
+        isTypeDefinition:
+          type: boolean
+          readOnly: true
+        isArray:
+          type: boolean
+          readOnly: true
+        isByRef:
+          type: boolean
+          readOnly: true
+        isPointer:
+          type: boolean
+          readOnly: true
+        isConstructedGenericType:
+          type: boolean
+          readOnly: true
+        isGenericParameter:
+          type: boolean
+          readOnly: true
+        isGenericTypeParameter:
+          type: boolean
+          readOnly: true
+        isGenericMethodParameter:
+          type: boolean
+          readOnly: true
+        isGenericType:
+          type: boolean
+          readOnly: true
+        isGenericTypeDefinition:
+          type: boolean
+          readOnly: true
+        isSZArray:
+          type: boolean
+          readOnly: true
+        isVariableBoundArray:
+          type: boolean
+          readOnly: true
+        isByRefLike:
+          type: boolean
+          readOnly: true
+        hasElementType:
+          type: boolean
+          readOnly: true
+        genericTypeArguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Type'
+          nullable: true
+          readOnly: true
+        genericParameterPosition:
+          type: integer
+          format: int32
+          readOnly: true
+        genericParameterAttributes:
+          $ref: '#/components/schemas/GenericParameterAttributes'
+        attributes:
+          $ref: '#/components/schemas/TypeAttributes'
+        isAbstract:
+          type: boolean
+          readOnly: true
+        isImport:
+          type: boolean
+          readOnly: true
+        isSealed:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isClass:
+          type: boolean
+          readOnly: true
+        isNestedAssembly:
+          type: boolean
+          readOnly: true
+        isNestedFamANDAssem:
+          type: boolean
+          readOnly: true
+        isNestedFamily:
+          type: boolean
+          readOnly: true
+        isNestedFamORAssem:
+          type: boolean
+          readOnly: true
+        isNestedPrivate:
+          type: boolean
+          readOnly: true
+        isNestedPublic:
+          type: boolean
+          readOnly: true
+        isNotPublic:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isAutoLayout:
+          type: boolean
+          readOnly: true
+        isExplicitLayout:
+          type: boolean
+          readOnly: true
+        isLayoutSequential:
+          type: boolean
+          readOnly: true
+        isAnsiClass:
+          type: boolean
+          readOnly: true
+        isAutoClass:
+          type: boolean
+          readOnly: true
+        isUnicodeClass:
+          type: boolean
+          readOnly: true
+        isCOMObject:
+          type: boolean
+          readOnly: true
+        isContextful:
+          type: boolean
+          readOnly: true
+        isEnum:
+          type: boolean
+          readOnly: true
+        isMarshalByRef:
+          type: boolean
+          readOnly: true
+        isPrimitive:
+          type: boolean
+          readOnly: true
+        isValueType:
+          type: boolean
+          readOnly: true
+        isSignatureType:
+          type: boolean
+          readOnly: true
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+        structLayoutAttribute:
+          $ref: '#/components/schemas/StructLayoutAttribute'
+        typeInitializer:
+          $ref: '#/components/schemas/ConstructorInfo'
+        typeHandle:
+          $ref: '#/components/schemas/RuntimeTypeHandle'
+        guid:
+          type: string
+          format: uuid
+          readOnly: true
+        baseType:
+          $ref: '#/components/schemas/Type'
+        isSerializable:
+          type: boolean
+          readOnly: true
+        containsGenericParameters:
+          type: boolean
+          readOnly: true
+        isVisible:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    TypeAttributes:
+      enum:
+        - 0
+        - 1
+        - 2
+        - 3
+        - 4
+        - 5
+        - 6
+        - 7
+        - 8
+        - 16
+        - 24
+        - 32
+        - 128
+        - 256
+        - 1024
+        - 2048
+        - 4096
+        - 8192
+        - 16384
+        - 65536
+        - 131072
+        - 196608
+        - 262144
+        - 264192
+        - 1048576
+        - 12582912
+      type: integer
+      format: int32
+    TypeInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+          readOnly: true
+        customAttributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/CustomAttributeData'
+          nullable: true
+          readOnly: true
+        isCollectible:
+          type: boolean
+          readOnly: true
+        metadataToken:
+          type: integer
+          format: int32
+          readOnly: true
+        isInterface:
+          type: boolean
+          readOnly: true
+        memberType:
+          $ref: '#/components/schemas/MemberTypes'
+        namespace:
+          type: string
+          nullable: true
+          readOnly: true
+        assemblyQualifiedName:
+          type: string
+          nullable: true
+          readOnly: true
+        fullName:
+          type: string
+          nullable: true
+          readOnly: true
+        assembly:
+          $ref: '#/components/schemas/Assembly'
+        module:
+          $ref: '#/components/schemas/Module'
+        isNested:
+          type: boolean
+          readOnly: true
+        declaringType:
+          $ref: '#/components/schemas/Type'
+        declaringMethod:
+          $ref: '#/components/schemas/MethodBase'
+        reflectedType:
+          $ref: '#/components/schemas/Type'
+        underlyingSystemType:
+          $ref: '#/components/schemas/Type'
+        isTypeDefinition:
+          type: boolean
+          readOnly: true
+        isArray:
+          type: boolean
+          readOnly: true
+        isByRef:
+          type: boolean
+          readOnly: true
+        isPointer:
+          type: boolean
+          readOnly: true
+        isConstructedGenericType:
+          type: boolean
+          readOnly: true
+        isGenericParameter:
+          type: boolean
+          readOnly: true
+        isGenericTypeParameter:
+          type: boolean
+          readOnly: true
+        isGenericMethodParameter:
+          type: boolean
+          readOnly: true
+        isGenericType:
+          type: boolean
+          readOnly: true
+        isGenericTypeDefinition:
+          type: boolean
+          readOnly: true
+        isSZArray:
+          type: boolean
+          readOnly: true
+        isVariableBoundArray:
+          type: boolean
+          readOnly: true
+        isByRefLike:
+          type: boolean
+          readOnly: true
+        hasElementType:
+          type: boolean
+          readOnly: true
+        genericTypeArguments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Type'
+          nullable: true
+          readOnly: true
+        genericParameterPosition:
+          type: integer
+          format: int32
+          readOnly: true
+        genericParameterAttributes:
+          $ref: '#/components/schemas/GenericParameterAttributes'
+        attributes:
+          $ref: '#/components/schemas/TypeAttributes'
+        isAbstract:
+          type: boolean
+          readOnly: true
+        isImport:
+          type: boolean
+          readOnly: true
+        isSealed:
+          type: boolean
+          readOnly: true
+        isSpecialName:
+          type: boolean
+          readOnly: true
+        isClass:
+          type: boolean
+          readOnly: true
+        isNestedAssembly:
+          type: boolean
+          readOnly: true
+        isNestedFamANDAssem:
+          type: boolean
+          readOnly: true
+        isNestedFamily:
+          type: boolean
+          readOnly: true
+        isNestedFamORAssem:
+          type: boolean
+          readOnly: true
+        isNestedPrivate:
+          type: boolean
+          readOnly: true
+        isNestedPublic:
+          type: boolean
+          readOnly: true
+        isNotPublic:
+          type: boolean
+          readOnly: true
+        isPublic:
+          type: boolean
+          readOnly: true
+        isAutoLayout:
+          type: boolean
+          readOnly: true
+        isExplicitLayout:
+          type: boolean
+          readOnly: true
+        isLayoutSequential:
+          type: boolean
+          readOnly: true
+        isAnsiClass:
+          type: boolean
+          readOnly: true
+        isAutoClass:
+          type: boolean
+          readOnly: true
+        isUnicodeClass:
+          type: boolean
+          readOnly: true
+        isCOMObject:
+          type: boolean
+          readOnly: true
+        isContextful:
+          type: boolean
+          readOnly: true
+        isEnum:
+          type: boolean
+          readOnly: true
+        isMarshalByRef:
+          type: boolean
+          readOnly: true
+        isPrimitive:
+          type: boolean
+          readOnly: true
+        isValueType:
+          type: boolean
+          readOnly: true
+        isSignatureType:
+          type: boolean
+          readOnly: true
+        isSecurityCritical:
+          type: boolean
+          readOnly: true
+        isSecuritySafeCritical:
+          type: boolean
+          readOnly: true
+        isSecurityTransparent:
+          type: boolean
+          readOnly: true
+        structLayoutAttribute:
+          $ref: '#/components/schemas/StructLayoutAttribute'
+        typeInitializer:
+          $ref: '#/components/schemas/ConstructorInfo'
+        typeHandle:
+          $ref: '#/components/schemas/RuntimeTypeHandle'
+        guid:
+          type: string
+          format: uuid
+          readOnly: true
+        baseType:
+          $ref: '#/components/schemas/Type'
+        isSerializable:
+          type: boolean
+          readOnly: true
+        containsGenericParameters:
+          type: boolean
+          readOnly: true
+        isVisible:
+          type: boolean
+          readOnly: true
+        genericTypeParameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/Type'
+          nullable: true
+          readOnly: true
+        declaredConstructors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConstructorInfo'
+          nullable: true
+          readOnly: true
+        declaredEvents:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventInfo'
+          nullable: true
+          readOnly: true
+        declaredFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/FieldInfo'
+          nullable: true
+          readOnly: true
+        declaredMembers:
+          type: array
+          items:
+            $ref: '#/components/schemas/MemberInfo'
+          nullable: true
+          readOnly: true
+        declaredMethods:
+          type: array
+          items:
+            $ref: '#/components/schemas/MethodInfo'
+          nullable: true
+          readOnly: true
+        declaredNestedTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/TypeInfo'
+          nullable: true
+          readOnly: true
+        declaredProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/PropertyInfo'
+          nullable: true
+          readOnly: true
+        implementedInterfaces:
+          type: array
+          items:
+            $ref: '#/components/schemas/Type'
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UserAllocationsDto:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        lastInUse:
+          type: string
+          format: date-time
+          nullable: true
+        userBundleLicenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+        orphan:
+          type: boolean
+      additionalProperties: false
+    UserAllocationsDtoPagedResult:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserAllocationsDto'
+          nullable: true
+      additionalProperties: false
+    UserBundleDeallocationRequestDto:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UserBundleDeallocationResponseDto:
+      type: object
+      properties:
+        successfulUserIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+        failedUserIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UserBundleLease:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        globalId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          format: uuid
+        userBundleCode:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        groupId:
+          type: string
+          nullable: true
+        userSessionUserBundleLeases:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionUserBundleLease'
+          nullable: true
+      additionalProperties: false
+    UserBundleLeaseDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        userBundleCode:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        groupId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UserExplicitAllocationDto:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        surname:
+          type: string
+          nullable: true
+        lastInUse:
+          type: string
+          format: date-time
+          nullable: true
+        userBundleLicenses:
+          type: array
+          items:
+            type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        orphan:
+          type: boolean
+      additionalProperties: false
+    UserExplicitAllocationDtoPagedResult:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          format: int32
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserExplicitAllocationDto'
+          nullable: true
+      additionalProperties: false
+    UserIdsRequestDto:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UserLicenseAllocationDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          nullable: true
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        inheritedFromGroup:
+          type: boolean
+      additionalProperties: false
+    UserLicenseAllocationRequestDto:
+      type: object
+      properties:
+        userIds:
+          type: array
+          items:
+            type: string
+          nullable: true
+        licenseCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+          deprecated: true
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+      additionalProperties: false
+    UserLicenseAsProductDto:
+      type: object
+      properties:
+        code:
+          type: string
+          nullable: true
+        allocated:
+          type: integer
+          format: int32
+        total:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UserLicenseDto:
+      type: object
+      properties:
+        userId:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          nullable: true
+        useExternalLicense:
+          type: boolean
+        userBundleCodes:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UserLicenseResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Gets or sets the userId.
+          nullable: true
+          example: f418b226-0fd6-4f4b-8452-98d1e55bda60
+        accountId:
+          type: string
+          description: Gets or sets the organization Id (accountId).
+          nullable: true
+          example: 6c0352d9-b6fb-43cd-9cd8-e988118d350a
+        externalLicense:
+          type: boolean
+          description: This user has "external license" turned on. In this case, the `license_token` will be null/undefined.
+          example: false
+        license_token:
+          type: string
+          description: "The actual license, encoded as JWT.\r\n            \r\nWhen decoded it has the following structure:\r\n```\r\n{\r\n  \"lu\": [\r\n    \"STD\",\r\n    \"APPS\",\r\n    \"STDX\",\r\n    \"ATTR\"\r\n  ],\r\n  \"sub\": \"userId\",\r\n  \"prt_id\": \"organizationId\",\r\n  \"ubl\": \"RPADEVCU\",    // this can also be an array if multiple bundles are returned\r\n  \"nbf\": 1612874595,\r\n  \"exp\": 1612881795,\r\n  \"plan\": \"COMMUNITY\"  // COMMUNITY/TRIAL/ENTERPRISE\r\n}\r\n```\r\nDeserialization should be done using standard JWT mechanisms, as it takes care of claims with multiple values that can be either a simple string or an array of strings.\r\n`lu` and `ubl` claims in particular can be either string (single value) or array of strings (multiple values)."
+          nullable: true
+          example: eyJhbGciOiJub25lIn0.eyJsdSI6WyJTVEQiLCJBUFBTIiwiU1REWCIsIkFUVFIiXSwic3ViIjoiZjQxOGIyMjYtMGZkNi00ZjRiLTg0NTItOThkMWU1NWJkYTYwIiwicHJ0X2lkIjoiNmMwMzUyZDktYjZmYi00M2NkLTljZDgtZTk4ODExOGQzNTBhIiwidWJsIjoiUlBBREVWQ1UiLCJuYmYiOjE2MTI4NzQ1OTUsImV4cCI6MTYxMjg4MTc5NX0.
+        userSession:
+          $ref: '#/components/schemas/UserSessionSummary'
+      additionalProperties: false
+      description: Response when requesting a user license (via StartUserSession).
+    UserLicenseStateResponse:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: Gets or sets the userId.
+          nullable: true
+          example: f418b226-0fd6-4f4b-8452-98d1e55bda60
+        accountId:
+          type: string
+          description: Gets or sets the organization Id (accountId).
+          nullable: true
+          example: 6c0352d9-b6fb-43cd-9cd8-e988118d350a
+        license_token:
+          type: string
+          description: "The actual license, encoded as JWT.\r\n            \r\nWhen decoded it has the following structure:\r\n```\r\n{\r\n  \"lu\": [\r\n    \"STD\",\r\n    \"APPS\",\r\n    \"STDX\",\r\n    \"ATTR\"\r\n  ],\r\n  \"sub\": \"userId\",\r\n  \"prt_id\": \"organizationId\",\r\n  \"ubl\": \"RPADEVCU\",    // this can also be an array if multiple bundles are returned\r\n  \"nbf\": 1612874595,\r\n  \"exp\": 1612881795,\r\n  \"plan\": \"COMMUNITY\"  // COMMUNITY/TRIAL/ENTERPRISE\r\n}\r\n```\r\nDeserialization should be done using standard JWT mechanisms, as it takes care of claims with multiple values that can be either a simple string or an array of strings.\r\n`lu` and `ubl` claims in particular can be either string (single value) or array of strings (multiple values)."
+          nullable: true
+          example: eyJhbGciOiJub25lIn0.eyJsdSI6WyJTVEQiLCJBUFBTIiwiU1REWCIsIkFUVFIiXSwic3ViIjoiZjQxOGIyMjYtMGZkNi00ZjRiLTg0NTItOThkMWU1NWJkYTYwIiwicHJ0X2lkIjoiNmMwMzUyZDktYjZmYi00M2NkLTljZDgtZTk4ODExOGQzNTBhIiwidWJsIjoiUlBBREVWQ1UiLCJuYmYiOjE2MTI4NzQ1OTUsImV4cCI6MTYxMjg4MTc5NX0.
+      additionalProperties: false
+      description: Response when requesting a user license (via StartUserSession).
+    UserSession:
+      required:
+        - sessionId
+        - started
+        - userId
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        globalId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+        organizationId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+        clientType:
+          type: string
+          nullable: true
+        started:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        userSessionUserBundleLeases:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserSessionUserBundleLease'
+          nullable: true
+      additionalProperties: false
+    UserSessionDto:
+      type: object
+      properties:
+        globalId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          nullable: true
+        organizationId:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          nullable: true
+        clientType:
+          type: string
+          nullable: true
+        started:
+          type: string
+          format: date-time
+        lastUpdated:
+          type: string
+          format: date-time
+        userBundleLeases:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserBundleLease'
+          nullable: true
+      additionalProperties: false
+    UserSessionSummary:
+      type: object
+      properties:
+        globalId:
+          type: string
+          description: Unique global id of the user session.
+          format: uuid
+        started:
+          type: string
+          description: The time when the session was created.
+          format: date-time
+        lastUpdated:
+          type: string
+          description: The time when the session was last updated.
+          format: date-time
+      additionalProperties: false
+    UserSessionUserBundleLease:
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        userSessionGlobalId:
+          type: string
+          format: uuid
+        userSession:
+          $ref: '#/components/schemas/UserSession'
+        userBundleLeaseGlobalId:
+          type: string
+          format: uuid
+        userBundleLease:
+          $ref: '#/components/schemas/UserBundleLease'
+      additionalProperties: false
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: JWT Authorization header using the Bearer scheme.
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+tags:
+  - name: UserLicense
+    description: API for managing user licenses (called from frontend).
+  - name: UserLicensing
+    description: User Licensing API for First Party Services.
+  - name: LicenseMaintenance
+    description: API for managing account licenses.
