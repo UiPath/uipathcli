@@ -123,7 +123,6 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 		return nil, err
 	}
 	file := context.Input
-	fmt.Println(file)
 	if file == nil {
 		file, err = c.getFileParameter(context.Parameters)
 		if err != nil {
