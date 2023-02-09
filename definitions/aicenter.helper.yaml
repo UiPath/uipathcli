@@ -484,6 +484,34 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/BaseResponseHttpStatus'
+  /v1/events/tenantService/rbacMigration/:
+    post:
+      tags:
+        - tenant-service-events-controller
+      operationId: tenantRbacMigration
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TenantRbacMigrationDto'
+        required: true
+      responses:
+        "200":
+          description: OK
+  /v1/events/auditlogs/create/:
+    post:
+      tags:
+        - audit-log-events-controller
+      operationId: createAuditLog
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditLogMessage'
+        required: true
+      responses:
+        "200":
+          description: OK
   /v1/audits:
     get:
       tags:
@@ -612,7 +640,7 @@ paths:
       tags:
         - AuditLog
       summary: Create the Audit Log Entry !!
-      operationId: createAuditLog
+      operationId: createAuditLog_1
       parameters:
         - name: account-id
           in: header
@@ -2033,13 +2061,13 @@ components:
             - ROLES
             - PROFILE
             - OOB_UPLOAD
+        canView:
+          type: boolean
         canCreate:
           type: boolean
         canEdit:
           type: boolean
         canDelete:
-          type: boolean
-        canView:
           type: boolean
     BaseResponseRolesDto:
       type: object
@@ -2098,13 +2126,13 @@ components:
             - ROLES
             - PROFILE
             - OOB_UPLOAD
+        canView:
+          type: boolean
         canCreate:
           type: boolean
         canEdit:
           type: boolean
         canDelete:
-          type: boolean
-        canView:
           type: boolean
         roleId:
           type: string
@@ -2221,6 +2249,52 @@ components:
         projectId:
           type: string
         restrictAccess:
+          type: boolean
+    TenantRbacMigrationDto:
+      type: object
+      properties:
+        accountId:
+          type: string
+        tenantId:
+          type: string
+        projectId:
+          type: string
+        userId:
+          type: string
+        orgId:
+          type: string
+        userName:
+          type: string
+        messageOrigin:
+          type: string
+        messageSpanId:
+          type: string
+        s2sIpRange:
+          type: string
+        createdTimestampUTC:
+          type: integer
+          format: int64
+        retries:
+          type: integer
+          format: int32
+        accountName:
+          type: string
+        tenantName:
+          type: string
+        provisioningStatus:
+          type: string
+          enum:
+            - NOT_PROVISIONED
+            - PROVISIONED
+            - DEPROVISIONING
+            - DISABLED
+            - FAILED
+        tenantProjectIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        migrationSuccess:
           type: boolean
     AuditLogMessage:
       type: object

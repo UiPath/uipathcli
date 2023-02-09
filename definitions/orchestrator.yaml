@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: UiPath.WebApi 15.0
+  title: UiPath.WebApi 16.0
   description: Orchestrator API
-  version: "15.0"
+  version: "16.0"
 servers:
   - url: https://cloud.uipath.com/{organization}/{tenant}/orchestrator_
     description: The production url
@@ -8273,6 +8273,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8335,6 +8340,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Package deleted
@@ -8363,6 +8373,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Success
@@ -8390,6 +8405,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8447,6 +8467,11 @@ paths:
         Required permissions: Libraries.Create.
       operationId: Libraries_UploadPackage
       parameters:
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -23453,6 +23478,7 @@ components:
             - AutomationSolutions
             - RemoteControl
             - TaskSolutions
+            - TaskDefinitions
             - TestSets
             - TestSetSchedules
             - TestDataQueues
@@ -25131,6 +25157,7 @@ components:
             - TaskCatalogEncrypted
             - TasksSummaryDateDiffOutOfRange
             - TasksSummaryEndDateShouldBeGreater
+            - TaskDefinitionPropertiesRequired
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -34570,6 +34597,7 @@ components:
       properties:
         VideoRecordingType:
           type: string
+          default: None
           enum:
             - None
             - Failed

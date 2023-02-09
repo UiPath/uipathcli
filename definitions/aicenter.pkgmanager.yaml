@@ -4182,6 +4182,8 @@ components:
         qualityValue:
           type: number
           format: double
+        concrete:
+          type: boolean
         charset:
           type: string
         wildcardType:
@@ -4190,8 +4192,6 @@ components:
           type: boolean
         subtypeSuffix:
           type: string
-        concrete:
-          type: boolean
     BaseResponseSignedURLDto:
       type: object
       properties:
