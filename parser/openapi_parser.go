@@ -253,7 +253,7 @@ func (p OpenApiParser) parseOperation(method string, baseUri url.URL, route stri
 	category := p.getCategory(operation, document)
 	name := p.getName(method, route, category, operation)
 	contentType, parameters := p.parseOperationParameters(operation, routeParameters)
-	return *NewOperation(name, operation.Summary, method, baseUri, route, contentType, parameters, nil, false, category)
+	return *NewOperation(name, operation.Summary, operation.Description, method, baseUri, route, contentType, parameters, nil, false, category)
 }
 
 func (p OpenApiParser) parsePath(baseUri url.URL, route string, pathItem openapi3.PathItem, document openapi3.T) []Operation {

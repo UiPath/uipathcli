@@ -126,7 +126,7 @@ paths:
 	}
 }
 
-func TestOperationDescription(t *testing.T) {
+func TestOperationsSummary(t *testing.T) {
 	definition := `
 paths:
   /ping:
@@ -141,7 +141,47 @@ paths:
 
 	expected := "Simple ping"
 	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain operation summaries, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestOperationSummary(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--help"}, context)
+
+	expected := "Simple ping"
+	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain ping operation summary, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestOperationDescription(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+      description: This is a long description
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "ping", "--help"}, context)
+
+	expected := "This is a long description"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain ping operation description, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
 
