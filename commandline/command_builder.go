@@ -279,9 +279,10 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 	flags = append(flags, b.createFlags(parameters)...)
 
 	return &cli.Command{
-		Name:  operation.Name,
-		Usage: operation.Description,
-		Flags: flags,
+		Name:        operation.Name,
+		Usage:       operation.Summary,
+		Description: operation.Description,
+		Flags:       flags,
 		Action: func(context *cli.Context) error {
 			profileName := context.String(profileFlagName)
 			config := b.ConfigProvider.Config(profileName)

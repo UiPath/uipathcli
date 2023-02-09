@@ -15,6 +15,7 @@ func (d MultiDefinition) Merge(name string, definitions []*parser.Definition) *p
 		for _, operation := range definition.Operations {
 			category := d.getCategory(operation, definition)
 			operations = append(operations, *parser.NewOperation(operation.Name,
+				operation.Summary,
 				operation.Description,
 				operation.Method,
 				operation.BaseUri,
