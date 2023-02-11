@@ -15,7 +15,7 @@ func PowershellProfilePath() (string, error) {
 		return "", err
 	}
 	documentDir := windowsDocumentDir(homeDir)
-	return filepath.Join(documentDir, "WindowsPowerShell", "profile.ps1"), nil
+	return filepath.Join(documentDir, "PowerShell", "profile.ps1"), nil
 }
 
 func BashrcPath() (string, error) {
