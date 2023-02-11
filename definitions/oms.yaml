@@ -3186,6 +3186,11 @@ components:
           items:
             $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationServiceInstance'
           nullable: true
+        organizationProperties:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationProperties'
+          nullable: true
       additionalProperties: false
     UiPath.Platform.OrganizationManagementService.Data.Entities.Organization_OrganizationStatus:
       enum:
@@ -3204,6 +3209,27 @@ components:
         - 5
       type: integer
       format: int32
+    UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationProperties:
+      required:
+        - organizationId
+        - propertyKey
+        - propertyValue
+      type: object
+      properties:
+        organizationId:
+          type: string
+          format: uuid
+        propertyKey:
+          maxLength: 100
+          type: string
+        propertyValue:
+          maxLength: 100
+          type: string
+        organization:
+          allOf:
+            - $ref: '#/components/schemas/UiPath.Platform.OrganizationManagementService.Data.Entities.Organization'
+          nullable: true
+      additionalProperties: false
     UiPath.Platform.OrganizationManagementService.Data.Entities.OrganizationServiceInstance:
       required:
         - createdBy
