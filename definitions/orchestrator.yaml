@@ -699,6 +699,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "202":
           description: The test case execution was scheduled for cancellation or is not in a cancelable state
@@ -726,6 +727,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "202":
           description: The test set execution was scheduled for cancellation or is not in a cancelable state
@@ -747,6 +749,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json:
@@ -785,6 +788,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -862,6 +866,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: List of process versions
@@ -894,6 +899,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -919,6 +925,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json:
@@ -958,6 +965,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -983,6 +991,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json:
@@ -1016,6 +1025,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: A list of test case executions with corresponding input arguments and optional RobotId and MachineSessionId fields
         content:
@@ -1076,6 +1086,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Successful start of test set execution
@@ -1111,6 +1122,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Provides options to set the BatchExecutionKey and TriggerType and override the input parameters for specific test cases
         content:
@@ -1144,6 +1156,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: 'QueueName: the test data queue name; Content: the item content'
         content:
@@ -1176,6 +1189,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: 'QueueName: the test data queue name; Items: an array of item content'
         content:
@@ -1214,6 +1228,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "202":
           description: All items from the test data queue were scheduled for deletion
@@ -1235,6 +1250,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The Ids of the test data queue items
         content:
@@ -1268,6 +1284,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: 'QueueName:the test data queue name; SetConsumed: Whether to set the item''s IsConsumed flag as true or false'
         content:
@@ -1303,6 +1320,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: 'QueueName: the name of the test data queue; IsConsumed: the value to be set on the items IsConsumed flag'
         content:
@@ -1332,6 +1350,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: 'ItemIds: the list of item ids for which to set the IsConsumed flag; IsConsumed: the value to be set on the items IsConsumed flag'
         content:
@@ -1384,6 +1403,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: BulkTasksCompletionRequest
         content:
@@ -1427,6 +1447,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: BulkTasksDataUpdateRequest
         content:
@@ -1470,6 +1491,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskCompletionRequest
         content:
@@ -1502,6 +1524,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The form task to be created.
         content:
@@ -1543,6 +1566,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -1584,6 +1608,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -1614,6 +1639,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskSaveAndReassignmentRequest
         content:
@@ -1652,6 +1678,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskDataSaveRequest
         content:
@@ -1950,6 +1977,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -1977,6 +2005,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -2066,6 +2095,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2098,6 +2128,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -2173,6 +2204,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Successfully deleted the asset
@@ -2239,6 +2271,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2303,6 +2336,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2346,6 +2380,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2392,6 +2427,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2436,6 +2472,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -2538,6 +2575,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -2571,6 +2609,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -2647,6 +2686,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Object containing the ids of the assets, the ids of the folders where they should be shared and the ids of the folders from which they should be removed.
         content:
@@ -3054,6 +3094,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3080,6 +3121,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -3169,6 +3211,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3201,6 +3244,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -3279,6 +3323,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Successfully deleted the bucket
@@ -3315,6 +3360,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -3393,6 +3439,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3442,6 +3489,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3529,6 +3577,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3585,6 +3634,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3646,6 +3696,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3715,6 +3766,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3758,6 +3810,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -3785,6 +3838,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Object containing the ids of the buckets and the ids of the folders where they should be shared.
         content:
@@ -4802,6 +4856,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -4828,6 +4883,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -4917,6 +4973,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -4949,6 +5006,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -5024,6 +5082,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -5055,6 +5114,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: RobotId - The associated robot Id.
         content:
@@ -5133,6 +5193,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: RobotId - The dissociated robot Id.
         content:
@@ -5211,6 +5272,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />addedRobotIds - The id of the robots to be associated with the environment.\r\n            <para />removedRobotIds - The id of the robots to be dissociated from the environment."
         content:
@@ -5314,6 +5376,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -5385,6 +5448,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -5448,6 +5512,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -5491,6 +5556,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -5518,6 +5584,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -5594,6 +5661,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -7465,6 +7533,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -7508,6 +7577,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -7542,6 +7612,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Strategy - States whether a job should be soft stopped or killed immediately.
         content:
@@ -7629,6 +7700,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -7693,6 +7765,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -7730,6 +7803,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The specified job id.
         content:
@@ -7814,6 +7888,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The specified job key.
         content:
@@ -7913,6 +7988,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: StartInfo - The information required to register the new jobs.
         content:
@@ -7987,6 +8063,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "JobIds - The ids for the jobs to be canceled or terminated;\r\n            Strategy - States whether a job should be soft stopped or killed immediately."
         content:
@@ -8068,6 +8145,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: StartInfo - The same input which would be used to start a new job.
         content:
@@ -8179,6 +8257,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -8249,6 +8328,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -8273,11 +8353,6 @@ paths:
           in: query
           schema:
             type: string
-        - name: feedId
-          in: query
-          schema:
-            type: string
-            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8340,11 +8415,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: feedId
-          in: query
-          schema:
-            type: string
-            format: uuid
       responses:
         "200":
           description: Package deleted
@@ -8373,11 +8443,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: feedId
-          in: query
-          schema:
-            type: string
-            format: uuid
       responses:
         "200":
           description: Success
@@ -8405,11 +8470,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: feedId
-          in: query
-          schema:
-            type: string
-            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8467,11 +8527,6 @@ paths:
         Required permissions: Libraries.Create.
       operationId: Libraries_UploadPackage
       parameters:
-        - name: feedId
-          in: query
-          schema:
-            type: string
-            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -10551,6 +10606,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -10577,6 +10633,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -10666,6 +10723,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -10701,6 +10759,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -10785,6 +10844,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -10815,6 +10875,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Process Schedule was activated successfully
@@ -10877,6 +10938,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -10914,6 +10976,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />Enabled - If true the schedules will be enabled, if false the schedules will be disabled.\r\n            <para />ScheduleIds - The collection of ids of the affected schedules."
         content:
@@ -10998,6 +11061,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -11126,6 +11190,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11152,6 +11217,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -11241,6 +11307,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11273,6 +11340,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -11348,6 +11416,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Deleted
@@ -11415,6 +11484,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11454,6 +11524,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11526,6 +11597,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11570,6 +11642,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11639,6 +11712,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11666,6 +11740,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Object containing the ids of the queue definitions and the ids of the folders where they should be shared.
         content:
@@ -11777,6 +11852,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11805,6 +11881,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -11894,6 +11971,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -11926,6 +12004,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -12001,6 +12080,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -12069,6 +12149,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12133,6 +12214,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12176,6 +12258,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12247,6 +12330,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12329,6 +12413,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12372,6 +12457,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12406,6 +12492,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -12487,6 +12574,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -12554,6 +12642,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12627,6 +12716,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12660,6 +12750,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />QueueItemId - The item's id.\r\n            <para />Progress - The value for the Progress field."
         content:
@@ -12768,6 +12859,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -12805,6 +12897,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: QueueItems - The collection of ids of queue items to delete.
         content:
@@ -12889,6 +12982,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />UserId - The ID of the user to be set as the reviewer. If not set, the reviewer is cleared.\r\n            <para />QueueItems - The collection of ids of queue items for which the reviewer is set."
         content:
@@ -12973,6 +13067,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />QueueItems - The collection of ids of queue items for which the state is set.\r\n            <para />Status - The new value for the review status."
         content:
@@ -13057,6 +13152,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: <para />QueueItems - The collection of ids of queue items for which the reviewer is unset.
         content:
@@ -13170,6 +13266,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13234,6 +13331,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13297,6 +13395,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13339,6 +13438,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13370,6 +13470,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13444,6 +13545,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -13474,6 +13576,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13557,6 +13660,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13640,6 +13744,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13723,6 +13828,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13835,6 +13941,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13877,6 +13984,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -13908,6 +14016,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -13982,6 +14091,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -14061,6 +14171,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14087,6 +14198,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -14179,6 +14291,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14211,6 +14324,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -14289,6 +14403,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -14318,6 +14433,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -14409,6 +14525,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14458,6 +14575,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14501,6 +14619,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: PackageVersion - The new package version.
         content:
@@ -14585,6 +14704,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -14695,6 +14815,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14759,6 +14880,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14823,6 +14945,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14891,6 +15014,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14956,6 +15080,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -14982,6 +15107,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -15071,6 +15197,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15103,6 +15230,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -15178,6 +15306,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -15207,6 +15336,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -15277,6 +15407,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -15353,6 +15484,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -15463,6 +15595,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15527,6 +15660,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15603,6 +15737,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15655,6 +15790,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15725,6 +15861,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15800,6 +15937,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15864,6 +16002,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -15891,6 +16030,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para /> disabled - If true the robots will be enabled, if false the robots will be disabled.\r\n            <para /> robotIds - The collection of ids of the affected robots."
         content:
@@ -16436,6 +16576,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18119,6 +18260,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18183,6 +18325,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18227,6 +18370,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18263,6 +18407,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Successfully deleted task catalog.
@@ -18300,6 +18445,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskCatalog to be updated
         content:
@@ -18384,6 +18530,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The task catalog to be created.
         content:
@@ -18474,6 +18621,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18481,6 +18629,54 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccessibleFoldersDto'
+      security:
+        - OAuth2: []
+  /odata/TaskCatalogs/UiPath.Server.Configuration.OData.GetTaskCatalogExtendedDetails(taskCatalogId={taskCatalogId}):
+    get:
+      tags:
+        - TaskCatalogs
+      summary: Validates task catalog deletion request.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Requires authentication.
+      operationId: TaskCatalogs_GetTaskCatalogExtendedDetailsByTaskcatalogid
+      parameters:
+        - name: taskCatalogId
+          in: path
+          description: Id of task catalog
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskCatalogExtendedDetailsDto'
+        "400":
+          description: Bad Request
+          content: {}
       security:
         - OAuth2: []
   /odata/TaskCatalogs/UiPath.Server.Configuration.OData.GetTaskCatalogsFromFoldersWithPermissions:
@@ -18558,6 +18754,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Ok.
@@ -18585,6 +18782,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Object containing the ids of the task catalogs and the ids of the folders where it should be shared.
         content:
@@ -18669,6 +18867,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The note to be created.
         content:
@@ -18787,6 +18986,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18851,6 +19051,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -18895,6 +19096,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Ok result of Task object.
@@ -18950,6 +19152,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The json containing task and user Ids for assignment.
         content:
@@ -19049,6 +19252,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The json containing list of task ids for deletion.
         content:
@@ -19123,6 +19327,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -19221,6 +19426,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Ok.
@@ -19298,6 +19504,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Ok.
@@ -19375,6 +19582,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Ok.
@@ -19446,6 +19654,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -19498,6 +19707,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The json containing task and user Ids for reassignment.
         content:
@@ -19597,6 +19807,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The json containing list of task ids for un-assignments.
         content:
@@ -20074,6 +20285,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of Test Case Executions filtered with queryOptions
@@ -20114,6 +20326,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Return a specific Test Case Execution identified by key
@@ -20175,6 +20388,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of test data queue items filtered with queryOptions
@@ -20215,6 +20429,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a specific test data queue item identified by key
@@ -20276,6 +20491,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of test data queues filtered with queryOptions
@@ -20299,6 +20515,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -20385,6 +20602,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a specific test data queue identified by key
@@ -20415,6 +20633,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Update information
         content:
@@ -20492,6 +20711,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -20568,6 +20788,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of Test Set Executions filtered with queryOptions
@@ -20608,6 +20829,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Return a specific Test Set Execution identified by key
@@ -20685,6 +20907,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of Test Sets filtered with queryOptions
@@ -20708,6 +20931,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -20794,6 +21018,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Return a specific Test Set identified by key
@@ -20824,6 +21049,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Update information
         content:
@@ -20901,6 +21127,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -20959,6 +21186,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Returns a list of test set execution schedules filtered with queryOptions
@@ -20982,6 +21210,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
@@ -21068,6 +21297,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Return a specific test set execution schedule identified by key
@@ -21098,6 +21328,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: Update information
         content:
@@ -21175,6 +21406,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "204":
           description: Success
@@ -21209,6 +21441,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: "<para />enabled: if true the test set schedules will be enabled, if false they will be disabled.\r\n            <para />scheduleIds: the ids of the test set schedules to be enabled or disabled."
         content:
@@ -22693,6 +22926,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskCompletionRequest
         content:
@@ -22731,6 +22965,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: The task to be created.
         content:
@@ -22772,6 +23007,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       responses:
         "200":
           description: Success
@@ -22802,6 +23038,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskSaveAndReassignmentRequest
         content:
@@ -22840,6 +23077,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskDataSaveRequest
         content:
@@ -22878,6 +23116,7 @@ paths:
             type: integer
             format: int64
           x-name: folder-id
+          required: true
       requestBody:
         description: TaskTagsSaveRequest
         content:
@@ -25316,6 +25555,7 @@ components:
             - ServerlessNoMachineTemplate
             - ServerlessGenericWorkloadsNotEnabled
             - ServerlessRobotJobTypeInvalid
+            - ServerlessServiceIsDisabledInTenant
             - InvalidSolutionArchive
             - CompatibilityCheckFail
             - RollbackNotSupported
@@ -32214,6 +32454,17 @@ components:
           type: integer
           format: int64
       description: Task Catalog entity for external access
+    TaskCatalogExtendedDetailsDto:
+      type: object
+      properties:
+        AssociatedTasksCount:
+          type: integer
+          format: int32
+        IsEncrypted:
+          type: boolean
+        TotalFolderCount:
+          type: integer
+          format: int64
     TaskCatalogFoldersShareDto:
       type: object
       properties:

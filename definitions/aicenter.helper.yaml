@@ -2061,13 +2061,13 @@ components:
             - ROLES
             - PROFILE
             - OOB_UPLOAD
-        canView:
-          type: boolean
         canCreate:
           type: boolean
         canEdit:
           type: boolean
         canDelete:
+          type: boolean
+        canView:
           type: boolean
     BaseResponseRolesDto:
       type: object
@@ -2126,13 +2126,13 @@ components:
             - ROLES
             - PROFILE
             - OOB_UPLOAD
-        canView:
-          type: boolean
         canCreate:
           type: boolean
         canEdit:
           type: boolean
         canDelete:
+          type: boolean
+        canView:
           type: boolean
         roleId:
           type: string
@@ -2698,14 +2698,14 @@ components:
           format: double
         charset:
           type: string
+        concrete:
+          type: boolean
         wildcardType:
           type: boolean
         wildcardSubtype:
           type: boolean
         subtypeSuffix:
           type: string
-        concrete:
-          type: boolean
     BaseResponseSignedURLDto:
       type: object
       properties:
