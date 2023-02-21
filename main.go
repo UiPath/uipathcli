@@ -14,6 +14,7 @@ import (
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/plugin"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
+	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
 )
 
 func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
@@ -90,6 +91,8 @@ func main() {
 			CommandPlugins: []plugin.CommandPlugin{
 				plugin_digitizer.DigitizeCommand{},
 				plugin_digitizer.DigitizeResultCommand{},
+				plugin_orchestrator.UploadCommand{},
+				plugin_orchestrator.DownloadCommand{},
 			},
 		},
 		ConfigProvider: configProvider,
