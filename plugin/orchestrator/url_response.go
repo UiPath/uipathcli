@@ -1,5 +1,5 @@
 package orchestrator
 
-type writeUrlResponse struct {
+type urlResponse struct {
 	Uri string `json:"Uri"`
 }

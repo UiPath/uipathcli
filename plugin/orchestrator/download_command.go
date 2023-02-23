@@ -100,7 +100,7 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, writer outp
 	if response.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
-	var result writeUrlResponse
+	var result urlResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
 		return "", fmt.Errorf("Error parsing json response: %v", err)
