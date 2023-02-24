@@ -1,7 +1,6 @@
 package parser
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/url"
 	"strings"
@@ -18,10 +17,8 @@ type OpenApiParser struct{}
 func (p OpenApiParser) customParameterName(extensions map[string]interface{}) string {
 	name := extensions[CustomParameterNameExtension]
 	switch v := name.(type) {
-	case json.RawMessage:
-		var str string
-		json.Unmarshal(v, &str)
-		return str
+	case string:
+		return v
 	default:
 		return ""
 	}
