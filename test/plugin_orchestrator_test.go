@@ -66,9 +66,8 @@ func TestUploadWithoutFileParameterShowsValidationError(t *testing.T) {
 func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	context := NewContextBuilder().
@@ -93,7 +92,7 @@ func TestUploadWithoutOrganizationShowsValidationError(t *testing.T) {
 
 	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "hello-world"}, context)
 
-	if !strings.Contains(result.StdErr, "Could not find 'organization' parameter") {
+	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
 	}
 }
@@ -104,9 +103,8 @@ func TestUploadWithFailedResponseReturnsError(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	context := NewContextBuilder().
@@ -151,9 +149,8 @@ func TestUploadSuccessfully(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `
@@ -233,7 +230,7 @@ func TestDownloadWithoutOrganizationShowsValidationError(t *testing.T) {
 
 	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
 
-	if !strings.Contains(result.StdErr, "Could not find 'organization' parameter") {
+	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
 	}
 }
@@ -241,9 +238,8 @@ func TestDownloadWithoutOrganizationShowsValidationError(t *testing.T) {
 func TestDownloadWithFailedResponseReturnsError(t *testing.T) {
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	context := NewContextBuilder().
@@ -274,9 +270,8 @@ func TestDownloadSuccessfully(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `

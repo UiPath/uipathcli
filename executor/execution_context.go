@@ -8,36 +8,32 @@ import (
 )
 
 type ExecutionContext struct {
-	Method           string
-	BaseUri          url.URL
-	Route            string
-	ContentType      string
-	Input            *FileReference
-	PathParameters   []ExecutionParameter
-	QueryParameters  []ExecutionParameter
-	HeaderParameters []ExecutionParameter
-	BodyParameters   []ExecutionParameter
-	FormParameters   []ExecutionParameter
-	AuthConfig       config.AuthConfig
-	Insecure         bool
-	Debug            bool
-	Plugin           plugin.CommandPlugin
+	Organization string
+	Tenant       string
+	Method       string
+	BaseUri      url.URL
+	Route        string
+	ContentType  string
+	Input        *FileReference
+	Parameters   ExecutionContextParameters
+	AuthConfig   config.AuthConfig
+	Insecure     bool
+	Debug        bool
+	Plugin       plugin.CommandPlugin
 }
 
 func NewExecutionContext(
+	organization string,
+	tenant string,
 	method string,
 	uri url.URL,
 	route string,
 	contentType string,
 	input *FileReference,
-	pathParameters []ExecutionParameter,
-	queryParameters []ExecutionParameter,
-	headerParameters []ExecutionParameter,
-	bodyParameters []ExecutionParameter,
-	formParameters []ExecutionParameter,
+	parameters ExecutionContextParameters,
 	authConfig config.AuthConfig,
 	insecure bool,
 	debug bool,
 	plugin plugin.CommandPlugin) *ExecutionContext {
-	return &ExecutionContext{method, uri, route, contentType, input, pathParameters, queryParameters, headerParameters, bodyParameters, formParameters, authConfig, insecure, debug, plugin}
+	return &ExecutionContext{organization, tenant, method, uri, route, contentType, input, parameters, authConfig, insecure, debug, plugin}
 }

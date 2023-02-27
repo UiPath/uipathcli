@@ -45,11 +45,11 @@ func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParamete
 }
 
 func (e PluginExecutor) pluginParameters(context ExecutionContext) []plugin.ExecutionParameter {
-	params := context.PathParameters
-	params = append(params, context.QueryParameters...)
-	params = append(params, context.HeaderParameters...)
-	params = append(params, context.BodyParameters...)
-	params = append(params, context.FormParameters...)
+	params := context.Parameters.Path
+	params = append(params, context.Parameters.Query...)
+	params = append(params, context.Parameters.Header...)
+	params = append(params, context.Parameters.Body...)
+	params = append(params, context.Parameters.Form...)
 	return e.convertToPluginParameters(params)
 }
 
@@ -72,6 +72,8 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 	pluginAuth := e.pluginAuth(auth)
 	pluginParams := e.pluginParameters(context)
 	pluginContext := plugin.NewExecutionContext(
+		context.Organization,
+		context.Tenant,
 		context.BaseUri,
 		pluginAuth,
 		pluginInput,

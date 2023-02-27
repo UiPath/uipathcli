@@ -21,6 +21,15 @@ import (
 	"github.com/UiPath/uipathcli/utils"
 )
 
+const NotConfiguredErrorTemplate = `Run config command to set organization and tenant:
+
+    uipathcli config
+
+For more information you can view the help:
+
+    uipathcli config --help
+`
+
 type HttpExecutor struct {
 	Authenticators []auth.Authenticator
 }
@@ -101,6 +110,21 @@ func (e HttpExecutor) serializeJson(body io.Writer, parameters []ExecutionParame
 	return nil
 }
 
+func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
+	if strings.Contains(uri, "{organization}") {
+		return nil, fmt.Errorf("Missing organization parameter!\n\n%s", NotConfiguredErrorTemplate)
+	}
+	if strings.Contains(uri, "{tenant}") {
+		return nil, fmt.Errorf("Missing tenant parameter!\n\n%s", NotConfiguredErrorTemplate)
+	}
+
+	result, err := url.Parse(uri)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid URI '%s': %v", uri, err)
+	}
+	return result, nil
+}
+
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
 	formatter := TypeFormatter{}
 	normalizedPath := strings.Trim(baseUri.Path, "/")
@@ -119,12 +143,7 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 		uri = uri + querySeparator + queryStringValue
 		querySeparator = "&"
 	}
-
-	result, err := url.Parse(uri)
-	if err != nil {
-		return nil, fmt.Errorf("Invalid URI '%s': %v", uri, err)
-	}
-	return result, nil
+	return e.validateUri(uri)
 }
 
 func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
@@ -210,12 +229,12 @@ func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) 
 		}
 		return bodyReader, context.ContentType, size
 	}
-	if len(context.FormParameters) > 0 {
-		contentType, contentLength := e.writeMultipartBody(bodyWriter, context.FormParameters, errorChan)
+	if len(context.Parameters.Form) > 0 {
+		contentType, contentLength := e.writeMultipartBody(bodyWriter, context.Parameters.Form, errorChan)
 		return bodyReader, contentType, contentLength
 	}
-	if len(context.BodyParameters) > 0 {
-		e.writeJsonBody(bodyWriter, context.BodyParameters, errorChan)
+	if len(context.Parameters.Body) > 0 {
+		e.writeJsonBody(bodyWriter, context.Parameters.Body, errorChan)
 		return bodyReader, context.ContentType, -1
 	}
 	go func() {
@@ -257,8 +276,19 @@ func (e HttpExecutor) LogResponse(logger log.Logger, response *http.Response, bo
 	logger.LogResponse(*responseInfo)
 }
 
+func (e HttpExecutor) pathParameters(context ExecutionContext) []ExecutionParameter {
+	pathParameters := context.Parameters.Path
+	if context.Organization != "" {
+		pathParameters = append(pathParameters, *NewExecutionParameter("organization", context.Organization))
+	}
+	if context.Tenant != "" {
+		pathParameters = append(pathParameters, *NewExecutionParameter("tenant", context.Tenant))
+	}
+	return pathParameters
+}
+
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	uri, err := e.formatUri(context.BaseUri, context.Route, context.PathParameters, context.QueryParameters)
+	uri, err := e.formatUri(context.BaseUri, context.Route, e.pathParameters(context), context.Parameters.Query)
 	if err != nil {
 		return err
 	}
@@ -274,7 +304,7 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
 	}
-	e.addHeaders(request, context.HeaderParameters)
+	e.addHeaders(request, context.Parameters.Header)
 	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
 	if err != nil {
 		return err

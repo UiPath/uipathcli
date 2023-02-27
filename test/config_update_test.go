@@ -47,9 +47,8 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     clientId: client-id
     clientSecret: client-secret
@@ -77,9 +76,8 @@ func TestConfiguresLoginAuth(t *testing.T) {
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     clientId: ffe5141f-60fc-4fb9-8717-3969f303aedf
     redirectUri: http://localhost:27100
@@ -108,9 +106,8 @@ func TestConfiguresPatAuth(t *testing.T) {
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -144,9 +141,8 @@ profiles:
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   header:
     x-uipath-test: abc
   auth:
@@ -162,9 +158,8 @@ func TestReconfiguresPatAuth(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -185,9 +180,8 @@ profiles:
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-updated-org
-    tenant: my-updated-tenant
+  organization: my-updated-org
+  tenant: my-updated-tenant
   auth:
     pat: updated-token
 `
@@ -201,9 +195,8 @@ func TestReconfiguresPatAuthPartially(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -224,9 +217,8 @@ profiles:
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
-    organization: my-updated-org
-    tenant: my-tenant
+  organization: my-updated-org
+  tenant: my-tenant
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -263,9 +255,8 @@ profiles:
   header:
     x-uipath-test: abc
 - name: pat
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -282,8 +273,7 @@ profiles:
   header:
     x-uipath-test: abc
 - name: pat
-  path:
-    organization: my-org
+  organization: my-org
   auth:
     pat: rt_mypersonalaccesstoken
 `
@@ -307,8 +297,7 @@ profiles:
   header:
     x-uipath-test: abc
 - name: pat
-  path:
-    organization: my-org
+  organization: my-org
   auth:
     pat: my-new-token
 `
@@ -337,9 +326,8 @@ func TestCredentialsAuthMasksSecrets(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     clientId: 433d7778-8440-4e74-81f0-d88351bde871
     clientSecret: UaX#Fen)8mvifo
@@ -366,9 +354,8 @@ func TestCredentialsAuthMasksShortSecretsCompletely(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     clientId: very
     clientSecret: short
@@ -395,9 +382,8 @@ func TestPatAuthMasksSecrets(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     pat: f73b2edb-b37b-4426-8cc8-e7f98b09a827
 `
@@ -423,9 +409,8 @@ func TestLoginAuthMasksSecrets(t *testing.T) {
 	config := `
 profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
   auth:
     clientId: 891979c1-68e2-46bb-9016-e5f2241fdd35
     redirectUri: http://localhost:27100
