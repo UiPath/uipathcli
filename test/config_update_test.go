@@ -33,7 +33,7 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("client-id\nclient-secret\nmy-org\nmy-tenant\n"))
+	stdIn.Write([]byte("my-org\nmy-tenant\nclient-id\nclient-secret\n"))
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -62,7 +62,7 @@ func TestConfiguresLoginAuth(t *testing.T) {
 	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("ffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\nmy-org\nmy-tenant\n"))
+	stdIn.Write([]byte("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n"))
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -92,7 +92,7 @@ func TestConfiguresPatAuth(t *testing.T) {
 	configFile := createFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("rt_mypersonalaccesstoken\nmy-org\nmy-tenant\n"))
+	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -126,7 +126,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("rt_mypersonalaccesstoken\nmy-org\nmy-tenant\n"))
+	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -165,7 +165,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("updated-token\nmy-updated-org\nmy-updated-tenant\n"))
+	stdIn.Write([]byte("my-updated-org\nmy-updated-tenant\nupdated-token\n"))
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -202,7 +202,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\nmy-updated-org\n\n"))
+	stdIn.Write([]byte("my-updated-org\n\n\n"))
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -237,7 +237,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("rt_mypersonalaccesstoken\nmy-org\nmy-tenant\n"))
+	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -279,7 +279,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-new-token\n\n\n"))
+	stdIn.Write([]byte("\n\nmy-new-token\n"))
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -315,7 +315,7 @@ func TestCredentialsAuthOutputNotSet(t *testing.T) {
 		Build()
 	result := runCli([]string{"config"}, context)
 
-	expectedOutput := `Enter client id [not set]: Enter client secret [not set]: Enter organization [not set]: Enter tenant [not set]: `
+	expectedOutput := `Enter organization [not set]: Enter tenant [not set]: Enter client id [not set]: Enter client secret [not set]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -343,7 +343,7 @@ profiles:
 		Build()
 	result := runCli([]string{"config"}, context)
 
-	expectedOutput := `Enter client id [*******e871]: Enter client secret [*******vifo]: Enter organization [my-org]: Enter tenant [my-tenant]: `
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******e871]: Enter client secret [*******vifo]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -371,7 +371,7 @@ profiles:
 		Build()
 	result := runCli([]string{"config"}, context)
 
-	expectedOutput := `Enter client id [*******]: Enter client secret [*******]: Enter organization [my-org]: Enter tenant [my-tenant]: `
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******]: Enter client secret [*******]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -398,7 +398,7 @@ profiles:
 		Build()
 	result := runCli([]string{"config", "--auth", "pat"}, context)
 
-	expectedOutput := `Enter personal access token [*******a827]: Enter organization [my-org]: Enter tenant [my-tenant]: `
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter personal access token [*******a827]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -427,7 +427,7 @@ profiles:
 		Build()
 	result := runCli([]string{"config", "--auth", "login"}, context)
 
-	expectedOutput := `Enter client id [*******dd35]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: Enter organization [my-org]: Enter tenant [my-tenant]: `
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******dd35]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}

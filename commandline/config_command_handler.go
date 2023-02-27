@@ -39,17 +39,7 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
-	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
-	clientId, err := h.readUserInput(message, reader)
-	if err != nil {
-		return nil
-	}
-	message = fmt.Sprintf("Enter client secret [%s]:", h.getDisplayValue(config.ClientSecret(), true))
-	clientSecret, err := h.readUserInput(message, reader)
-	if err != nil {
-		return nil
-	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
+	message := fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -59,11 +49,21 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	if err != nil {
 		return nil
 	}
+	message = fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
+	clientId, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+	message = fmt.Sprintf("Enter client secret [%s]:", h.getDisplayValue(config.ClientSecret(), true))
+	clientSecret, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
 
-	authChanged := config.ConfigureCredentialsAuth(clientId, clientSecret)
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
+	authChanged := config.ConfigureCredentialsAuth(clientId, clientSecret)
 
-	if authChanged || orgTenantChanged {
+	if orgTenantChanged || authChanged {
 		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
@@ -77,7 +77,17 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
-	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
+	message := fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
+	organization, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant, false))
+	tenant, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
+	message = fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
 	clientId, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -92,21 +102,11 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
-	organization, err := h.readUserInput(message, reader)
-	if err != nil {
-		return nil
-	}
-	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant, false))
-	tenant, err := h.readUserInput(message, reader)
-	if err != nil {
-		return nil
-	}
 
-	authChanged := config.ConfigureLoginAuth(clientId, redirectUri, scopes)
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
+	authChanged := config.ConfigureLoginAuth(clientId, redirectUri, scopes)
 
-	if authChanged || orgTenantChanged {
+	if orgTenantChanged || authChanged {
 		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
@@ -120,12 +120,7 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
-	message := fmt.Sprintf("Enter personal access token [%s]:", h.getDisplayValue(config.Pat(), true))
-	pat, err := h.readUserInput(message, reader)
-	if err != nil {
-		return nil
-	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
+	message := fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -135,11 +130,16 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 	if err != nil {
 		return nil
 	}
+	message = fmt.Sprintf("Enter personal access token [%s]:", h.getDisplayValue(config.Pat(), true))
+	pat, err := h.readUserInput(message, reader)
+	if err != nil {
+		return nil
+	}
 
-	authChanged := config.ConfigurePatAuth(pat)
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
+	authChanged := config.ConfigurePatAuth(pat)
 
-	if authChanged || orgTenantChanged {
+	if orgTenantChanged || authChanged {
 		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
