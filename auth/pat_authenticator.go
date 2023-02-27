@@ -2,7 +2,10 @@ package auth
 
 import (
 	"fmt"
+	"os"
 )
+
+const PatEnvVarName = "UIPATH_PAT"
 
 type PatAuthenticator struct{}
 
@@ -19,14 +22,17 @@ func (a PatAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 }
 
 func (a PatAuthenticator) enabled(ctx AuthenticatorContext) bool {
-	return ctx.Config["pat"] != nil
+	return os.Getenv(PatEnvVarName) != "" || ctx.Config["pat"] != nil
 }
 
 func (a PatAuthenticator) getPat(ctx AuthenticatorContext) (string, error) {
-	return a.parseRequiredString(ctx.Config, "pat")
+	return a.parseRequiredString(ctx.Config, "pat", os.Getenv(PatEnvVarName))
 }
 
-func (a PatAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
+func (a PatAuthenticator) parseRequiredString(config map[string]interface{}, name string, override string) (string, error) {
+	if override != "" {
+		return override, nil
+	}
 	value := config[name]
 	result, valid := value.(string)
 	if !valid || result == "" {
