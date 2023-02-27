@@ -1,6 +1,6 @@
+uipath
 uipathcli
 *.exe
-*.osx
 build/
 coverage.out
 coverage.html

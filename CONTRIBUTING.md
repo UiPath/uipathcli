@@ -40,16 +40,16 @@ You need the [Go Compiler](https://go.dev/dl/) toolchain to build this project. 
 
 ### Windows
 ```powershell
-go build .
+go build -o uipath.exe
 
-.\uipathcli.exe --help
+.\uipath.exe --help
 ```
 
 ### Linux
 ```bash
-go build .
+go build -o uipath
 
-./uipathcli --help
+./uipath --help
 ```
 
 ### Test
@@ -77,10 +77,10 @@ Here are a few things you can do to make code reviews go as smooth as possible:
 
 ### How to integrate my service with the CLI?
 
-If you just want to try out a service, you can copy the OpenAPI specfication in the `definition/` folder next to the `uipathcli` executable. The CLI automatically picks up all the OpenAPI definitions and shows them as top-level commands. The file name of the definition will be the command name. You can see all installed definitions by running:
+If you just want to try out a service, you can copy the OpenAPI specfication in the `definition/` folder next to the `uipath` executable. The CLI automatically picks up all the OpenAPI definitions and shows them as top-level commands. The file name of the definition will be the command name. You can see all installed definitions by running:
 
 ```bash
-uipathcli --help
+uipath --help
 ```
 
 If you would like to publish your service definition bundled together with the CLI, you can simply copy it in the [definitions](definitions) folder of this repository and create a PR with your change.
@@ -94,25 +94,23 @@ You can also cross-compile the CLI using the PowerShell script (`build.ps1`) on 
 .\build.ps1
 
 # Generates
-# - build/uipathcli        for Linux
-# - build/uipathcli.exe    for Windows
-# - build/uipathcli.osx    for MacOS
+# - build/uipath-linux-amd64          for Linux   (x86-64)
+# - build/uipath-windows-amd64.exe    for Windows (x86-64)
+# - build/uipath-darwin-amd64         for MacOS   (x86-64)
+# - build/uipath-linux-arm64          for Linux   (ARM)
+# - build/uipath-windows-arm64.exe    for Windows (ARM)
+# - build/uipath-darwin-arm64         for MacOS   (ARM)
 
 # Run the CLI (on windows)
-.\build\uipathcli.exe --help
+.\build\uipath-windows-amd64.exe --help
 ```
 
 ```bash
 # Cross-compile the CLI on Linux for all supported platforms
 ./build.sh
 
-# Generates
-# - build/uipathcli        for Linux
-# - build/uipathcli.exe    for Windows
-# - build/uipathcli.osx    for MacOS
-
 # Run the CLI (on linux)
-./build/uipathcli --help
+./build/uipath-linux-amd64 --help
 ```
 
 ### How to generate code coverage?
@@ -130,7 +128,7 @@ go tool cover --html=coverage.out
 The CLI supports a pluggable infrastructure which allows you to implement complex custom commands. The [`DigitizeCommand`](plugin/digitizer/digitize_command.go) is an example for a custom command which abstracts away the complexity of the async digitization API. The digitizer API requires you to upload a file, followed by polling the status API until the digitization finished in order to retrieve the digitization result. The `DigitizeCommand` allows the user to just invoke one command for uploading the file and retrieving the result:
 
 ```bash
-uipathcli digitizer digitize --file documents/invoice.pdf
+uipath digitizer digitize --file documents/invoice.pdf
 ```
 
 returns
@@ -182,7 +180,7 @@ func (c CreateCommand) Command() plugin.Command {
 
 3. Implement `Execute(...)` function which performs the operation of the command. The `context` parameters gives you all the input provided by the user and `writer` can be used to write information on standard output and `logger` for debug output.
 
-4. Register the command with the `uipathcli` in [`main.go`](main.go)
+4. Register the command with the `uipath` CLI in [`main.go`](main.go)
 
 ```go
 cli := commandline.Cli{
@@ -195,9 +193,9 @@ cli := commandline.Cli{
 4. You can call your new command:
 
 ```bash
-uipathcli myservice create-product --id "1" --name "tv" --description "40 inch Smart TV"
+uipath myservice create-product --id "1" --name "tv" --description "40 inch Smart TV"
 
-uipathcli myservice create-product --id "2" --name "table"
+uipath myservice create-product --id "2" --name "table"
 ```
 
 **Hide existing command**
@@ -220,7 +218,7 @@ func (c StatusCommand) Execute(context plugin.ExecutionContext, writer output.Ou
 }
 ```
 
-2. Register the command with the `uipathcli` in [`main.go`](main.go)
+2. Register the command with the `uipath` CLI in [`main.go`](main.go)
 
 ```go
 cli := commandline.Cli{

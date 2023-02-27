@@ -16,10 +16,10 @@ const filePermissions = 0644
 const Powershell = "powershell"
 const Bash = "bash"
 
-const completeHandlerEnabledCheck = "uipathcli_auto_complete"
+const completeHandlerEnabledCheck = "uipath_auto_complete"
 
 const powershellCompleteHandler = `
-$uipathcli_auto_complete = {
+$uipath_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
     $padLength = $cursorPosition - $commandAst.Extent.StartOffset
     $textToComplete = $commandAst.ToString().PadRight($padLength, ' ').Substring(0, $padLength)
@@ -28,11 +28,11 @@ $uipathcli_auto_complete = {
         [system.management.automation.completionresult]::new($_, $_, 'parametervalue', $_)
     }
 }
-Register-ArgumentCompleter -Native -CommandName uipathcli -ScriptBlock $uipathcli_auto_complete
+Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto_complete
 `
 
 const bashCompleteHandler = `
-function _uipathcli_auto_complete()
+function _uipath_auto_complete()
 {
   local executable="${COMP_WORDS[0]}"
   local cur="${COMP_WORDS[COMP_CWORD]}" IFS=$'\n'
@@ -40,7 +40,7 @@ function _uipathcli_auto_complete()
   read -d '' -ra candidates < <($executable autocomplete complete --command "${COMP_LINE}" 2>/dev/null)
   read -d '' -ra COMPREPLY < <(compgen -W "${candidates[*]:-}" -- "$cur")
 }
-complete -f -F _uipathcli_auto_complete uipathcli
+complete -f -F _uipath_auto_complete uipath
 `
 
 type AutoCompleteHandler struct {
@@ -135,7 +135,7 @@ func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command, e
 	}
 
 	command := &cli.Command{
-		Name:        "uipathcli",
+		Name:        "uipath",
 		Subcommands: commands,
 	}
 

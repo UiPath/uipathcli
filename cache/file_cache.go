@@ -13,7 +13,7 @@ import (
 
 const cacheFilePermissions = 0600
 const cacheDirectoryPermissions = 0700
-const cacheDirectory = "uipathcli"
+const cacheDirectory = "uipath"
 const separator = "|"
 
 type FileCache struct{}

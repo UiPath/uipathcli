@@ -224,7 +224,7 @@ func runCli(args []string, context Context) Result {
 }
 
 func createFile(t *testing.T) string {
-	tempFile, err := os.CreateTemp("", "uipathcli-test")
+	tempFile, err := os.CreateTemp("", "uipath-test")
 	if err != nil {
 		t.Fatal(err)
 	}

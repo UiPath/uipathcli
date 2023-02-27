@@ -43,9 +43,9 @@ func (c Cli) run(args []string, input []byte) error {
 	}
 
 	app := &cli.App{
-		Name:            "uipathcli",
+		Name:            "uipath",
 		Usage:           "Command-Line Interface for UiPath Services",
-		UsageText:       "uipathcli <service> <operation> --parameter",
+		UsageText:       "uipath <service> <operation> --parameter",
 		Version:         "1.0",
 		Flags:           flags,
 		Commands:        commands,

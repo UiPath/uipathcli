@@ -58,7 +58,7 @@ const LOGGED_IN_PAGE_HTML = `
             </path>
           </svg>
         </div>
-        <div class="card">Successfully logged in, you can use the <code><b>uipathcli</b></code> now</div>
+        <div class="card">Successfully logged in, you can use the <code><b>uipath</b></code> CLI now</div>
       </div>
     </div>
   </body>

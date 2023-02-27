@@ -23,11 +23,11 @@ import (
 
 const NotConfiguredErrorTemplate = `Run config command to set organization and tenant:
 
-    uipathcli config
+    uipath config
 
 For more information you can view the help:
 
-    uipathcli config --help
+    uipath config --help
 `
 
 type HttpExecutor struct {

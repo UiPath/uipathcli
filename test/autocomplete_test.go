@@ -16,7 +16,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli my"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath my"}, context)
 
 	expectedWords := "myservice\n"
 	if result.StdOut != expectedWords {
@@ -35,7 +35,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli serv"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath serv"}, context)
 
 	expectedWords := "myservice\n"
 	if result.StdOut != expectedWords {
@@ -54,7 +54,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice other"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice other"}, context)
 
 	if result.StdOut != "" {
 		t.Errorf("Should not return any autocomplete words, got: %v", result.StdOut)
@@ -72,7 +72,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice pi"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice pi"}, context)
 
 	expectedWords := "ping\n"
 	if result.StdOut != expectedWords {
@@ -91,7 +91,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice in"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice in"}, context)
 
 	expectedWords := "ping\n"
 	if result.StdOut != expectedWords {
@@ -113,7 +113,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice ping"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice ping"}, context)
 
 	expectedWords := "ping\nother-ping\n"
 	if result.StdOut != expectedWords {
@@ -138,7 +138,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice create"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice create"}, context)
 
 	expectedWords := "create\nnew-create\n"
 	if result.StdOut != expectedWords {
@@ -164,7 +164,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice ping --id"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice ping --id"}, context)
 
 	expectedWords := "--identifier\n"
 	if result.StdOut != expectedWords {
@@ -190,7 +190,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice ping --enti"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice ping --enti"}, context)
 
 	expectedWords := "--identifier\n"
 	if result.StdOut != expectedWords {
@@ -224,7 +224,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice post-validate --desc"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice post-validate --desc"}, context)
 
 	expectedWords := "--description\n--short-description\n"
 	if result.StdOut != expectedWords {
@@ -258,7 +258,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice post-validate --"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice post-validate --"}, context)
 
 	expectedWords := []string{
 		"--description",
@@ -297,7 +297,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"autocomplete", "complete", "--command", "uipathcli myservice post-validate --description \"my description\" --"}, context)
+	result := runCli([]string{"autocomplete", "complete", "--command", "uipath myservice post-validate --description \"my description\" --"}, context)
 
 	expectedWords := []string{
 		"--other",
