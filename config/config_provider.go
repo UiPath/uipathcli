@@ -27,7 +27,7 @@ func (cp *ConfigProvider) Load() error {
 	return nil
 }
 
-func (cp *ConfigProvider) Update(profileName string, auth map[string]interface{}, path map[string]string) error {
+func (cp *ConfigProvider) Update(profileName string, config Config) error {
 	profile := profileYaml{
 		Name: profileName,
 	}
@@ -38,8 +38,9 @@ func (cp *ConfigProvider) Update(profileName string, auth map[string]interface{}
 			profile = p
 		}
 	}
-	profile.Auth = auth
-	profile.Path = path
+	profile.Organization = config.Organization
+	profile.Tenant = config.Tenant
+	profile.Auth = config.Auth.Config
 
 	if index == -1 {
 		cp.profiles = append(cp.profiles, profile)
@@ -68,10 +69,12 @@ func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 		profile.Query = map[string]string{}
 	}
 	return Config{
-		Uri:    profile.Uri.URL,
-		Path:   profile.Path,
-		Query:  profile.Query,
-		Header: profile.Header,
+		Organization: profile.Organization,
+		Tenant:       profile.Tenant,
+		Uri:          profile.Uri.URL,
+		Path:         profile.Path,
+		Query:        profile.Query,
+		Header:       profile.Header,
 		Auth: AuthConfig{
 			Type:   fmt.Sprintf("%v", profile.Auth["type"]),
 			Config: profile.Auth,

@@ -5,6 +5,106 @@ import (
 	"testing"
 )
 
+func TestOrganizationConfig(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+`
+	definition := `
+paths:
+  "{organization}/ping":
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	if result.RequestUrl != "/my-org/ping" {
+		t.Errorf("Did not set organization from config, got: %v", result.RequestUrl)
+	}
+}
+
+func TestMissingOrganizationConfigShowsError(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+`
+	definition := `
+paths:
+  "{organization}/ping":
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	if !strings.HasPrefix(result.StdErr, "Missing organization parameter!") {
+		t.Errorf("Did not show organization configuration error, got: %v", result.StdErr)
+	}
+}
+
+func TestTenantConfig(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    tenant: my-tenant
+`
+	definition := `
+paths:
+  "{organization}/{tenant}/ping":
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	if result.RequestUrl != "/my-org/my-tenant/ping" {
+		t.Errorf("Did not set tenant from config, got: %v", result.RequestUrl)
+	}
+}
+
+func TestMissingTenantConfigShowsError(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+`
+	definition := `
+paths:
+  "{organization}/{tenant}/ping":
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := runCli([]string{"myservice", "ping"}, context)
+
+	if !strings.HasPrefix(result.StdErr, "Missing tenant parameter!") {
+		t.Errorf("Did not show tenant configuration error, got: %v", result.StdErr)
+	}
+}
+
 func TestPathConfig(t *testing.T) {
 	config := `
 profiles:

@@ -244,19 +244,18 @@ After that the CLI should be ready and you can validate that it is working by in
 
 ### Configuration File
 
-You can also manually create or edit the configuration file `.uipathcli/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant in the route for services which require it.
+You can also manually create or edit the configuration file `.uipathcli/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant for services which require it.
 
 ```bash
 cat <<EOT > $HOME/.uipathcli/config
 ---
 profiles:
   - name: default
+    organization: <organization-name>
+    tenant: <tenant-name>
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
-    path:
-      organization: <organization-name>
-      tenant: <tenant-name>
 EOT
 ```
 
@@ -437,12 +436,11 @@ You can also define multiple configuration profiles to target different environm
 ```yaml
 profiles:
   - name: default
+    organization: uipatcleitzc
+    tenant: DefaultTenant
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
-    path:
-      organization: uipatcleitzc
-      tenant: DefaultTenant
   - name: apikey
     uri: https://du.uipath.com/metering/
     header:
@@ -451,12 +449,11 @@ profiles:
     output: text
   - name: alpha
     uri: https://alpha.uipath.com
+    organization: UiPatricjvjx
+    tenant: DefaultTenant
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
-    path:
-      organization: UiPatricjvjx
-      tenant: DefaultTenant
 ```
 
 If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
@@ -495,12 +492,11 @@ You can set up a separate profile for automation suite which configures the URI 
 ```yaml
 profiles:
   - name: automationsuite
+    organization: test
+    tenant: DefaultTenant
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
-    path:
-      organization: test
-      tenant: DefaultTenant
     insecure: true
 ```
 

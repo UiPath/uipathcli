@@ -49,12 +49,12 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
+	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
+	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant, false))
 	tenant, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -64,7 +64,7 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
 
 	if authChanged || orgTenantChanged {
-		err = h.ConfigProvider.Update(profileName, config.Auth.Config, config.Path)
+		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
 		}
@@ -92,12 +92,12 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
+	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
+	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant, false))
 	tenant, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -107,7 +107,7 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
 
 	if authChanged || orgTenantChanged {
-		err = h.ConfigProvider.Update(profileName, config.Auth.Config, config.Path)
+		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
 		}
@@ -125,12 +125,12 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization(), false))
+	message = fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
 	}
-	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant(), false))
+	message = fmt.Sprintf("Enter tenant [%s]:", h.getDisplayValue(config.Tenant, false))
 	tenant, err := h.readUserInput(message, reader)
 	if err != nil {
 		return nil
@@ -140,7 +140,7 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
 
 	if authChanged || orgTenantChanged {
-		err = h.ConfigProvider.Update(profileName, config.Auth.Config, config.Path)
+		err = h.ConfigProvider.Update(profileName, config)
 		if err != nil {
 			return err
 		}

@@ -74,9 +74,8 @@ paths:
 func TestDigitizeFileDoesNotExistShowsValidationError(t *testing.T) {
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `
@@ -114,7 +113,7 @@ paths:
 
 	result := runCli([]string{"du", "digitization", "digitize", "--file", "hello-world"}, context)
 
-	if !strings.Contains(result.StdErr, "Could not find 'organization' parameter") {
+	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
 	}
 }
@@ -125,9 +124,8 @@ func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `
@@ -157,9 +155,8 @@ func TestDigitizeSuccessfully(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `
@@ -204,9 +201,8 @@ func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
 
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `
@@ -237,9 +233,8 @@ paths:
 func TestDigitizeSuccessfullyWithStdIn(t *testing.T) {
 	config := `profiles:
 - name: default
-  path:
-    organization: my-org
-    tenant: my-tenant
+  organization: my-org
+  tenant: my-tenant
 `
 
 	definition := `

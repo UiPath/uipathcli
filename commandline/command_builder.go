@@ -333,17 +333,21 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			}
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
+			parameters := executor.NewExecutionContextParameters(
+				pathParameters,
+				queryParameters,
+				headerParameters,
+				bodyParameters,
+				formParameters)
 			executionContext := executor.NewExecutionContext(
+				config.Organization,
+				config.Tenant,
 				operation.Method,
 				baseUri,
 				operation.Route,
 				operation.ContentType,
 				input,
-				pathParameters,
-				queryParameters,
-				headerParameters,
-				bodyParameters,
-				formParameters,
+				*parameters,
 				config.Auth,
 				insecure,
 				debug,

@@ -6,14 +6,16 @@ import (
 )
 
 type Config struct {
-	Uri      *url.URL
-	Path     map[string]string
-	Query    map[string]string
-	Header   map[string]string
-	Auth     AuthConfig
-	Insecure bool
-	Debug    bool
-	Output   string
+	Uri          *url.URL
+	Organization string
+	Tenant       string
+	Path         map[string]string
+	Query        map[string]string
+	Header       map[string]string
+	Auth         AuthConfig
+	Insecure     bool
+	Debug        bool
+	Output       string
 }
 
 type AuthConfig struct {
@@ -21,22 +23,11 @@ type AuthConfig struct {
 	Config map[string]interface{}
 }
 
-const organizationKey = "organization"
-const tenantKey = "tenant"
-
 const clientIdKey = "clientId"
 const clientSecretKey = "clientSecret"
 const redirectUriKey = "redirectUri"
 const scopesKey = "scopes"
 const patKey = "pat"
-
-func (c Config) Organization() string {
-	return c.Path[organizationKey]
-}
-
-func (c Config) Tenant() string {
-	return c.Path[tenantKey]
-}
 
 func (c Config) ClientId() string {
 	clientId := c.Auth.Config[clientIdKey]
@@ -78,12 +69,12 @@ func (c Config) Pat() string {
 	return fmt.Sprintf("%v", pat)
 }
 
-func (c Config) ConfigureOrgTenant(organization string, tenant string) bool {
+func (c *Config) ConfigureOrgTenant(organization string, tenant string) bool {
 	if organization != "" {
-		c.Path[organizationKey] = organization
+		c.Organization = organization
 	}
 	if tenant != "" {
-		c.Path[tenantKey] = tenant
+		c.Tenant = tenant
 	}
 
 	return organization != "" || tenant != ""

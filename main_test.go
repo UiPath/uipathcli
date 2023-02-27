@@ -81,9 +81,8 @@ func TestMainCallsService(t *testing.T) {
 profiles:
 - name: default
   uri: `+srv.URL+`
-  path:
-    organization: my-org
-    tenant: defaulttenant
+  organization: my-org
+  tenant: defaulttenant
   auth:
     clientId: 71b784bc-3f7b-4e5a-a731-db25bb829025
     clientSecret: NGI&4b(chsHcsX^C

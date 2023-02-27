@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -114,14 +115,13 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 }
 
 func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, uploadBar *utils.ProgressBar, requestError chan error) (*http.Request, error) {
-	org, err := c.getParameter("organization", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Organization == "" {
+		return nil, errors.New("Organization is not set")
 	}
-	tenant, err := c.getParameter("tenant", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Tenant == "" {
+		return nil, errors.New("Tenant is not set")
 	}
+	var err error
 	file := context.Input
 	if file == nil {
 		file, err = c.getFileParameter(context.Parameters)
@@ -138,7 +138,7 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	contentType, contentLength := c.writeMultipartBody(bodyWriter, file, contentType, requestError)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 
-	uri := c.formatUri(context.BaseUri, org, tenant) + "/digitize/start?api-version=1"
+	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + "/digitize/start?api-version=1"
 	request, err := http.NewRequest("POST", uri, uploadReader)
 	if err != nil {
 		return nil, err
@@ -176,19 +176,14 @@ func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) s
 }
 
 func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context plugin.ExecutionContext) (*http.Request, error) {
-	org, err := c.getParameter("organization", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Organization == "" {
+		return nil, errors.New("Organization is not set")
 	}
-	tenant, err := c.getParameter("tenant", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Tenant == "" {
+		return nil, errors.New("Tenant is not set")
 	}
 
-	uri := c.formatUri(context.BaseUri, org, tenant) + fmt.Sprintf("/digitize/result/%s?api-version=1", operationId)
-	if err != nil {
-		return nil, err
-	}
+	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/digitize/result/%s?api-version=1", operationId)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
 	if err != nil {
 		return nil, err

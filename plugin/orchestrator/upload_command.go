@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -153,13 +154,11 @@ func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, writer outpu
 }
 
 func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext, requestError chan error) (*http.Request, error) {
-	org, err := c.getStringParameter("organization", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Organization == "" {
+		return nil, errors.New("Organization is not set")
 	}
-	tenant, err := c.getStringParameter("tenant", context.Parameters)
-	if err != nil {
-		return nil, err
+	if context.Tenant == "" {
+		return nil, errors.New("Tenant is not set")
 	}
 	folderId, err := c.getIntParameter("folder-id", context.Parameters)
 	if err != nil {
@@ -174,7 +173,7 @@ func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext, re
 		return nil, err
 	}
 
-	uri := c.formatUri(context.BaseUri, org, tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
+	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
 	if err != nil {
 		return nil, err
