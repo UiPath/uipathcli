@@ -18,13 +18,13 @@ func init() {
 }
 
 func TestMainReadsDefinitions(t *testing.T) {
-	config := createFile(t, ".uipathcli", "config")
+	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
 
-	t.Setenv("UIPATHCLI_CONFIGURATION_PATH", config)
-	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Dir(definition))
+	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
 
-	os.Args = []string{"uipathcli", "--help"}
+	os.Args = []string{"uipath", "--help"}
 	output := captureOutput(t, func() {
 		main()
 	})
@@ -36,7 +36,7 @@ func TestMainReadsDefinitions(t *testing.T) {
 }
 
 func TestMainParsesDefinition(t *testing.T) {
-	config := createFile(t, ".uipathcli", "config")
+	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
 	os.WriteFile(definition, []byte(`
 paths:
@@ -46,10 +46,10 @@ paths:
       operationId: ping
 `), 0600)
 
-	t.Setenv("UIPATHCLI_CONFIGURATION_PATH", config)
-	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Dir(definition))
+	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
 
-	os.Args = []string{"uipathcli", "service-a", "--help"}
+	os.Args = []string{"uipath", "service-a", "--help"}
 	output := captureOutput(t, func() {
 		main()
 	})
@@ -76,7 +76,7 @@ func TestMainCallsService(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	config := createFile(t, ".uipathcli", "config")
+	config := createFile(t, ".uipath", "config")
 	os.WriteFile(config, []byte(`
 profiles:
 - name: default
@@ -97,10 +97,10 @@ paths:
       operationId: ping
 `), 0600)
 
-	t.Setenv("UIPATHCLI_CONFIGURATION_PATH", config)
-	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Dir(definition))
+	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
 
-	os.Args = []string{"uipathcli", "service-a", "ping"}
+	os.Args = []string{"uipath", "service-a", "ping"}
 	output := captureOutput(t, func() {
 		main()
 	})
@@ -114,7 +114,7 @@ paths:
 }
 
 func TestMainAutocompletesCommand(t *testing.T) {
-	config := createFile(t, ".uipathcli", "config")
+	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
 	os.WriteFile(definition, []byte(`
 paths:
@@ -124,10 +124,10 @@ paths:
       operationId: ping
 `), 0600)
 
-	t.Setenv("UIPATHCLI_CONFIGURATION_PATH", config)
-	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Dir(definition))
+	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
 
-	os.Args = []string{"uipathcli", "autocomplete", "complete", "--command", "upathcli service-a p"}
+	os.Args = []string{"uipath", "autocomplete", "complete", "--command", "upathcli service-a p"}
 	output := captureOutput(t, func() {
 		main()
 	})
@@ -157,9 +157,9 @@ func TestMainParsesBuiltInDefinitions(t *testing.T) {
 
 func MainParsesBuiltInDefinitions(t *testing.T, command string, expected string) {
 	definitionDir, _ := os.Getwd()
-	t.Setenv("UIPATHCLI_DEFINITIONS_PATH", filepath.Join(definitionDir, "definitions/"))
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Join(definitionDir, "definitions/"))
 
-	os.Args = strings.Split("uipathcli "+command, " ")
+	os.Args = strings.Split("uipath "+command, " ")
 	output := captureOutput(t, func() {
 		main()
 	})

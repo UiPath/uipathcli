@@ -62,18 +62,18 @@ curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-arm64
   <summary>Enable command completion</summary>
   <p>
 
-For autocompletion to work, the `uipathcli` executable needs to be in your PATH. Make sure the following commands output the path to the `uipathcli` executable:
+For autocompletion to work, the `uipath` executable needs to be in your PATH. Make sure the following commands output the path to the `uipath` executable:
 
 ### PowerShell
 
 ```powershell
-(Get-Command uipathcli).Path
+(Get-Command uipath).Path
 ```
 
 ### Bash
 
 ```bash
-which uipathcli
+which uipath
 ```
 
 You can enable autocompletion by running the following commands depending on which shell you are using:
@@ -81,13 +81,13 @@ You can enable autocompletion by running the following commands depending on whi
 ### PowerShell
 
 ```powershell
-uipathcli autocomplete enable --shell "powershell"
+uipath autocomplete enable --shell "powershell"
 ```
 
 ### Bash
 
 ```bash
-uipathcli autocomplete enable --shell "bash"
+uipath autocomplete enable --shell "bash"
 ```
 
   </p>
@@ -95,10 +95,10 @@ uipathcli autocomplete enable --shell "bash"
 
 <br />
 
-After installing the `uipathcli` executable, you can run the interactive config command to finish setting up your CLI:
+After installing the `uipath` executable, you can run the interactive config command to finish setting up your CLI:
 
 ```
-uipathcli config
+uipath config
 ```
 
 More details about how to configure the CLI can be found in the following sections.
@@ -133,7 +133,7 @@ In order to use client credentials, you need to set up an [External Application 
 5. Run the interactive CLI configuration:
 
 ```bash
-uipathcli config
+uipath config
 ```
 
 The CLI will ask you to enter the main config settings like
@@ -145,13 +145,13 @@ Enter client id [*******9026]: <your-client-id>
 Enter client secret [*******pcnN]: <your-client-secret>
 Enter organization [not set]: uipatcleitzc
 Enter tenant [not set]: DefaultTenant
-Successfully configured uipathcli
+Successfully configured uipath CLI
 ```
 
 After that the CLI should be ready and you can validate that it is working by invoking one of the services:
 
 ```bash
-uipathcli du metering ping
+uipath du metering ping
 ```
 
 Response:
@@ -186,7 +186,7 @@ In order to use oauth login, you need to set up an [External Application (Non-Co
 5. Run the interactive CLI configuration:
 
 ```bash
-uipathcli config --auth login
+uipath config --auth login
 ```
 
 The CLI will ask you to enter the main config settings like
@@ -199,13 +199,13 @@ Enter redirect uri [not set]: http://localhost:12700
 Enter scopes [not set]: OR.Users
 Enter organization [not set]: uipatcleitzc
 Enter tenant [not set]: DefaultTenant
-Successfully configured uipathcli
+Successfully configured uipath CLI
 ```
 
 5. After that the CLI should be ready and you can validate that it is working by invoking one of the services:
 
 ```bash
-uipathcli orchestrator Users_Get
+uipath orchestrator Users_Get
 ```
 
 ### Personal Access Token
@@ -226,7 +226,7 @@ You need to generate a personal access token (PAT) and configure the CLI to use 
 4. Run the interactive CLI configuration:
 
 ```bash
-uipathcli config -- auth pat
+uipath config -- auth pat
 ```
 
 The CLI will ask you to enter the main config settings like
@@ -237,17 +237,17 @@ The CLI will ask you to enter the main config settings like
 Enter personal access token [*******9026]: <your-pat>
 Enter organization [not set]: uipatcleitzc
 Enter tenant [not set]: DefaultTenant
-Successfully configured uipathcli
+Successfully configured uipath CLI
 ```
 
 After that the CLI should be ready and you can validate that it is working by invoking one of the services.
 
 ### Configuration File
 
-You can also manually create or edit the configuration file `.uipathcli/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant for services which require it.
+You can also manually create or edit the configuration file `.uipath/config` in your home directory. The following config file sets up the default profile with clientId, clientSecret so that the CLI can generate a bearer token before calling any of the services. It also sets the organization and tenant for services which require it.
 
 ```bash
-cat <<EOT > $HOME/.uipathcli/config
+cat <<EOT > $HOME/.uipath/config
 ---
 profiles:
   - name: default
@@ -262,7 +262,7 @@ EOT
 Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
 
 ```bash
-uipathcli du metering ping
+uipath du metering ping
 ```
 
 ## Commands and arguments
@@ -270,7 +270,7 @@ uipathcli du metering ping
 CLI commands consist of three main parts:
 
 ```bash
-uipathcli <service-name> <operation-name> <arguments>
+uipath <service-name> <operation-name> <arguments>
 ```
 
 - `<service-name>`: The CLI discovers the existing OpenAPI specifications and shows each of them as a separate service
@@ -280,7 +280,7 @@ uipathcli <service-name> <operation-name> <arguments>
 Example:
 
 ```bash
-uipathcli du metering validate --product-name "DU" --model-name "my-model"
+uipath du metering validate --product-name "DU" --model-name "my-model"
 ```
 
 ### Basic arguments
@@ -288,7 +288,7 @@ uipathcli du metering validate --product-name "DU" --model-name "my-model"
 The CLI supports string, integer, floating point and boolean arguments. The arguments are automatically converted to the type defined in the OpenAPI specification:
 
 ```bash
-uipathcli product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
+uipath product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
 ```
 
 ### Array arguments
@@ -296,7 +296,7 @@ uipathcli product create --name "new-product" --stock "5" --price "1.4" --delete
 Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean and object arrays.
 
 ```bash
-uipathcli product list --name-filter "my-product,new-product"
+uipath product list --name-filter "my-product,new-product"
 ```
 
 ### Nested Object arguments
@@ -304,7 +304,7 @@ uipathcli product list --name-filter "my-product,new-product"
 More complex nested objects can be passed as semi-colon separated list of property assigments:
 
 ```bash
-uipathcli product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
+uipath product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
 ```
 
 The command creates the following JSON body in the HTTP request:
@@ -328,7 +328,7 @@ The command creates the following JSON body in the HTTP request:
 CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
 
 ```bash
-uipathcli digitizer digitize ---file documents/invoice.pdf
+uipath digitizer digitize ---file documents/invoice.pdf
 ```
 
 ## Standard input (stdin) / Pipes
@@ -336,7 +336,7 @@ uipathcli digitizer digitize ---file documents/invoice.pdf
 You can pipe JSON into the CLI as stdin and it will be used as the request body instead of CLI parameters. The following example reads an orchestrator setting, modifies the value using `jq` and pipes the output back into to the CLI to update it:
 
 ```bash
-uipathcli orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | uipathcli orchestrator settings-putbyid
+uipath orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | uipath orchestrator settings-putbyid
 ```
 
 ## Output formats
@@ -350,13 +350,13 @@ The CLI supports multiple output formats:
 In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
 
 ```bash
-uipathcli du metering ping --output text
+uipath du metering ping --output text
 
 du-prod-du-we-g-dns westeurope  westeurope  2023-01-27T10:56:59.8477522Z  23.1-105-main.v3105ad
 ```
 
 ```bash
-uipathcli orchestrator users-get --query "value[].[Name, CreationTime]" --output text | while IFS=$'\t' read -r name creation_time; do
+uipath orchestrator users-get --query "value[].[Name, CreationTime]" --output text | while IFS=$'\t' read -r name creation_time; do
     echo "User ${name} was created at ${creation_time}"
 done
 
@@ -372,7 +372,7 @@ Examples:
 
 ```bash
 # Select only the name of all returned users
-uipathcli orchestrator users-get --query "value[].Name"
+uipath orchestrator users-get --query "value[].Name"
 
 [
   "Administrator",
@@ -383,7 +383,7 @@ uipathcli orchestrator users-get --query "value[].Name"
 
 ```bash
 # Select the first user with the name "Administrator"
-uipathcli orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
+uipath orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
 
 {
   "Id": 123456,
@@ -395,7 +395,7 @@ uipathcli orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
 
 ```bash
 # Sort the users by creation time and get the name of last created user
-uipathcli orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].Name"
+uipath orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].Name"
 
 "Automation Developer"
 ```
@@ -407,7 +407,7 @@ uipathcli orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].N
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
 
 ```bash
-uipathcli du metering ping --debug
+uipath du metering ping --debug
 ```
 
 ```bash
@@ -459,13 +459,13 @@ profiles:
 If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
 
 ```bash
-uipathcli du metering ping --profile alpha
+uipath du metering ping --profile alpha
 ```
 
 You can also change the profile using an environment variable (`UIPATH_PROFILE`):
 
 ```bash
-UIPATH_PROFILE=alpha uipathcli du metering ping
+UIPATH_PROFILE=alpha uipath du metering ping
 ```
 
 ## Global Arguments
@@ -503,7 +503,7 @@ profiles:
 And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
-uipathcli du metering ping --profile automationsuite
+uipath du metering ping --profile automationsuite
 ```
 
 ### How to contribute?

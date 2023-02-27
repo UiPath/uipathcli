@@ -57,6 +57,6 @@ func (s ConfigStore) configurationFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error reading configuration file: %v", err)
 	}
-	filename := filepath.Join(homeDir, ".uipathcli", "config")
+	filename := filepath.Join(homeDir, ".uipath", "config")
 	return filename, nil
 }

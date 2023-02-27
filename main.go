@@ -57,7 +57,7 @@ func readStdIn() []byte {
 func main() {
 	configProvider := config.ConfigProvider{
 		ConfigStore: config.ConfigStore{
-			ConfigFile: os.Getenv("UIPATHCLI_CONFIGURATION_PATH"),
+			ConfigFile: os.Getenv("UIPATH_CONFIGURATION_PATH"),
 		},
 	}
 	err := configProvider.Load()
@@ -67,7 +67,7 @@ func main() {
 	}
 	pluginConfigProvider := config.PluginConfigProvider{
 		PluginConfigStore: config.PluginConfigStore{
-			PluginFile: os.Getenv("UIPATHCLI_PLUGINS_PATH"),
+			PluginFile: os.Getenv("UIPATH_PLUGINS_PATH"),
 		},
 	}
 	err = pluginConfigProvider.Load()
@@ -85,7 +85,7 @@ func main() {
 		ColoredOutput: colorsSupported(),
 		DefinitionProvider: commandline.DefinitionProvider{
 			DefinitionStore: commandline.DefinitionStore{
-				DefinitionDirectory: os.Getenv("UIPATHCLI_DEFINITIONS_PATH"),
+				DefinitionDirectory: os.Getenv("UIPATH_DEFINITIONS_PATH"),
 			},
 			Parser: parser.OpenApiParser{},
 			CommandPlugins: []plugin.CommandPlugin{

@@ -31,6 +31,6 @@ func (s PluginConfigStore) pluginsFilePath() (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("Error reading plugins file: %v", err)
 	}
-	filename := filepath.Join(homeDir, ".uipathcli", "plugins")
+	filename := filepath.Join(homeDir, ".uipath", "plugins")
 	return filename, nil
 }

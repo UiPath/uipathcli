@@ -17,7 +17,7 @@ type ConfigCommandHandler struct {
 
 const notSetMessage = "not set"
 const maskMessage = "*******"
-const successMessage = "Successfully configured uipathcli"
+const successMessage = "Successfully configured uipath CLI"
 
 const CredentialsAuth = "credentials"
 const LoginAuth = "login"
