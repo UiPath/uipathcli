@@ -3,9 +3,14 @@ package auth
 import (
 	"fmt"
 	"net/url"
+	"os"
 
 	"github.com/UiPath/uipathcli/cache"
 )
+
+const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
+const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET"
+const IdentityUriEnvVarName = "UIPATH_IDENTITY_URI"
 
 type BearerAuthenticator struct {
 	Cache cache.Cache
@@ -46,20 +51,22 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 }
 
 func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {
-	return ctx.Config["clientId"] != nil && ctx.Config["clientSecret"] != nil
+	clientIdSet := os.Getenv(ClientIdEnvVarName) != "" || ctx.Config["clientId"] != nil
+	clientSecretSet := os.Getenv(ClientSecretEnvVarName) != "" || ctx.Config["clientSecret"] != nil
+	return clientIdSet && clientSecretSet
 }
 
 func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthenticatorConfig, error) {
-	clientId, err := a.parseRequiredString(ctx.Config, "clientId")
+	clientId, err := a.parseRequiredString(ctx.Config, "clientId", os.Getenv(ClientIdEnvVarName))
 	if err != nil {
 		return nil, err
 	}
-	clientSecret, err := a.parseRequiredString(ctx.Config, "clientSecret")
+	clientSecret, err := a.parseRequiredString(ctx.Config, "clientSecret", os.Getenv(ClientSecretEnvVarName))
 	if err != nil {
 		return nil, err
 	}
 	var uri *url.URL
-	uriString, err := a.parseRequiredString(ctx.Config, "uri")
+	uriString, err := a.parseRequiredString(ctx.Config, "uri", os.Getenv(IdentityUriEnvVarName))
 	if err == nil {
 		uri, err = url.Parse(uriString)
 		if err != nil {
@@ -69,7 +76,10 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthent
 	return NewBearerAuthenticatorConfig(clientId, clientSecret, uri), nil
 }
 
-func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
+func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string, override string) (string, error) {
+	if override != "" {
+		return override, nil
+	}
 	value := config[name]
 	result, valid := value.(string)
 	if !valid || result == "" {

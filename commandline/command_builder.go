@@ -21,6 +21,8 @@ const insecureFlagName = "insecure"
 const debugFlagName = "debug"
 const profileFlagName = "profile"
 const uriFlagName = "uri"
+const organizationFlagName = "organization"
+const tenantFlagName = "tenant"
 const helpFlagName = "help"
 
 const outputFormatFlagName = "output"
@@ -331,6 +333,14 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if err != nil {
 				return err
 			}
+			organization := context.String(organizationFlagName)
+			if organization == "" {
+				organization = config.Organization
+			}
+			tenant := context.String(tenantFlagName)
+			if tenant == "" {
+				tenant = config.Tenant
+			}
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
 			parameters := executor.NewExecutionContextParameters(
@@ -340,8 +350,8 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				bodyParameters,
 				formParameters)
 			executionContext := executor.NewExecutionContext(
-				config.Organization,
-				config.Tenant,
+				organization,
+				tenant,
 				operation.Method,
 				baseUri,
 				operation.Route,
@@ -497,6 +507,8 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 				"--" + helpFlagName,
 				"--" + outputFormatFlagName,
 				"--" + queryFlagName,
+				"--" + organizationFlagName,
+				"--" + tenantFlagName,
 			}
 			args := strings.Split(commandText, " ")
 			definitions, err := b.loadAutocompleteDefinitions(args)
@@ -623,6 +635,18 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Name:    uriFlagName,
 			Usage:   "Server Base-URI",
 			EnvVars: []string{"UIPATH_URI"},
+			Hidden:  hidden,
+		},
+		&cli.StringFlag{
+			Name:    organizationFlagName,
+			Usage:   "Organization name",
+			EnvVars: []string{"UIPATH_ORGANIZATION"},
+			Hidden:  hidden,
+		},
+		&cli.StringFlag{
+			Name:    tenantFlagName,
+			Usage:   "Tenant name",
+			EnvVars: []string{"UIPATH_TENANT"},
 			Hidden:  hidden,
 		},
 		&cli.BoolFlag{

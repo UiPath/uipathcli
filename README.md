@@ -480,6 +480,12 @@ You can either pass global arguments as CLI parameters, set an env variable or s
 | `--profile` | `UIPATH_PROFILE` | `string` | `default` | Use profile from configuration file |
 | `--query` | | `string` | | [JMESPath queries](https://jmespath.org/) for transforming the output |
 | `--uri` | `UIPATH_URI` | `uri` | `https://cloud.uipath.com` | URL override |
+| `--organization` | `UIPATH_ORGANIZATION` | `string` | | Organization name |
+| `--tenant` | `UIPATH_TENANT` | `string` | | Tenant name |
+| | `UIPATH_CLIENT_ID` | `string` | | Client Id |
+| | `UIPATH_CLIENT_SECRET` | `string` | | Client Secret |
+| | `UIPATH_PAT` | `string` | | Personal Access Token |
+
 
 ## FAQ
 
