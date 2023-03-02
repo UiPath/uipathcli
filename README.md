@@ -513,9 +513,9 @@ And you simply call the CLI with the `--profile automationsuite` parameter:
 uipath du metering ping --profile automationsuite
 ```
 
-### How to bootstrap a new on Automation Suite?
+### How to bootstrap Automation Suite?
 
-As a prerequisite, you need to create a client secret on the server which allows grant type `password`. After that you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
+You can use the CLI to create a new org on Automation Suite and license the server. As a prerequisite, you need to create a client secret on the server which allows grant type `password`. After that you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
 
 ```yaml
 profiles:
