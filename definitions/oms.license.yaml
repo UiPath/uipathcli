@@ -1,0 +1,28 @@
+openapi: 3.0.1
+info:
+  title: Organization Management Service API
+  version: "1.0"
+servers:
+  - url: https://cloud.uipath.com/{organization}/portal_
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+paths:
+  /api/license/management/activate/online/license/{license}:
+    put:
+      tags:
+        - License
+      operationId: Activate
+      parameters:
+        - name: license
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+security:
+  - bearerAuth: []

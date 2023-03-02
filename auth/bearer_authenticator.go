@@ -37,10 +37,13 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	}
 
 	identityClient := identityClient(a)
-	tokenRequest := newClientCredentialTokenRequest(
+	tokenRequest := newTokenRequest(
 		*identityBaseUri,
+		config.GrantType,
+		config.Scopes,
 		config.ClientId,
 		config.ClientSecret,
+		config.Properties,
 		ctx.Insecure)
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
@@ -57,11 +60,26 @@ func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {
 }
 
 func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthenticatorConfig, error) {
+	grantType, err := a.parseString(ctx.Config, "grantType")
+	if err != nil {
+		return nil, err
+	}
+	if grantType == "" {
+		grantType = "client_credentials"
+	}
+	scopes, err := a.parseString(ctx.Config, "scopes")
+	if err != nil {
+		return nil, err
+	}
 	clientId, err := a.parseRequiredString(ctx.Config, "clientId", os.Getenv(ClientIdEnvVarName))
 	if err != nil {
 		return nil, err
 	}
 	clientSecret, err := a.parseRequiredString(ctx.Config, "clientSecret", os.Getenv(ClientSecretEnvVarName))
+	if err != nil {
+		return nil, err
+	}
+	properties, err := a.parseProperties(ctx.Config)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +91,41 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*BearerAuthent
 			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
 		}
 	}
-	return NewBearerAuthenticatorConfig(clientId, clientSecret, uri), nil
+	return NewBearerAuthenticatorConfig(grantType, scopes, clientId, clientSecret, properties, uri), nil
+}
+
+func (a BearerAuthenticator) parseProperties(config map[string]interface{}) (map[string]string, error) {
+	result := map[string]string{}
+	value := config["properties"]
+	if value == nil {
+		return result, nil
+	}
+	properties, valid := value.(map[interface{}]interface{})
+	if !valid {
+		return result, fmt.Errorf("Invalid key 'properties' in auth")
+	}
+
+	for k, v := range properties {
+		key, valid := k.(string)
+		if !valid {
+			return result, fmt.Errorf("Invalid key '%v' in auth properties", k)
+		}
+		value, valid := v.(string)
+		if !valid {
+			return result, fmt.Errorf("Invalid value for '%v' in auth properties", k)
+		}
+		result[key] = value
+	}
+	return result, nil
+}
+
+func (a BearerAuthenticator) parseString(config map[string]interface{}, name string) (string, error) {
+	value := config[name]
+	result, valid := value.(string)
+	if value != nil && !valid {
+		return "", fmt.Errorf("Invalid value for %s: '%v'", name, value)
+	}
+	return result, nil
 }
 
 func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string, override string) (string, error) {

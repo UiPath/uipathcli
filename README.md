@@ -503,6 +503,7 @@ profiles:
     auth:
       clientId: <your-client-id>
       clientSecret: <your-client-secret>
+    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
     insecure: true
 ```
 
@@ -510,6 +511,66 @@ And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
 uipath du metering ping --profile automationsuite
+```
+
+### How to bootstrap a new on Automation Suite?
+
+As a prerequisite, you need to create a client secret on the server which allows grant type `password`. After that you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
+
+```yaml
+profiles:
+  - name: automationsuite
+    organization: Host
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+      grantType: password
+      properties:
+        username: admin
+        password: <your-admin-password>
+        acr_values: tenant:Host
+    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
+    insecure: true
+```
+
+After that you can create a new organization:
+
+```bash
+uipath oms on-prem-organization create-organization-on-prem
+  --profile "automationsuite" \
+  --organization-name "testorg" \
+  --admin-email "test.user@uipath.com" \
+  --admin-user-name "testuser" \
+  --admin-first-name "Test" \
+  --admin-last-name "User" \
+  --admin-password "<your-testuser-password>" \
+  --language "en"
+```
+
+Once the organization has been created, you can create a new profile which uses the org admin:
+
+```yaml
+profiles:
+  - name: automationsuite_testorg
+    organization: testorg
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+      grantType: password
+      properties:
+        username: testuser
+        password: <your-testuser-password>
+        acr_values: tenant:<your-org-id>
+    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
+    insecure: true
+```
+
+The following command activates the new org:
+
+```bash
+uipath oms license activate \
+  --profile "automationsuite_testorg" \
+  --license "<your-license-code>"
 ```
 
 ### How to contribute?
