@@ -20,12 +20,16 @@ const TokenRoute = "/connect/token"
 
 func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, error) {
 	form := url.Values{}
+	form.Add("grant_type", tokenRequest.GrantType)
+	form.Add("scope", tokenRequest.Scopes)
 	form.Add("client_id", tokenRequest.ClientId)
 	form.Add("client_secret", tokenRequest.ClientSecret)
-	form.Add("grant_type", tokenRequest.GrantType)
 	form.Add("code", tokenRequest.Code)
 	form.Add("code_verifier", tokenRequest.CodeVerifier)
 	form.Add("redirect_uri", tokenRequest.RedirectUri)
+	for key, value := range tokenRequest.Properties {
+		form.Add(key, value)
+	}
 
 	cacheKey := c.cacheKey(tokenRequest)
 	token, expiresIn := c.Cache.Get(cacheKey)
@@ -75,13 +79,23 @@ func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, insecure
 }
 
 func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
-	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s|%s",
+	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
 		tokenRequest.BaseUri.Scheme,
 		tokenRequest.BaseUri.Hostname(),
 		tokenRequest.GrantType,
+		tokenRequest.Scopes,
 		tokenRequest.ClientId,
 		tokenRequest.ClientSecret,
 		tokenRequest.Code,
 		tokenRequest.CodeVerifier,
-		tokenRequest.RedirectUri)
+		tokenRequest.RedirectUri,
+		c.cacheKeyProperties(tokenRequest.Properties))
+}
+
+func (c identityClient) cacheKeyProperties(properties map[string]string) string {
+	values := []string{}
+	for key, value := range properties {
+		values = append(values, key+"="+value)
+	}
+	return strings.Join(values, ",")
 }
