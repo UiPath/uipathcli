@@ -38,9 +38,15 @@ func (cp *ConfigProvider) Update(profileName string, config Config) error {
 			profile = p
 		}
 	}
+	profile.Uri = urlYaml{config.Uri}
+	profile.Insecure = config.Insecure
+	profile.Debug = config.Debug
 	profile.Organization = config.Organization
 	profile.Tenant = config.Tenant
 	profile.Auth = config.Auth.Config
+	profile.Header = config.Header
+	profile.Path = config.Path
+	profile.Query = config.Query
 
 	if index == -1 {
 		cp.profiles = append(cp.profiles, profile)

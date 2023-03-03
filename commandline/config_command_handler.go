@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"net/url"
 	"strings"
 
 	"github.com/UiPath/uipathcli/config"
@@ -17,11 +18,77 @@ type ConfigCommandHandler struct {
 
 const notSetMessage = "not set"
 const maskMessage = "*******"
-const successMessage = "Successfully configured uipath CLI"
+const successfullyConfiguredMessage = "Successfully configured uipath CLI"
+const successfullySetMessage = "Successfully set config value"
 
 const CredentialsAuth = "credentials"
 const LoginAuth = "login"
 const PatAuth = "pat"
+
+func (h ConfigCommandHandler) Set(key string, value string, profileName string) error {
+	config := h.getOrCreateProfile(profileName)
+
+	keyParts := strings.Split(key, ".")
+	if key == "organization" {
+		config.Organization = value
+	} else if key == "tenant" {
+		config.Tenant = value
+	} else if key == "uri" {
+		uri, err := url.Parse(value)
+		if err != nil {
+			return fmt.Errorf("Invalid value for 'uri': %v", err)
+		}
+		config.Uri = uri
+	} else if key == "insecure" {
+		insecure, err := h.ConvertToBool(value)
+		if err != nil {
+			return fmt.Errorf("Invalid value for 'insecure': %v", err)
+		}
+		config.Insecure = insecure
+	} else if key == "debug" {
+		debug, err := h.ConvertToBool(value)
+		if err != nil {
+			return fmt.Errorf("Invalid value for 'debug': %v", err)
+		}
+		config.Debug = debug
+	} else if len(keyParts) == 2 && keyParts[0] == "header" {
+		config.Header[keyParts[1]] = value
+	} else if len(keyParts) == 2 && keyParts[0] == "path" {
+		config.Path[keyParts[1]] = value
+	} else if len(keyParts) == 2 && keyParts[0] == "query" {
+		config.Query[keyParts[1]] = value
+	} else if key == "auth.grantType" {
+		config.Auth.Config["grantType"] = value
+	} else if key == "auth.scopes" {
+		config.Auth.Config["scopes"] = value
+	} else if len(keyParts) == 3 && keyParts[0] == "auth" && keyParts[1] == "properties" {
+		properties, ok := config.Auth.Config["properties"].(map[interface{}]interface{})
+		if properties == nil || !ok {
+			properties = map[interface{}]interface{}{}
+		}
+		properties[keyParts[2]] = value
+		config.Auth.Config["properties"] = properties
+	} else {
+		return fmt.Errorf("Unknown config key '%s'", key)
+	}
+
+	err := h.ConfigProvider.Update(profileName, config)
+	if err != nil {
+		return err
+	}
+	fmt.Fprintln(h.StdOut, successfullySetMessage)
+	return nil
+}
+
+func (h ConfigCommandHandler) ConvertToBool(value string) (bool, error) {
+	if strings.EqualFold(value, "true") {
+		return true, nil
+	}
+	if strings.EqualFold(value, "false") {
+		return false, nil
+	}
+	return false, fmt.Errorf("Invalid boolean value: %s", value)
+}
 
 func (h ConfigCommandHandler) Configure(auth string, profileName string) error {
 	switch auth {
@@ -78,7 +145,7 @@ func (h ConfigCommandHandler) configure(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successMessage)
+		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -104,7 +171,7 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successMessage)
+		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -130,7 +197,7 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successMessage)
+		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -156,7 +223,7 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successMessage)
+		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
