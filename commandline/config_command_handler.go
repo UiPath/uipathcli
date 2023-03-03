@@ -10,6 +10,13 @@ import (
 	"github.com/UiPath/uipathcli/config"
 )
 
+// The ConfigCommandHandler implements commands for configuring the CLI.
+// The CLI can be configured interactively or by setting config values
+// programmatically.
+//
+// Example:
+// uipath config ==> interactive configuration of the CLI
+// uipath config set ==> stores a value in the configuration file
 type ConfigCommandHandler struct {
 	StdIn          io.Reader
 	StdOut         io.Writer
@@ -40,13 +47,13 @@ func (h ConfigCommandHandler) Set(key string, value string, profileName string) 
 		}
 		config.Uri = uri
 	} else if key == "insecure" {
-		insecure, err := h.ConvertToBool(value)
+		insecure, err := h.convertToBool(value)
 		if err != nil {
 			return fmt.Errorf("Invalid value for 'insecure': %v", err)
 		}
 		config.Insecure = insecure
 	} else if key == "debug" {
-		debug, err := h.ConvertToBool(value)
+		debug, err := h.convertToBool(value)
 		if err != nil {
 			return fmt.Errorf("Invalid value for 'debug': %v", err)
 		}
@@ -80,7 +87,7 @@ func (h ConfigCommandHandler) Set(key string, value string, profileName string) 
 	return nil
 }
 
-func (h ConfigCommandHandler) ConvertToBool(value string) (bool, error) {
+func (h ConfigCommandHandler) convertToBool(value string) (bool, error) {
 	if strings.EqualFold(value, "true") {
 		return true, nil
 	}

@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+// The ProgressReader is a wrapper over the io.Reader interface which computes statistics
+// while the data is read. This is used to show progress for file uploads and downloads.
+//
+// The ProgressReader emits a Progress event whenever data is read from the reader.
+// The event is debounced to avoid too many events.
 type ProgressReader struct {
 	io.Reader
 	ProgressFunc func(progress Progress)
@@ -13,10 +18,12 @@ type ProgressReader struct {
 	lastProgress time.Time
 }
 
+var debounceInterval = 100 * time.Nanosecond
+
 func (r *ProgressReader) Read(p []byte) (n int, err error) {
 	n, err = r.Reader.Read(p)
 	bytesRead, bytesPerSecond := r.calculateStats(n)
-	if err == io.EOF || time.Since(r.lastProgress).Nanoseconds() > (100*time.Nanosecond).Nanoseconds() {
+	if err == io.EOF || time.Since(r.lastProgress).Nanoseconds() > debounceInterval.Nanoseconds() {
 		r.lastProgress = time.Now()
 		progress := NewProgress(bytesRead, bytesPerSecond, err == io.EOF)
 		r.ProgressFunc(*progress)

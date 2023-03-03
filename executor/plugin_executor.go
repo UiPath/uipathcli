@@ -11,6 +11,10 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 )
 
+// The PluginExecutor implements the Executor interface and invokes the
+// registered plugin for the executed command.
+// The plugin takes care of sending the HTTP request or performing other
+// operations.
 type PluginExecutor struct {
 	Authenticators []auth.Authenticator
 }

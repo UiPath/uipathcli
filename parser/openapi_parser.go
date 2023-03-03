@@ -12,6 +12,9 @@ const DefaultServerBaseUrl = "https://cloud.uipath.com"
 const RawBodyParameterName = "$input"
 const CustomParameterNameExtension = "x-name"
 
+// The OpenApiParser parses OpenAPI (2.x and 3.x) specifications.
+// It creates the Definition structure with all the information about the available
+// operations and their parameters for the given service specification.
 type OpenApiParser struct{}
 
 func (p OpenApiParser) customParameterName(extensions map[string]interface{}) string {

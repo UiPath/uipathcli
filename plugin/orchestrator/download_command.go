@@ -17,6 +17,9 @@ import (
 	"github.com/UiPath/uipathcli/utils"
 )
 
+// The DownloadCommand is a custom command for the orchestrator service which makes downloading
+// files more convenient. It provides a wrapper over retrieving the read url and actually
+// performing the download.
 type DownloadCommand struct{}
 
 func (c DownloadCommand) Command() plugin.Command {
@@ -43,7 +46,7 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 		return err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
@@ -57,7 +60,7 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {
 		return err
@@ -86,7 +89,7 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, writer outp
 		return "", err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
@@ -97,7 +100,7 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, writer outp
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -201,7 +204,7 @@ func (c DownloadCommand) getIntParameter(name string, parameters []plugin.Execut
 	return 0, fmt.Errorf("Could not find '%s' parameter", name)
 }
 
-func (c DownloadCommand) LogRequest(logger log.Logger, request *http.Request) {
+func (c DownloadCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
 	buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
@@ -210,7 +213,7 @@ func (c DownloadCommand) LogRequest(logger log.Logger, request *http.Request) {
 	logger.LogRequest(*requestInfo)
 }
 
-func (c DownloadCommand) LogResponse(logger log.Logger, response *http.Response, body []byte) {
+func (c DownloadCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }

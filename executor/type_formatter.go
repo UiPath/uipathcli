@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// The TypeFormatter converts ExecutionParameter into parts of the http request.
+// Depending on the type of the parameter, the formatter converts the value to
+// the proper format.
 type TypeFormatter struct{}
 
 func (f TypeFormatter) FormatPath(parameter ExecutionParameter) string {

@@ -30,11 +30,13 @@ For more information you can view the help:
     uipath config --help
 `
 
+// The HttpExecutor implements the Executor interface and constructs HTTP request
+// from the given command line parameters and configurations.
 type HttpExecutor struct {
 	Authenticators []auth.Authenticator
 }
 
-func RequestId() string {
+func (e HttpExecutor) requestId() string {
 	bytes := make([]byte, 16)
 	rand.Read(bytes)
 	return fmt.Sprintf("%x%x%x%x%x", bytes[0:4], bytes[4:6], bytes[6:8], bytes[8:10], bytes[10:])
@@ -42,7 +44,7 @@ func RequestId() string {
 
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
 	formatter := TypeFormatter{}
-	request.Header.Add("x-request-id", RequestId())
+	request.Header.Add("x-request-id", e.requestId())
 	for _, parameter := range headerParameters {
 		headerValue := formatter.FormatHeader(parameter)
 		request.Header.Add(parameter.Name, headerValue)
@@ -262,7 +264,7 @@ func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan
 	}
 }
 
-func (e HttpExecutor) LogRequest(logger log.Logger, request *http.Request) {
+func (e HttpExecutor) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
 	buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
@@ -271,7 +273,7 @@ func (e HttpExecutor) LogRequest(logger log.Logger, request *http.Request) {
 	logger.LogRequest(*requestInfo)
 }
 
-func (e HttpExecutor) LogResponse(logger log.Logger, response *http.Response, body []byte) {
+func (e HttpExecutor) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }
@@ -318,7 +320,7 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	}
 	client := &http.Client{Transport: transport}
 	if context.Debug {
-		e.LogRequest(logger, request)
+		e.logRequest(logger, request)
 	}
 	response, err := e.send(client, request, requestError)
 	if err != nil {
@@ -332,7 +334,7 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %v", err)
 	}
-	e.LogResponse(logger, response, body)
+	e.logResponse(logger, response, body)
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {
 		return err

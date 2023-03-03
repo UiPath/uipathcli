@@ -1,5 +1,6 @@
 package auth
 
+// BrowserLauncher interface for opening browser windows.
 type BrowserLauncher interface {
-	OpenBrowser(url string) error
+	Open(url string) error
 }

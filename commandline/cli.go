@@ -1,3 +1,5 @@
+// Package commandline is responsible for creating, parsing and validating
+// command line arguments.
 package commandline
 
 import (
@@ -9,6 +11,7 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+// Cli is a wrapper for building the CLI commands.
 type Cli struct {
 	StdIn              io.Reader
 	StdOut             io.Writer

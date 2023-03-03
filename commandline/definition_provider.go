@@ -9,6 +9,19 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 )
 
+// The DefinitionProvider uses the store to read the definition files.
+// It parses the definition files and also supports merging multiple files
+// for the same service.
+//
+// The following mapping is performed between the files on disk and the commands
+// the CLI provides:
+// orchestrator.yaml => uipath orchestrator ...
+// du.metering.yaml => uipath du ...
+// du.events.yaml => uipath du ...
+//
+// For performance reasons, the definition provider always just loads the definition
+// files belonging to a single service. There is no need to load the definition file
+// for the du service when the user executes 'uipath orchestrator', for example.
 type DefinitionProvider struct {
 	DefinitionStore DefinitionStore
 	Parser          parser.Parser

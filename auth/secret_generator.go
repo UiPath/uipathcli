@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-type SecretGenerator struct{}
+type secretGenerator struct{}
 
-func (g SecretGenerator) GeneratePkce() (string, string) {
+func (g secretGenerator) GeneratePkce() (string, string) {
 	random := []byte(g.randomString(32))
 	codeVerifier := g.base64Encode(random)
 
@@ -19,19 +19,19 @@ func (g SecretGenerator) GeneratePkce() (string, string) {
 	return codeVerifier, codeChallenge
 }
 
-func (g SecretGenerator) GenerateState() string {
+func (g secretGenerator) GenerateState() string {
 	random := []byte(g.randomString(32))
 	return g.base64Encode(random)
 }
 
-func (g SecretGenerator) base64Encode(value []byte) string {
+func (g secretGenerator) base64Encode(value []byte) string {
 	result := base64.StdEncoding.WithPadding(base64.NoPadding).EncodeToString(value)
 	result = strings.ReplaceAll(result, "+", "-")
 	result = strings.ReplaceAll(result, "/", "_")
 	return result
 }
 
-func (g SecretGenerator) randomString(length int) string {
+func (g secretGenerator) randomString(length int) string {
 	b := make([]byte, length)
 	_, err := rand.Read(b)
 	if err != nil {

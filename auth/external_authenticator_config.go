@@ -1,5 +1,6 @@
 package auth
 
+// ExternalAuthenticatorConfig keeps the configuration values for the external authenticator.
 type ExternalAuthenticatorConfig struct {
 	Name string
 	Path string

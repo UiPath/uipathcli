@@ -1,5 +1,6 @@
 package parser
 
+// The Definition provides the high-level information about all operations of the service
 type Definition struct {
 	Name        string
 	Description string

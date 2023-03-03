@@ -1,5 +1,6 @@
 package auth
 
+// AuthenticatorContext provides information required for authenticating requests.
 type AuthenticatorContext struct {
 	Type     string                 `json:"type"`
 	Config   map[string]interface{} `json:"config"`

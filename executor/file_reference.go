@@ -9,6 +9,12 @@ import (
 	"path/filepath"
 )
 
+// A FileReference provides access to binary data usually referencing a file on disk.
+// This allows the executor to stream large files directly when sending the HTTP request
+// instead of loading them in memory first.
+//
+// The FileReference can also be initialized from byte array in case the data already
+// resides in memory.
 type FileReference struct {
 	path     string
 	filename string

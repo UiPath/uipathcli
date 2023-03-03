@@ -5,6 +5,9 @@ import (
 	"io"
 )
 
+// The DefaultLogger does not output any information on standard output.
+//
+// It only shows error output on standard error.
 type DefaultLogger struct {
 	ErrorOutput io.Writer
 }

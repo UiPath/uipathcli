@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// DefinitionStore discovers the definition files from disk searching for
+// the definitions/ folder and returns the data for a particular definition file.
 type DefinitionStore struct {
 	DefinitionDirectory string
 	DefinitionFiles     []string

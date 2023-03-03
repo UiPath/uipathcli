@@ -16,6 +16,8 @@ const cacheDirectoryPermissions = 0700
 const cacheDirectory = "uipath"
 const separator = "|"
 
+// The FileCache stores data on disk in order to preserve them across
+// multiple CLI invocations.
 type FileCache struct{}
 
 func (c FileCache) Get(key string) (string, float32) {

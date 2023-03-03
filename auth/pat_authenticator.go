@@ -7,6 +7,7 @@ import (
 
 const PatEnvVarName = "UIPATH_PAT"
 
+// PatAuthenticator provides authorization headers when using personal access tokens.
 type PatAuthenticator struct{}
 
 func (a PatAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {

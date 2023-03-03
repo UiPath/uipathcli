@@ -9,6 +9,9 @@ import (
 	"github.com/UiPath/uipathcli/parser"
 )
 
+// The TypeConverter converts the string value from the command-line argument into the type
+// the definition declared. CLI arguments are always passed as strings and need to be converted
+// to their respective type.
 type TypeConverter struct{}
 
 func (c TypeConverter) trim(value string) string {

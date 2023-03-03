@@ -1,3 +1,5 @@
+// Package config parses config and plugin configuration files. It provides APIs to read
+// and write config files and manage multiple profiles.
 package config
 
 import (
@@ -5,6 +7,7 @@ import (
 	"net/url"
 )
 
+// The Config structure holds the config data from the selected profile.
 type Config struct {
 	Uri          *url.URL
 	Organization string
@@ -18,6 +21,7 @@ type Config struct {
 	Output       string
 }
 
+// AuthConfig with metadata used for authenticating the caller.
 type AuthConfig struct {
 	Type   string
 	Config map[string]interface{}

@@ -8,6 +8,7 @@ import (
 
 const DefaultProfile = "default"
 
+// ConfigProvider parses the config file with the profiles.
 type ConfigProvider struct {
 	profiles    []profileYaml
 	ConfigStore ConfigStore

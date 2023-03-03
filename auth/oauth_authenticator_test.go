@@ -387,7 +387,7 @@ type NoOpBrowserLauncher struct {
 	loginUrlChannel chan string
 }
 
-func (l NoOpBrowserLauncher) OpenBrowser(url string) error {
+func (l NoOpBrowserLauncher) Open(url string) error {
 	l.loginUrlChannel <- url
 	return nil
 }

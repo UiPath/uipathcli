@@ -11,6 +11,13 @@ import (
 const ObjectSeparator = "\n"
 const FieldSeparator = "\t"
 
+// The TextOutputWriter formats the CLI output as text meaning fields are separated
+// by tabs and multiple elements by newline.
+//
+// It is used when the --output text parameter is provided.
+// Example:
+// foo1	bar1
+// foo2	bar2
 type TextOutputWriter struct {
 	Output      io.Writer
 	Transformer Transformer

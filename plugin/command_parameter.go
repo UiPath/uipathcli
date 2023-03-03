@@ -14,6 +14,7 @@ const (
 	ParameterTypeObjectArray  = "objectArray"
 )
 
+// CommandParameter defines the parameters the plugin command supports.
 type CommandParameter struct {
 	Name        string
 	Type        string
