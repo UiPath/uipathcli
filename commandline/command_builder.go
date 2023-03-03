@@ -562,6 +562,9 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 		Name:        "config",
 		Description: "Interactive command to configure the CLI",
 		Flags:       flags,
+		Subcommands: []*cli.Command{
+			b.createConfigSetCommand(),
+		},
 		Action: func(context *cli.Context) error {
 			auth := context.String(authFlagName)
 			profileName := context.String(profileFlagName)
@@ -571,6 +574,47 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 				ConfigProvider: b.ConfigProvider,
 			}
 			return handler.Configure(auth, profileName)
+		},
+		HideHelp: true,
+	}
+}
+
+func (b CommandBuilder) createConfigSetCommand() *cli.Command {
+	keyFlagName := "key"
+	valueFlagName := "value"
+	flags := []cli.Flag{
+		&cli.StringFlag{
+			Name:     keyFlagName,
+			Usage:    "The key",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:     valueFlagName,
+			Usage:    "The value to set",
+			Required: true,
+		},
+		&cli.StringFlag{
+			Name:    profileFlagName,
+			Usage:   "Profile to configure",
+			EnvVars: []string{"UIPATH_PROFILE"},
+			Value:   config.DefaultProfile,
+		},
+		b.HelpFlag(),
+	}
+	return &cli.Command{
+		Name:        "set",
+		Description: "Set config parameters",
+		Flags:       flags,
+		Action: func(context *cli.Context) error {
+			profileName := context.String(profileFlagName)
+			key := context.String(keyFlagName)
+			value := context.String(valueFlagName)
+			handler := ConfigCommandHandler{
+				StdIn:          b.StdIn,
+				StdOut:         b.StdOut,
+				ConfigProvider: b.ConfigProvider,
+			}
+			return handler.Set(key, value, profileName)
 		},
 		HideHelp: true,
 	}

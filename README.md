@@ -133,18 +133,18 @@ In order to use client credentials, you need to set up an [External Application 
 5. Run the interactive CLI configuration:
 
 ```bash
-uipath config
+uipath config --auth credentials
 ```
 
 The CLI will ask you to enter the main config settings like
-- `clientId` and `clientSecret` to retrieve the JWT bearer token for authentication
 - `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+- `clientId` and `clientSecret` to retrieve the JWT bearer token for authentication
 
 ```
-Enter client id [*******9026]: <your-client-id>
-Enter client secret [*******pcnN]: <your-client-secret>
 Enter organization [not set]: uipatcleitzc
 Enter tenant [not set]: DefaultTenant
+Enter client id [*******9026]: <your-client-id>
+Enter client secret [*******pcnN]: <your-client-secret>
 Successfully configured uipath CLI
 ```
 
@@ -190,15 +190,15 @@ uipath config --auth login
 ```
 
 The CLI will ask you to enter the main config settings like
-- `clientId`, `redirectUri` and `scopes` which are needed to initiate the OAuth flow
 - `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+- `clientId`, `redirectUri` and `scopes` which are needed to initiate the OAuth flow
 
 ```
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
 Enter client id [*******9026]: <your-external-application-id>
 Enter redirect uri [not set]: http://localhost:12700
 Enter scopes [not set]: OR.Users
-Enter organization [not set]: uipatcleitzc
-Enter tenant [not set]: DefaultTenant
 Successfully configured uipath CLI
 ```
 
@@ -230,13 +230,13 @@ uipath config -- auth pat
 ```
 
 The CLI will ask you to enter the main config settings like
-- `pat` your personal access token
 - `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+- `pat` your personal access token
 
 ```
-Enter personal access token [*******9026]: <your-pat>
 Enter organization [not set]: uipatcleitzc
 Enter tenant [not set]: DefaultTenant
+Enter personal access token [*******9026]: <your-pat>
 Successfully configured uipath CLI
 ```
 
@@ -263,6 +263,22 @@ Once you have created the configuration file with the proper secrets, org and te
 
 ```bash
 uipath du metering ping
+```
+
+### Set Config File Values
+
+The CLI provides the command `uipath config set` to update values in the configuration file.
+
+Example: Set the organization in the default profile
+
+```bash
+uipath config set --key "organization" --value "myorg"
+```
+
+Example: Create profile which uses the staging environment
+
+```bash
+uipath config set --key "uri" --value "https://staging.uipath.com" --profile staging
 ```
 
 ## Commands and arguments
@@ -515,11 +531,11 @@ uipath du metering ping --profile automationsuite
 
 ### How to bootstrap Automation Suite?
 
-You can use the CLI to create a new org on Automation Suite and license the server. As a prerequisite, you need to create a client secret on the server which allows grant type `password`. After that you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
+You can use the CLI to create a new org on Automation Suite and license the server. As a prerequisite, you need to create a client secret on the server which allows grant type `password`. Once set up, you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
 
 ```yaml
 profiles:
-  - name: automationsuite
+  - name: default
     organization: Host
     auth:
       clientId: <your-client-id>
@@ -533,44 +549,30 @@ profiles:
     insecure: true
 ```
 
-After that you can create a new organization:
+After that you can create a new organization and license it:
 
 ```bash
-uipath oms on-prem-organization create-organization-on-prem
-  --profile "automationsuite" \
-  --organization-name "testorg" \
-  --admin-email "test.user@uipath.com" \
-  --admin-user-name "testuser" \
-  --admin-first-name "Test" \
+org_name="testorg"
+password="<new-password>"
+license_code="<license-code>"
+
+# Create a new organization
+org_id=$(uipath oms on-prem-organization create-organization-on-prem
+  --organization-name "$org_name" \
+  --admin-email "admin@uipath.com" \
+  --admin-user-name "admin" \
+  --admin-first-name "Admin" \
   --admin-last-name "User" \
-  --admin-password "<your-testuser-password>" \
-  --language "en"
-```
+  --admin-password "$password" \
+  --language "en" \
+  --query "id" \
+  --output "text")
 
-Once the organization has been created, you can create a new profile which uses the org admin:
-
-```yaml
-profiles:
-  - name: automationsuite_testorg
-    organization: testorg
-    auth:
-      clientId: <your-client-id>
-      clientSecret: <your-client-secret>
-      grantType: password
-      properties:
-        username: testuser
-        password: <your-testuser-password>
-        acr_values: tenant:<your-org-id>
-    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
-    insecure: true
-```
-
-The following command activates the new org:
-
-```bash
-uipath oms license activate \
-  --profile "automationsuite_testorg" \
-  --license "<your-license-code>"
+# Use the new organization and activate it
+uipath config set --key "organization" --value "$org_name"
+uipath config set --key "auth.properties.acr_values" --value "tenant:$org_id"
+uipath config set --key "auth.properties.password" --value "$password"
+uipath oms license activate --license "$license_code"
 ```
 
 ### How to contribute?
