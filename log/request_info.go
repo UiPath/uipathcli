@@ -2,6 +2,8 @@ package log
 
 import "io"
 
+// RequestInfo contains the information used by the logger to print debug information which includes
+// the request information.
 type RequestInfo struct {
 	Method   string
 	Url      string

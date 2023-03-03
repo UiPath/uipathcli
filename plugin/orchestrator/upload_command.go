@@ -17,6 +17,9 @@ import (
 	"github.com/UiPath/uipathcli/utils"
 )
 
+// The UploadCommand is a custom command for the orchestrator service which makes uploading
+// files more convenient. It provides a wrapper over retrieving the write url and actually
+// performing the upload.
 type UploadCommand struct{}
 
 func (c UploadCommand) Command() plugin.Command {
@@ -46,7 +49,7 @@ func (c UploadCommand) upload(context plugin.ExecutionContext, writer output.Out
 		return err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
@@ -57,7 +60,7 @@ func (c UploadCommand) upload(context plugin.ExecutionContext, writer output.Out
 	if err != nil {
 		return fmt.Errorf("Error reading response: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusCreated {
 		return fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -130,7 +133,7 @@ func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, writer outpu
 		return "", err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
@@ -141,7 +144,7 @@ func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -256,7 +259,7 @@ func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) 
 	return nil, fmt.Errorf("Could not find 'file' parameter")
 }
 
-func (c UploadCommand) LogRequest(logger log.Logger, request *http.Request) {
+func (c UploadCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
 	buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
@@ -265,7 +268,7 @@ func (c UploadCommand) LogRequest(logger log.Logger, request *http.Request) {
 	logger.LogRequest(*requestInfo)
 }
 
-func (c UploadCommand) LogResponse(logger log.Logger, response *http.Response, body []byte) {
+func (c UploadCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }

@@ -13,6 +13,15 @@ import (
 	"github.com/UiPath/uipathcli/cache"
 )
 
+// The OAuthAuthenticator triggers the oauth authorization code flow with proof key for code exchange (PKCE).
+//
+// The user can login to the UiPath platform using the browser. In case the user interface is available,
+// the browser is automatically launched and the oauth flow will be initiated.
+// The CLI will open up a port on localhost waiting for the cloud.uipath.com platform to redirect back
+// for handing over the authorization code which will be exchanged for a JWT bearer token using the
+// token-endpoint from identity.
+//
+// There is no need to store any long-term credentials.
 type OAuthAuthenticator struct {
 	Cache           cache.Cache
 	BrowserLauncher BrowserLauncher
@@ -45,14 +54,14 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 }
 
-func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config OAuthAuthenticatorConfig, insecure bool) (string, error) {
+func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, insecure bool) (string, error) {
 	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.Scopes)
 	token, _ := a.Cache.Get(cacheKey)
 	if token != "" {
 		return token, nil
 	}
 
-	secretGenerator := SecretGenerator{}
+	secretGenerator := secretGenerator{}
 	codeVerifier, codeChallenge := secretGenerator.GeneratePkce()
 	state := secretGenerator.GenerateState()
 	code, err := a.login(identityBaseUri, config, state, codeChallenge)
@@ -78,7 +87,7 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config OAuthA
 	return tokenResponse.AccessToken, nil
 }
 
-func (a OAuthAuthenticator) login(identityBaseUri url.URL, config OAuthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
+func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
@@ -130,7 +139,7 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config OAuthAuthentic
 		url.QueryEscape(state))
 
 	go func(url string) {
-		err := a.BrowserLauncher.OpenBrowser(url)
+		err := a.BrowserLauncher.Open(url)
 		if err != nil {
 			a.showBrowserLink(url)
 		}
@@ -151,7 +160,7 @@ func (a OAuthAuthenticator) enabled(ctx AuthenticatorContext) bool {
 	return ctx.Config["clientId"] != nil && ctx.Config["redirectUri"] != nil && ctx.Config["scopes"] != nil
 }
 
-func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*OAuthAuthenticatorConfig, error) {
+func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthenticatorConfig, error) {
 	clientId, err := a.parseRequiredString(ctx.Config, "clientId")
 	if err != nil {
 		return nil, err
@@ -176,7 +185,7 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*OAuthAuthentic
 			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
 		}
 	}
-	return NewOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, uri), nil
+	return newOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, uri), nil
 }
 
 func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {

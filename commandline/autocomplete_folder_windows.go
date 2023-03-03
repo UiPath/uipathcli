@@ -9,6 +9,7 @@ import (
 	"golang.org/x/sys/windows/registry"
 )
 
+// Returns profile path on windows for PowerShell 7 (and above)
 func PowershellProfilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -18,6 +19,7 @@ func PowershellProfilePath() (string, error) {
 	return filepath.Join(documentDir, "PowerShell", "profile.ps1"), nil
 }
 
+// Returns .bashrc path on windows
 func BashrcPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

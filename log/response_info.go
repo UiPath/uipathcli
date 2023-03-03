@@ -2,6 +2,7 @@ package log
 
 import "io"
 
+// ResponseInfo contains the information used by the logger to print the executor result.
 type ResponseInfo struct {
 	StatusCode int
 	Status     string

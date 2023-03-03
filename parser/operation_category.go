@@ -1,5 +1,6 @@
 package parser
 
+// OperationCategory allows grouping multiple operations under a common resource.
 type OperationCategory struct {
 	Name        string
 	Description string

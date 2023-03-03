@@ -43,6 +43,14 @@ function _uipath_auto_complete()
 complete -f -F _uipath_auto_complete uipath
 `
 
+// AutoCompleteHandler parses the autocomplete command and provides suggestions for the available commands.
+// It tries to perform a prefix- as well as contains-match based on the current context.
+// Example:
+// uipath autocomplete complete --command "uipath o"
+// returns:
+// oms
+// orchestrator
+// documentunderstanding
 type AutoCompleteHandler struct {
 }
 

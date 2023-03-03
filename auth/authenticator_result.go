@@ -1,5 +1,7 @@
 package auth
 
+// The AuthenticatorResult indicates if the authentication was successful
+// and returns the authentication credentials.
 type AuthenticatorResult struct {
 	Error         string                 `json:"error"`
 	RequestHeader map[string]string      `json:"requestHeader"`

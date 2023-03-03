@@ -9,6 +9,15 @@ import (
 	"path/filepath"
 )
 
+// The ExternalAuthenticator invokes a configurable executable which is providing the
+// authentication credentials.
+//
+// The ExternalAuthenticator serializes the AuthenticatorContext and passes it on standard input
+// to the external executable. The executable performs the authentication and returns
+// the AuthenticatorResult on standard output.
+//
+// Example: Authenticator which uses kubernetes to retrieve clientId, clientSecret
+// https://github.com/UiPath/uipathcli-authenticator-k8s
 type ExternalAuthenticator struct {
 	Config ExternalAuthenticatorConfig
 }

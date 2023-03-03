@@ -6,6 +6,9 @@ import (
 	"strings"
 )
 
+// UriBuilder merges parts of the uri so that they can be overridden from
+// multiple sources, like environment variables, config files or command line
+// arguments.
 type UriBuilder struct {
 	uri url.URL
 }

@@ -1,5 +1,8 @@
 package plugin
 
+// Command is used to define the metadata of the plugin.
+//
+// Command defines the service name, command name and its available parameters.
 type Command struct {
 	Service     string
 	Name        string

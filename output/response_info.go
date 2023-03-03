@@ -2,6 +2,8 @@ package output
 
 import "io"
 
+// ResponseInfo contains the information used by the output writer to print the executor
+// result on standard output.
 type ResponseInfo struct {
 	StatusCode int
 	Status     string

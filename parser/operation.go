@@ -6,6 +6,10 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 )
 
+// The Operation is the definition of a route which can be called by the CLI.
+//
+// It holds all the information needed to make the call, like
+// HTTP method, Route, Parameters, etc...
 type Operation struct {
 	Name        string
 	Summary     string

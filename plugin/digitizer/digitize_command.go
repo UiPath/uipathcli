@@ -20,6 +20,8 @@ import (
 	"github.com/UiPath/uipathcli/utils"
 )
 
+// The DigitizeCommand is a convenient wrapper over the async digitizer API
+// to make it seem like it is a single sync call.
 type DigitizeCommand struct{}
 
 func (c DigitizeCommand) Command() plugin.Command {
@@ -58,7 +60,7 @@ func (c DigitizeCommand) digitize(context plugin.ExecutionContext, writer output
 		return "", err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
@@ -69,7 +71,7 @@ func (c DigitizeCommand) digitize(context plugin.ExecutionContext, writer output
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusAccepted {
 		return "", fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -87,7 +89,7 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 		return true, err
 	}
 	if context.Debug {
-		c.LogRequest(logger, request)
+		c.logRequest(logger, request)
 	}
 	response, err := c.sendRequest(request, context.Insecure)
 	if err != nil {
@@ -98,7 +100,7 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 	if err != nil {
 		return true, fmt.Errorf("Error reading response: %v", err)
 	}
-	c.LogResponse(logger, response, body)
+	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
 		return true, fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -286,7 +288,7 @@ func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter
 	return nil, fmt.Errorf("Could not find 'file' parameter")
 }
 
-func (c DigitizeCommand) LogRequest(logger log.Logger, request *http.Request) {
+func (c DigitizeCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
 	buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
@@ -295,7 +297,7 @@ func (c DigitizeCommand) LogRequest(logger log.Logger, request *http.Request) {
 	logger.LogRequest(*requestInfo)
 }
 
-func (c DigitizeCommand) LogResponse(logger log.Logger, response *http.Response, body []byte) {
+func (c DigitizeCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }

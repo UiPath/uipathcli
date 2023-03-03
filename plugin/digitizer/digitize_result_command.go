@@ -8,6 +8,10 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 )
 
+// DigitizeResultCommand only marks the digitize-result command as hidden
+//
+// The digitize-result command is not needed because the CLI provides a convenient wrapper over
+// the async digitizer API to make it seem like it is a single sync call.
 type DigitizeResultCommand struct{}
 
 func (c DigitizeResultCommand) Command() plugin.Command {

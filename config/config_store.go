@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// ConfigStore reads and writes the configuration file
 type ConfigStore struct {
 	Config     []byte
 	ConfigFile string

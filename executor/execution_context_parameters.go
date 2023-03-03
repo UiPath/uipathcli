@@ -1,5 +1,7 @@
 package executor
 
+// The ExecutionContextParameters contains list of parameters which are used
+// by the executor to dynamically build the request.
 type ExecutionContextParameters struct {
 	Path   []ExecutionParameter
 	Query  []ExecutionParameter

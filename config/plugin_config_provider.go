@@ -4,6 +4,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// PluginConfigProvider parses the plugin configuration file
 type PluginConfigProvider struct {
 	PluginConfigStore PluginConfigStore
 	pluginConfig      PluginConfig

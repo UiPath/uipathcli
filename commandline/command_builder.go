@@ -31,6 +31,7 @@ const outputFormatText = "text"
 
 const queryFlagName = "query"
 
+// The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
 	Input              []byte
 	StdIn              io.Reader

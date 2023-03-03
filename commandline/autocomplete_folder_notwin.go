@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// Returns powershell profile path on linux
 func PowershellProfilePath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -15,6 +16,7 @@ func PowershellProfilePath() (string, error) {
 	return filepath.Join(homeDir, ".config", "powershell", "profile.ps1"), nil
 }
 
+// Returns .bashrc path on linux
 func BashrcPath() (string, error) {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {

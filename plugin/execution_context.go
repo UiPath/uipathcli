@@ -2,6 +2,7 @@ package plugin
 
 import "net/url"
 
+// The ExecutionContext provides all the data needed by the plugin to perform the operation.
 type ExecutionContext struct {
 	Organization string
 	Tenant       string

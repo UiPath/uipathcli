@@ -9,6 +9,8 @@ import (
 	"github.com/UiPath/uipathcli/log"
 )
 
+// The ProgressBar helps rendering a text-based progress indicator on the command-line.
+// It uses the standard error output interface of the logger for writing progress.
 type ProgressBar struct {
 	Logger         log.Logger
 	renderedLength int

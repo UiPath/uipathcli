@@ -2,7 +2,7 @@ package auth
 
 import "net/url"
 
-type BearerAuthenticatorConfig struct {
+type bearerAuthenticatorConfig struct {
 	GrantType    string
 	Scopes       string
 	ClientId     string
@@ -11,12 +11,12 @@ type BearerAuthenticatorConfig struct {
 	IdentityUri  *url.URL
 }
 
-func NewBearerAuthenticatorConfig(
+func newBearerAuthenticatorConfig(
 	grantType string,
 	scopes string,
 	clientId string,
 	clientSecret string,
 	properties map[string]string,
-	identityUri *url.URL) *BearerAuthenticatorConfig {
-	return &BearerAuthenticatorConfig{grantType, scopes, clientId, clientSecret, properties, identityUri}
+	identityUri *url.URL) *bearerAuthenticatorConfig {
+	return &bearerAuthenticatorConfig{grantType, scopes, clientId, clientSecret, properties, identityUri}
 }

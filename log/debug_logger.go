@@ -7,6 +7,9 @@ import (
 	"sort"
 )
 
+// The DebugLogger provides more insights into which operations the CLI is performing.
+//
+// It can be enabled using the --debug flag.
 type DebugLogger struct {
 	Output      io.Writer
 	ErrorOutput io.Writer

@@ -6,6 +6,14 @@ import (
 	"io"
 )
 
+// The JsonOutputWriter formats the CLI output as prettified json.
+//
+// It is used by default or when the --output json parameter is provided.
+// Example:
+//
+//	{
+//	 "foo": "bar"
+//	}
 type JsonOutputWriter struct {
 	Output      io.Writer
 	Transformer Transformer

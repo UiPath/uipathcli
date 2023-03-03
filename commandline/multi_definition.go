@@ -4,6 +4,9 @@ import (
 	"github.com/UiPath/uipathcli/parser"
 )
 
+// MultiDefinition merges multiple definitions into a single one.
+// This enables teams to provide fine-grained specifications for their individual
+// micro-services and still provide them under a single command.
 type MultiDefinition struct{}
 
 func (d MultiDefinition) Merge(name string, definitions []*parser.Definition) *parser.Definition {

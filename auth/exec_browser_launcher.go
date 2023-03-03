@@ -7,9 +7,11 @@ import (
 	"time"
 )
 
+// ExecBrowserLauncher is the default implementation for the browser launcher which
+// tries to open the default browser on the local system.
 type ExecBrowserLauncher struct{}
 
-func (l ExecBrowserLauncher) OpenBrowser(url string) error {
+func (l ExecBrowserLauncher) Open(url string) error {
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {

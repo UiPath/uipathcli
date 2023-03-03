@@ -1,3 +1,6 @@
+// Package main contains the entry point of the uipath command line interface.
+//
+// It only initializes the different packages and delegates the actual work.
 package main
 
 import (

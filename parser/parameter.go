@@ -1,5 +1,6 @@
 package parser
 
+// Parameter contains all the information about a parameter for an operation.
 type Parameter struct {
 	Name          string
 	Type          string

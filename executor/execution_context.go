@@ -7,6 +7,8 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 )
 
+// The ExecutionContext provides all the data needed by the executor to construct the HTTP
+// request including URL, headers and body.
 type ExecutionContext struct {
 	Organization string
 	Tenant       string

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 )
 
+// PluginConfigStore reads the plugin configuration file
 type PluginConfigStore struct {
 	PluginFile string
 }
