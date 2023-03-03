@@ -173,9 +173,9 @@ func (c TypeConverter) convertToObjectArray(value string, parameter parser.Param
 }
 
 func (c TypeConverter) splitEscaped(str string, separator byte) []string {
-	var result []string
-	var item []byte
-	var escaping = false
+	result := []string{}
+	item := []byte{}
+	escaping := false
 	for i := 0; i < len(str); i++ {
 		char := str[i]
 		if char == '\\' && !escaping {

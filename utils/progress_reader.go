@@ -18,7 +18,7 @@ type ProgressReader struct {
 	lastProgress time.Time
 }
 
-var debounceInterval = 100 * time.Nanosecond
+const debounceInterval = 100 * time.Nanosecond
 
 func (r *ProgressReader) Read(p []byte) (n int, err error) {
 	n, err = r.Reader.Read(p)
