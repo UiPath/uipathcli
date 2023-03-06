@@ -93,7 +93,6 @@ func main() {
 			Parser: parser.OpenApiParser{},
 			CommandPlugins: []plugin.CommandPlugin{
 				plugin_digitizer.DigitizeCommand{},
-				plugin_digitizer.DigitizeResultCommand{},
 				plugin_orchestrator.UploadCommand{},
 				plugin_orchestrator.DownloadCommand{},
 			},

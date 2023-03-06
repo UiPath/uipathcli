@@ -1,0 +1,1313 @@
+openapi: 3.0.1
+info:
+  title: Document Understanding REST APIs Preview
+  description: 'Document Understanding as a Service, exposing framework capabilities as REST APIs. All the APIs are in the context of a Document Understanding Center project. Both pre-trained and custom resources are available for consumption.<br><br>Supported file types: png, jpg, pdf, tiff. Multi-page documents can have up to 5 pages. <br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/reference/api-overview">here.</A>'
+  version: "1.0"
+paths:
+  /projects:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve all available projects from Document Understanding Center.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
+      operationId: projects
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
+      operationId: extractors
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve all classifiers from a project. \r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
+      operationId: classifiers
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifiersResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifiersResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifiersResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+  /projects/{projectId}/digitization/start:
+    post:
+      tags:
+        - Digitization
+      summary: ""
+      description: "Digitize a document using the OCR settings of the associated Document Understanding Center project.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
+      operationId: start
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+            encoding:
+              file:
+                style: form
+      responses:
+        "202":
+          description: Accepted
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "415":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}/classification:
+    post:
+      tags:
+        - Classification
+      summary: ""
+      description: "Classify a document.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
+      operationId: classify
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the classifier exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: The identifier of the classifier used for classification.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}/extraction:
+    post:
+      tags:
+        - Extraction
+      summary: ""
+      description: "Extract all fields from a document.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
+      operationId: extract
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+            default: "1"
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the extractor exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: The identifier of the extractor used for extraction.
+          required: true
+          schema:
+            type: string
+            default: invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+components:
+  schemas:
+    UiPath.DocumentProcessing.Contracts.Box:
+      type: object
+      properties:
+        top:
+          type: number
+          format: double
+          readOnly: true
+        left:
+          type: number
+          format: double
+          readOnly: true
+        width:
+          type: number
+          format: double
+          readOnly: true
+        height:
+          type: number
+          format: double
+          readOnly: true
+        bottom:
+          type: number
+          format: double
+          readOnly: true
+        verticalCenter:
+          type: number
+          format: double
+          readOnly: true
+        right:
+          type: number
+          format: double
+          readOnly: true
+        horizontalCenter:
+          type: number
+          format: double
+          readOnly: true
+        area:
+          type: number
+          format: double
+          readOnly: true
+        isEmpty:
+          type: boolean
+          readOnly: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.BusinessRules.FieldValue:
+      type: object
+      properties:
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.BusinessRules.FieldValueResult:
+      type: object
+      properties:
+        value:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.BusinessRules.FieldValue'
+        isValid:
+          type: boolean
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.BusinessRules.RuleResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.BusinessRules.RuleResult:
+      type: object
+      properties:
+        rule:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Rule'
+        isValid:
+          type: boolean
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.BusinessRules.RuleSetResult:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldType:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType'
+        criticality:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Criticality'
+        isValid:
+          type: boolean
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.BusinessRules.FieldValueResult'
+          nullable: true
+        brokenRules:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Rule'
+          nullable: true
+        rowIndex:
+          type: integer
+          format: int32
+          nullable: true
+        tableFieldId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ClassificationResult:
+      type: object
+      properties:
+        documentTypeId:
+          type: string
+          nullable: true
+        documentId:
+          type: string
+          nullable: true
+        confidence:
+          type: number
+          format: float
+        ocrConfidence:
+          type: number
+          format: float
+        reference:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsContentReference'
+        documentBounds:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDocumentBounds'
+        classifierName:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ExtractionResult:
+      type: object
+      properties:
+        documentId:
+          type: string
+          nullable: true
+        resultsVersion:
+          type: integer
+          format: int32
+        resultsDocument:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDocument'
+        extractorPayloads:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractorPayload'
+          nullable: true
+        businessRulesResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.BusinessRules.RuleSetResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ExtractorPayload:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        payload:
+          type: string
+          nullable: true
+        savedPayloadId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsContentReference:
+      type: object
+      properties:
+        textStartIndex:
+          type: integer
+          format: int32
+        textLength:
+          type: integer
+          format: int32
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsValueTokens'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsDataPoint:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldName:
+          type: string
+          nullable: true
+        fieldType:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType'
+        isMissing:
+          type: boolean
+          readOnly: true
+        dataSource:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataSource'
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsValue'
+          nullable: true
+        dataVersion:
+          type: integer
+          format: int32
+        operatorConfirmed:
+          type: boolean
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsDataSource:
+      enum:
+        - Automatic
+        - Manual
+        - ManuallyChanged
+      type: string
+    UiPath.DocumentProcessing.Contracts.Results.ResultsDerivedField:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsDocument:
+      type: object
+      properties:
+        bounds:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDocumentBounds'
+        language:
+          type: string
+          nullable: true
+        documentGroup:
+          type: string
+          nullable: true
+        documentCategory:
+          type: string
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        documentTypeName:
+          type: string
+          nullable: true
+        documentTypeDataVersion:
+          type: integer
+          format: int32
+        dataVersion:
+          type: integer
+          format: int32
+        documentTypeSource:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataSource'
+        documentTypeField:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsValue'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataPoint'
+          nullable: true
+        tables:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsTable'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsDocumentBounds:
+      type: object
+      properties:
+        startPage:
+          type: integer
+          format: int32
+        pageCount:
+          type: integer
+          format: int32
+        textStartIndex:
+          type: integer
+          format: int32
+        textLength:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsTable:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldName:
+          type: string
+          nullable: true
+        isMissing:
+          type: boolean
+          readOnly: true
+        dataSource:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataSource'
+        dataVersion:
+          type: integer
+          format: int32
+        operatorConfirmed:
+          type: boolean
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsTableValue'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsTableCell:
+      type: object
+      properties:
+        rowIndex:
+          type: integer
+          format: int32
+        columnIndex:
+          type: integer
+          format: int32
+        isHeader:
+          type: boolean
+        isMissing:
+          type: boolean
+          readOnly: true
+        operatorConfirmed:
+          type: boolean
+        dataSource:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataSource'
+        dataVersion:
+          type: integer
+          format: int32
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsValue'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsTableColumnInfo:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldName:
+          type: string
+          nullable: true
+        fieldType:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType'
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsTableValue:
+      type: object
+      properties:
+        operatorConfirmed:
+          type: boolean
+        confidence:
+          type: number
+          format: float
+        ocrConfidence:
+          type: number
+          format: float
+        cells:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsTableCell'
+          nullable: true
+        columnInfo:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsTableColumnInfo'
+          nullable: true
+        numberOfRows:
+          type: integer
+          format: int32
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsValue:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDataPoint'
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        unformattedValue:
+          type: string
+          nullable: true
+        reference:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsContentReference'
+        derivedFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ResultsDerivedField'
+          nullable: true
+        confidence:
+          type: number
+          format: float
+        operatorConfirmed:
+          type: boolean
+        ocrConfidence:
+          type: number
+          format: float
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Results.ResultsValueTokens:
+      type: object
+      properties:
+        textStartIndex:
+          type: integer
+          format: int32
+        textLength:
+          type: integer
+          format: int32
+        page:
+          type: integer
+          format: int32
+        pageWidth:
+          type: number
+          format: float
+        pageHeight:
+          type: number
+          format: float
+        boxes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Box'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.ComparisonOperator:
+      enum:
+        - Equals
+        - NotEquals
+        - Greater
+        - Less
+        - GreaterOrEqual
+        - LessOrEqual
+      type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.Criticality:
+      enum:
+        - Must
+        - Should
+      type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType:
+      enum:
+        - Text
+        - Number
+        - Date
+        - Name
+        - Address
+        - Keyword
+        - Set
+        - Boolean
+        - Table
+        - Internal
+      type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.LogicalOperator:
+      enum:
+        - AND
+        - OR
+      type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.Rule:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.RuleType'
+        logicalOperator:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.LogicalOperator'
+        comparisonOperator:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.ComparisonOperator'
+        expression:
+          type: string
+          nullable: true
+        setValues:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.RuleType:
+      enum:
+        - Mandatory
+        - PossibleValues
+        - Regex
+        - StartsWith
+        - EndsWith
+        - FixedLength
+        - IsNumeric
+        - IsDate
+        - IsEmail
+        - Contains
+        - Expression
+        - TableExpression
+      type: string
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: Id of the document obtained from the Digitization operation.
+          format: uuid
+          example: ID of the document obtained from the Digitization operation.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse:
+      type: object
+      properties:
+        classificationResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: The Document ID
+          format: uuid
+          example: ID of the document that is being digitized.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Classifier:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
+        syncUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifiersResponse:
+      type: object
+      properties:
+        classifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Classifier'
+          nullable: true
+          readOnly: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Project'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Project:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        digitizationStartUrl:
+          type: string
+          format: uri
+          nullable: true
+        extractorsDiscoveryUrl:
+          type: string
+          format: uri
+          nullable: true
+        classifiersDiscoveryUrl:
+          type: string
+          format: uri
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus:
+      enum:
+        - Unknown
+        - NotStarted
+        - ExportInProgress
+        - ExportCompleted
+        - InProgress
+        - Suspended
+        - Resuming
+        - Available
+        - Error
+        - Deleting
+      type: string
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: Id of the document obtained from the Digitization operation.
+          format: uuid
+          example: ID of the document obtained from the Digitization operation.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult:
+      type: object
+      properties:
+        extractionResult:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          nullable: true
+        severity:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+        parameters:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+  securitySchemes:
+    oauth2:
+      type: oauth2
+      description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/document-understanding/reference/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
+      flows:
+        clientCredentials:
+          tokenUrl: https://alpha.uipath.com/identity_/connect/token
+          scopes:
+            Du.Digitization.Api: Digitization Api Scope
+            Du.Classification.Api: Classification Api Scope
+            Du.Extraction.Api: Extraction Api Scope
+security:
+  - oauth2:
+      - Du.Digitization.Api
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant

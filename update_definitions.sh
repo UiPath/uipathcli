@@ -264,6 +264,11 @@ download_definition "https://alpha.uipath.com/$organization/$tenant/du_/api/digi
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/du_/api/digitizer" \
 | save_definition "du.digitizer"
 
+echo "Updating du.framework definition..."
+download_definition "https://alpha.uipath.com/$organization/$tenant/du_/api/framework/swagger/v1/swagger.json" \
+| update_server_url "https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework" \
+| save_definition "du.framework"
+
 echo "Updating orchestrator definition..."
 download_definition "https://alpha.uipath.com/$organization/$tenant/orchestrator_/swagger/v16.0/swagger.json" "v2" \
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/orchestrator_" \

@@ -145,6 +145,7 @@ func TestMainParsesBuiltInDefinitions(t *testing.T) {
 	t.Run("aicenter-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter project", "get-project-acces") })
 	t.Run("aicenter-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter dataset", "create-dataset") })
 	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du digitization", "digitize") })
+	t.Run("du-framework", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du discovery", "projects") })
 	t.Run("du-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du events", "create-subscription") })
 	t.Run("du-metering", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du metering", "track") })
 	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du storage", "presigned-url") })
