@@ -128,6 +128,9 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 		description = schemaRef.Value.Description
 		defaultValue = p.getDefaultValue(schemaRef.Value)
 		allowedValues = p.getAllowedValues(schemaRef.Value)
+		if required && defaultValue == nil && len(allowedValues) == 1 {
+			defaultValue = allowedValues[0]
+		}
 		propertiesSchemas := p.getPropertiesSchemas(schemaRef.Value)
 		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required)
 	}
@@ -215,6 +218,9 @@ func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	if param.Schema != nil {
 		defaultValue = p.getDefaultValue(param.Schema.Value)
 		allowedValues = p.getAllowedValues(param.Schema.Value)
+		if required && defaultValue == nil && len(allowedValues) == 1 {
+			defaultValue = allowedValues[0]
+		}
 		propertiesSchemas := p.getPropertiesSchemas(param.Schema.Value)
 		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required)
 	}
