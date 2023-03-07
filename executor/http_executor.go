@@ -36,6 +36,12 @@ type HttpExecutor struct {
 	Authenticators []auth.Authenticator
 }
 
+func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	return utils.Retry(func() error {
+		return e.call(context, writer, logger)
+	})
+}
+
 func (e HttpExecutor) requestId() string {
 	bytes := make([]byte, 16)
 	rand.Read(bytes)
@@ -100,7 +106,7 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 }
 
 func (e HttpExecutor) serializeJson(body io.Writer, parameters []ExecutionParameter) error {
-	var data = map[string]interface{}{}
+	data := map[string]interface{}{}
 	for _, parameter := range parameters {
 		data[parameter.Name] = parameter.Value
 	}
@@ -289,7 +295,7 @@ func (e HttpExecutor) pathParameters(context ExecutionContext) []ExecutionParame
 	return pathParameters
 }
 
-func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	uri, err := e.formatUri(context.BaseUri, context.Route, e.pathParameters(context), context.Parameters.Query)
 	if err != nil {
 		return err
@@ -324,7 +330,7 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	}
 	response, err := e.send(client, request, requestError)
 	if err != nil {
-		return fmt.Errorf("Error sending request: %v", err)
+		return utils.Retryable(fmt.Errorf("Error sending request: %v", err))
 	}
 	downloadBar := utils.NewProgressBar(logger)
 	downloadReader := e.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
@@ -332,9 +338,12 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 	defer response.Body.Close()
 	body, err := io.ReadAll(downloadReader)
 	if err != nil {
-		return fmt.Errorf("Error reading response body: %v", err)
+		return utils.Retryable(fmt.Errorf("Error reading response body: %v", err))
 	}
 	e.logResponse(logger, response, body)
+	if response.StatusCode >= 500 {
+		return utils.Retryable(fmt.Errorf("Service returned status code '%v' and body '%v'", response.StatusCode, string(body)))
+	}
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {
 		return err
