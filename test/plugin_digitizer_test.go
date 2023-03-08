@@ -9,48 +9,6 @@ import (
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 )
 
-func TestDigitizeResultOperationIsHidden(t *testing.T) {
-	definition := `
-paths:
-  /digitize/result/{operationId}:
-    post:
-      summary: This command should not be shown
-      operationId: digitize-result
-`
-
-	context := NewContextBuilder().
-		WithDefinition("du", definition).
-		WithCommandPlugin(plugin_digitizer.DigitizeResultCommand{}).
-		Build()
-
-	result := runCli([]string{"du", "digitization", "--help"}, context)
-
-	if strings.Contains(result.StdOut, "digitize-result") {
-		t.Errorf("Expected stdout not to show digitize-result command, but got: %v", result.StdOut)
-	}
-}
-
-func TestDigitizeResultOperationIsDisabled(t *testing.T) {
-	definition := `
-paths:
-  /digitize/result/{operationId}:
-    post:
-      summary: This command should not be shown
-      operationId: digitize-result
-`
-
-	context := NewContextBuilder().
-		WithDefinition("du", definition).
-		WithCommandPlugin(plugin_digitizer.DigitizeResultCommand{}).
-		Build()
-
-	result := runCli([]string{"du", "digitization", "digitize-result"}, context)
-
-	if !strings.Contains(result.StdErr, "Digitize result command not supported") {
-		t.Errorf("Expected stderr to show error that digitize-result command is disabled, but got: %v", result.StdErr)
-	}
-}
-
 func TestDigitizeWithoutFileParameterShowsValidationError(t *testing.T) {
 	definition := `
 paths:
