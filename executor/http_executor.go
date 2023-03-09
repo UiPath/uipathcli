@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"path"
 	"strings"
+	"time"
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
@@ -228,27 +229,26 @@ func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []Exec
 }
 
 func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64) {
-	bodyReader, bodyWriter := io.Pipe()
 	if context.Input != nil {
-		e.writeInputBody(bodyWriter, *context.Input, errorChan)
+		reader, writer := io.Pipe()
+		e.writeInputBody(writer, *context.Input, errorChan)
 		data, size, err := context.Input.Data()
 		if err == nil {
 			defer data.Close()
 		}
-		return bodyReader, context.ContentType, size
+		return reader, context.ContentType, size
 	}
 	if len(context.Parameters.Form) > 0 {
-		contentType, contentLength := e.writeMultipartBody(bodyWriter, context.Parameters.Form, errorChan)
-		return bodyReader, contentType, contentLength
+		reader, writer := io.Pipe()
+		contentType, contentLength := e.writeMultipartBody(writer, context.Parameters.Form, errorChan)
+		return reader, contentType, contentLength
 	}
 	if len(context.Parameters.Body) > 0 {
-		e.writeJsonBody(bodyWriter, context.Parameters.Body, errorChan)
-		return bodyReader, context.ContentType, -1
+		reader, writer := io.Pipe()
+		e.writeJsonBody(writer, context.Parameters.Body, errorChan)
+		return reader, context.ContentType, -1
 	}
-	go func() {
-		defer bodyWriter.Close()
-	}()
-	return bodyReader, context.ContentType, -1
+	return bytes.NewReader([]byte{}), context.ContentType, -1
 }
 
 func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan chan error) (*http.Response, error) {
@@ -322,7 +322,8 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: context.Insecure},
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: context.Insecure},
+		ResponseHeaderTimeout: 60 * time.Second,
 	}
 	client := &http.Client{Transport: transport}
 	if context.Debug {

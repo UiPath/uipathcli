@@ -379,14 +379,14 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				io.Copy(b.StdErr, errorReader)
 			}(errorReader)
 
-			go func(context executor.ExecutionContext, writer *io.PipeWriter) {
+			go func(context executor.ExecutionContext, writer *io.PipeWriter, errorWriter *io.PipeWriter) {
 				defer wg.Done()
 				defer writer.Close()
 				defer errorWriter.Close()
 				outputWriter := b.outputWriter(context, writer, outputFormat, query)
 				logger := b.logger(context, writer, errorWriter)
 				err = b.executeCommand(context, outputWriter, logger)
-			}(*executionContext, writer)
+			}(*executionContext, writer, errorWriter)
 
 			wg.Wait()
 			return err

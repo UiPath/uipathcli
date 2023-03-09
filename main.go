@@ -18,6 +18,7 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
+	"github.com/mattn/go-isatty"
 )
 
 func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
@@ -47,14 +48,14 @@ func colorsSupported() bool {
 }
 
 func readStdIn() []byte {
-	stat, _ := os.Stdin.Stat()
-	if (stat.Mode() & os.ModeCharDevice) == 0 {
-		input, err := io.ReadAll(os.Stdin)
-		if err == nil {
-			return input
-		}
+	if isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd()) {
+		return []byte{}
 	}
-	return []byte{}
+	input, err := io.ReadAll(os.Stdin)
+	if err != nil {
+		return []byte{}
+	}
+	return input
 }
 
 func main() {
