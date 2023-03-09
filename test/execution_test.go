@@ -1271,3 +1271,98 @@ paths:
 		t.Errorf("Invalid json request body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestPostUrlEncodedRequest(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      operationId: validate
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                client_id:
+                  type: string
+                  description: The client id
+                client_secret:
+                  type: string
+                  description: The client secret
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "validate", "--client-id", "my-client-id", "--client-secret", "my-client-secret"}, context)
+
+	contentType := result.RequestHeader["content-type"]
+	if contentType != "application/x-www-form-urlencoded" {
+		t.Errorf("Did not set x-www-form-urlencoded content type, got: %v", contentType)
+	}
+	expected := "client_id=my-client-id&client_secret=my-client-secret"
+	if result.RequestBody != expected {
+		t.Errorf("Did not find url encoded data in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostUrlEncodedEscapesDataRequest(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      operationId: validate
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                myparam:
+                  type: string
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "validate", "--myparam", "hello & world"}, context)
+
+	expected := "myparam=hello+%26+world"
+	if result.RequestBody != expected {
+		t.Errorf("Url encoded data is not escaped, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostUrlEncodedDataTypes(t *testing.T) {
+	t.Run("String", func(t *testing.T) { PostUrlEncodedDataTypes(t, "string", "myvalue", "myvalue") })
+	t.Run("Integer", func(t *testing.T) { PostUrlEncodedDataTypes(t, "integer", "0", "0") })
+	t.Run("Number", func(t *testing.T) { PostUrlEncodedDataTypes(t, "number", "0.5", "0.5") })
+	t.Run("Boolean", func(t *testing.T) { PostUrlEncodedDataTypes(t, "boolean", "true", "true") })
+}
+
+func PostUrlEncodedDataTypes(t *testing.T, datatype string, argument string, value string) {
+	definition := `
+paths:
+  /validate:
+    post:
+      operationId: validate
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                myparam:
+                  type: ` + datatype + `
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "validate", "--myparam", argument}, context)
+	expected := "myparam=" + value
+	if result.RequestBody != expected {
+		t.Errorf("Wrong data type conversion for url encoded data, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}

@@ -190,6 +190,11 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
 		return "application/json", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required)
 	}
+	content = requestBody.Value.Content.Get("application/x-www-form-urlencoded")
+	if content != nil {
+		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
+		return "application/x-www-form-urlencoded", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required)
+	}
 	content = requestBody.Value.Content.Get("multipart/form-data")
 	if content != nil {
 		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)

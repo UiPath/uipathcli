@@ -1,0 +1,44 @@
+openapi: 3.0.1
+info:
+  title: IdentityServer Internal API
+  version: v1
+servers:
+  - url: https://cloud.uipath.com/identity_
+paths:
+  /connect/token:
+    post:
+      tags:
+        - Token
+      summary: Creates a new token
+      operationId: Create
+      requestBody:
+        content:
+          'application/x-www-form-urlencoded':
+            schema:
+              type: object
+              properties:
+                client_id: 
+                  description: The client id
+                  type: string
+                client_secret:
+                  description: The client secret
+                  type: string
+                grant_type:
+                  description: The grant type
+                  type: string
+                scope:
+                  description: The scopes
+                  type: string
+                username:
+                  description: The user name
+                  type: string
+                password:
+                  description: The user name
+                  type: string
+              required:
+                - client_id
+                - client_secret
+                - grant_type
+      responses:
+        "200":
+          description: Success
