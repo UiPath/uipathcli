@@ -43,7 +43,20 @@ func (f TypeFormatter) arrayToCommaSeparatedString(array interface{}) string {
 	}
 }
 
-func (f TypeFormatter) FormatQueryString(parameter ExecutionParameter) string {
+func (f TypeFormatter) FormatQueryString(parameters []ExecutionParameter) string {
+	result := ""
+	for _, parameter := range parameters {
+		param := f.formatQueryStringParam(parameter)
+		if result == "" {
+			result = param
+		} else {
+			result = result + "&" + param
+		}
+	}
+	return result
+}
+
+func (f TypeFormatter) formatQueryStringParam(parameter ExecutionParameter) string {
 	switch value := parameter.Value.(type) {
 	case []int:
 		return f.integerArrayToQueryString(parameter.Name, value)

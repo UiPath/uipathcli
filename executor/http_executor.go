@@ -146,11 +146,9 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 		uri = strings.ReplaceAll(uri, "{"+parameter.Name+"}", pathValue)
 	}
 
-	querySeparator := "?"
-	for _, parameter := range queryParameters {
-		queryStringValue := formatter.FormatQueryString(parameter)
-		uri = uri + querySeparator + queryStringValue
-		querySeparator = "&"
+	queryString := formatter.FormatQueryString(queryParameters)
+	if queryString != "" {
+		uri = uri + "?" + queryString
 	}
 	return e.validateUri(uri)
 }
@@ -217,6 +215,19 @@ func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input FileRefere
 	}()
 }
 
+func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
+	go func() {
+		defer bodyWriter.Close()
+		formatter := TypeFormatter{}
+		queryString := formatter.FormatQueryString(parameters)
+		_, err := bodyWriter.Write([]byte(queryString))
+		if err != nil {
+			errorChan <- err
+			return
+		}
+	}()
+}
+
 func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
@@ -242,6 +253,11 @@ func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) 
 		reader, writer := io.Pipe()
 		contentType, contentLength := e.writeMultipartBody(writer, context.Parameters.Form, errorChan)
 		return reader, contentType, contentLength
+	}
+	if len(context.Parameters.Body) > 0 && context.ContentType == "application/x-www-form-urlencoded" {
+		reader, writer := io.Pipe()
+		e.writeUrlEncodedBody(writer, context.Parameters.Body, errorChan)
+		return reader, context.ContentType, -1
 	}
 	if len(context.Parameters.Body) > 0 {
 		reader, writer := io.Pipe()

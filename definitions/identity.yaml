@@ -3,7 +3,7 @@ info:
   title: IdentityServer Internal API
   version: v1
 servers:
-  - url: https://alpha.uipath.com/identity_
+  - url: https://cloud.uipath.com/identity_
 paths:
   /api/Account/Profile:
     get:

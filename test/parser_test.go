@@ -1251,3 +1251,30 @@ paths:
 		t.Errorf("stdout contains operation from wrong category, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestUrlEncodedParameterDescription(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      operationId: validate
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              properties:
+                username:
+                  type: string
+                  description: The user name
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := runCli([]string{"myservice", "validate", "--help"}, context)
+
+	expected := "The user name"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("stdout does not contain form parameter description, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
