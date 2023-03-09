@@ -69,7 +69,7 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 }
 
 func (c DownloadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
-	if length == -1 || length < 10*1024*1024 {
+	if length < 10*1024*1024 {
 		return reader
 	}
 	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
