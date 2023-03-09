@@ -11,7 +11,6 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"path"
 	"strings"
 	"time"
 
@@ -50,10 +49,10 @@ func (e HttpExecutor) requestId() string {
 }
 
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
-	formatter := TypeFormatter{}
+	formatter := NewParameterFormatter()
 	request.Header.Add("x-request-id", e.requestId())
 	for _, parameter := range headerParameters {
-		headerValue := formatter.FormatHeader(parameter)
+		headerValue := formatter.Format(parameter)
 		request.Header.Add(parameter.Name, headerValue)
 	}
 }
@@ -135,22 +134,12 @@ func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
-	formatter := TypeFormatter{}
-	normalizedPath := strings.Trim(baseUri.Path, "/")
-	normalizedRoute := strings.Trim(route, "/")
-	path := path.Join(normalizedPath, normalizedRoute)
-
-	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
+	formatter := NewUriFormatter(baseUri, route)
 	for _, parameter := range pathParameters {
-		pathValue := formatter.FormatPath(parameter)
-		uri = strings.ReplaceAll(uri, "{"+parameter.Name+"}", pathValue)
+		formatter.FormatPath(parameter)
 	}
-
-	queryString := formatter.FormatQueryString(queryParameters)
-	if queryString != "" {
-		uri = uri + "?" + queryString
-	}
-	return e.validateUri(uri)
+	formatter.AddQueryString(queryParameters)
+	return e.validateUri(formatter.Uri())
 }
 
 func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
@@ -170,7 +159,7 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug 
 }
 
 func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
-	if length == -1 || length < 10*1024*1024 {
+	if length < 10*1024*1024 {
 		return reader
 	}
 	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
@@ -218,8 +207,8 @@ func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input FileRefere
 func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
-		formatter := TypeFormatter{}
-		queryString := formatter.FormatQueryString(parameters)
+		formatter := NewQueryStringFormatter()
+		queryString := formatter.Format(parameters)
 		_, err := bodyWriter.Write([]byte(queryString))
 		if err != nil {
 			errorChan <- err

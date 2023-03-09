@@ -113,7 +113,7 @@ func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input plugin.FilePar
 }
 
 func (c UploadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
-	if length == -1 || length < 10*1024*1024 {
+	if length < 10*1024*1024 {
 		return reader
 	}
 	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
