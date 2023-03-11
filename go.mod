@@ -5,8 +5,9 @@ go 1.19
 require (
 	github.com/getkin/kin-openapi v0.114.0
 	github.com/jmespath/go-jmespath v0.4.0
-	github.com/urfave/cli/v2 v2.24.4
-	golang.org/x/sys v0.5.0
+	github.com/mattn/go-isatty v0.0.17
+	github.com/urfave/cli/v2 v2.25.0
+	golang.org/x/sys v0.6.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
@@ -17,7 +18,6 @@ require (
 	github.com/invopop/yaml v0.2.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/mattn/go-isatty v0.0.17 // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826 // indirect
 	github.com/perimeterx/marshmallow v1.1.4 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
