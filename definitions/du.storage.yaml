@@ -3,6 +3,177 @@ info:
   title: UiPath.DocumentUnderstanding.Storage.Api
   version: v1
 paths:
+  /passthrough/signature/{objectKey}:
+    post:
+      tags:
+        - Storage
+      summary: Generate PassThrough pre-signed URL
+      description: This route generates a presigned URL which can be used to upload and download a specific object.
+      operationId: passthrough-presigned-url
+      parameters:
+        - name: objectKey
+          in: path
+          description: The object key
+          required: true
+          schema:
+            type: string
+        - name: x-uipath-storage-class
+          in: header
+          description: The storage class
+          schema:
+            type: string
+      requestBody:
+        description: The presigned URL request
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePresignedUrlRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/GeneratePresignedUrlRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/GeneratePresignedUrlRequest'
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/PresignedUrlResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PresignedUrlResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/PresignedUrlResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+  /passthrough/store/{objectKey}:
+    get:
+      tags:
+        - Storage
+      summary: Download file from storage for passthrough
+      description: This route returns the file content for the given object key.
+      operationId: passthrough-download
+      parameters:
+        - name: x-uipath-storage-class
+          in: header
+          description: The Storage class
+          schema:
+            type: string
+        - name: objectKey
+          in: path
+          description: The object key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+    put:
+      tags:
+        - Storage
+      summary: Upload file to storage for pass through
+      description: This route uploads the file content to storage.
+      operationId: passthrough-upload
+      parameters:
+        - name: x-uipath-storage-class
+          in: header
+          description: The storage class
+          schema:
+            type: string
+        - name: objectKey
+          in: path
+          description: The object key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
   /signature/{objectKey}:
     post:
       tags:

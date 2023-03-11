@@ -20,7 +20,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
       responses:
         "200":
           description: Success
@@ -98,7 +97,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
         - name: projectId
           in: path
           description: ID of the Project.
@@ -195,7 +193,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
         - name: projectId
           in: path
           description: ID of the Project.
@@ -292,7 +289,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
         - name: projectId
           in: path
           description: ID of the Project.
@@ -425,7 +421,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
         - name: projectId
           in: path
           description: The identifier of the project in which the classifier exists.
@@ -552,7 +547,6 @@ paths:
             enum:
               - "1"
             type: string
-            default: "1"
         - name: projectId
           in: path
           description: The identifier of the project in which the extractor exists.
@@ -1293,7 +1287,7 @@ components:
       description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/document-understanding/reference/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
-          tokenUrl: https://alpha.uipath.com/identity_/connect/token
+          tokenUrl: https://cloud.uipath.com/identity_/connect/token
           scopes:
             Du.Digitization.Api: Digitization Api Scope
             Du.Classification.Api: Classification Api Scope

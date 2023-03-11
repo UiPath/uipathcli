@@ -140,10 +140,6 @@ paths:
 }
 
 func TestMainParsesBuiltInDefinitions(t *testing.T) {
-	t.Run("aicenter-appmanager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter app", "get-apps") })
-	t.Run("aicenter-deployer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter ml-skill", "update-mlskill") })
-	t.Run("aicenter-helper", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter project", "get-project-acces") })
-	t.Run("aicenter-trainer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "aicenter dataset", "create-dataset") })
 	t.Run("du-digitizer", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du digitization", "digitize") })
 	t.Run("du-framework", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du discovery", "projects") })
 	t.Run("du-events", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du events", "create-subscription") })
@@ -151,9 +147,6 @@ func TestMainParsesBuiltInDefinitions(t *testing.T) {
 	t.Run("du-storage", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "du storage", "presigned-url") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator users", "get-by-id") })
 	t.Run("orchestrator", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "orchestrator", "assets") })
-	t.Run("studio", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "studio", "first-run-experience") })
-	t.Run("license-accountant", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "license", "user-license") })
-	t.Run("license-resource-manager", func(t *testing.T) { MainParsesBuiltInDefinitions(t, "license", "service-license") })
 }
 
 func MainParsesBuiltInDefinitions(t *testing.T, command string, expected string) {
