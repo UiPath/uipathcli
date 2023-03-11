@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// The UriFormatter takes an Uri and formats it with ExecutionParameter values.
+// uriFormatter takes an Uri and formats it with ExecutionParameter values.
 //
 // The formatter supports replacing path placeholders like organization and tenant:
 // https://cloud.uipath.com/{organization}
@@ -19,33 +19,33 @@ import (
 // with parameter 'firstName' and value 'Thomas'
 // and parameter 'lastName' and value 'Schmitt'
 // --> https://cloud.uipath.com/users?firstName=Thomas&lastName=Schmitt
-type UriFormatter struct {
+type uriFormatter struct {
 	uri         string
 	queryString string
 }
 
-func (f *UriFormatter) FormatPath(parameter ExecutionParameter) {
-	formatter := NewParameterFormatter()
+func (f *uriFormatter) FormatPath(parameter ExecutionParameter) {
+	formatter := newParameterFormatter()
 	value := formatter.Format(parameter)
 	f.uri = strings.ReplaceAll(f.uri, "{"+parameter.Name+"}", value)
 }
 
-func (f *UriFormatter) AddQueryString(parameters []ExecutionParameter) {
-	formatter := NewQueryStringFormatter()
+func (f *uriFormatter) AddQueryString(parameters []ExecutionParameter) {
+	formatter := newQueryStringFormatter()
 	f.queryString = formatter.Format(parameters)
 }
 
-func (f UriFormatter) Uri() string {
+func (f uriFormatter) Uri() string {
 	if f.queryString == "" {
 		return f.uri
 	}
 	return f.uri + "?" + f.queryString
 }
 
-func NewUriFormatter(baseUri url.URL, route string) *UriFormatter {
+func newUriFormatter(baseUri url.URL, route string) *uriFormatter {
 	normalizedPath := strings.Trim(baseUri.Path, "/")
 	normalizedRoute := strings.Trim(route, "/")
 	path := path.Join(normalizedPath, normalizedRoute)
 	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
-	return &UriFormatter{uri, ""}
+	return &uriFormatter{uri, ""}
 }

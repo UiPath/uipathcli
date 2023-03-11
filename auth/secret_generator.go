@@ -39,3 +39,7 @@ func (g secretGenerator) randomString(length int) string {
 	}
 	return fmt.Sprintf("%x", b)[:length]
 }
+
+func newSecretGenerator() *secretGenerator {
+	return &secretGenerator{}
+}

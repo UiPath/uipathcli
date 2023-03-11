@@ -33,7 +33,7 @@ For more information you can view the help:
 // The HttpExecutor implements the Executor interface and constructs HTTP request
 // from the given command line parameters and configurations.
 type HttpExecutor struct {
-	Authenticators []auth.Authenticator
+	authenticators []auth.Authenticator
 }
 
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -49,7 +49,7 @@ func (e HttpExecutor) requestId() string {
 }
 
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
-	formatter := NewParameterFormatter()
+	formatter := newParameterFormatter()
 	request.Header.Add("x-request-id", e.requestId())
 	for _, parameter := range headerParameters {
 		headerValue := formatter.Format(parameter)
@@ -134,7 +134,7 @@ func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
-	formatter := NewUriFormatter(baseUri, route)
+	formatter := newUriFormatter(baseUri, route)
 	for _, parameter := range pathParameters {
 		formatter.FormatPath(parameter)
 	}
@@ -145,7 +145,7 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
 	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
 	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
-	for _, authProvider := range e.Authenticators {
+	for _, authProvider := range e.authenticators {
 		result := authProvider.Auth(ctx)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
@@ -207,7 +207,7 @@ func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input FileRefere
 func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
-		formatter := NewQueryStringFormatter()
+		formatter := newQueryStringFormatter()
 		queryString := formatter.Format(parameters)
 		_, err := bodyWriter.Write([]byte(queryString))
 		if err != nil {
@@ -355,4 +355,8 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 		return err
 	}
 	return nil
+}
+
+func NewHttpExecutor(authenticators []auth.Authenticator) *HttpExecutor {
+	return &HttpExecutor{authenticators}
 }

@@ -9,16 +9,16 @@ import (
 	"github.com/UiPath/uipathcli/parser"
 )
 
-// The TypeConverter converts the string value from the command-line argument into the type
+// The typeConverter converts the string value from the command-line argument into the type
 // the definition declared. CLI arguments are always passed as strings and need to be converted
 // to their respective type.
-type TypeConverter struct{}
+type typeConverter struct{}
 
-func (c TypeConverter) trim(value string) string {
+func (c typeConverter) trim(value string) string {
 	return strings.TrimSpace(value)
 }
 
-func (c TypeConverter) convertToInteger(value string, parameter parser.Parameter) (int, error) {
+func (c typeConverter) convertToInteger(value string, parameter parser.Parameter) (int, error) {
 	result, err := strconv.Atoi(c.trim(value))
 	if err != nil {
 		return 0, fmt.Errorf("Cannot convert '%s' value '%s' to integer", parameter.Name, value)
@@ -26,7 +26,7 @@ func (c TypeConverter) convertToInteger(value string, parameter parser.Parameter
 	return result, nil
 }
 
-func (c TypeConverter) convertToNumber(value string, parameter parser.Parameter) (float64, error) {
+func (c typeConverter) convertToNumber(value string, parameter parser.Parameter) (float64, error) {
 	result, err := strconv.ParseFloat(c.trim(value), 64)
 	if err != nil {
 		return 0, fmt.Errorf("Cannot convert '%s' value '%s' to number", parameter.Name, value)
@@ -34,7 +34,7 @@ func (c TypeConverter) convertToNumber(value string, parameter parser.Parameter)
 	return result, nil
 }
 
-func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter) (bool, error) {
+func (c typeConverter) convertToBoolean(value string, parameter parser.Parameter) (bool, error) {
 	trimmedValue := c.trim(value)
 	if strings.EqualFold(trimmedValue, "true") {
 		return true, nil
@@ -44,11 +44,11 @@ func (c TypeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
-func (c TypeConverter) convertToBinary(value string, parameter parser.Parameter) (executor.FileReference, error) {
+func (c typeConverter) convertToBinary(value string, parameter parser.Parameter) (executor.FileReference, error) {
 	return *executor.NewFileReference(value), nil
 }
 
-func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {
+func (c typeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {
 	if parameter == nil {
 		return nil
 	}
@@ -60,14 +60,14 @@ func (c TypeConverter) findParameter(parameter *parser.Parameter, name string) *
 	return nil
 }
 
-func (c TypeConverter) tryConvert(value string, parameter *parser.Parameter) (interface{}, error) {
+func (c typeConverter) tryConvert(value string, parameter *parser.Parameter) (interface{}, error) {
 	if parameter == nil {
 		return value, nil
 	}
 	return c.Convert(value, *parameter)
 }
 
-func (c TypeConverter) assignToObject(obj map[string]interface{}, keys []string, value string, parameter parser.Parameter) error {
+func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string, value string, parameter parser.Parameter) error {
 	current := obj
 	currentParameter := &parameter
 	for i := 0; i < len(keys); i++ {
@@ -94,7 +94,7 @@ func (c TypeConverter) assignToObject(obj map[string]interface{}, keys []string,
 	return nil
 }
 
-func (c TypeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
+func (c typeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
 	obj := map[string]interface{}{}
 	assigns := c.splitEscaped(value, ';')
 	for _, assign := range assigns {
@@ -112,11 +112,11 @@ func (c TypeConverter) convertToObject(value string, parameter parser.Parameter)
 	return obj, nil
 }
 
-func (c TypeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
+func (c typeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
 	return c.splitEscaped(value, ','), nil
 }
 
-func (c TypeConverter) convertToIntegerArray(value string, parameter parser.Parameter) ([]int, error) {
+func (c typeConverter) convertToIntegerArray(value string, parameter parser.Parameter) ([]int, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []int{}
@@ -130,7 +130,7 @@ func (c TypeConverter) convertToIntegerArray(value string, parameter parser.Para
 	return result, nil
 }
 
-func (c TypeConverter) convertToNumberArray(value string, parameter parser.Parameter) ([]float64, error) {
+func (c typeConverter) convertToNumberArray(value string, parameter parser.Parameter) ([]float64, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []float64{}
@@ -144,7 +144,7 @@ func (c TypeConverter) convertToNumberArray(value string, parameter parser.Param
 	return result, nil
 }
 
-func (c TypeConverter) convertToBooleanArray(value string, parameter parser.Parameter) ([]bool, error) {
+func (c typeConverter) convertToBooleanArray(value string, parameter parser.Parameter) ([]bool, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []bool{}
@@ -158,7 +158,7 @@ func (c TypeConverter) convertToBooleanArray(value string, parameter parser.Para
 	return result, nil
 }
 
-func (c TypeConverter) convertToObjectArray(value string, parameter parser.Parameter) ([]interface{}, error) {
+func (c typeConverter) convertToObjectArray(value string, parameter parser.Parameter) ([]interface{}, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []interface{}{}
@@ -172,7 +172,7 @@ func (c TypeConverter) convertToObjectArray(value string, parameter parser.Param
 	return result, nil
 }
 
-func (c TypeConverter) splitEscaped(str string, separator byte) []string {
+func (c typeConverter) splitEscaped(str string, separator byte) []string {
 	result := []string{}
 	item := []byte{}
 	escaping := false
@@ -197,7 +197,7 @@ func (c TypeConverter) splitEscaped(str string, separator byte) []string {
 	return result
 }
 
-func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interface{}, error) {
+func (c typeConverter) Convert(value string, parameter parser.Parameter) (interface{}, error) {
 	switch parameter.Type {
 	case parser.ParameterTypeInteger:
 		return c.convertToInteger(value, parameter)
@@ -222,4 +222,8 @@ func (c TypeConverter) Convert(value string, parameter parser.Parameter) (interf
 	default:
 		return value, nil
 	}
+}
+
+func newTypeConverter() *typeConverter {
+	return &typeConverter{}
 }

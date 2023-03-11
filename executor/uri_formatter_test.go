@@ -6,7 +6,7 @@ import (
 )
 
 func TestRemovesTrailingSlash(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com/"), "/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com/"), "/my-service")
 
 	uri := formatter.Uri()
 	if uri != "https://cloud.uipath.com/my-service" {
@@ -15,7 +15,7 @@ func TestRemovesTrailingSlash(t *testing.T) {
 }
 
 func TestAddsMissingSlashSeparator(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "my-service")
 
 	uri := formatter.Uri()
 	if uri != "https://cloud.uipath.com/my-service" {
@@ -24,7 +24,7 @@ func TestAddsMissingSlashSeparator(t *testing.T) {
 }
 
 func TestFormatPathReplacesPlaceholder(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
 
 	formatter.FormatPath(*NewExecutionParameter("organization", "my-org"))
 
@@ -35,7 +35,7 @@ func TestFormatPathReplacesPlaceholder(t *testing.T) {
 }
 
 func TestFormatPathReplacesMultiplePlaceholders(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
 
 	formatter.FormatPath(*NewExecutionParameter("organization", "my-org"))
 	formatter.FormatPath(*NewExecutionParameter("tenant", "my-tenant"))
@@ -65,7 +65,7 @@ func TestFormatPathDataTypes(t *testing.T) {
 	})
 }
 func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/{param}")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{param}")
 
 	formatter.FormatPath(*NewExecutionParameter("param", value))
 
@@ -76,7 +76,7 @@ func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
 }
 
 func TestAddQueryString(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	parameters := []ExecutionParameter{
 		*NewExecutionParameter("filter", "my-value"),
@@ -90,7 +90,7 @@ func TestAddQueryString(t *testing.T) {
 }
 
 func TestAddMultipleQueryStringParameters(t *testing.T) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	parameters := []ExecutionParameter{
 		*NewExecutionParameter("skip", 1),
@@ -123,7 +123,7 @@ func TestQueryStringDataTypes(t *testing.T) {
 	})
 }
 func QueryStringDataTypes(t *testing.T, value interface{}, expected string) {
-	formatter := NewUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	parameters := []ExecutionParameter{
 		*NewExecutionParameter("param", value),

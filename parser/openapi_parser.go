@@ -55,7 +55,7 @@ func (p OpenApiParser) formatName(name string) string {
 	name = strings.ReplaceAll(name, "$", "")
 	name = strings.ReplaceAll(name, "/", "-")
 	name = strings.ReplaceAll(name, "_", "-")
-	name = ToSnakeCase(name)
+	name = toSnakeCase(name)
 	return strings.ToLower(name)
 }
 
@@ -297,4 +297,8 @@ func (p OpenApiParser) Parse(name string, data []byte) (*Definition, error) {
 		return nil, err
 	}
 	return p.parse(name, *document)
+}
+
+func NewOpenApiParser() *OpenApiParser {
+	return &OpenApiParser{}
 }

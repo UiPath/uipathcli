@@ -29,9 +29,7 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
 	context := NewAuthenticatorContext("login", config, false, false, *request)
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
 	if result.Error != "" {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
@@ -52,9 +50,7 @@ func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", headers)
 	context := NewAuthenticatorContext("login", config, false, false, *request)
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
 	if result.Error != "" {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
@@ -73,9 +69,7 @@ func TestOAuthAuthenticatorInvalidRequestUrl(t *testing.T) {
 	request := NewAuthenticatorRequest("://invalid", map[string]string{})
 	context := NewAuthenticatorContext("login", config, false, false, *request)
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
 	if result.Error != `Invalid request url '://invalid': parse "://invalid": missing protocol scheme` {
 		t.Errorf("Expected error with invalid request url, but got: %v", result.Error)
@@ -91,9 +85,7 @@ func TestOAuthAuthenticatorInvalidIdentityUrl(t *testing.T) {
 	request := NewAuthenticatorRequest("INVALID-URL", map[string]string{})
 	context := NewAuthenticatorContext("login", config, false, false, *request)
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
 	if result.Error != `Invalid identity url 'INVALID-URL': parse ":///identity_": missing protocol scheme` {
 		t.Errorf("Expected error with invalid request url, but got: %v", result.Error)
@@ -109,9 +101,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
 	context := NewAuthenticatorContext("login", config, false, false, *request)
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
 	if result.Error != "Invalid oauth authenticator configuration: Invalid value for clientId: '1'" {
 		t.Errorf("Expected error with invalid config, but got: %v", result.Error)
@@ -196,9 +186,7 @@ func TestOAuthFlowIsCached(t *testing.T) {
 	performLogin(loginUrl, t)
 	<-resultChannel
 
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(context)
 
 	if result.Error != "" {
@@ -282,12 +270,9 @@ func TestMissingCodeShowsErrorMessage(t *testing.T) {
 
 func callAuthenticator(context AuthenticatorContext) (url.URL, chan AuthenticatorResult) {
 	loginChan := make(chan string)
-	authenticator := OAuthAuthenticator{
-		Cache: cache.FileCache{},
-		BrowserLauncher: NoOpBrowserLauncher{
-			loginUrlChannel: loginChan,
-		},
-	}
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), NoOpBrowserLauncher{
+		loginUrlChannel: loginChan,
+	})
 
 	resultChannel := make(chan AuthenticatorResult)
 	go func(context AuthenticatorContext) {

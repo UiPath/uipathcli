@@ -7,7 +7,7 @@ import (
 )
 
 func TestEmptyPluginConfigWhenPluginFileNotFound(t *testing.T) {
-	configProvider := NewPluginConfigProvider(*NewPluginConfigStore("no-plugin-file"))
+	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore("no-plugin-file"))
 
 	configProvider.Load()
 	config := configProvider.Config()
@@ -19,7 +19,7 @@ func TestEmptyPluginConfigWhenPluginFileNotFound(t *testing.T) {
 func TestErrorOnPluginFileParsingError(t *testing.T) {
 	file := createFile(t)
 	os.WriteFile(file, []byte("INVALID CONTENT"), 0600)
-	configProvider := NewPluginConfigProvider(*NewPluginConfigStore(file))
+	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
 	err := configProvider.Load()
 	if !strings.HasPrefix(err.Error(), "yaml: unmarshal errors") {
@@ -35,7 +35,7 @@ authenticators:
 `
 	file := createFile(t)
 	os.WriteFile(file, []byte(plugin), 0600)
-	configProvider := NewPluginConfigProvider(*NewPluginConfigStore(file))
+	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
 	err := configProvider.Load()
 	if err != nil {
@@ -51,7 +51,7 @@ authenticators:
 `
 	file := createFile(t)
 	os.WriteFile(file, []byte(plugin), 0600)
-	configProvider := NewPluginConfigProvider(*NewPluginConfigStore(file))
+	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
 	configProvider.Load()
 	config := configProvider.Config()

@@ -9,6 +9,8 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/mattn/go-isatty"
+
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
@@ -18,25 +20,19 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
-	"github.com/mattn/go-isatty"
 )
 
 func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
 	authenticators := []auth.Authenticator{}
 	for _, authenticator := range pluginsCfg.Authenticators {
-		authenticators = append(authenticators, auth.ExternalAuthenticator{
-			Config: *auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
-		})
+		authenticators = append(authenticators, auth.NewExternalAuthenticator(
+			*auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
+		))
 	}
 	return append(authenticators,
-		auth.PatAuthenticator{},
-		auth.OAuthAuthenticator{
-			Cache:           cache.FileCache{},
-			BrowserLauncher: auth.ExecBrowserLauncher{},
-		},
-		auth.BearerAuthenticator{
-			Cache: cache.FileCache{},
-		},
+		auth.NewPatAuthenticator(),
+		auth.NewOAuthAuthenticator(cache.NewFileCache(), auth.NewExecBrowserLauncher()),
+		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	)
 }
 
@@ -59,18 +55,16 @@ func readStdIn() []byte {
 }
 
 func main() {
-	configProvider := config.ConfigProvider{
-		ConfigStore: config.ConfigStore{
-			ConfigFile: os.Getenv("UIPATH_CONFIGURATION_PATH"),
-		},
-	}
+	configProvider := config.NewConfigProvider(
+		config.NewConfigFileStore(os.Getenv("UIPATH_CONFIGURATION_PATH")),
+	)
 	err := configProvider.Load()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
 	pluginConfigProvider := config.NewPluginConfigProvider(
-		*config.NewPluginConfigStore(os.Getenv("UIPATH_PLUGINS_PATH")),
+		config.NewPluginConfigFileStore(os.Getenv("UIPATH_PLUGINS_PATH")),
 	)
 	err = pluginConfigProvider.Load()
 	if err != nil {
@@ -80,30 +74,24 @@ func main() {
 
 	pluginConfig := pluginConfigProvider.Config()
 	authenticators := authenticators(pluginConfig)
-	cli := commandline.Cli{
-		StdIn:         os.Stdin,
-		StdOut:        os.Stdout,
-		StdErr:        os.Stderr,
-		ColoredOutput: colorsSupported(),
-		DefinitionProvider: commandline.DefinitionProvider{
-			DefinitionStore: commandline.DefinitionStore{
-				DefinitionDirectory: os.Getenv("UIPATH_DEFINITIONS_PATH"),
-			},
-			Parser: parser.OpenApiParser{},
-			CommandPlugins: []plugin.CommandPlugin{
+	cli := commandline.NewCli(
+		os.Stdin,
+		os.Stdout,
+		os.Stderr,
+		colorsSupported(),
+		*commandline.NewDefinitionProvider(
+			commandline.NewDefinitionFileStore(os.Getenv("UIPATH_DEFINITIONS_PATH")),
+			parser.NewOpenApiParser(),
+			[]plugin.CommandPlugin{
 				plugin_digitizer.DigitizeCommand{},
 				plugin_orchestrator.UploadCommand{},
 				plugin_orchestrator.DownloadCommand{},
 			},
-		},
-		ConfigProvider: configProvider,
-		Executor: executor.HttpExecutor{
-			Authenticators: authenticators,
-		},
-		PluginExecutor: executor.PluginExecutor{
-			Authenticators: authenticators,
-		},
-	}
+		),
+		*configProvider,
+		executor.NewHttpExecutor(authenticators),
+		executor.NewPluginExecutor(authenticators),
+	)
 
 	input := readStdIn()
 	err = cli.Run(os.Args, input)

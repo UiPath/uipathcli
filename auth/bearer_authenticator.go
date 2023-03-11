@@ -15,7 +15,7 @@ const IdentityUriEnvVarName = "UIPATH_IDENTITY_URI"
 // The BearerAuthenticator calls the identity token-endpoint to retrieve a JWT bearer token.
 // It requires clientId and clientSecret.
 type BearerAuthenticator struct {
-	Cache cache.Cache
+	cache cache.Cache
 }
 
 func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
@@ -38,7 +38,7 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 		}
 	}
 
-	identityClient := identityClient(a)
+	identityClient := newIdentityClient(a.cache)
 	tokenRequest := newTokenRequest(
 		*identityBaseUri,
 		config.GrantType,
@@ -140,4 +140,8 @@ func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, 
 		return "", fmt.Errorf("Invalid value for %s: '%v'", name, value)
 	}
 	return result, nil
+}
+
+func NewBearerAuthenticator(cache cache.Cache) *BearerAuthenticator {
+	return &BearerAuthenticator{cache}
 }

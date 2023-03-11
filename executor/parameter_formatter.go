@@ -5,19 +5,19 @@ import (
 	"strings"
 )
 
-// The ParameterFormatter converts ExecutionParameter into a string.
+// parameterFormatter converts ExecutionParameter into a string.
 // Depending on the type of the parameter, the formatter converts the value to
 // the proper format:
 // - Integers, Float, etc.. are simply converted to a string
 // - Arrays are formatted comma-separated
 // - Booleans are converted to true or false
-type ParameterFormatter struct{}
+type parameterFormatter struct{}
 
-func (f ParameterFormatter) Format(parameter ExecutionParameter) string {
+func (f parameterFormatter) Format(parameter ExecutionParameter) string {
 	return f.formatParameter(parameter)
 }
 
-func (f ParameterFormatter) formatParameter(parameter ExecutionParameter) string {
+func (f parameterFormatter) formatParameter(parameter ExecutionParameter) string {
 	switch value := parameter.Value.(type) {
 	case []int:
 		return f.arrayToCommaSeparatedString(value)
@@ -32,7 +32,7 @@ func (f ParameterFormatter) formatParameter(parameter ExecutionParameter) string
 	}
 }
 
-func (f ParameterFormatter) arrayToCommaSeparatedString(array interface{}) string {
+func (f parameterFormatter) arrayToCommaSeparatedString(array interface{}) string {
 	switch value := array.(type) {
 	case []string:
 		return strings.Join(value, ",")
@@ -41,6 +41,6 @@ func (f ParameterFormatter) arrayToCommaSeparatedString(array interface{}) strin
 	}
 }
 
-func NewParameterFormatter() *ParameterFormatter {
-	return &ParameterFormatter{}
+func newParameterFormatter() *parameterFormatter {
+	return &parameterFormatter{}
 }

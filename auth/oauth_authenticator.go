@@ -23,8 +23,8 @@ import (
 //
 // There is no need to store any long-term credentials.
 type OAuthAuthenticator struct {
-	Cache           cache.Cache
-	BrowserLauncher BrowserLauncher
+	cache           cache.Cache
+	browserLauncher BrowserLauncher
 }
 
 func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
@@ -56,12 +56,12 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 
 func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, insecure bool) (string, error) {
 	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.Scopes)
-	token, _ := a.Cache.Get(cacheKey)
+	token, _ := a.cache.Get(cacheKey)
 	if token != "" {
 		return token, nil
 	}
 
-	secretGenerator := secretGenerator{}
+	secretGenerator := newSecretGenerator()
 	codeVerifier, codeChallenge := secretGenerator.GeneratePkce()
 	state := secretGenerator.GenerateState()
 	code, err := a.login(identityBaseUri, config, state, codeChallenge)
@@ -69,9 +69,7 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthA
 		return "", err
 	}
 
-	identityClient := identityClient{
-		Cache: a.Cache,
-	}
+	identityClient := newIdentityClient(a.cache)
 	tokenRequest := newAuthorizationCodeTokenRequest(
 		identityBaseUri,
 		config.ClientId,
@@ -83,7 +81,7 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthA
 	if err != nil {
 		return "", err
 	}
-	a.Cache.Set(cacheKey, tokenResponse.AccessToken, tokenResponse.ExpiresIn)
+	a.cache.Set(cacheKey, tokenResponse.AccessToken, tokenResponse.ExpiresIn)
 	return tokenResponse.AccessToken, nil
 }
 
@@ -139,7 +137,7 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 		url.QueryEscape(state))
 
 	go func(url string) {
-		err := a.BrowserLauncher.Open(url)
+		err := a.browserLauncher.Open(url)
 		if err != nil {
 			a.showBrowserLink(url)
 		}
@@ -209,4 +207,8 @@ func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
 func (a OAuthAuthenticator) writeHtmlPage(w http.ResponseWriter, html string) {
 	w.Header().Add("content-type", "text/html")
 	w.Write([]byte(html))
+}
+
+func NewOAuthAuthenticator(cache cache.Cache, browserLauncher BrowserLauncher) *OAuthAuthenticator {
+	return &OAuthAuthenticator{cache, browserLauncher}
 }

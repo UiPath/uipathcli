@@ -66,7 +66,7 @@ func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParamete
 }
 
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
-	typeConverter := TypeConverter{}
+	typeConverter := newTypeConverter()
 
 	parameters := []executor.ExecutionParameter{}
 	for _, param := range operation.Parameters {
@@ -461,7 +461,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 		Action: func(context *cli.Context) error {
 			shell := context.String(shellFlagName)
 			filePath := context.String(fileFlagName)
-			handler := AutoCompleteHandler{}
+			handler := newAutoCompleteHandler()
 			output, err := handler.EnableCompleter(shell, filePath)
 			if err != nil {
 				return err
@@ -504,7 +504,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 				return err
 			}
 			commands := b.createServiceCommands(definitions)
-			handler := AutoCompleteHandler{}
+			handler := newAutoCompleteHandler()
 			words := handler.Find(commandText, commands, exclude)
 			for _, word := range words {
 				fmt.Fprintln(b.StdOut, word)

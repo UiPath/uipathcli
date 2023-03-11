@@ -41,3 +41,7 @@ func (l ExecBrowserLauncher) Open(url string) error {
 		return fmt.Errorf("Timed out waiting for browser to start")
 	}
 }
+
+func NewExecBrowserLauncher() *ExecBrowserLauncher {
+	return &ExecBrowserLauncher{}
+}
