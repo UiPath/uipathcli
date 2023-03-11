@@ -320,10 +320,18 @@ components:
         productName:
           minLength: 1
           type: string
+          description: The product name
         modelName:
           minLength: 1
           type: string
+          description: The model name
+        customDimensions:
+          type: object
+          additionalProperties: {}
+          description: Custom dimensions
+          nullable: true
       additionalProperties: false
+      description: Request to perform license validation without consumption
     ValidationResponse:
       type: object
       properties:

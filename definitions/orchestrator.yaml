@@ -23669,6 +23669,7 @@ components:
             - StartInstall
             - VideoAccess
             - AutomaticallyExploreEnd
+            - Commit
           x-ms-enum:
             name: AuditLogDtoAction
             modelAsString: false
@@ -23839,6 +23840,7 @@ components:
             - StartInstall
             - VideoAccess
             - AutomaticallyExploreEnd
+            - Commit
           x-ms-enum:
             name: AuditLogEntityDtoAction
             modelAsString: false
@@ -25155,7 +25157,6 @@ components:
             - SameRobotUsernameMappedToDiferentUser
             - ClassicCannotCleanNotFailedMigrations
             - InvalidSlots
-            - InvalidUnattendedDebugSession
             - InvalidJobKey
             - MachineSessionNotFound
             - EnvironmentDeploymentConflict
@@ -25439,6 +25440,7 @@ components:
             - CannotMigrateClassicRelatedObjects
             - NotSuccessfulEntityMigration
             - FolderTypeMismatch
+            - ActionNotAllowedInClassicFolder
             - MaintenanceActive
             - TenantMaintenanceActive
             - TenantMaintenanceNotActive
@@ -25519,6 +25521,13 @@ components:
             - SWMachineTemplateAssignmentMissingVirtualFolder
             - SWRobotCreationNoLicense
             - SWUserDoesNotHaveAnAttendedRobotOrProvisionNotEnabled
+            - SWUserInactive
+            - SWUserLicensingEnabledNoRobots
+            - SWUserLicensingEnabledRobotProvisionFailed
+            - SWUserLicensingEnabledAttendedLicense
+            - SWUserLicensingDisabledNoRobots
+            - SWUserLicensingDisabledRobotProvisionFailed
+            - SWUserLicensingDisabledAttendedLicense
             - ConnectionsAvailableOnlyInPW
             - ResourceOverwriteNotSupported
             - ResourceNotOverwritable
@@ -26862,7 +26871,7 @@ components:
     ListResultDtoOfNameValueDto:
       type: object
       properties:
-        Items:
+        items:
           type: array
           items:
             $ref: '#/components/schemas/NameValueDto'
@@ -30244,6 +30253,11 @@ components:
         - resourceType
       type: object
       properties:
+        properties2:
+          maxItems: 20
+          type: array
+          items:
+            $ref: '#/components/schemas/NameValueDto'
         resourceType:
           type: string
           description: The type of the resource to be overwritten
@@ -35828,8 +35842,8 @@ components:
       type: oauth2
       flows:
         authorizationCode:
-          authorizationUrl: https://alpha.uipath.com/identity_/connect/authorize
-          tokenUrl: https://alpha.uipath.com/identity_/connect/token
+          authorizationUrl: https://cloud.uipath.com/identity_/connect/authorize
+          tokenUrl: https://cloud.uipath.com/identity_/connect/token
           scopes:
             openid: OpenId Standard Scope
             profile: Profile Standard Scope
