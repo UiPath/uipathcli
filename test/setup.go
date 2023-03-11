@@ -163,14 +163,9 @@ func RunCli(args []string, context Context) Result {
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	authenticators := []auth.Authenticator{
-		auth.PatAuthenticator{},
-		auth.OAuthAuthenticator{
-			Cache:           cache.FileCache{},
-			BrowserLauncher: auth.ExecBrowserLauncher{},
-		},
-		auth.BearerAuthenticator{
-			Cache: cache.FileCache{},
-		},
+		auth.NewPatAuthenticator(),
+		auth.NewOAuthAuthenticator(cache.NewFileCache(), auth.NewExecBrowserLauncher()),
+		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	}
 	commandPlugins := []plugin.CommandPlugin{}
 	if context.CommandPlugin != nil {
@@ -181,31 +176,22 @@ func RunCli(args []string, context Context) Result {
 	for _, data := range context.Definitions {
 		definitionFiles = append(definitionFiles, data.Name+".yaml")
 	}
-	cli := commandline.Cli{
-		StdIn:  context.StdIn,
-		StdOut: stdout,
-		StdErr: stderr,
-		DefinitionProvider: commandline.DefinitionProvider{
-			DefinitionStore: commandline.DefinitionStore{
-				DefinitionFiles: definitionFiles,
-				Definitions:     context.Definitions,
-			},
-			Parser:         parser.OpenApiParser{},
-			CommandPlugins: commandPlugins,
-		},
-		ConfigProvider: config.ConfigProvider{
-			ConfigStore: config.ConfigStore{
-				Config:     []byte(context.Config),
-				ConfigFile: context.ConfigFile,
-			},
-		},
-		Executor: executor.HttpExecutor{
-			Authenticators: authenticators,
-		},
-		PluginExecutor: executor.PluginExecutor{
-			Authenticators: authenticators,
-		},
-	}
+	cli := commandline.NewCli(
+		context.StdIn,
+		stdout,
+		stderr,
+		false,
+		*commandline.NewDefinitionProvider(
+			commandline.NewDefinitionFileStoreWithData(definitionFiles, context.Definitions),
+			parser.NewOpenApiParser(),
+			commandPlugins,
+		),
+		*config.NewConfigProvider(
+			config.NewConfigFileStoreWithData(context.ConfigFile, []byte(context.Config)),
+		),
+		executor.NewHttpExecutor(authenticators),
+		executor.NewPluginExecutor(authenticators),
+	)
 	args = append([]string{"uipath"}, args...)
 	input := []byte{}
 	if context.StdIn != nil {

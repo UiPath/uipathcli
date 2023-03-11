@@ -13,31 +13,31 @@ import (
 
 // Cli is a wrapper for building the CLI commands.
 type Cli struct {
-	StdIn              io.Reader
-	StdOut             io.Writer
-	StdErr             io.Writer
-	ColoredOutput      bool
-	DefinitionProvider DefinitionProvider
-	ConfigProvider     config.ConfigProvider
-	Executor           executor.Executor
-	PluginExecutor     executor.Executor
+	stdIn              io.Reader
+	stdOut             io.Writer
+	stdErr             io.Writer
+	coloredOutput      bool
+	definitionProvider DefinitionProvider
+	configProvider     config.ConfigProvider
+	executor           executor.Executor
+	pluginExecutor     executor.Executor
 }
 
 func (c Cli) run(args []string, input []byte) error {
-	err := c.ConfigProvider.Load()
+	err := c.configProvider.Load()
 	if err != nil {
 		return err
 	}
 
 	CommandBuilder := CommandBuilder{
 		Input:              input,
-		StdIn:              c.StdIn,
-		StdOut:             c.StdOut,
-		StdErr:             c.StdErr,
-		ConfigProvider:     c.ConfigProvider,
-		Executor:           c.Executor,
-		PluginExecutor:     c.PluginExecutor,
-		DefinitionProvider: c.DefinitionProvider,
+		StdIn:              c.stdIn,
+		StdOut:             c.stdOut,
+		StdErr:             c.stdErr,
+		ConfigProvider:     c.configProvider,
+		Executor:           c.executor,
+		PluginExecutor:     c.pluginExecutor,
+		DefinitionProvider: c.definitionProvider,
 	}
 	flags := CommandBuilder.CreateDefaultFlags(false)
 	commands, err := CommandBuilder.Create(args)
@@ -52,8 +52,8 @@ func (c Cli) run(args []string, input []byte) error {
 		Version:         "1.0",
 		Flags:           flags,
 		Commands:        commands,
-		Writer:          c.StdOut,
-		ErrWriter:       c.StdErr,
+		Writer:          c.stdOut,
+		ErrWriter:       c.stdErr,
 		HideVersion:     true,
 		HideHelpCommand: true,
 	}
@@ -67,10 +67,23 @@ func (c Cli) Run(args []string, input []byte) error {
 	err := c.run(args, input)
 	if err != nil {
 		message := err.Error()
-		if c.ColoredOutput {
+		if c.coloredOutput {
 			message = colorRed + err.Error() + colorReset
 		}
-		fmt.Fprintln(c.StdErr, message)
+		fmt.Fprintln(c.stdErr, message)
 	}
 	return err
+}
+
+func NewCli(
+	stdIn io.Reader,
+	stdOut io.Writer,
+	stdErr io.Writer,
+	colors bool,
+	definitionProvider DefinitionProvider,
+	configProvider config.ConfigProvider,
+	executor executor.Executor,
+	pluginExecutor executor.Executor,
+) *Cli {
+	return &Cli{stdIn, stdOut, stdErr, colors, definitionProvider, configProvider, executor, pluginExecutor}
 }

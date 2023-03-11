@@ -43,7 +43,7 @@ function _uipath_auto_complete()
 complete -f -F _uipath_auto_complete uipath
 `
 
-// AutoCompleteHandler parses the autocomplete command and provides suggestions for the available commands.
+// autoCompleteHandler parses the autocomplete command and provides suggestions for the available commands.
 // It tries to perform a prefix- as well as contains-match based on the current context.
 // Example:
 // uipath autocomplete complete --command "uipath o"
@@ -51,10 +51,10 @@ complete -f -F _uipath_auto_complete uipath
 // oms
 // orchestrator
 // documentunderstanding
-type AutoCompleteHandler struct {
+type autoCompleteHandler struct {
 }
 
-func (a AutoCompleteHandler) EnableCompleter(shell string, filePath string) (string, error) {
+func (a autoCompleteHandler) EnableCompleter(shell string, filePath string) (string, error) {
 	if shell != Powershell && shell != Bash {
 		return "", fmt.Errorf("Invalid shell, supported values: %s, %s", Powershell, Bash)
 	}
@@ -67,7 +67,7 @@ func (a AutoCompleteHandler) EnableCompleter(shell string, filePath string) (str
 	return a.enableCompleter(shell, profileFilePath, completeHandlerEnabledCheck, completeHandler)
 }
 
-func (a AutoCompleteHandler) profileFilePath(shell string, filePath string) (string, error) {
+func (a autoCompleteHandler) profileFilePath(shell string, filePath string) (string, error) {
 	if filePath != "" {
 		return filePath, nil
 	}
@@ -77,14 +77,14 @@ func (a AutoCompleteHandler) profileFilePath(shell string, filePath string) (str
 	return BashrcPath()
 }
 
-func (a AutoCompleteHandler) completeHandler(shell string) string {
+func (a autoCompleteHandler) completeHandler(shell string) string {
 	if shell == Powershell {
 		return powershellCompleteHandler
 	}
 	return bashCompleteHandler
 }
 
-func (a AutoCompleteHandler) enableCompleter(shell string, filePath string, enabledCheck string, completerHandler string) (string, error) {
+func (a autoCompleteHandler) enableCompleter(shell string, filePath string, enabledCheck string, completerHandler string) (string, error) {
 	err := a.ensureDirectoryExists(filePath)
 	if err != nil {
 		return "", err
@@ -105,7 +105,7 @@ func (a AutoCompleteHandler) enableCompleter(shell string, filePath string, enab
 	return output, nil
 }
 
-func (a AutoCompleteHandler) ensureDirectoryExists(filePath string) error {
+func (a autoCompleteHandler) ensureDirectoryExists(filePath string) error {
 	err := os.MkdirAll(filepath.Dir(filePath), directoryPermissions)
 	if err != nil {
 		return fmt.Errorf("Error creating profile folder: %v", err)
@@ -113,7 +113,7 @@ func (a AutoCompleteHandler) ensureDirectoryExists(filePath string) error {
 	return nil
 }
 
-func (a AutoCompleteHandler) completerEnabled(filePath string, enabledCheck string) (bool, error) {
+func (a autoCompleteHandler) completerEnabled(filePath string, enabledCheck string) (bool, error) {
 	content, err := os.ReadFile(filePath)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
 		return false, nil
@@ -124,7 +124,7 @@ func (a AutoCompleteHandler) completerEnabled(filePath string, enabledCheck stri
 	return strings.Contains(string(content), enabledCheck), nil
 }
 
-func (a AutoCompleteHandler) writeCompleterHandler(filePath string, completerHandler string) error {
+func (a autoCompleteHandler) writeCompleterHandler(filePath string, completerHandler string) error {
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePermissions)
 	if err != nil {
 		return fmt.Errorf("Error opening profile file: %v", err)
@@ -136,7 +136,7 @@ func (a AutoCompleteHandler) writeCompleterHandler(filePath string, completerHan
 	return nil
 }
 
-func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) Find(commandText string, commands []*cli.Command, exclude []string) []string {
 	words := strings.Split(commandText, " ")
 	if len(words) < 2 {
 		return []string{}
@@ -164,7 +164,7 @@ func (a AutoCompleteHandler) Find(commandText string, commands []*cli.Command, e
 	return a.searchCommands(lastWord, command.Subcommands, exclude)
 }
 
-func (a AutoCompleteHandler) findCommand(name string, commands []*cli.Command) *cli.Command {
+func (a autoCompleteHandler) findCommand(name string, commands []*cli.Command) *cli.Command {
 	for _, command := range commands {
 		if command.Name == name {
 			return command
@@ -173,7 +173,7 @@ func (a AutoCompleteHandler) findCommand(name string, commands []*cli.Command) *
 	return nil
 }
 
-func (a AutoCompleteHandler) searchCommands(word string, commands []*cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) searchCommands(word string, commands []*cli.Command, exclude []string) []string {
 	result := []string{}
 	for _, command := range commands {
 		if strings.HasPrefix(command.Name, word) {
@@ -188,7 +188,7 @@ func (a AutoCompleteHandler) searchCommands(word string, commands []*cli.Command
 	return a.removeDuplicates(a.removeExcluded(result, exclude))
 }
 
-func (a AutoCompleteHandler) searchFlags(word string, command *cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) searchFlags(word string, command *cli.Command, exclude []string) []string {
 	result := []string{}
 	for _, flag := range command.Flags {
 		flagNames := flag.Names()
@@ -209,7 +209,7 @@ func (a AutoCompleteHandler) searchFlags(word string, command *cli.Command, excl
 	return a.removeDuplicates(a.removeExcluded(result, exclude))
 }
 
-func (a AutoCompleteHandler) removeDuplicates(values []string) []string {
+func (a autoCompleteHandler) removeDuplicates(values []string) []string {
 	keys := make(map[string]bool)
 	result := []string{}
 
@@ -222,7 +222,7 @@ func (a AutoCompleteHandler) removeDuplicates(values []string) []string {
 	return result
 }
 
-func (a AutoCompleteHandler) removeExcluded(values []string, exclude []string) []string {
+func (a autoCompleteHandler) removeExcluded(values []string, exclude []string) []string {
 	result := []string{}
 	for _, entry := range values {
 		if !a.contains(exclude, entry) {
@@ -232,11 +232,15 @@ func (a AutoCompleteHandler) removeExcluded(values []string, exclude []string) [
 	return result
 }
 
-func (a AutoCompleteHandler) contains(values []string, value string) bool {
+func (a autoCompleteHandler) contains(values []string, value string) bool {
 	for _, v := range values {
 		if v == value {
 			return true
 		}
 	}
 	return false
+}
+
+func newAutoCompleteHandler() *autoCompleteHandler {
+	return &autoCompleteHandler{}
 }

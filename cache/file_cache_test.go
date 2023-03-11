@@ -12,7 +12,7 @@ func init() {
 }
 
 func TestGetReturnsNoDataWhenNotCached(t *testing.T) {
-	cache := FileCache{}
+	cache := NewFileCache()
 
 	value, expiry := cache.Get("UNKNOWN")
 
@@ -25,7 +25,7 @@ func TestGetReturnsNoDataWhenNotCached(t *testing.T) {
 }
 
 func TestGetReturnsDataWhenSet(t *testing.T) {
-	cache := FileCache{}
+	cache := NewFileCache()
 
 	key := randomKey()
 	before := time.Now().Unix() + int64(60)
@@ -42,7 +42,7 @@ func TestGetReturnsDataWhenSet(t *testing.T) {
 }
 
 func TestGetDoesNotReturnExpiredData(t *testing.T) {
-	cache := FileCache{}
+	cache := NewFileCache()
 
 	key := randomKey()
 	cache.Set(key, "my-value", -1)
@@ -57,7 +57,7 @@ func TestGetDoesNotReturnExpiredData(t *testing.T) {
 }
 
 func TestGetDoesNotReturnDataWhichExpiresSoon(t *testing.T) {
-	cache := FileCache{}
+	cache := NewFileCache()
 
 	key := randomKey()
 	cache.Set(key, "my-value", 10)

@@ -74,3 +74,7 @@ func (c FileCache) cacheFilePath(key string) (string, error) {
 	fileName := fmt.Sprintf("%x.cache", hash)
 	return filepath.Join(cacheDirectory, fileName), nil
 }
+
+func NewFileCache() *FileCache {
+	return &FileCache{}
+}

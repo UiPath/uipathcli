@@ -19,18 +19,18 @@ import (
 // Example: Authenticator which uses kubernetes to retrieve clientId, clientSecret
 // https://github.com/UiPath/uipathcli-authenticator-k8s
 type ExternalAuthenticator struct {
-	Config ExternalAuthenticatorConfig
+	config ExternalAuthenticatorConfig
 }
 
 func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	input, err := json.Marshal(ctx)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error serializing input authenticator context for external authenticator '%s': %v", a.Config.Name, err))
+		return *AuthenticatorError(fmt.Errorf("Error serializing input authenticator context for external authenticator '%s': %v", a.config.Name, err))
 	}
 
 	path, err := a.getAuthenticatorPath()
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s': %v", a.Config.Name, a.Config.Path, err))
+		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s': %v", a.config.Name, a.config.Path, err))
 	}
 	cmd := exec.Command(path)
 
@@ -41,7 +41,7 @@ func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResul
 
 	err = cmd.Run()
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s', output: %s: %v", a.Config.Name, a.Config.Path, stderr.String(), err))
+		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s', output: %s: %v", a.config.Name, a.config.Path, stderr.String(), err))
 	}
 
 	var result AuthenticatorResult
@@ -53,8 +53,8 @@ func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResul
 }
 
 func (a ExternalAuthenticator) getAuthenticatorPath() (string, error) {
-	if filepath.IsAbs(a.Config.Path) {
-		return a.Config.Path, nil
+	if filepath.IsAbs(a.config.Path) {
+		return a.config.Path, nil
 	}
 
 	executable, err := os.Executable()
@@ -62,5 +62,9 @@ func (a ExternalAuthenticator) getAuthenticatorPath() (string, error) {
 		return "", fmt.Errorf("Error retrieving executable path: %v", err)
 	}
 	directory := filepath.Dir(executable)
-	return filepath.Join(directory, a.Config.Path), nil
+	return filepath.Join(directory, a.config.Path), nil
+}
+
+func NewExternalAuthenticator(config ExternalAuthenticatorConfig) *ExternalAuthenticator {
+	return &ExternalAuthenticator{}
 }

@@ -14,7 +14,7 @@ import (
 )
 
 type identityClient struct {
-	Cache cache.Cache
+	cache cache.Cache
 }
 
 const TokenRoute = "/connect/token"
@@ -33,7 +33,7 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	}
 
 	cacheKey := c.cacheKey(tokenRequest)
-	token, expiresIn := c.Cache.Get(cacheKey)
+	token, expiresIn := c.cache.Get(cacheKey)
 	if token != "" {
 		return newTokenResponse(token, expiresIn), nil
 	}
@@ -42,7 +42,7 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	if err != nil {
 		return nil, err
 	}
-	c.Cache.Set(cacheKey, response.AccessToken, response.ExpiresIn)
+	c.cache.Set(cacheKey, response.AccessToken, response.ExpiresIn)
 	return response, nil
 }
 
@@ -112,4 +112,8 @@ func (c identityClient) cacheKeyProperties(properties map[string]string) string 
 		values = append(values, key+"="+value)
 	}
 	return strings.Join(values, ",")
+}
+
+func newIdentityClient(cache cache.Cache) *identityClient {
+	return &identityClient{cache}
 }

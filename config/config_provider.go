@@ -10,12 +10,12 @@ const DefaultProfile = "default"
 
 // ConfigProvider parses the config file with the profiles.
 type ConfigProvider struct {
-	profiles    []profileYaml
-	ConfigStore ConfigStore
+	store    ConfigStore
+	profiles []profileYaml
 }
 
-func (cp *ConfigProvider) Load() error {
-	data, err := cp.ConfigStore.Read()
+func (p *ConfigProvider) Load() error {
+	data, err := p.store.Read()
 	if err != nil {
 		return err
 	}
@@ -24,16 +24,16 @@ func (cp *ConfigProvider) Load() error {
 	if err != nil {
 		return fmt.Errorf("Error parsing configuration file: %v", err)
 	}
-	cp.profiles = config.Profiles
+	p.profiles = config.Profiles
 	return nil
 }
 
-func (cp *ConfigProvider) Update(profileName string, config Config) error {
+func (p *ConfigProvider) Update(profileName string, config Config) error {
 	profile := profileYaml{
 		Name: profileName,
 	}
 	index := -1
-	for i, p := range cp.profiles {
+	for i, p := range p.profiles {
 		if p.Name == profileName {
 			index = i
 			profile = p
@@ -50,16 +50,16 @@ func (cp *ConfigProvider) Update(profileName string, config Config) error {
 	profile.Query = config.Query
 
 	if index == -1 {
-		cp.profiles = append(cp.profiles, profile)
+		p.profiles = append(p.profiles, profile)
 	} else {
-		cp.profiles[index] = profile
+		p.profiles[index] = profile
 	}
 
-	data, err := yaml.Marshal(profilesYaml{Profiles: cp.profiles})
+	data, err := yaml.Marshal(profilesYaml{Profiles: p.profiles})
 	if err != nil {
 		return fmt.Errorf("Error updating configuration: %v", err)
 	}
-	return cp.ConfigStore.Write(data)
+	return p.store.Write(data)
 }
 
 func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
@@ -110,4 +110,10 @@ func (cp ConfigProvider) Config(name string) *Config {
 		return &config
 	}
 	return nil
+}
+
+func NewConfigProvider(store ConfigStore) *ConfigProvider {
+	return &ConfigProvider{
+		store: store,
+	}
 }

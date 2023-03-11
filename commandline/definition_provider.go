@@ -23,9 +23,9 @@ import (
 // files belonging to a single service. There is no need to load the definition file
 // for the du service when the user executes 'uipath orchestrator', for example.
 type DefinitionProvider struct {
-	DefinitionStore DefinitionStore
-	Parser          parser.Parser
-	CommandPlugins  []plugin.CommandPlugin
+	store          DefinitionStore
+	parser         parser.Parser
+	commandPlugins []plugin.CommandPlugin
 }
 
 func (p DefinitionProvider) Index() ([]parser.Definition, error) {
@@ -45,14 +45,14 @@ func (p DefinitionProvider) Index() ([]parser.Definition, error) {
 }
 
 func (p DefinitionProvider) Load(name string) (*parser.Definition, error) {
-	names, err := p.DefinitionStore.Names()
+	names, err := p.store.Names()
 	if err != nil {
 		return nil, err
 	}
 	definitions := []*parser.Definition{}
 	for _, n := range names {
 		if p.getServiceName(n) == name {
-			data, err := p.DefinitionStore.Read(n)
+			data, err := p.store.Read(n)
 			if err != nil {
 				return nil, err
 			}
@@ -75,7 +75,7 @@ func (p DefinitionProvider) merge(definitions []*parser.Definition) *parser.Defi
 		return nil
 	}
 	serviceName := p.getServiceName(definitions[0].Name)
-	return MultiDefinition{}.Merge(serviceName, definitions)
+	return newMultiDefinition().Merge(serviceName, definitions)
 }
 
 func (p DefinitionProvider) getServiceName(name string) string {
@@ -87,7 +87,7 @@ func (p DefinitionProvider) getServiceName(name string) string {
 }
 
 func (p DefinitionProvider) loadEmptyDefinitions() ([]DefinitionData, error) {
-	names, err := p.DefinitionStore.Names()
+	names, err := p.store.Names()
 	if err != nil {
 		return nil, err
 	}
@@ -102,7 +102,7 @@ func (p DefinitionProvider) loadEmptyDefinitions() ([]DefinitionData, error) {
 }
 
 func (p DefinitionProvider) parse(data DefinitionData) (*parser.Definition, error) {
-	definition, err := p.Parser.Parse(data.Name, data.Data)
+	definition, err := p.parser.Parse(data.Name, data.Data)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing definition file '%s': %v", data.Name, err)
 	}
@@ -110,7 +110,7 @@ func (p DefinitionProvider) parse(data DefinitionData) (*parser.Definition, erro
 }
 
 func (p DefinitionProvider) applyPlugins(definition *parser.Definition) {
-	for _, plugin := range p.CommandPlugins {
+	for _, plugin := range p.commandPlugins {
 		command := plugin.Command()
 		if definition.Name == command.Service {
 			p.applyPluginCommand(plugin, command, definition)
@@ -151,4 +151,8 @@ func (p DefinitionProvider) convertToParameters(parameters []plugin.CommandParam
 		result = append(result, parameter)
 	}
 	return result
+}
+
+func NewDefinitionProvider(store DefinitionStore, parser parser.Parser, commandPlugins []plugin.CommandPlugin) *DefinitionProvider {
+	return &DefinitionProvider{store, parser, commandPlugins}
 }

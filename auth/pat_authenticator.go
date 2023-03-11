@@ -41,3 +41,7 @@ func (a PatAuthenticator) parseRequiredString(config map[string]interface{}, nam
 	}
 	return result, nil
 }
+
+func NewPatAuthenticator() *PatAuthenticator {
+	return &PatAuthenticator{}
+}
