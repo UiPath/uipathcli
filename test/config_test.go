@@ -23,7 +23,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if result.RequestUrl != "/my-org/ping" {
 		t.Errorf("Did not set organization from config, got: %v", result.RequestUrl)
@@ -47,7 +47,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if !strings.HasPrefix(result.StdErr, "Missing organization parameter!") {
 		t.Errorf("Did not show organization configuration error, got: %v", result.StdErr)
@@ -73,7 +73,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if result.RequestUrl != "/my-org/my-tenant/ping" {
 		t.Errorf("Did not set tenant from config, got: %v", result.RequestUrl)
@@ -98,7 +98,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if !strings.HasPrefix(result.StdErr, "Missing tenant parameter!") {
 		t.Errorf("Did not show tenant configuration error, got: %v", result.StdErr)
@@ -132,7 +132,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	expected := "my-id"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -159,7 +159,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	expected := "?filter=my-filter"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -186,7 +186,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	value := result.RequestHeader["x-uipath-test"]
 	expected := "abc"
@@ -217,7 +217,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping", "--profile", "myprofile"}, context)
+	result := RunCli([]string{"myservice", "get-ping", "--profile", "myprofile"}, context)
 
 	value := result.RequestHeader["x-uipath-test"]
 	expected := "1234"
@@ -244,7 +244,7 @@ paths:
 		WithConfig(config).
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping", "--profile", "INVALID"}, context)
+	result := RunCli([]string{"myservice", "get-ping", "--profile", "INVALID"}, context)
 
 	expected := "Could not find profile 'INVALID'"
 	if !strings.Contains(result.StdErr, expected) {
@@ -279,7 +279,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if result.StdErr != "" {
 		t.Errorf("Should not require path parameter when provided by config, got %v", result.StdErr)
@@ -313,7 +313,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if result.StdErr != "" {
 		t.Errorf("Should not require query parameter when provided by config, got %v", result.StdErr)
@@ -346,7 +346,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	if result.StdErr != "" {
 		t.Errorf("Should not require header parameter when provided by config, got %v", result.StdErr)
@@ -372,7 +372,7 @@ paths:
 		WithResponse(200, `{"a":"foo","b":1.1}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	expectedOutput := "foo\t1.1\n"
 	if result.StdOut != expectedOutput {

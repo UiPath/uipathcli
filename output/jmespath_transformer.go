@@ -19,13 +19,17 @@ import (
 //
 // See https://jmespath.org for more information
 type JmesPathTransformer struct {
-	Query string
+	query string
 }
 
 func (t JmesPathTransformer) Execute(data interface{}) (interface{}, error) {
-	result, err := jmespath.Search(t.Query, data)
+	result, err := jmespath.Search(t.query, data)
 	if err != nil {
 		return nil, fmt.Errorf("Error in query: %v", err)
 	}
 	return result, nil
+}
+
+func NewJmesPathTransformer(query string) *JmesPathTransformer {
+	return &JmesPathTransformer{query}
 }

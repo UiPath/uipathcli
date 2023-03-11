@@ -10,7 +10,7 @@ func TestConfigSetUnknownKey(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"config", "set", "--key", "unknown", "--value", "my-value"}, context)
+	result := RunCli([]string{"config", "set", "--key", "unknown", "--value", "my-value"}, context)
 
 	if result.StdErr != "Unknown config key 'unknown'\n" {
 		t.Errorf("Expected unknown config key error, but got %v", result.StdErr)
@@ -28,7 +28,7 @@ func TestConfigSetCreatesNewProfile(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "organization", "--value", "my-org", "--profile", "new"}, context)
+	RunCli([]string{"config", "set", "--key", "organization", "--value", "my-org", "--profile", "new"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -56,7 +56,7 @@ func TestConfigSetUpdatesExistingProfile(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "organization", "--value", "updated-org", "--profile", "existing"}, context)
+	RunCli([]string{"config", "set", "--key", "organization", "--value", "updated-org", "--profile", "existing"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -77,7 +77,7 @@ func TestConfigSetOrganization(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "organization", "--value", "my-org"}, context)
+	RunCli([]string{"config", "set", "--key", "organization", "--value", "my-org"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -98,7 +98,7 @@ func TestConfigSetTenant(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "tenant", "--value", "my-tenant"}, context)
+	RunCli([]string{"config", "set", "--key", "tenant", "--value", "my-tenant"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -119,7 +119,7 @@ func TestConfigSetUri(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "uri", "--value", "https://alpha.uipath.com"}, context)
+	RunCli([]string{"config", "set", "--key", "uri", "--value", "https://alpha.uipath.com"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -138,7 +138,7 @@ func TestConfigInvalidUri(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"config", "set", "--key", "uri", "--value", "invalid uri\t"}, context)
+	result := RunCli([]string{"config", "set", "--key", "uri", "--value", "invalid uri\t"}, context)
 
 	if !strings.HasPrefix(result.StdErr, "Invalid value for 'uri'") {
 		t.Errorf("Expected invalid uri error, but got %v", result.StdErr)
@@ -151,7 +151,7 @@ func TestConfigSetInsecure(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "insecure", "--value", "true"}, context)
+	RunCli([]string{"config", "set", "--key", "insecure", "--value", "true"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -172,7 +172,7 @@ func TestConfigSetDebug(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "debug", "--value", "TRUE"}, context)
+	RunCli([]string{"config", "set", "--key", "debug", "--value", "TRUE"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -191,7 +191,7 @@ func TestConfigInvalidInsecure(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"config", "set", "--key", "insecure", "--value", "invalid"}, context)
+	result := RunCli([]string{"config", "set", "--key", "insecure", "--value", "invalid"}, context)
 
 	if !strings.HasPrefix(result.StdErr, "Invalid value for 'insecure'") {
 		t.Errorf("Expected invalid insecure error, but got %v", result.StdErr)
@@ -202,7 +202,7 @@ func TestConfigInvalidDebug(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"config", "set", "--key", "debug", "--value", "invalid"}, context)
+	result := RunCli([]string{"config", "set", "--key", "debug", "--value", "invalid"}, context)
 
 	if !strings.HasPrefix(result.StdErr, "Invalid value for 'debug'") {
 		t.Errorf("Expected invalid debug error, but got %v", result.StdErr)
@@ -215,7 +215,7 @@ func TestConfigSetHeader(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "header.x-uipath-license", "--value", "my-api-key"}, context)
+	RunCli([]string{"config", "set", "--key", "header.x-uipath-license", "--value", "my-api-key"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -237,7 +237,7 @@ func TestConfigSetPath(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "path.org", "--value", "my-org"}, context)
+	RunCli([]string{"config", "set", "--key", "path.org", "--value", "my-org"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -259,7 +259,7 @@ func TestConfigSetQuery(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "query.filter", "--value", "my-filter"}, context)
+	RunCli([]string{"config", "set", "--key", "query.filter", "--value", "my-filter"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -281,7 +281,7 @@ func TestConfigSetAuthGrantType(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "auth.grantType", "--value", "password"}, context)
+	RunCli([]string{"config", "set", "--key", "auth.grantType", "--value", "password"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -303,7 +303,7 @@ func TestConfigSetAuthScopes(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "auth.scopes", "--value", "MyScope"}, context)
+	RunCli([]string{"config", "set", "--key", "auth.scopes", "--value", "MyScope"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -325,7 +325,7 @@ func TestConfigSetAuthProperties(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "set", "--key", "auth.properties.acr_values", "--value", "tenant:host"}, context)
+	RunCli([]string{"config", "set", "--key", "auth.properties.acr_values", "--value", "tenant:host"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {

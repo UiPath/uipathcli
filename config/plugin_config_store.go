@@ -9,7 +9,7 @@ import (
 
 // PluginConfigStore reads the plugin configuration file
 type PluginConfigStore struct {
-	PluginFile string
+	filePath string
 }
 
 func (s PluginConfigStore) Read() ([]byte, error) {
@@ -25,8 +25,8 @@ func (s PluginConfigStore) Read() ([]byte, error) {
 }
 
 func (s PluginConfigStore) pluginsFilePath() (string, error) {
-	if s.PluginFile != "" {
-		return s.PluginFile, nil
+	if s.filePath != "" {
+		return s.filePath, nil
 	}
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
@@ -34,4 +34,8 @@ func (s PluginConfigStore) pluginsFilePath() (string, error) {
 	}
 	filename := filepath.Join(homeDir, ".uipath", "plugins")
 	return filename, nil
+}
+
+func NewPluginConfigStore(filePath string) *PluginConfigStore {
+	return &PluginConfigStore{filePath}
 }

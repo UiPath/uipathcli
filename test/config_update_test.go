@@ -11,7 +11,7 @@ func TestConfigCommandIsShown(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"--help"}, context)
+	result := RunCli([]string{"--help"}, context)
 
 	if !strings.Contains(result.StdOut, "config") {
 		t.Errorf("Expected config command to be shown, but got %v", result.StdOut)
@@ -22,7 +22,7 @@ func TestConfigCommandDescriptionIsShown(t *testing.T) {
 	context := NewContextBuilder().
 		Build()
 
-	result := runCli([]string{"config", "--help"}, context)
+	result := RunCli([]string{"config", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "Interactive command to configure the CLI") {
 		t.Errorf("Expected config command description to be shown, but got %v", result.StdOut)
@@ -39,7 +39,7 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "--auth", "credentials"}, context)
+	RunCli([]string{"config", "--auth", "credentials"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -68,7 +68,7 @@ func TestConfiguresLoginAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "--auth", "login"}, context)
+	RunCli([]string{"config", "--auth", "login"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -98,7 +98,7 @@ func TestConfiguresPatAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config", "--auth", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -133,7 +133,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config", "--auth", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat"}, context)
 
 	updatedConfig, err := os.ReadFile(configFile)
 	if err != nil {
@@ -172,7 +172,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config", "--auth", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat"}, context)
 
 	updatedConfig, err := os.ReadFile(configFile)
 	if err != nil {
@@ -209,7 +209,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config", "--auth", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat"}, context)
 
 	updatedConfig, err := os.ReadFile(configFile)
 	if err != nil {
@@ -244,7 +244,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config", "--auth", "pat", "--profile", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat", "--profile", "pat"}, context)
 
 	updatedConfig, err := os.ReadFile(configFile)
 	if err != nil {
@@ -286,7 +286,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config", "--auth", "pat", "--profile", "pat"}, context)
+	RunCli([]string{"config", "--auth", "pat", "--profile", "pat"}, context)
 
 	updatedConfig, err := os.ReadFile(configFile)
 	if err != nil {
@@ -313,7 +313,7 @@ func TestCredentialsAuthOutputNotSet(t *testing.T) {
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config", "--auth", "credentials"}, context)
+	result := RunCli([]string{"config", "--auth", "credentials"}, context)
 
 	expectedOutput := `Enter organization [not set]: Enter tenant [not set]: Enter client id [not set]: Enter client secret [not set]: `
 	if result.StdOut != expectedOutput {
@@ -341,7 +341,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config", "--auth", "credentials"}, context)
+	result := RunCli([]string{"config", "--auth", "credentials"}, context)
 
 	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******e871]: Enter client secret [*******vifo]: `
 	if result.StdOut != expectedOutput {
@@ -369,7 +369,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config", "--auth", "credentials"}, context)
+	result := RunCli([]string{"config", "--auth", "credentials"}, context)
 
 	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******]: Enter client secret [*******]: `
 	if result.StdOut != expectedOutput {
@@ -396,7 +396,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config", "--auth", "pat"}, context)
+	result := RunCli([]string{"config", "--auth", "pat"}, context)
 
 	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter personal access token [*******a827]: `
 	if result.StdOut != expectedOutput {
@@ -425,7 +425,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config", "--auth", "login"}, context)
+	result := RunCli([]string{"config", "--auth", "login"}, context)
 
 	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******dd35]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: `
 	if result.StdOut != expectedOutput {
@@ -443,7 +443,7 @@ func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -472,7 +472,7 @@ func TestConfigureMultiAuthLoginAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -502,7 +502,7 @@ func TestConfigureMultiAuthPatAuth(t *testing.T) {
 		WithConfigFile(configFile).
 		Build()
 
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -540,7 +540,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config"}, context)
+	result := RunCli([]string{"config"}, context)
 
 	if !strings.Contains(result.StdOut, "Authentication type [credentials]:") {
 		t.Errorf("Expected existing authentication type credentials, but got %v", result.StdOut)
@@ -568,7 +568,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config"}, context)
+	result := RunCli([]string{"config"}, context)
 
 	if !strings.Contains(result.StdOut, "Authentication type [login]:") {
 		t.Errorf("Expected existing authentication type login, but got %v", result.StdOut)
@@ -594,7 +594,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config"}, context)
+	result := RunCli([]string{"config"}, context)
 
 	if !strings.Contains(result.StdOut, "Authentication type [pat]:") {
 		t.Errorf("Expected existing authentication type pat, but got %v", result.StdOut)
@@ -618,7 +618,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	result := runCli([]string{"config"}, context)
+	result := RunCli([]string{"config"}, context)
 
 	if !strings.Contains(result.StdOut, "Authentication type [not set]:") {
 		t.Errorf("Expected no authentication type, but got %v", result.StdOut)
@@ -644,7 +644,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -682,7 +682,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -722,7 +722,7 @@ profiles:
 		WithConfigFile(configFile).
 		WithStdIn(stdIn).
 		Build()
-	runCli([]string{"config"}, context)
+	RunCli([]string{"config"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {

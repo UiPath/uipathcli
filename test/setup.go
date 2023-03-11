@@ -124,7 +124,7 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 	response.Write([]byte(context.IdentityResponse.Body))
 }
 
-func runCli(args []string, context Context) Result {
+func RunCli(args []string, context Context) Result {
 	requestUrl := ""
 	requestHeader := map[string]string{}
 	requestBody := ""

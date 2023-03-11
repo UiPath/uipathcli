@@ -69,11 +69,9 @@ func main() {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
-	pluginConfigProvider := config.PluginConfigProvider{
-		PluginConfigStore: config.PluginConfigStore{
-			PluginFile: os.Getenv("UIPATH_PLUGINS_PATH"),
-		},
-	}
+	pluginConfigProvider := config.NewPluginConfigProvider(
+		*config.NewPluginConfigStore(os.Getenv("UIPATH_PLUGINS_PATH")),
+	)
 	err = pluginConfigProvider.Load()
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err.Error())

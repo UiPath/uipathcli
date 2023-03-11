@@ -12,7 +12,7 @@ import (
 // The event is debounced to avoid too many events.
 type ProgressReader struct {
 	io.Reader
-	ProgressFunc func(progress Progress)
+	progressFunc func(progress Progress)
 	startTime    time.Time
 	bytesRead    int64
 	lastProgress time.Time
@@ -26,7 +26,7 @@ func (r *ProgressReader) Read(p []byte) (n int, err error) {
 	if err == io.EOF || time.Since(r.lastProgress).Nanoseconds() > debounceInterval.Nanoseconds() {
 		r.lastProgress = time.Now()
 		progress := NewProgress(bytesRead, bytesPerSecond, err == io.EOF)
-		r.ProgressFunc(*progress)
+		r.progressFunc(*progress)
 	}
 	return n, err
 }

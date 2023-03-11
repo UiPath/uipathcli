@@ -15,19 +15,19 @@ import (
 //	 "foo": "bar"
 //	}
 type JsonOutputWriter struct {
-	Output      io.Writer
-	Transformer Transformer
+	output      io.Writer
+	transformer Transformer
 }
 
 func (w JsonOutputWriter) writeBody(body []byte) error {
 	var data interface{}
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Fprint(w.Output, string(body))
+		fmt.Fprint(w.output, string(body))
 		return nil
 	}
 
-	transformedResult, err := w.Transformer.Execute(data)
+	transformedResult, err := w.transformer.Execute(data)
 	if err != nil {
 		return err
 	}
@@ -35,8 +35,8 @@ func (w JsonOutputWriter) writeBody(body []byte) error {
 	if err != nil {
 		return err
 	}
-	w.Output.Write(result)
-	w.Output.Write([]byte("\n"))
+	w.output.Write(result)
+	w.output.Write([]byte("\n"))
 	return nil
 }
 
@@ -46,8 +46,12 @@ func (w JsonOutputWriter) WriteResponse(response ResponseInfo) error {
 		return err
 	}
 	if len(body) == 0 && response.StatusCode >= 400 {
-		fmt.Fprintf(w.Output, "%s %s\n", response.Protocol, response.Status)
+		fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
 		return nil
 	}
 	return w.writeBody(body)
+}
+
+func NewJsonOutputWriter(output io.Writer, transformer Transformer) *JsonOutputWriter {
+	return &JsonOutputWriter{output, transformer}
 }

@@ -10,7 +10,7 @@ func TestEnableAutocompleteInvalidShellShowsError(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	result := runCli([]string{"autocomplete", "enable", "--shell", "invalid"}, context)
+	result := RunCli([]string{"autocomplete", "enable", "--shell", "invalid"}, context)
 
 	expectedError := "Invalid shell, supported values: powershell, bash\n"
 	if result.StdErr != expectedError {
@@ -25,7 +25,7 @@ func TestEnableAutocompletePowershellShowsSuccessOutput(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	result := runCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
+	result := RunCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
 
 	expectedOutput := `Shell: powershell
 Profile: ` + profilePath + `
@@ -44,7 +44,7 @@ func TestEnableAutocompletePowershellCreatesProfileFile(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 
@@ -73,7 +73,7 @@ func TestEnableAutocompletePowershellUpdatesExistingProfileFile(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 
@@ -113,7 +113,7 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 	if string(content) != initialContent {
@@ -139,7 +139,7 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 		WithDefinition("myservice", "").
 		Build()
 
-	result := runCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
+	result := RunCli([]string{"autocomplete", "enable", "--shell", "powershell", "--file", profilePath}, context)
 
 	exepectedOutput := `Shell: powershell
 Profile: ` + profilePath + `
@@ -158,7 +158,7 @@ func TestEnableAutocompleteBashShowsSuccessOutput(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	result := runCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
+	result := RunCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
 
 	expectedOutput := `Shell: bash
 Profile: ` + profilePath + `
@@ -177,7 +177,7 @@ func TestEnableAutocompleteBashCreatesProfileFile(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 
@@ -205,7 +205,7 @@ func TestEnableAutocompleteBashUpdatesExistingProfileFile(t *testing.T) {
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 
@@ -247,7 +247,7 @@ complete -f -F _uipath_auto_complete uipath
 		WithDefinition("myservice", "").
 		Build()
 
-	runCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
+	RunCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
 
 	content, _ := os.ReadFile(profilePath)
 	if string(content) != initialContent {
@@ -274,7 +274,7 @@ complete -f -F _uipath_auto_complete uipath
 		WithDefinition("myservice", "").
 		Build()
 
-	result := runCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
+	result := RunCli([]string{"autocomplete", "enable", "--shell", "bash", "--file", profilePath}, context)
 
 	exepectedOutput := `Shell: bash
 Profile: ` + profilePath + `

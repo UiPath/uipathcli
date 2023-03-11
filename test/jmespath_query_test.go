@@ -18,7 +18,7 @@ paths:
 		WithResponse(200, `{"hello":"world"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--query", "hello"}, context)
+	result := RunCli([]string{"myservice", "ping", "--query", "hello"}, context)
 
 	expectedStdOut := "\"world\"\n"
 	if result.StdOut != expectedStdOut {
@@ -40,7 +40,7 @@ paths:
 		WithResponse(200, `{"myfield":"foo","otherfield":"bar"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--query", "{a:myfield, b:otherfield}"}, context)
+	result := RunCli([]string{"myservice", "ping", "--query", "{a:myfield, b:otherfield}"}, context)
 
 	expectedStdOut := `{
   "a": "foo",
@@ -66,7 +66,7 @@ paths:
 		WithResponse(200, `{}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--query", ";"}, context)
+	result := RunCli([]string{"myservice", "ping", "--query", ";"}, context)
 
 	expectedStdErr := "Error in query: SyntaxError: Unknown char: ';'\n"
 	if result.StdErr != expectedStdErr {
@@ -88,7 +88,7 @@ paths:
 		WithResponse(200, `{"results":[{"a": 1}, {"a": 2}]}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--query", "results[].a"}, context)
+	result := RunCli([]string{"myservice", "ping", "--query", "results[].a"}, context)
 
 	expectedStdOut := `[
   1,

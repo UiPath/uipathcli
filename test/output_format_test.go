@@ -18,7 +18,7 @@ paths:
 		WithResponse(200, `{"a":"foo","b":"bar"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "foo\tbar\n"
 	if result.StdOut != expectedStdOut {
@@ -40,7 +40,7 @@ paths:
 		WithResponse(200, `{"b":"bar","a":"foo","c":"baz"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "foo\tbar\tbaz\n"
 	if result.StdOut != expectedStdOut {
@@ -62,7 +62,7 @@ paths:
 		WithResponse(200, `[{"a":"foo1","b":"bar1"}, {"a":"foo2","b":"bar2"}]`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "foo1\tbar1\nfoo2\tbar2\n"
 	if result.StdOut != expectedStdOut {
@@ -84,7 +84,7 @@ paths:
 		WithResponse(200, `[1, 2, 3]`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "1\n2\n3\n"
 	if result.StdOut != expectedStdOut {
@@ -106,7 +106,7 @@ paths:
 		WithResponse(200, `[{"a":"foo1","b":"bar1"}, {"b":"bar2"}]`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "foo1\tbar1\n\tbar2\n"
 	if result.StdOut != expectedStdOut {
@@ -128,7 +128,7 @@ paths:
 		WithResponse(200, `{"outer":{"inner":"value"}}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "\n"
 	if result.StdOut != expectedStdOut {
@@ -150,7 +150,7 @@ paths:
 		WithResponse(200, `{"a":"my-value","outer":{"inner":"value"},"z":"my-last-value"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "my-value\tmy-last-value\n"
 	if result.StdOut != expectedStdOut {
@@ -172,7 +172,7 @@ paths:
 		WithResponse(200, `{"a":null,"z":"my-last-value"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "my-last-value\n"
 	if result.StdOut != expectedStdOut {
@@ -194,7 +194,7 @@ paths:
 		WithResponse(200, `{"results":[{"id":1,"name":"test"},{"id":2,"name":"test2"}]}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text", "--query", "results[]"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text", "--query", "results[]"}, context)
 
 	expectedStdOut := "1\ttest\n2\ttest2\n"
 	if result.StdOut != expectedStdOut {
@@ -216,7 +216,7 @@ paths:
 		WithResponse(200, `[[1, "my-name"], [2, "other-name"]]`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
 
 	expectedStdOut := "1\tmy-name\n2\tother-name\n"
 	if result.StdOut != expectedStdOut {
@@ -237,7 +237,7 @@ paths:
 		WithResponse(200, `{"id":2600000584}`).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "list", "--output", "text"}, context)
 
 	expectedStdOut := "2600000584\n"
 	if result.StdOut != expectedStdOut {
@@ -258,7 +258,7 @@ paths:
 		WithResponse(200, `{"active":true}`).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--output", "text"}, context)
+	result := RunCli([]string{"myservice", "list", "--output", "text"}, context)
 
 	expectedStdOut := "true\n"
 	if result.StdOut != expectedStdOut {
