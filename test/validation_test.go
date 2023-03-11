@@ -25,7 +25,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate"}, context)
+	result := RunCli([]string{"myservice", "post-validate"}, context)
 
 	expected := "Argument --myparameter is missing"
 	if !strings.Contains(result.StdErr, expected) {
@@ -52,7 +52,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", ""}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", ""}, context)
 
 	expected := "Argument --myparameter is missing"
 	if !strings.Contains(result.StdErr, expected) {
@@ -84,7 +84,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", "INVALID"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "INVALID"}, context)
 
 	expected := "Cannot convert 'myparameter' value 'INVALID' to " + datatype
 	if !strings.Contains(result.StdErr, expected) {
@@ -118,7 +118,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", values}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", values}, context)
 
 	expected := "Cannot convert 'myparameter' values '" + values + "' to " + datatype + " array"
 	if !strings.Contains(result.StdErr, expected) {
@@ -143,7 +143,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello=5"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello=5"}, context)
 
 	expected := "Cannot convert 'myparameter' value because object key 'hello' is already defined"
 	if !strings.Contains(result.StdErr, expected) {
@@ -168,7 +168,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello.a=5"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "hello.a=x;hello.a=5"}, context)
 
 	expected := "Cannot convert 'myparameter' value because object key 'a' is already defined"
 	if !strings.Contains(result.StdErr, expected) {
@@ -196,7 +196,7 @@ paths:
 		Build()
 	path := filepath.Join(t.TempDir(), "not-found.txt")
 
-	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := "File '" + path + "' not found"
 	if !strings.Contains(result.StdErr, expected) {

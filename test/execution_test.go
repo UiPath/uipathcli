@@ -22,7 +22,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	if result.Error != nil {
 		t.Errorf("Unexpected error, got: %v", result.Error)
@@ -45,7 +45,7 @@ paths:
 		WithResponse(200, `{"hello":"world"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	expectedStdOut := `{
   "hello": "world"
@@ -69,7 +69,7 @@ paths:
 		WithResponse(200, `{"hello":"world"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping", "--debug"}, context)
+	result := RunCli([]string{"myservice", "get-ping", "--debug"}, context)
 
 	stdout := strings.Split(result.StdOut, "\n")
 	expected := "GET http://"
@@ -127,7 +127,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "get-ping"}, context)
+	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	requestId := result.RequestHeader["x-request-id"]
 	if len(requestId) != 32 {
@@ -155,7 +155,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "post-ping", "--first-name", "Thomas"}, context)
+	result := RunCli([]string{"myservice", "post-ping", "--first-name", "Thomas"}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	expected := "application/json"
@@ -190,7 +190,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--id", "my-id"}, context)
+	result := RunCli([]string{"myservice", "ping", "--id", "my-id"}, context)
 
 	expected := "/ping/my-id"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -221,7 +221,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "my-category", "ping", "--id", "my-id"}, context)
+	result := RunCli([]string{"myservice", "my-category", "ping", "--id", "my-id"}, context)
 
 	expected := "/ping/my-id"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -250,7 +250,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
+	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
 
 	expected := "/ping?filter=my-filter"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -279,7 +279,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--filter", "my&filter"}, context)
+	result := RunCli([]string{"myservice", "ping", "--filter", "my&filter"}, context)
 
 	expected := "/ping?filter=my%26filter"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -308,7 +308,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--x-uipath-myvalue", "custom-value"}, context)
+	result := RunCli([]string{"myservice", "ping", "--x-uipath-myvalue", "custom-value"}, context)
 
 	value := result.RequestHeader["x-uipath-myvalue"]
 	expected := "custom-value"
@@ -354,7 +354,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--ids", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--ids", argument}, context)
 
 	expected := "/ping/" + pathValue
 	if result.RequestUrl != expected {
@@ -399,7 +399,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--ids", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--ids", argument}, context)
 
 	header := result.RequestHeader["ids"]
 	if header != headerValue {
@@ -409,16 +409,16 @@ paths:
 
 func TestRequestWithQueryStringParameterArray(t *testing.T) {
 	t.Run("StringArray", func(t *testing.T) {
-		RequestWithQueryStringParameterArray(t, "string", "val1,val2", "id=val1%2Cid=val2")
+		RequestWithQueryStringParameterArray(t, "string", "val1,val2", "id=val1&id=val2")
 	})
 	t.Run("IntegerArray", func(t *testing.T) {
-		RequestWithQueryStringParameterArray(t, "integer", "1,4", "id=1%2Cid=4")
+		RequestWithQueryStringParameterArray(t, "integer", "1,4", "id=1&id=4")
 	})
 	t.Run("NumberArray", func(t *testing.T) {
-		RequestWithQueryStringParameterArray(t, "number", "0.5,0.1,1.3", "id=0.5%2Cid=0.1%2Cid=1.3")
+		RequestWithQueryStringParameterArray(t, "number", "0.5,0.1,1.3", "id=0.5&id=0.1&id=1.3")
 	})
 	t.Run("BooleanArray", func(t *testing.T) {
-		RequestWithQueryStringParameterArray(t, "boolean", "true,false,true", "id=true%2Cid=false%2Cid=true")
+		RequestWithQueryStringParameterArray(t, "boolean", "true,false,true", "id=true&id=false&id=true")
 	})
 }
 
@@ -444,7 +444,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--id", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--id", argument}, context)
 
 	expected := "/ping?" + queryStringValue
 	if result.RequestUrl != expected {
@@ -479,7 +479,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--id", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--id", argument}, context)
 
 	expected := `/ping/` + value
 	if result.RequestUrl != expected {
@@ -514,7 +514,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--filter", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--filter", argument}, context)
 
 	expected := `/ping?filter=` + value
 	if result.RequestUrl != expected {
@@ -549,7 +549,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--x-header", argument}, context)
+	result := RunCli([]string{"myservice", "ping", "--x-header", argument}, context)
 
 	header := result.RequestHeader["x-header"]
 	if header != value {
@@ -582,7 +582,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", argument}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", argument}, context)
 
 	expected := `{"myparameter":` + value + `}`
 	if result.RequestBody != expected {
@@ -646,7 +646,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", argument}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", argument}, context)
 
 	expected := `{"myparameter":` + value + `}`
 	if result.RequestBody != expected {
@@ -672,7 +672,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello=world`}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `hello=world`}, context)
 
 	expected := `{"myparameter":{"hello":"world"}}`
 	if result.RequestBody != expected {
@@ -698,7 +698,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello.a=world;hello.b=world2;foo=bar`}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `hello.a=world;hello.b=world2;foo=bar`}, context)
 
 	expected := `{"myparameter":{"foo":"bar","hello":{"a":"world","b":"world2"}}}`
 	if result.RequestBody != expected {
@@ -751,7 +751,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
 
 	expected := `{"myparameter":{"myobj":{"mykey":` + value + `}}}`
 	if result.RequestBody != expected {
@@ -806,7 +806,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "myobj.mykey=" + argument}, context)
 
 	expected := `{"myparameter":{"myobj":{"mykey":` + value + `}}}`
 	if result.RequestBody != expected {
@@ -834,7 +834,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--myparameter", `hello=world,other=object`}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `hello=world,other=object`}, context)
 
 	expected := `{"myparameter":[{"hello":"world"},{"other":"object"}]}`
 	if result.RequestBody != expected {
@@ -864,7 +864,7 @@ paths:
 
 	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	expected := "multipart/form-data; boundary="
@@ -906,7 +906,7 @@ paths:
 		Build()
 	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	result := runCli([]string{"myservice", "post-validate", "--file", path}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
 	if !strings.Contains(result.RequestBody, expected) {
@@ -945,7 +945,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create"}, context)
+	result := RunCli([]string{"myservice", "create"}, context)
 
 	expected := `{"firstName":"my-name"}`
 	if result.RequestBody != expected {
@@ -976,7 +976,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create", "--last-name", "last-name"}, context)
+	result := RunCli([]string{"myservice", "create", "--last-name", "last-name"}, context)
 
 	expected := `{"lastName":"last-name"}`
 	if result.RequestBody != expected {
@@ -1007,7 +1007,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create", "--first-name", "provided-name"}, context)
+	result := RunCli([]string{"myservice", "create", "--first-name", "provided-name"}, context)
 
 	expected := `{"firstName":"provided-name"}`
 	if result.RequestBody != expected {
@@ -1040,7 +1040,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create"}, context)
+	result := RunCli([]string{"myservice", "create"}, context)
 
 	expected := `{"firstName":"foo"}`
 	if result.RequestBody != expected {
@@ -1069,7 +1069,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value"}, context)
+	result := RunCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value"}, context)
 
 	expectedBody := `{"foo":"bar"}`
 	if result.RequestBody != expectedBody {
@@ -1104,7 +1104,7 @@ paths:
 
 	path := createFile(t)
 	os.WriteFile(path, []byte("hello-world"), 0644)
-	result := runCli([]string{"myservice", "upload", "--input", path}, context)
+	result := RunCli([]string{"myservice", "upload", "--input", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
@@ -1139,7 +1139,7 @@ paths:
 
 	currentPath, _ := os.Getwd()
 	relativePath, _ := filepath.Rel(currentPath, path)
-	result := runCli([]string{"myservice", "upload", "--input", relativePath}, context)
+	result := RunCli([]string{"myservice", "upload", "--input", relativePath}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
@@ -1173,7 +1173,7 @@ components:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--filter", "my-filter"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--filter", "my-filter"}, context)
 
 	if result.RequestUrl != "/validate?filter=my-filter" {
 		t.Errorf("Url does not contain filter from allOf schema, got: %v", result.RequestUrl)
@@ -1200,7 +1200,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--type", "username"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--type", "username"}, context)
 
 	if result.RequestUrl != "/validate?type=username" {
 		t.Errorf("Url does not contain enum value, got: %v", result.RequestUrl)
@@ -1230,7 +1230,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create-user", "--region", "2"}, context)
+	result := RunCli([]string{"myservice", "create-user", "--region", "2"}, context)
 
 	expected := `{"region":2}`
 	if result.RequestBody != expected {
@@ -1264,7 +1264,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "create-user"}, context)
+	result := RunCli([]string{"myservice", "create-user"}, context)
 
 	expected := `{"region":2}`
 	if result.RequestBody != expected {
@@ -1295,7 +1295,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "validate", "--client-id", "my-client-id", "--client-secret", "my-client-secret"}, context)
+	result := RunCli([]string{"myservice", "validate", "--client-id", "my-client-id", "--client-secret", "my-client-secret"}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/x-www-form-urlencoded" {
@@ -1326,7 +1326,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "validate", "--myparam", "hello & world"}, context)
+	result := RunCli([]string{"myservice", "validate", "--myparam", "hello & world"}, context)
 
 	expected := "myparam=hello+%26+world"
 	if result.RequestBody != expected {
@@ -1360,7 +1360,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "validate", "--myparam", argument}, context)
+	result := RunCli([]string{"myservice", "validate", "--myparam", argument}, context)
 	expected := "myparam=" + value
 	if result.RequestBody != expected {
 		t.Errorf("Wrong data type conversion for url encoded data, expected: %v, got: %v", expected, result.RequestBody)

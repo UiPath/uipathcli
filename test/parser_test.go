@@ -13,7 +13,7 @@ paths: INVALID DEFINITION
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "--help"}, context)
+	result := RunCli([]string{"myservice", "--help"}, context)
 
 	expected := "Error parsing definition file 'myservice'"
 	if !strings.HasPrefix(result.StdErr, expected) {
@@ -32,7 +32,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	if result.Error != nil {
 		t.Errorf("Unexpected error, got: %v", result.Error)
@@ -48,7 +48,7 @@ info:
 		WithDefinition("testservice", definition).
 		Build()
 
-	result := runCli([]string{"testservice", "--help"}, context)
+	result := RunCli([]string{"testservice", "--help"}, context)
 
 	expected := "This is my custom service"
 	if !strings.Contains(result.StdOut, expected) {
@@ -72,7 +72,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "--help"}, context)
+	result := RunCli([]string{"myservice", "--help"}, context)
 
 	if strings.Index(result.StdOut, "aaaaa-operation") >= strings.Index(result.StdOut, "hello-operation") {
 		t.Errorf("Expected aaaaa operation to be first, got: %v", result.StdOut)
@@ -90,7 +90,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	expected := "get-ping"
 	if !strings.Contains(result.StdOut, expected) {
@@ -119,7 +119,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	if !strings.Contains(result.StdOut, expectedName) {
 		t.Errorf("stdout does not contain custom operation, expected: %v, got: %v", expectedName, result.StdOut)
@@ -137,7 +137,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	expected := "Simple ping"
 	if !strings.Contains(result.StdOut, expected) {
@@ -157,7 +157,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--help"}, context)
+	result := RunCli([]string{"myservice", "ping", "--help"}, context)
 
 	expected := "Simple ping"
 	if !strings.Contains(result.StdOut, expected) {
@@ -177,7 +177,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--help"}, context)
+	result := RunCli([]string{"myservice", "ping", "--help"}, context)
 
 	expected := "This is a long description"
 	if !strings.Contains(result.StdOut, expected) {
@@ -198,7 +198,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	expected := "my-category"
 	if !strings.Contains(result.StdOut, expected) {
@@ -223,7 +223,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "my-category"}, context)
+	result := RunCli([]string{"myservice", "my-category"}, context)
 
 	if !strings.Contains(result.StdOut, "create") || !strings.Contains(result.StdOut, "list") {
 		t.Errorf("stdout does not contain all commands, got: %v", result.StdOut)
@@ -246,7 +246,7 @@ tags:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "my-category"}, context)
+	result := RunCli([]string{"myservice", "my-category"}, context)
 
 	expected := "This is a description for my category"
 	if !strings.Contains(result.StdOut, expected) {
@@ -271,7 +271,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "my-category"}, context)
+	result := RunCli([]string{"myservice", "my-category"}, context)
 
 	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
 		t.Errorf("category commands are not sorted, got: %v", result.StdOut)
@@ -293,7 +293,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice"}, context)
+	result := RunCli([]string{"myservice"}, context)
 
 	if !strings.Contains(result.StdOut, "simple") {
 		t.Errorf("Does not contain command outside of category, got: %v", result.StdOut)
@@ -321,7 +321,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
 		t.Errorf("Expected aaaaa argument to be first, got: %v", result.StdOut)
@@ -345,7 +345,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if strings.Index(result.StdOut, "ccccc") >= strings.Index(result.StdOut, "aaaaa") {
 		t.Errorf("Expected required argument to be before aaaaa argument, got: %v", result.StdOut)
@@ -372,7 +372,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if strings.Index(result.StdOut, "aaaaa") >= strings.Index(result.StdOut, "bbbbb") {
 		t.Errorf("Expected required argument to be first, got: %v", result.StdOut)
@@ -399,7 +399,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	expected := "my-custom-parameter-name"
 	if !strings.Contains(result.StdOut, expected) {
@@ -428,7 +428,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
+	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
 
 	expected := "/ping?filter=my-filter"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -455,7 +455,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
+	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
 
 	expected := "/ping?filter=my-filter"
 	if !strings.Contains(result.RequestUrl, expected) {
@@ -487,7 +487,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--myparameter"
 	if !strings.Contains(result.StdOut, expected) {
@@ -516,7 +516,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "create", "--help"}, context)
+	result := RunCli([]string{"myservice", "create", "--help"}, context)
 
 	expected := "my-custom-parameter-name"
 	if !strings.Contains(result.StdOut, expected) {
@@ -543,7 +543,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "This is my parameter (required)"
 	if !strings.Contains(result.StdOut, expected) {
@@ -572,7 +572,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "This is my parameter (default: 1)"
 	if !strings.Contains(result.StdOut, expected) {
@@ -602,7 +602,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "This is my parameter (default: 1)"
 	if !strings.Contains(result.StdOut, expected) {
@@ -627,7 +627,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--myparameter"
 	if !strings.Contains(result.StdOut, expected) {
@@ -653,7 +653,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "This is my parameter"
 	if !strings.Contains(result.StdOut, expected) {
@@ -683,7 +683,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--myname"
 	if !strings.Contains(result.StdOut, expected) {
@@ -713,7 +713,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--myname"
 	if !strings.Contains(result.StdOut, expected) {
@@ -746,7 +746,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, expectedParameter) {
 		t.Errorf("stdout does not contain properly cased parameter, expected: %v, got: %v", expectedParameter, result.StdOut)
@@ -770,7 +770,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-data", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-data", "--help"}, context)
 
 	expected := "--top"
 	if !strings.Contains(result.StdOut, expected) {
@@ -798,7 +798,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "This is my parameter"
 	if !strings.Contains(result.StdOut, expected) {
@@ -838,7 +838,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--level1"
 	if !strings.Contains(result.StdOut, expected) {
@@ -867,7 +867,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
 		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
@@ -898,7 +898,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "allowed values: 0, 1") {
 		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
@@ -926,7 +926,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--filter", "other-value"}, context)
+	result := RunCli([]string{"myservice", "list", "--filter", "other-value"}, context)
 
 	expected := "Argument value 'other-value' for --filter is invalid, allowed values: Value1, Value2"
 	if !strings.Contains(result.StdErr, expected) {
@@ -955,7 +955,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--filter", "3"}, context)
+	result := RunCli([]string{"myservice", "list", "--filter", "3"}, context)
 
 	expected := "Argument value '3' for --filter is invalid, allowed values: 1, 2"
 	if !strings.Contains(result.StdErr, expected) {
@@ -989,7 +989,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "list", "--help"}, context)
+	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
 		t.Errorf("stdout does not contain allowed values from allof schema, got: %v", result.StdOut)
@@ -1018,7 +1018,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--filter"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1049,7 +1049,7 @@ components:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "--name"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1076,7 +1076,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "post-validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
 	expected := "The file to upload"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1102,7 +1102,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "upload", "--help"}, context)
+	result := RunCli([]string{"myservice", "upload", "--help"}, context)
 
 	expected := "The file to upload"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1133,7 +1133,7 @@ paths:
 		WithDefinition("myservice2", definition2).
 		Build()
 
-	result := runCli([]string{"--help"}, context)
+	result := RunCli([]string{"--help"}, context)
 
 	expected := "myservice1"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1163,7 +1163,7 @@ paths:
 		WithDefinition("myapp.myservice2", definition2).
 		Build()
 
-	result := runCli([]string{"myapp", "--help"}, context)
+	result := RunCli([]string{"myapp", "--help"}, context)
 
 	expected := "Create a resource"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1197,7 +1197,7 @@ paths:
 		WithDefinition("myapp.myservice2", definition2).
 		Build()
 
-	result := runCli([]string{"myapp", "--help"}, context)
+	result := RunCli([]string{"myapp", "--help"}, context)
 
 	expected := "first-category"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1236,7 +1236,7 @@ paths:
 		WithDefinition("myapp.myservice2", definition2).
 		Build()
 
-	result := runCli([]string{"myapp", "common-category", "--help"}, context)
+	result := RunCli([]string{"myapp", "common-category", "--help"}, context)
 
 	expected := "Create a resource"
 	if !strings.Contains(result.StdOut, expected) {
@@ -1271,7 +1271,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := runCli([]string{"myservice", "validate", "--help"}, context)
+	result := RunCli([]string{"myservice", "validate", "--help"}, context)
 
 	expected := "The user name"
 	if !strings.Contains(result.StdOut, expected) {

@@ -19,8 +19,8 @@ const FieldSeparator = "\t"
 // foo1	bar1
 // foo2	bar2
 type TextOutputWriter struct {
-	Output      io.Writer
-	Transformer Transformer
+	output      io.Writer
+	transformer Transformer
 }
 
 func (w TextOutputWriter) sortKeys(value map[string]interface{}) []string {
@@ -46,9 +46,9 @@ func (w TextOutputWriter) writeValue(value interface{}) {
 	if w.supportedValue(value) {
 		switch v := value.(type) {
 		case float64:
-			fmt.Fprint(w.Output, strconv.FormatFloat(v, 'f', -1, 64))
+			fmt.Fprint(w.output, strconv.FormatFloat(v, 'f', -1, 64))
 		default:
-			fmt.Fprintf(w.Output, "%v", value)
+			fmt.Fprintf(w.output, "%v", value)
 		}
 	}
 }
@@ -64,7 +64,7 @@ func (w TextOutputWriter) write(value interface{}, sortedBy []string) {
 		w.writeArray(result)
 	default:
 		w.writeValue(result)
-		w.Output.Write([]byte(ObjectSeparator))
+		w.output.Write([]byte(ObjectSeparator))
 	}
 }
 
@@ -85,12 +85,12 @@ func (w TextOutputWriter) writeRow(array []interface{}) {
 	printTab := false
 	for _, value := range array {
 		if printTab {
-			w.Output.Write([]byte(FieldSeparator))
+			w.output.Write([]byte(FieldSeparator))
 		}
 		printTab = true
 		w.writeValue(value)
 	}
-	w.Output.Write([]byte(ObjectSeparator))
+	w.output.Write([]byte(ObjectSeparator))
 }
 
 func (w TextOutputWriter) writeArray(array []interface{}) {
@@ -123,11 +123,11 @@ func (w TextOutputWriter) writeBody(body []byte) error {
 	var data interface{}
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Fprint(w.Output, string(body))
+		fmt.Fprint(w.output, string(body))
 		return nil
 	}
 
-	transformedResult, err := w.Transformer.Execute(data)
+	transformedResult, err := w.transformer.Execute(data)
 	if err != nil {
 		return err
 	}
@@ -141,8 +141,12 @@ func (w TextOutputWriter) WriteResponse(response ResponseInfo) error {
 		return err
 	}
 	if len(body) == 0 && response.StatusCode >= 400 {
-		fmt.Fprintf(w.Output, "%s %s\n", response.Protocol, response.Status)
+		fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
 		return nil
 	}
 	return w.writeBody(body)
+}
+
+func NewTextOutputWriter(output io.Writer, transformer Transformer) *TextOutputWriter {
+	return &TextOutputWriter{output, transformer}
 }

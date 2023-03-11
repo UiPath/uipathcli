@@ -238,33 +238,20 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 
 func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer, errorWriter io.Writer) log.Logger {
 	if context.Debug {
-		return &log.DebugLogger{
-			Output:      writer,
-			ErrorOutput: errorWriter,
-		}
+		return log.NewDebugLogger(writer, errorWriter)
 	}
-	return &log.DefaultLogger{
-		ErrorOutput: errorWriter,
-	}
+	return log.NewDefaultLogger(errorWriter)
 }
 
 func (b CommandBuilder) outputWriter(context executor.ExecutionContext, writer io.Writer, format string, query string) output.OutputWriter {
-	var transformer output.Transformer = output.DefaultTransformer{}
+	var transformer output.Transformer = output.NewDefaultTransformer()
 	if query != "" {
-		transformer = output.JmesPathTransformer{
-			Query: query,
-		}
+		transformer = output.NewJmesPathTransformer(query)
 	}
 	if format == outputFormatText {
-		return &output.TextOutputWriter{
-			Output:      writer,
-			Transformer: transformer,
-		}
+		return output.NewTextOutputWriter(writer, transformer)
 	}
-	return &output.JsonOutputWriter{
-		Output:      writer,
-		Transformer: transformer,
-	}
+	return output.NewJsonOutputWriter(writer, transformer)
 }
 
 func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {

@@ -6,12 +6,12 @@ import (
 
 // PluginConfigProvider parses the plugin configuration file
 type PluginConfigProvider struct {
-	PluginConfigStore PluginConfigStore
-	pluginConfig      PluginConfig
+	store  PluginConfigStore
+	config PluginConfig
 }
 
 func (cp *PluginConfigProvider) Load() error {
-	data, err := cp.PluginConfigStore.Read()
+	data, err := cp.store.Read()
 	if err != nil {
 		return err
 	}
@@ -20,12 +20,12 @@ func (cp *PluginConfigProvider) Load() error {
 	if err != nil {
 		return err
 	}
-	cp.pluginConfig = cp.convertToConfig(pluginsYaml)
+	cp.config = cp.convertToConfig(pluginsYaml)
 	return nil
 }
 
 func (cp PluginConfigProvider) Config() PluginConfig {
-	return cp.pluginConfig
+	return cp.config
 }
 
 func (cp PluginConfigProvider) convertToConfig(plugins pluginsYaml) PluginConfig {
@@ -35,5 +35,11 @@ func (cp PluginConfigProvider) convertToConfig(plugins pluginsYaml) PluginConfig
 	}
 	return PluginConfig{
 		Authenticators: authenticators,
+	}
+}
+
+func NewPluginConfigProvider(store PluginConfigStore) *PluginConfigProvider {
+	return &PluginConfigProvider{
+		store: store,
 	}
 }

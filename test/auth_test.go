@@ -23,7 +23,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	header := result.RequestHeader["authorization"]
 	if header != "" {
@@ -53,7 +53,7 @@ paths:
 		WithIdentityResponse(500, "Internal Server Error").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if result.Error.Error() != "Error retrieving bearer token: Token service returned status code '500' and body 'Internal Server Error'" {
 		t.Errorf("Expected error from identity, but got: %v", result.Error)
@@ -82,7 +82,7 @@ paths:
 		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	authorization := result.RequestHeader["authorization"]
 	if authorization != "Bearer my-jwt-access-token" {
@@ -113,7 +113,7 @@ paths:
 		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	if !strings.Contains(result.Error.Error(), "Error parsing identity uri") {
 		t.Errorf("Expected identity uri parsing error, but got: %v", result.Error)
@@ -141,7 +141,7 @@ paths:
 		WithResponse(200, "").
 		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
-	runCli([]string{"myservice", "ping"}, context)
+	RunCli([]string{"myservice", "ping"}, context)
 
 	context2 := NewContextBuilder().
 		WithDefinition("myservice", definition).
@@ -149,7 +149,7 @@ paths:
 		WithResponse(200, "").
 		WithIdentityResponse(500, "Internal Server Error").
 		Build()
-	result := runCli([]string{"myservice", "ping"}, context2)
+	result := RunCli([]string{"myservice", "ping"}, context2)
 
 	err := result.Error
 	if err != nil {
@@ -182,7 +182,7 @@ paths:
 		WithResponse(200, "").
 		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 10, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
-	runCli([]string{"myservice", "ping"}, context)
+	RunCli([]string{"myservice", "ping"}, context)
 
 	context2 := NewContextBuilder().
 		WithDefinition("myservice", definition).
@@ -190,7 +190,7 @@ paths:
 		WithResponse(200, "").
 		WithIdentityResponse(500, "Internal Server Error").
 		Build()
-	result := runCli([]string{"myservice", "ping"}, context2)
+	result := RunCli([]string{"myservice", "ping"}, context2)
 
 	if result.Error.Error() != "Error retrieving bearer token: Token service returned status code '500' and body 'Internal Server Error'" {
 		t.Errorf("Expected identity call, but got: %v", result.Error)
@@ -217,7 +217,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := runCli([]string{"myservice", "ping"}, context)
+	result := RunCli([]string{"myservice", "ping"}, context)
 
 	expected := "Bearer rt_mypat"
 	header := result.RequestHeader["authorization"]

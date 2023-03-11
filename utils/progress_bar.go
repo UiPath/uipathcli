@@ -12,16 +12,16 @@ import (
 // The ProgressBar helps rendering a text-based progress indicator on the command-line.
 // It uses the standard error output interface of the logger for writing progress.
 type ProgressBar struct {
-	Logger         log.Logger
+	logger         log.Logger
 	renderedLength int
 }
 
 func (b *ProgressBar) Update(text string, current int64, total int64, bytesPerSecond int64) {
-	b.Logger.LogError("\r")
+	b.logger.LogError("\r")
 	length := b.render(text, current, total, bytesPerSecond)
 	left := b.renderedLength - length
 	if left > 0 {
-		b.Logger.LogError(strings.Repeat(" ", left))
+		b.logger.LogError(strings.Repeat(" ", left))
 	}
 	b.renderedLength = length
 }
@@ -29,7 +29,7 @@ func (b *ProgressBar) Update(text string, current int64, total int64, bytesPerSe
 func (b *ProgressBar) Remove() {
 	if b.renderedLength > 0 {
 		clear := fmt.Sprintf("\r%s\r", strings.Repeat(" ", b.renderedLength))
-		b.Logger.LogError(clear)
+		b.logger.LogError(clear)
 	}
 }
 
@@ -49,7 +49,7 @@ func (b ProgressBar) render(text string, currentBytes int64, totalBytes int64, b
 		unit,
 		bytesPerSecondFormatted,
 		bytesPerSecondUnit)
-	b.Logger.LogError(output)
+	b.logger.LogError(output)
 	return utf8.RuneCountInString(output)
 }
 

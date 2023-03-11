@@ -82,7 +82,7 @@ func (f QueryStringFormatter) arrayToQueryString(key string, value []interface{}
 	for i, v := range value {
 		result[i] = f.toQueryString(key, v)
 	}
-	return strings.Join(result, url.QueryEscape(","))
+	return strings.Join(result, "&")
 }
 
 func (f QueryStringFormatter) toQueryString(key string, value interface{}) string {

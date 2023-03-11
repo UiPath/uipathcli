@@ -1,4 +1,4 @@
-package test
+package orchestrator
 
 import (
 	"io"
@@ -8,16 +8,16 @@ import (
 	"strings"
 	"testing"
 
-	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
+	"github.com/UiPath/uipathcli/test"
 )
 
 func TestUploadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --folder-id is missing") {
 		t.Errorf("Expected stderr to show that folder-id parameter is missing, but got: %v", result.StdErr)
@@ -25,12 +25,12 @@ func TestUploadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithoutKeyParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--path", "file.txt", "--file", "does-not-exist"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--path", "file.txt", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --key is missing") {
 		t.Errorf("Expected stderr to show that key parameter is missing, but got: %v", result.StdErr)
@@ -38,12 +38,12 @@ func TestUploadWithoutKeyParameterShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithoutPathParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--file", "does-not-exist"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --path is missing") {
 		t.Errorf("Expected stderr to show that path parameter is missing, but got: %v", result.StdErr)
@@ -51,12 +51,12 @@ func TestUploadWithoutPathParameterShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithoutFileParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --file is missing") {
 		t.Errorf("Expected stderr to show that file parameter is missing, but got: %v", result.StdErr)
@@ -70,14 +70,14 @@ func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
   tenant: my-tenant
 `
 
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithConfig(config).
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		WithResponse(200, `{"Uri":"http://localhost"}`).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Error sending request: File 'does-not-exist' not found") {
 		t.Errorf("Expected stderr to show that file was not found, but got: %v", result.StdErr)
@@ -85,12 +85,12 @@ func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithoutOrganizationShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "hello-world"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "hello-world"}, context)
 
 	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
@@ -107,14 +107,14 @@ func TestUploadWithFailedResponseReturnsError(t *testing.T) {
   tenant: my-tenant
 `
 
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		WithResponse(400, "validation error").
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
 
 	if !strings.Contains(result.StdErr, "Orchestrator returned status code '400' and body 'validation error'") {
 		t.Errorf("Expected stderr to show that orchestrator call failed, but got: %v", result.StdErr)
@@ -166,14 +166,14 @@ servers:
       default: my-tenant
 `
 
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
-		WithCommandPlugin(plugin_orchestrator.UploadCommand{}).
+		WithCommandPlugin(UploadCommand{}).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
 
 	if result.Error != nil {
 		t.Errorf("Expected no error, but got: %v", result.Error)
@@ -184,12 +184,12 @@ servers:
 }
 
 func TestDownloadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--key", "2", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--key", "2", "--path", "file.txt"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --folder-id is missing") {
 		t.Errorf("Expected stderr to show that folder-id parameter is missing, but got: %v", result.StdErr)
@@ -197,12 +197,12 @@ func TestDownloadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 }
 
 func TestDownloadWithoutKeyParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--path", "file.txt"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --key is missing") {
 		t.Errorf("Expected stderr to show that key parameter is missing, but got: %v", result.StdErr)
@@ -210,12 +210,12 @@ func TestDownloadWithoutKeyParameterShowsValidationError(t *testing.T) {
 }
 
 func TestDownloadWithoutPathParameterShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --path is missing") {
 		t.Errorf("Expected stderr to show that path parameter is missing, but got: %v", result.StdErr)
@@ -223,12 +223,12 @@ func TestDownloadWithoutPathParameterShowsValidationError(t *testing.T) {
 }
 
 func TestDownloadWithoutOrganizationShowsValidationError(t *testing.T) {
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
 
 	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
@@ -242,14 +242,14 @@ func TestDownloadWithFailedResponseReturnsError(t *testing.T) {
   tenant: my-tenant
 `
 
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		WithResponse(400, "validation error").
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
 
 	if !strings.Contains(result.StdErr, "Orchestrator returned status code '400' and body 'validation error'") {
 		t.Errorf("Expected stderr to show that orchestrator call failed, but got: %v", result.StdErr)
@@ -287,14 +287,14 @@ servers:
       default: my-tenant
 `
 
-	context := NewContextBuilder().
+	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
-		WithCommandPlugin(plugin_orchestrator.DownloadCommand{}).
+		WithCommandPlugin(DownloadCommand{}).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
-	result := runCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
+	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
 
 	if result.Error != nil {
 		t.Errorf("Expected no error, but got: %v", result.Error)
@@ -305,4 +305,13 @@ servers:
 	if result.StdOut != "hello-world" {
 		t.Errorf("Expected stdout to show file content, but got: %v", result.StdOut)
 	}
+}
+
+func createFile(t *testing.T) string {
+	tempFile, err := os.CreateTemp("", "uipath-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.Remove(tempFile.Name()) })
+	return tempFile.Name()
 }
