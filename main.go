@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"runtime"
 
@@ -20,6 +19,7 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
@@ -43,19 +43,15 @@ func colorsSupported() bool {
 	return !omitColors
 }
 
-func readStdIn() []byte {
+func stdIn() utils.Stream {
 	f, err := os.Stdin.Stat()
 	if err != nil {
-		return []byte{}
+		return nil
 	}
 	if f.Mode()&os.ModeNamedPipe == 0 || isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd()) {
-		return []byte{}
+		return nil
 	}
-	input, err := io.ReadAll(os.Stdin)
-	if err != nil {
-		return []byte{}
-	}
-	return input
+	return utils.NewReaderStream(parser.RawBodyParameterName, os.Stdin)
 }
 
 func main() {
@@ -97,7 +93,7 @@ func main() {
 		executor.NewPluginExecutor(authenticators),
 	)
 
-	input := readStdIn()
+	input := stdIn()
 	err = cli.Run(os.Args, input)
 	if err != nil {
 		os.Exit(1)

@@ -196,23 +196,23 @@ func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context
 	return request, nil
 }
 
-func (c DigitizeCommand) calculateMultipartSize(file *plugin.FileParameter) int64 {
-	data, size, err := file.Data()
+func (c DigitizeCommand) calculateMultipartSize(stream utils.Stream) int64 {
+	data, size, err := stream.Data()
 	if err == nil {
 		defer data.Close()
 	}
 	return size
 }
 
-func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, file *plugin.FileParameter, contentType string) error {
+func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream utils.Stream, contentType string) error {
 	filePart := textproto.MIMEHeader{}
-	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, file.Filename()))
+	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, stream.Name()))
 	filePart.Set("Content-Type", contentType)
 	w, err := writer.CreatePart(filePart)
 	if err != nil {
 		return fmt.Errorf("Error creating form field 'file': %v", err)
 	}
-	data, _, err := file.Data()
+	data, _, err := stream.Data()
 	if err != nil {
 		return err
 	}
@@ -224,13 +224,13 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, file *plug
 	return nil
 }
 
-func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, file *plugin.FileParameter, contentType string, errorChan chan error) (string, int64) {
-	contentLength := c.calculateMultipartSize(file)
+func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream utils.Stream, contentType string, errorChan chan error) (string, int64) {
+	contentLength := c.calculateMultipartSize(stream)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
 		defer bodyWriter.Close()
 		defer formWriter.Close()
-		err := c.writeMultipartForm(formWriter, file, contentType)
+		err := c.writeMultipartForm(formWriter, stream, contentType)
 		if err != nil {
 			errorChan <- err
 			return
@@ -277,11 +277,11 @@ func (c DigitizeCommand) getParameter(name string, parameters []plugin.Execution
 	return "", fmt.Errorf("Could not find '%s' parameter", name)
 }
 
-func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) (*plugin.FileParameter, error) {
+func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) (utils.Stream, error) {
 	for _, p := range parameters {
 		if p.Name == "file" {
-			if fileParameter, ok := p.Value.(plugin.FileParameter); ok {
-				return &fileParameter, nil
+			if stream, ok := p.Value.(utils.Stream); ok {
+				return stream, nil
 			}
 		}
 	}

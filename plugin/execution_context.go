@@ -1,6 +1,10 @@
 package plugin
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/UiPath/uipathcli/utils"
+)
 
 // The ExecutionContext provides all the data needed by the plugin to perform the operation.
 type ExecutionContext struct {
@@ -8,7 +12,7 @@ type ExecutionContext struct {
 	Tenant       string
 	BaseUri      url.URL
 	Auth         AuthResult
-	Input        *FileParameter
+	Input        utils.Stream
 	Parameters   []ExecutionParameter
 	Insecure     bool
 	Debug        bool
@@ -19,7 +23,7 @@ func NewExecutionContext(
 	tenant string,
 	baseUri url.URL,
 	auth AuthResult,
-	input *FileParameter,
+	input utils.Stream,
 	parameters []ExecutionParameter,
 	insecure bool,
 	debug bool) *ExecutionContext {

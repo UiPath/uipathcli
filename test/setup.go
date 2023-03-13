@@ -17,6 +17,7 @@ import (
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 type ContextBuilder struct {
@@ -193,9 +194,9 @@ func RunCli(args []string, context Context) Result {
 		executor.NewPluginExecutor(authenticators),
 	)
 	args = append([]string{"uipath"}, args...)
-	input := []byte{}
+	var input utils.Stream
 	if context.StdIn != nil {
-		input = context.StdIn.Bytes()
+		input = utils.NewMemoryStream("$input", context.StdIn.Bytes())
 	}
 	err := cli.Run(args, input)
 

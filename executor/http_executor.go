@@ -63,7 +63,7 @@ func (e HttpExecutor) calculateMultipartSize(parameters []ExecutionParameter) in
 		switch v := parameter.Value.(type) {
 		case string:
 			result = result + int64(len(v))
-		case FileReference:
+		case utils.Stream:
 			data, size, err := v.Data()
 			if err == nil {
 				defer data.Close()
@@ -86,8 +86,8 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 			if err != nil {
 				return fmt.Errorf("Error writing form field '%s': %v", parameter.Name, err)
 			}
-		case FileReference:
-			w, err := writer.CreateFormFile(parameter.Name, v.Filename())
+		case utils.Stream:
+			w, err := writer.CreateFormFile(parameter.Name, v.Name())
 			if err != nil {
 				return fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
 			}
@@ -187,7 +187,7 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 	return formWriter.FormDataContentType(), contentLength
 }
 
-func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input FileReference, errorChan chan error) {
+func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
 		data, _, err := input.Data()
@@ -231,12 +231,8 @@ func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []Exec
 func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64) {
 	if context.Input != nil {
 		reader, writer := io.Pipe()
-		e.writeInputBody(writer, *context.Input, errorChan)
-		data, size, err := context.Input.Data()
-		if err == nil {
-			defer data.Close()
-		}
-		return reader, context.ContentType, size
+		e.writeInputBody(writer, context.Input, errorChan)
+		return reader, context.ContentType, -1
 	}
 	if len(context.Parameters.Form) > 0 {
 		reader, writer := io.Pipe()

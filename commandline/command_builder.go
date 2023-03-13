@@ -14,6 +14,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/parser"
+	"github.com/UiPath/uipathcli/utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -33,7 +34,7 @@ const queryFlagName = "query"
 
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
-	Input              []byte
+	Input              utils.Stream
 	StdIn              io.Reader
 	StdOut             io.Writer
 	StdErr             io.Writer
@@ -49,17 +50,17 @@ func (b CommandBuilder) sort(commands []*cli.Command) {
 	})
 }
 
-func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (*executor.FileReference, error) {
-	if len(b.Input) > 0 {
-		return executor.NewFileReferenceData(parser.RawBodyParameterName, b.Input), nil
+func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (utils.Stream, error) {
+	if b.Input != nil {
+		return b.Input, nil
 	}
 	if len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
 		switch value := bodyParameters[0].Value.(type) {
-		case executor.FileReference:
-			return &value, nil
+		case utils.Stream:
+			return value, nil
 		default:
 			data := []byte(fmt.Sprintf("%v", value))
-			return executor.NewFileReferenceData(parser.RawBodyParameterName, data), nil
+			return utils.NewMemoryStream(parser.RawBodyParameterName, data), nil
 		}
 	}
 	return nil, nil
@@ -290,7 +291,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 				return err
 			}
 
-			if len(b.Input) == 0 {
+			if b.Input == nil {
 				err = b.validateArguments(context, operation.Parameters, *config)
 				if err != nil {
 					return err

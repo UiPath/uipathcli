@@ -40,9 +40,6 @@ func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParamete
 	for _, parameter := range parameters {
 		name := parameter.Name
 		value := parameter.Value
-		if fileReference, ok := parameter.Value.(FileReference); ok {
-			value = *plugin.NewFileParameter(fileReference.path, fileReference.filename, fileReference.data)
-		}
 		result = append(result, *plugin.NewExecutionParameter(name, value))
 	}
 	return result
@@ -69,10 +66,6 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 		return err
 	}
 
-	var pluginInput *plugin.FileParameter
-	if context.Input != nil {
-		pluginInput = plugin.NewFileParameter(context.Input.path, context.Input.filename, context.Input.data)
-	}
 	pluginAuth := e.pluginAuth(auth)
 	pluginParams := e.pluginParameters(context)
 	pluginContext := plugin.NewExecutionContext(
@@ -80,7 +73,7 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 		context.Tenant,
 		context.BaseUri,
 		pluginAuth,
-		pluginInput,
+		context.Input,
 		pluginParams,
 		context.Insecure,
 		context.Debug)

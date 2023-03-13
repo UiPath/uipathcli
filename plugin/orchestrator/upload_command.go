@@ -77,7 +77,7 @@ func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url 
 		}
 	}
 	bodyReader, bodyWriter := io.Pipe()
-	contentType, contentLength := c.writeBody(bodyWriter, *file, requestError)
+	contentType, contentLength := c.writeBody(bodyWriter, file, requestError)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 
 	request, err := http.NewRequest("PUT", url, uploadReader)
@@ -90,7 +90,7 @@ func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url 
 	return request, nil
 }
 
-func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input plugin.FileParameter, errorChan chan error) (string, int64) {
+func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) (string, int64) {
 	go func() {
 		defer bodyWriter.Close()
 		data, _, err := input.Data()
@@ -248,11 +248,11 @@ func (c UploadCommand) getIntParameter(name string, parameters []plugin.Executio
 	return 0, fmt.Errorf("Could not find '%s' parameter", name)
 }
 
-func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) (*plugin.FileParameter, error) {
+func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) (utils.Stream, error) {
 	for _, p := range parameters {
 		if p.Name == "file" {
-			if fileParameter, ok := p.Value.(plugin.FileParameter); ok {
-				return &fileParameter, nil
+			if stream, ok := p.Value.(utils.Stream); ok {
+				return stream, nil
 			}
 		}
 	}
