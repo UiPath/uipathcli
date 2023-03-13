@@ -1,6 +1,6 @@
 module github.com/UiPath/uipathcli
 
-go 1.20
+go 1.19
 
 require (
 	github.com/getkin/kin-openapi v0.114.0
