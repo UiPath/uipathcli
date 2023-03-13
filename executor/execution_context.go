@@ -5,6 +5,7 @@ import (
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 // The ExecutionContext provides all the data needed by the executor to construct the HTTP
@@ -16,7 +17,7 @@ type ExecutionContext struct {
 	BaseUri      url.URL
 	Route        string
 	ContentType  string
-	Input        *FileReference
+	Input        utils.Stream
 	Parameters   ExecutionContextParameters
 	AuthConfig   config.AuthConfig
 	Insecure     bool
@@ -31,7 +32,7 @@ func NewExecutionContext(
 	uri url.URL,
 	route string,
 	contentType string,
-	input *FileReference,
+	input utils.Stream,
 	parameters ExecutionContextParameters,
 	authConfig config.AuthConfig,
 	insecure bool,

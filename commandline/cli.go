@@ -8,6 +8,7 @@ import (
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
+	"github.com/UiPath/uipathcli/utils"
 	"github.com/urfave/cli/v2"
 )
 
@@ -23,7 +24,7 @@ type Cli struct {
 	pluginExecutor     executor.Executor
 }
 
-func (c Cli) run(args []string, input []byte) error {
+func (c Cli) run(args []string, input utils.Stream) error {
 	err := c.configProvider.Load()
 	if err != nil {
 		return err
@@ -63,7 +64,7 @@ func (c Cli) run(args []string, input []byte) error {
 const colorRed = "\033[31m"
 const colorReset = "\033[0m"
 
-func (c Cli) Run(args []string, input []byte) error {
+func (c Cli) Run(args []string, input utils.Stream) error {
 	err := c.run(args, input)
 	if err != nil {
 		message := err.Error()
