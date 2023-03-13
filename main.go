@@ -44,7 +44,11 @@ func colorsSupported() bool {
 }
 
 func readStdIn() []byte {
-	if isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd()) {
+	f, err := os.Stdin.Stat()
+	if err != nil {
+		return []byte{}
+	}
+	if f.Mode()&os.ModeNamedPipe == 0 || isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd()) {
 		return []byte{}
 	}
 	input, err := io.ReadAll(os.Stdin)
