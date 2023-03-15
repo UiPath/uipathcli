@@ -2,6 +2,7 @@ package digitzer
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -78,7 +79,7 @@ paths:
 
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(path, []byte("hello-world"))
 
 	config := `profiles:
 - name: default
@@ -109,7 +110,7 @@ paths:
 
 func TestDigitizeSuccessfully(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(path, []byte("hello-world"))
 
 	config := `profiles:
 - name: default
@@ -155,7 +156,7 @@ paths:
 
 func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(path, []byte("hello-world"))
 
 	config := `profiles:
 - name: default
@@ -230,4 +231,11 @@ func createFile(t *testing.T) string {
 	}
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	return tempFile.Name()
+}
+
+func writeFile(name string, data []byte) {
+	err := os.WriteFile(name, data, 0600)
+	if err != nil {
+		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
+	}
 }

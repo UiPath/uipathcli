@@ -33,22 +33,22 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	}
 	config, err := a.getConfig(ctx)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %w", err))
 	}
 	identityBaseUri := config.IdentityUri
 	if identityBaseUri == nil {
 		requestUrl, err := url.Parse(ctx.Request.URL)
 		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
+			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %w", ctx.Request.URL, err))
 		}
 		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
 		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %w", ctx.Request.URL, err))
 		}
 	}
 	token, err := a.retrieveToken(*identityBaseUri, *config, ctx.Insecure)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
 	ctx.Request.Header["Authorization"] = "Bearer " + token
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
@@ -109,19 +109,20 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 	})
 	listener, err := net.Listen("tcp", config.RedirectUrl.Host)
 	if err != nil {
-		return "", fmt.Errorf("Error starting listener on address %s and wait for oauth redirect: %v", config.RedirectUrl.Host, err)
+		return "", fmt.Errorf("Error starting listener on address %s and wait for oauth redirect: %w", config.RedirectUrl.Host, err)
 	}
 	defer listener.Close()
 
 	server := &http.Server{
-		Handler: mux,
+		Handler:           mux,
+		ReadHeaderTimeout: 30 * time.Second,
 	}
 	defer server.Close()
 
 	go func(listener net.Listener) {
 		listenErr := server.Serve(listener)
 		if listenErr != nil {
-			err = fmt.Errorf("Error starting server on address %s and wait for oauth redirect: %v", config.RedirectUrl.Host, listenErr)
+			err = fmt.Errorf("Error starting server on address %s and wait for oauth redirect: %w", config.RedirectUrl.Host, listenErr)
 		}
 		cancel()
 	}(listener)
@@ -180,7 +181,7 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthentic
 	if err == nil {
 		uri, err = url.Parse(uriString)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
+			return nil, fmt.Errorf("Error parsing identity uri: %w", err)
 		}
 	}
 	return newOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, uri), nil
@@ -201,12 +202,12 @@ func (a OAuthAuthenticator) showBrowserLink(url string) {
 
 func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
 	w.Header().Add("content-type", "text/html")
-	w.Write([]byte(err.Error()))
+	_, _ = w.Write([]byte(err.Error()))
 }
 
 func (a OAuthAuthenticator) writeHtmlPage(w http.ResponseWriter, html string) {
 	w.Header().Add("content-type", "text/html")
-	w.Write([]byte(html))
+	_, _ = w.Write([]byte(html))
 }
 
 func NewOAuthAuthenticator(cache cache.Cache, browserLauncher BrowserLauncher) *OAuthAuthenticator {

@@ -104,7 +104,7 @@ func (p DefinitionProvider) loadEmptyDefinitions() ([]DefinitionData, error) {
 func (p DefinitionProvider) parse(data DefinitionData) (*parser.Definition, error) {
 	definition, err := p.parser.Parse(data.Name, data.Data)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing definition file '%s': %v", data.Name, err)
+		return nil, fmt.Errorf("Error parsing definition file '%s': %w", data.Name, err)
 	}
 	return definition, nil
 }

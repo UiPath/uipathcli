@@ -17,7 +17,7 @@ import (
 //
 // => "521b4edc-ad6f-4301-909e-f96a401e1fed"
 //
-// See https://jmespath.org for more information
+// See https://jmespath.org for more information.
 type JmesPathTransformer struct {
 	query string
 }
@@ -25,7 +25,7 @@ type JmesPathTransformer struct {
 func (t JmesPathTransformer) Execute(data interface{}) (interface{}, error) {
 	result, err := jmespath.Search(t.query, data)
 	if err != nil {
-		return nil, fmt.Errorf("Error in query: %v", err)
+		return nil, fmt.Errorf("Error in query: %w", err)
 	}
 	return result, nil
 }

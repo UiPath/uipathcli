@@ -2,6 +2,7 @@ package test
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -108,21 +109,21 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 	data, _ := url.ParseQuery(requestBody)
 	if len(data["client_id"]) != 1 || data["client_id"][0] == "" {
 		response.WriteHeader(400)
-		response.Write([]byte("client_id is missing"))
+		_, _ = response.Write([]byte("client_id is missing"))
 		return
 	}
 	if len(data["client_secret"]) != 1 || data["client_secret"][0] == "" {
 		response.WriteHeader(400)
-		response.Write([]byte("client_secret is missing"))
+		_, _ = response.Write([]byte("client_secret is missing"))
 		return
 	}
 	if len(data["grant_type"]) != 1 || data["grant_type"][0] != "client_credentials" {
 		response.WriteHeader(400)
-		response.Write([]byte("Invalid grant_type"))
+		_, _ = response.Write([]byte("Invalid grant_type"))
 		return
 	}
 	response.WriteHeader(context.IdentityResponse.Status)
-	response.Write([]byte(context.IdentityResponse.Body))
+	_, _ = response.Write([]byte(context.IdentityResponse.Body))
 }
 
 func RunCli(args []string, context Context) Result {
@@ -151,14 +152,17 @@ func RunCli(args []string, context Context) Result {
 				response = context.Responses["*"]
 			}
 			w.WriteHeader(response.Status)
-			w.Write([]byte(response.Body))
+			_, _ = w.Write([]byte(response.Body))
 		}))
 		defer srv.Close()
 		args = append(args, "--uri", srv.URL)
 	}
 
 	if context.ConfigFile != "" && context.Config != "" {
-		os.WriteFile(context.ConfigFile, []byte(context.Config), 0600)
+		err := os.WriteFile(context.ConfigFile, []byte(context.Config), 0600)
+		if err != nil {
+			panic(fmt.Errorf("Error writing config file '%s': %w", context.ConfigFile, err))
+		}
 	}
 
 	stdout := new(bytes.Buffer)
@@ -217,4 +221,11 @@ func createFile(t *testing.T) string {
 	}
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	return tempFile.Name()
+}
+
+func writeFile(t *testing.T, name string, data []byte) {
+	err := os.WriteFile(name, data, 0600)
+	if err != nil {
+		t.Fatalf("Error writing file '%s': %v", name, err)
+	}
 }

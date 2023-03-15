@@ -67,7 +67,7 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 
 func TestEnableAutocompletePowershellUpdatesExistingProfileFile(t *testing.T) {
 	profilePath := createFile(t)
-	os.WriteFile(profilePath, []byte("existing content\nshould not change"), 0644)
+	writeFile(t, profilePath, []byte("existing content\nshould not change"))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -107,7 +107,7 @@ $uipath_auto_complete = {
 }
 Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto_complete
 `
-	os.WriteFile(profilePath, []byte(initialContent), 0644)
+	writeFile(t, profilePath, []byte(initialContent))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -133,7 +133,7 @@ $uipath_auto_complete = {
 }
 Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto_complete
 `
-	os.WriteFile(profilePath, []byte(initialContent), 0644)
+	writeFile(t, profilePath, []byte(initialContent))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -199,7 +199,7 @@ complete -f -F _uipath_auto_complete uipath
 
 func TestEnableAutocompleteBashUpdatesExistingProfileFile(t *testing.T) {
 	profilePath := createFile(t)
-	os.WriteFile(profilePath, []byte("\nexisting content\nshould not change\n"), 0644)
+	writeFile(t, profilePath, []byte("\nexisting content\nshould not change\n"))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -241,7 +241,7 @@ function _uipath_auto_complete()
 }
 complete -f -F _uipath_auto_complete uipath
 `
-	os.WriteFile(profilePath, []byte(initialContent), 0644)
+	writeFile(t, profilePath, []byte(initialContent))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -268,7 +268,7 @@ function _uipath_auto_complete()
 }
 complete -f -F _uipath_auto_complete uipath
 `
-	os.WriteFile(profilePath, []byte(initialContent), 0644)
+	writeFile(t, profilePath, []byte(initialContent))
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").

@@ -35,7 +35,7 @@ func (g secretGenerator) randomString(length int) string {
 	b := make([]byte, length)
 	_, err := rand.Read(b)
 	if err != nil {
-		panic(fmt.Errorf("Could not get cryptographically secure random numbers: %v", err))
+		panic(fmt.Errorf("Could not get cryptographically secure random numbers: %w", err))
 	}
 	return fmt.Sprintf("%x", b)[:length]
 }

@@ -1,25 +1,21 @@
 package auth
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
 	"fmt"
 	"io"
-	"math/rand"
+	"math"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/UiPath/uipathcli/cache"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 	config := map[string]interface{}{
@@ -153,7 +149,7 @@ func TestOAuthFlowWithCustomIdentityUri(t *testing.T) {
 	}
 	identityUrl := identityServerFake.Start(t)
 	config := map[string]interface{}{
-		"clientId":    strconv.Itoa(rand.Int()),
+		"clientId":    newClientId(),
 		"redirectUri": "http://localhost:0",
 		"scopes":      "OR.Users",
 		"uri":         identityUrl.String() + "/identity_",
@@ -258,6 +254,8 @@ func TestMissingCodeShowsErrorMessage(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Unexpected error calling login url: %v", err)
 	}
+	defer response.Body.Close()
+
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		t.Fatalf("Login url response body cannot be read: %v", err)
@@ -287,7 +285,7 @@ func callAuthenticator(context AuthenticatorContext) (url.URL, chan Authenticato
 
 func createAuthContext(identityUrl url.URL) AuthenticatorContext {
 	config := map[string]interface{}{
-		"clientId":    strconv.Itoa(rand.Int()),
+		"clientId":    newClientId(),
 		"redirectUri": "http://localhost:0",
 		"scopes":      "OR.Users",
 	}
@@ -303,11 +301,20 @@ func performLogin(loginUrl url.URL, t *testing.T) string {
 	if err != nil {
 		t.Fatalf("Unexpected error calling login url: %v", err)
 	}
+	defer response.Body.Close()
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		t.Fatalf("Login url response body cannot be read: %v", err)
 	}
 	return string(data)
+}
+
+func newClientId() string {
+	value, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
+	if err != nil {
+		panic(fmt.Errorf("Unexpected error generating new client id: %w", err))
+	}
+	return value.String()
 }
 
 type identityServerFake struct {
@@ -351,7 +358,7 @@ func (i *identityServerFake) handleIdentityTokenRequest(request *http.Request, r
 		i.writeValidationErrorResponse(response, "Invalid pkce")
 	} else {
 		response.WriteHeader(i.ResponseStatus)
-		response.Write([]byte(i.ResponseBody))
+		_, _ = response.Write([]byte(i.ResponseBody))
 	}
 }
 
@@ -365,7 +372,7 @@ func (i identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge
 
 func (i identityServerFake) writeValidationErrorResponse(response http.ResponseWriter, message string) {
 	response.WriteHeader(400)
-	response.Write([]byte(message))
+	_, _ = response.Write([]byte(message))
 }
 
 type NoOpBrowserLauncher struct {

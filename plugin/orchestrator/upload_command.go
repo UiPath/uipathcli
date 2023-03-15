@@ -33,14 +33,14 @@ func (c UploadCommand) Command() plugin.Command {
 }
 
 func (c UploadCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	writeUrl, err := c.getWriteUrl(context, writer, logger)
+	writeUrl, err := c.getWriteUrl(context, logger)
 	if err != nil {
 		return err
 	}
-	return c.upload(context, writer, logger, writeUrl)
+	return c.upload(context, logger, writeUrl)
 }
 
-func (c UploadCommand) upload(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger, url string) error {
+func (c UploadCommand) upload(context plugin.ExecutionContext, logger log.Logger, url string) error {
 	uploadBar := utils.NewProgressBar(logger)
 	defer uploadBar.Remove()
 	requestError := make(chan error)
@@ -53,12 +53,12 @@ func (c UploadCommand) upload(context plugin.ExecutionContext, writer output.Out
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
-		return fmt.Errorf("Error sending request: %v", err)
+		return fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return fmt.Errorf("Error reading response: %v", err)
+		return fmt.Errorf("Error reading response: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusCreated {
@@ -126,23 +126,23 @@ func (c UploadCommand) progressReader(text string, completedText string, reader 
 	return progressReader
 }
 
-func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (string, error) {
-	requestError := make(chan error)
-	request, err := c.createWriteUrlRequest(context, requestError)
+func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, logger log.Logger) (string, error) {
+	request, err := c.createWriteUrlRequest(context)
 	if err != nil {
 		return "", err
 	}
 	if context.Debug {
 		c.logRequest(logger, request)
 	}
+	requestError := make(chan error)
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
-		return "", fmt.Errorf("Error sending request: %v", err)
+		return "", fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error reading response: %v", err)
+		return "", fmt.Errorf("Error reading response: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
@@ -151,12 +151,12 @@ func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, writer outpu
 	var result urlResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %v", err)
+		return "", fmt.Errorf("Error parsing json response: %w", err)
 	}
 	return result.Uri, nil
 }
 
-func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext, requestError chan error) (*http.Request, error) {
+func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext) (*http.Request, error) {
 	if context.Organization == "" {
 		return nil, errors.New("Organization is not set")
 	}
@@ -220,7 +220,7 @@ func (c UploadCommand) send(request *http.Request, insecure bool, errorChan chan
 
 func (c UploadCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
 	}
 	client := &http.Client{Transport: transport}
 	return client.Do(request)
@@ -261,7 +261,7 @@ func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) 
 
 func (c UploadCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
-	buffer.ReadFrom(request.Body)
+	_, _ = buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
 	request.Body = io.NopCloser(bytes.NewReader(body))
 	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))

@@ -9,7 +9,7 @@ import (
 )
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
-const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET"
+const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint // This is not a secret but just the env variable name
 const IdentityUriEnvVarName = "UIPATH_IDENTITY_URI"
 
 // The BearerAuthenticator calls the identity token-endpoint to retrieve a JWT bearer token.
@@ -24,17 +24,17 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	}
 	config, err := a.getConfig(ctx)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %w", err))
 	}
 	identityBaseUri := config.IdentityUri
 	if identityBaseUri == nil {
 		requestUrl, err := url.Parse(ctx.Request.URL)
 		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %v", ctx.Request.URL, err))
+			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %w", ctx.Request.URL, err))
 		}
 		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
 		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %v", ctx.Request.URL, err))
+			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %w", ctx.Request.URL, err))
 		}
 	}
 
@@ -49,7 +49,7 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 		ctx.Insecure)
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %w", err))
 	}
 	ctx.Request.Header["Authorization"] = "Bearer " + tokenResponse.AccessToken
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
@@ -90,7 +90,7 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*bearerAuthent
 	if err == nil {
 		uri, err = url.Parse(uriString)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing identity uri: %v", err)
+			return nil, fmt.Errorf("Error parsing identity uri: %w", err)
 		}
 	}
 	return newBearerAuthenticatorConfig(grantType, scopes, clientId, clientSecret, properties, uri), nil

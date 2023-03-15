@@ -2,8 +2,9 @@ package utils
 
 import (
 	"bytes"
+	"crypto/rand"
+	"fmt"
 	"io"
-	"math/rand"
 	"strings"
 	"testing"
 
@@ -41,7 +42,7 @@ func TestProgressBarShowsReadsFromProgressReader(t *testing.T) {
 		progressBar.Update("download", progress.BytesRead, 1000, progress.BytesPerSecond)
 	})
 
-	progressReader.Read(make([]byte, 100))
+	_, _ = progressReader.Read(make([]byte, 100))
 
 	lastLine := lastLine(output)
 	if !strings.HasPrefix(lastLine, "download  10% |██                  | (0.1/1.0 kB,") {
@@ -56,9 +57,9 @@ func TestProgressBarShowsMultipleReadsFromProgressReader(t *testing.T) {
 		progressBar.Update("download", progress.BytesRead, 1000, progress.BytesPerSecond)
 	})
 
-	progressReader.Read(make([]byte, 500))
-	progressReader.Read(make([]byte, 500))
-	progressReader.Read(make([]byte, 1))
+	_, _ = progressReader.Read(make([]byte, 500))
+	_, _ = progressReader.Read(make([]byte, 500))
+	_, _ = progressReader.Read(make([]byte, 1))
 
 	lastLine := lastLine(output)
 	if !strings.HasPrefix(lastLine, "download 100% |████████████████████| (1.0/1.0 kB,") {
@@ -73,6 +74,9 @@ func lastLine(output bytes.Buffer) string {
 
 func data(length int) io.Reader {
 	data := make([]byte, length)
-	rand.Read(data)
+	_, err := rand.Read(data)
+	if err != nil {
+		panic(fmt.Errorf("Error generating random data: %w", err))
+	}
 	return bytes.NewReader(data)
 }

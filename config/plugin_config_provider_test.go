@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -9,8 +10,12 @@ import (
 func TestEmptyPluginConfigWhenPluginFileNotFound(t *testing.T) {
 	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore("no-plugin-file"))
 
-	configProvider.Load()
+	err := configProvider.Load()
 	config := configProvider.Config()
+
+	if err != nil {
+		t.Errorf("Loading plugin config should not return an error, but got: %v", err)
+	}
 	if len(config.Authenticators) != 0 {
 		t.Errorf("Plugin config should not contain any authenticators, but got: %v", config.Authenticators)
 	}
@@ -18,7 +23,7 @@ func TestEmptyPluginConfigWhenPluginFileNotFound(t *testing.T) {
 
 func TestErrorOnPluginFileParsingError(t *testing.T) {
 	file := createFile(t)
-	os.WriteFile(file, []byte("INVALID CONTENT"), 0600)
+	writeFile(file, []byte("INVALID CONTENT"))
 	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
 	err := configProvider.Load()
@@ -34,7 +39,7 @@ authenticators:
     path: ./uipathcli-authenticator-k8s
 `
 	file := createFile(t)
-	os.WriteFile(file, []byte(plugin), 0600)
+	writeFile(file, []byte(plugin))
 	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
 	err := configProvider.Load()
@@ -50,11 +55,14 @@ authenticators:
     path: ./uipathcli-authenticator-k8s
 `
 	file := createFile(t)
-	os.WriteFile(file, []byte(plugin), 0600)
+	writeFile(file, []byte(plugin))
 	configProvider := NewPluginConfigProvider(NewPluginConfigFileStore(file))
 
-	configProvider.Load()
+	err := configProvider.Load()
 	config := configProvider.Config()
+	if err != nil {
+		t.Errorf("Loading plugin config should not return an error, but got: %v", err)
+	}
 	if config.Authenticators[0].Name != "kubernetes" {
 		t.Errorf("Should parse authenticator name, but got: %v", config)
 	}
@@ -70,4 +78,11 @@ func createFile(t *testing.T) string {
 	}
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	return tempFile.Name()
+}
+
+func writeFile(name string, data []byte) {
+	err := os.WriteFile(name, data, 0600)
+	if err != nil {
+		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
+	}
 }

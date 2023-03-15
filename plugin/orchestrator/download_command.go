@@ -32,7 +32,7 @@ func (c DownloadCommand) Command() plugin.Command {
 }
 
 func (c DownloadCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	writeUrl, err := c.getReadUrl(context, writer, logger)
+	writeUrl, err := c.getReadUrl(context, logger)
 	if err != nil {
 		return err
 	}
@@ -50,15 +50,15 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
-		return fmt.Errorf("Error sending request: %v", err)
+		return fmt.Errorf("Error sending request: %w", err)
 	}
+	defer response.Body.Close()
 	downloadBar := utils.NewProgressBar(logger)
 	downloadReader := c.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()
-	defer response.Body.Close()
 	body, err := io.ReadAll(downloadReader)
 	if err != nil {
-		return fmt.Errorf("Error reading response body: %v", err)
+		return fmt.Errorf("Error reading response body: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
@@ -82,23 +82,23 @@ func (c DownloadCommand) progressReader(text string, completedText string, reade
 	return progressReader
 }
 
-func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (string, error) {
-	requestError := make(chan error)
-	request, err := c.createReadUrlRequest(context, requestError)
+func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, logger log.Logger) (string, error) {
+	request, err := c.createReadUrlRequest(context)
 	if err != nil {
 		return "", err
 	}
 	if context.Debug {
 		c.logRequest(logger, request)
 	}
+	requestError := make(chan error)
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
-		return "", fmt.Errorf("Error sending request: %v", err)
+		return "", fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error reading response: %v", err)
+		return "", fmt.Errorf("Error reading response: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
@@ -107,12 +107,12 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, writer outp
 	var result urlResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %v", err)
+		return "", fmt.Errorf("Error parsing json response: %w", err)
 	}
 	return result.Uri, nil
 }
 
-func (c DownloadCommand) createReadUrlRequest(context plugin.ExecutionContext, requestError chan error) (*http.Request, error) {
+func (c DownloadCommand) createReadUrlRequest(context plugin.ExecutionContext) (*http.Request, error) {
 	if context.Organization == "" {
 		return nil, errors.New("Organization is not set")
 	}
@@ -176,7 +176,7 @@ func (c DownloadCommand) send(request *http.Request, insecure bool, errorChan ch
 
 func (c DownloadCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
 	}
 	client := &http.Client{Transport: transport}
 	return client.Do(request)
@@ -206,7 +206,7 @@ func (c DownloadCommand) getIntParameter(name string, parameters []plugin.Execut
 
 func (c DownloadCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
-	buffer.ReadFrom(request.Body)
+	_, _ = buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
 	request.Body = io.NopCloser(bytes.NewReader(body))
 	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))

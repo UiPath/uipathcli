@@ -1,21 +1,17 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"io"
-	"math/rand"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func TestMainReadsDefinitions(t *testing.T) {
 	config := createFile(t, ".uipath", "config")
@@ -38,13 +34,13 @@ func TestMainReadsDefinitions(t *testing.T) {
 func TestMainParsesDefinition(t *testing.T) {
 	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
-	os.WriteFile(definition, []byte(`
+	writeFile(definition, []byte(`
 paths:
   /ping:
     get:
       summary: This is a simple get operation
       operationId: ping
-`), 0600)
+`))
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -68,16 +64,16 @@ func TestMainCallsService(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.String() == "/identity_/connect/token" {
 			w.WriteHeader(200)
-			w.Write([]byte(`{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`))
+			_, _ = w.Write([]byte(`{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`))
 			return
 		}
 		w.WriteHeader(200)
-		w.Write([]byte(`{"id":1234}`))
+		_, _ = w.Write([]byte(`{"id":1234}`))
 	}))
 	defer srv.Close()
 
 	config := createFile(t, ".uipath", "config")
-	os.WriteFile(config, []byte(`
+	writeFile(config, []byte(`
 profiles:
 - name: default
   uri: `+srv.URL+`
@@ -86,16 +82,16 @@ profiles:
   auth:
     clientId: 71b784bc-3f7b-4e5a-a731-db25bb829025
     clientSecret: NGI&4b(chsHcsX^C
-`), 0600)
+`))
 
 	definition := createFile(t, "definitions", "service-a.yaml")
-	os.WriteFile(definition, []byte(`
+	writeFile(definition, []byte(`
 paths:
   /ping:
     get:
       summary: Simple ping
       operationId: ping
-`), 0600)
+`))
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -116,13 +112,13 @@ paths:
 func TestMainAutocompletesCommand(t *testing.T) {
 	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
-	os.WriteFile(definition, []byte(`
+	writeFile(definition, []byte(`
 paths:
   /ping:
     get:
       summary: This is a simple get operation
       operationId: ping
-`), 0600)
+`))
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -209,6 +205,16 @@ func createFile(t *testing.T, directory string, name string) string {
 
 func randomDirectoryName() string {
 	randBytes := make([]byte, 16)
-	rand.Read(randBytes)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		panic(fmt.Errorf("Error generating random directory name: %w", err))
+	}
 	return hex.EncodeToString(randBytes)
+}
+
+func writeFile(name string, data []byte) {
+	err := os.WriteFile(name, data, 0600)
+	if err != nil {
+		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
+	}
 }

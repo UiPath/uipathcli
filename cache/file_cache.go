@@ -38,7 +38,7 @@ func (c FileCache) Set(key string, value string, expiresIn float32) {
 	}
 	expires := time.Now().Unix() + int64(expiresIn)
 	data := []byte(fmt.Sprintf("%d%s%s", expires, separator, value))
-	os.WriteFile(path, data, cacheFilePermissions)
+	_ = os.WriteFile(path, data, cacheFilePermissions)
 }
 
 func (c FileCache) readValue(key string) (int64, string, error) {
@@ -68,7 +68,7 @@ func (c FileCache) cacheFilePath(key string) (string, error) {
 		return "", err
 	}
 	cacheDirectory := filepath.Join(userCacheDirectory, cacheDirectory)
-	os.MkdirAll(cacheDirectory, cacheDirectoryPermissions)
+	_ = os.MkdirAll(cacheDirectory, cacheDirectoryPermissions)
 
 	hash := sha256.Sum256([]byte(key))
 	fileName := fmt.Sprintf("%x.cache", hash)

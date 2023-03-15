@@ -1,15 +1,12 @@
 package cache
 
 import (
+	"crypto/rand"
 	"encoding/hex"
-	"math/rand"
+	"fmt"
 	"testing"
 	"time"
 )
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-}
 
 func TestGetReturnsNoDataWhenNotCached(t *testing.T) {
 	cache := NewFileCache()
@@ -73,6 +70,9 @@ func TestGetDoesNotReturnDataWhichExpiresSoon(t *testing.T) {
 
 func randomKey() string {
 	randBytes := make([]byte, 32)
-	rand.Read(randBytes)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		panic(fmt.Errorf("Error generating random cache key: %w", err))
+	}
 	return hex.EncodeToString(randBytes)
 }

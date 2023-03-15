@@ -25,12 +25,12 @@ type ExternalAuthenticator struct {
 func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	input, err := json.Marshal(ctx)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error serializing input authenticator context for external authenticator '%s': %v", a.config.Name, err))
+		return *AuthenticatorError(fmt.Errorf("Error serializing input authenticator context for external authenticator '%s': %w", a.config.Name, err))
 	}
 
 	path, err := a.getAuthenticatorPath()
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s': %v", a.config.Name, a.config.Path, err))
+		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s': %w", a.config.Name, a.config.Path, err))
 	}
 	cmd := exec.Command(path)
 
@@ -41,13 +41,13 @@ func (a ExternalAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResul
 
 	err = cmd.Run()
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s', output: %s: %v", a.config.Name, a.config.Path, stderr.String(), err))
+		return *AuthenticatorError(fmt.Errorf("Error invoking external authenticator '%s' using path '%s', output: %s: %w", a.config.Name, a.config.Path, stderr.String(), err))
 	}
 
 	var result AuthenticatorResult
 	err = json.Unmarshal(stdout.Bytes(), &result)
 	if err != nil {
-		return *AuthenticatorError(fmt.Errorf("Error parsing output authenticator context: %v", err))
+		return *AuthenticatorError(fmt.Errorf("Error parsing output authenticator context: %w", err))
 	}
 	return result
 }
@@ -59,7 +59,7 @@ func (a ExternalAuthenticator) getAuthenticatorPath() (string, error) {
 
 	executable, err := os.Executable()
 	if err != nil {
-		return "", fmt.Errorf("Error retrieving executable path: %v", err)
+		return "", fmt.Errorf("Error retrieving executable path: %w", err)
 	}
 	directory := filepath.Dir(executable)
 	return filepath.Join(directory, a.config.Path), nil

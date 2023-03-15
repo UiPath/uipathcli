@@ -108,7 +108,7 @@ func (a autoCompleteHandler) enableCompleter(shell string, filePath string, enab
 func (a autoCompleteHandler) ensureDirectoryExists(filePath string) error {
 	err := os.MkdirAll(filepath.Dir(filePath), directoryPermissions)
 	if err != nil {
-		return fmt.Errorf("Error creating profile folder: %v", err)
+		return fmt.Errorf("Error creating profile folder: %w", err)
 	}
 	return nil
 }
@@ -119,7 +119,7 @@ func (a autoCompleteHandler) completerEnabled(filePath string, enabledCheck stri
 		return false, nil
 	}
 	if err != nil {
-		return false, fmt.Errorf("Error reading profile file: %v", err)
+		return false, fmt.Errorf("Error reading profile file: %w", err)
 	}
 	return strings.Contains(string(content), enabledCheck), nil
 }
@@ -127,11 +127,11 @@ func (a autoCompleteHandler) completerEnabled(filePath string, enabledCheck stri
 func (a autoCompleteHandler) writeCompleterHandler(filePath string, completerHandler string) error {
 	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, filePermissions)
 	if err != nil {
-		return fmt.Errorf("Error opening profile file: %v", err)
+		return fmt.Errorf("Error opening profile file: %w", err)
 	}
 	defer file.Close()
 	if _, err := file.WriteString(completerHandler); err != nil {
-		return fmt.Errorf("Error writing profile file: %v", err)
+		return fmt.Errorf("Error writing profile file: %w", err)
 	}
 	return nil
 }

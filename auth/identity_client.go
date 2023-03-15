@@ -48,8 +48,8 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 
 func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, insecure bool) (*tokenResponse, error) {
 	var response *tokenResponse
-	var err error
-	utils.Retry(func() error {
+	err := utils.Retry(func() error {
+		var err error
 		response, err = c.send(baseUri, form, insecure)
 		return err
 	})
@@ -60,22 +60,22 @@ func (c identityClient) send(baseUri url.URL, form url.Values, insecure bool) (*
 	uri := baseUri.JoinPath(TokenRoute)
 	request, err := http.NewRequest("POST", uri.String(), strings.NewReader(form.Encode()))
 	if err != nil {
-		return nil, fmt.Errorf("Error preparing request: %v", err)
+		return nil, fmt.Errorf("Error preparing request: %w", err)
 	}
 	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
 	}
 	client := http.Client{Transport: transport}
 	response, err := client.Do(request)
 	if err != nil {
-		return nil, utils.Retryable(fmt.Errorf("Error sending request: %v", err))
+		return nil, utils.Retryable(fmt.Errorf("Error sending request: %w", err))
 	}
 	defer response.Body.Close()
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, utils.Retryable(fmt.Errorf("Error reading response: %v", err))
+		return nil, utils.Retryable(fmt.Errorf("Error reading response: %w", err))
 	}
 	if response.StatusCode >= 500 {
 		return nil, utils.Retryable(fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes)))
@@ -87,7 +87,7 @@ func (c identityClient) send(baseUri url.URL, form url.Values, insecure bool) (*
 	var result tokenResponse
 	err = json.Unmarshal(bytes, &result)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing json response: %v", err)
+		return nil, fmt.Errorf("Error parsing json response: %w", err)
 	}
 	return &result, nil
 }

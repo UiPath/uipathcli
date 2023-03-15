@@ -16,7 +16,7 @@ func TestLogDebugWritesToStandardOutput(t *testing.T) {
 		t.Errorf("Standard output should contain message, but got: %v", output.String())
 	}
 	if errorOutput.String() != "" {
-		t.Errorf("Standard error should should be empty, but got: %v", errorOutput.String())
+		t.Errorf("Standard error should be empty, but got: %v", errorOutput.String())
 	}
 }
 

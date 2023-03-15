@@ -126,3 +126,49 @@ func (c Config) ConfigureCredentialsAuth(clientId string, clientSecret string) b
 	}
 	return clientId != "" || clientSecret != ""
 }
+
+func (c *Config) SetUri(uri string) error {
+	parsedUri, err := url.Parse(uri)
+	if err != nil {
+		return fmt.Errorf("Invalid value for 'uri': %w", err)
+	}
+	c.Uri = parsedUri
+	return nil
+}
+
+func (c *Config) SetInsecure(insecure bool) {
+	c.Insecure = insecure
+}
+
+func (c *Config) SetDebug(debug bool) {
+	c.Debug = debug
+}
+
+func (c Config) SetHeader(key string, value string) {
+	c.Header[key] = value
+}
+
+func (c Config) SetPath(key string, value string) {
+	c.Path[key] = value
+}
+
+func (c Config) SetQuery(key string, value string) {
+	c.Query[key] = value
+}
+
+func (c Config) SetAuthGrantType(grantType string) {
+	c.Auth.Config["grantType"] = grantType
+}
+
+func (c Config) SetAuthScopes(scopes string) {
+	c.Auth.Config["scopes"] = scopes
+}
+
+func (c Config) SetAuthProperty(key string, value string) {
+	properties, ok := c.Auth.Config["properties"].(map[interface{}]interface{})
+	if properties == nil || !ok {
+		properties = map[interface{}]interface{}{}
+	}
+	properties[key] = value
+	c.Auth.Config["properties"] = properties
+}

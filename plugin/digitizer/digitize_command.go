@@ -33,7 +33,7 @@ func (c DigitizeCommand) Command() plugin.Command {
 }
 
 func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	operationId, err := c.digitize(context, writer, logger)
+	operationId, err := c.startDigitization(context, logger)
 	if err != nil {
 		return err
 	}
@@ -51,7 +51,7 @@ func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.
 	return fmt.Errorf("Digitization with operationId '%s' did not finish in time", operationId)
 }
 
-func (c DigitizeCommand) digitize(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (string, error) {
+func (c DigitizeCommand) startDigitization(context plugin.ExecutionContext, logger log.Logger) (string, error) {
 	uploadBar := utils.NewProgressBar(logger)
 	defer uploadBar.Remove()
 	requestError := make(chan error)
@@ -64,12 +64,12 @@ func (c DigitizeCommand) digitize(context plugin.ExecutionContext, writer output
 	}
 	response, err := c.send(request, context.Insecure, requestError)
 	if err != nil {
-		return "", fmt.Errorf("Error sending request: %v", err)
+		return "", fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return "", fmt.Errorf("Error reading response: %v", err)
+		return "", fmt.Errorf("Error reading response: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusAccepted {
@@ -78,7 +78,7 @@ func (c DigitizeCommand) digitize(context plugin.ExecutionContext, writer output
 	var result digitizeResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %v", err)
+		return "", fmt.Errorf("Error parsing json response: %w", err)
 	}
 	return result.OperationId, nil
 }
@@ -93,12 +93,12 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 	}
 	response, err := c.sendRequest(request, context.Insecure)
 	if err != nil {
-		return true, fmt.Errorf("Error sending request: %v", err)
+		return true, fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		return true, fmt.Errorf("Error reading response: %v", err)
+		return true, fmt.Errorf("Error reading response: %w", err)
 	}
 	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
@@ -107,7 +107,7 @@ func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.
 	var result digitizeResultResponse
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		return true, fmt.Errorf("Error parsing json response: %v", err)
+		return true, fmt.Errorf("Error parsing json response: %w", err)
 	}
 	if result.Status == "NotStarted" || result.Status == "Running" {
 		return false, nil
@@ -210,7 +210,7 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream uti
 	filePart.Set("Content-Type", contentType)
 	w, err := writer.CreatePart(filePart)
 	if err != nil {
-		return fmt.Errorf("Error creating form field 'file': %v", err)
+		return fmt.Errorf("Error creating form field 'file': %w", err)
 	}
 	data, _, err := stream.Data()
 	if err != nil {
@@ -219,7 +219,7 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream uti
 	defer data.Close()
 	_, err = io.Copy(w, data)
 	if err != nil {
-		return fmt.Errorf("Error writing form field 'file': %v", err)
+		return fmt.Errorf("Error writing form field 'file': %w", err)
 	}
 	return nil
 }
@@ -260,7 +260,7 @@ func (c DigitizeCommand) send(request *http.Request, insecure bool, errorChan ch
 
 func (c DigitizeCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
 	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
 	}
 	client := &http.Client{Transport: transport}
 	return client.Do(request)
@@ -290,7 +290,7 @@ func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter
 
 func (c DigitizeCommand) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
-	buffer.ReadFrom(request.Body)
+	_, _ = buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
 	request.Body = io.NopCloser(bytes.NewReader(body))
 	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))

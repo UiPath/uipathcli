@@ -27,11 +27,11 @@ func (s FileStream) Data() (io.ReadCloser, int64, error) {
 		return nil, -1, fmt.Errorf("File '%s' not found", s.path)
 	}
 	if err != nil {
-		return nil, -1, fmt.Errorf("Error reading file '%s': %v", s.path, err)
+		return nil, -1, fmt.Errorf("Error reading file '%s': %w", s.path, err)
 	}
 	fileStat, err := file.Stat()
 	if err != nil {
-		return nil, -1, fmt.Errorf("Error reading file size '%s': %v", s.path, err)
+		return nil, -1, fmt.Errorf("Error reading file size '%s': %w", s.path, err)
 	}
 	return file, fileStat.Size(), nil
 }

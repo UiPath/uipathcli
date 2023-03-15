@@ -9,7 +9,8 @@ import (
 
 // ConfigFileStore reads and writes the configuration file
 //
-// The config file is
+// The config store is looking for the config file in
+// "$HOME/.uipath/config" path.
 type ConfigFileStore struct {
 	data     []byte
 	filePath string
@@ -25,11 +26,11 @@ func (s ConfigFileStore) Write(data []byte) error {
 	}
 	err = os.MkdirAll(filepath.Dir(filename), configDirectoryPermissions)
 	if err != nil {
-		return fmt.Errorf("Error creating configuration folder: %v", err)
+		return fmt.Errorf("Error creating configuration folder: %w", err)
 	}
 	err = os.WriteFile(filename, data, configFilePermissions)
 	if err != nil {
-		return fmt.Errorf("Error updating configuration file: %v", err)
+		return fmt.Errorf("Error updating configuration file: %w", err)
 	}
 	return nil
 }
@@ -47,7 +48,7 @@ func (s ConfigFileStore) Read() ([]byte, error) {
 		return []byte{}, nil
 	}
 	if err != nil {
-		return nil, fmt.Errorf("Error reading configuration file '%s': %v", filename, err)
+		return nil, fmt.Errorf("Error reading configuration file '%s': %w", filename, err)
 	}
 	return data, nil
 }
@@ -58,7 +59,7 @@ func (s ConfigFileStore) configurationFilePath() (string, error) {
 	}
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("Error reading configuration file: %v", err)
+		return "", fmt.Errorf("Error reading configuration file: %w", err)
 	}
 	filename := filepath.Join(homeDir, ".uipath", "config")
 	return filename, nil
