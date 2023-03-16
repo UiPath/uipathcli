@@ -100,17 +100,12 @@ paths:
 	if stdout[9] != expected {
 		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[9])
 	}
-	expected = "{"
-	if stdout[12] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[12])
-	}
-	expected = `  "hello": "world"`
-	if stdout[13] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[13])
-	}
-	expected = "}"
-	if stdout[14] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[14])
+	expected = `{
+  "hello": "world"
+}`
+	body := strings.Join(stdout[12:15], "\n")
+	if body != expected {
+		t.Errorf("Expected on stdout %v, got: %v", expected, body)
 	}
 }
 
@@ -863,7 +858,7 @@ paths:
 		Build()
 
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(t, path, []byte("hello-world"))
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -905,7 +900,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(t, path, []byte("hello-world"))
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
@@ -1103,7 +1098,7 @@ paths:
 		Build()
 
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(t, path, []byte("hello-world"))
 	result := RunCli([]string{"myservice", "upload", "--input", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -1135,7 +1130,7 @@ paths:
 		Build()
 
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(t, path, []byte("hello-world"))
 
 	currentPath, _ := os.Getwd()
 	relativePath, _ := filepath.Rel(currentPath, path)

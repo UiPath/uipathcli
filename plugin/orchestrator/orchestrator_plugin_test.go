@@ -1,6 +1,7 @@
 package orchestrator
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -99,7 +100,7 @@ func TestUploadWithoutOrganizationShowsValidationError(t *testing.T) {
 
 func TestUploadWithFailedResponseReturnsError(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(path, []byte("hello-world"))
 
 	config := `profiles:
 - name: default
@@ -125,19 +126,19 @@ func TestUploadSuccessfully(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "PUT" {
 			w.WriteHeader(500)
-			w.Write([]byte("Wrong http method"))
+			_, _ = w.Write([]byte("Wrong http method"))
 			return
 		}
 		if r.Header["X-Ms-Blob-Type"][0] != "BlockBlob" {
 			w.WriteHeader(500)
-			w.Write([]byte("Missing header x-ms-blob-type"))
+			_, _ = w.Write([]byte("Missing header x-ms-blob-type"))
 			return
 		}
 		body, _ := io.ReadAll(r.Body)
 		requestBody := string(body)
 		if requestBody != "hello-world" {
 			w.WriteHeader(500)
-			w.Write([]byte("File content not found"))
+			_, _ = w.Write([]byte("File content not found"))
 			return
 		}
 		w.WriteHeader(201)
@@ -145,7 +146,7 @@ func TestUploadSuccessfully(t *testing.T) {
 	defer srv.Close()
 
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	writeFile(path, []byte("hello-world"))
 
 	config := `profiles:
 - name: default
@@ -260,11 +261,11 @@ func TestDownloadSuccessfully(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			w.WriteHeader(500)
-			w.Write([]byte("Wrong http method"))
+			_, _ = w.Write([]byte("Wrong http method"))
 			return
 		}
 		w.WriteHeader(200)
-		w.Write([]byte("hello-world"))
+		_, _ = w.Write([]byte("hello-world"))
 	}))
 	defer srv.Close()
 
@@ -314,4 +315,11 @@ func createFile(t *testing.T) string {
 	}
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	return tempFile.Name()
+}
+
+func writeFile(name string, data []byte) {
+	err := os.WriteFile(name, data, 0600)
+	if err != nil {
+		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
+	}
 }

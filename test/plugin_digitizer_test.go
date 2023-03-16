@@ -78,7 +78,7 @@ paths:
 
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	_ = os.WriteFile(path, []byte("hello-world"), 0600)
 
 	config := `profiles:
 - name: default
@@ -109,7 +109,7 @@ paths:
 
 func TestDigitizeSuccessfully(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	_ = os.WriteFile(path, []byte("hello-world"), 0600)
 
 	config := `profiles:
 - name: default
@@ -155,7 +155,7 @@ paths:
 
 func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
 	path := createFile(t)
-	os.WriteFile(path, []byte("hello-world"), 0644)
+	_ = os.WriteFile(path, []byte("hello-world"), 0600)
 
 	config := `profiles:
 - name: default

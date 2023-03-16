@@ -22,7 +22,7 @@ func (p *ConfigProvider) Load() error {
 	var config profilesYaml
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
-		return fmt.Errorf("Error parsing configuration file: %v", err)
+		return fmt.Errorf("Error parsing configuration file: %w", err)
 	}
 	p.profiles = config.Profiles
 	return nil
@@ -57,12 +57,12 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 
 	data, err := yaml.Marshal(profilesYaml{Profiles: p.profiles})
 	if err != nil {
-		return fmt.Errorf("Error updating configuration: %v", err)
+		return fmt.Errorf("Error updating configuration: %w", err)
 	}
 	return p.store.Write(data)
 }
 
-func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
+func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
 	if profile.Auth == nil {
 		profile.Auth = map[string]interface{}{}
 	}
@@ -92,21 +92,21 @@ func (cp ConfigProvider) convertToConfig(profile profileYaml) Config {
 	}
 }
 
-func (cp ConfigProvider) New() Config {
+func (p ConfigProvider) New() Config {
 	profile := profileYaml{}
-	return cp.convertToConfig(profile)
+	return p.convertToConfig(profile)
 }
 
-func (cp ConfigProvider) Config(name string) *Config {
-	for _, profile := range cp.profiles {
+func (p ConfigProvider) Config(name string) *Config {
+	for _, profile := range p.profiles {
 		if profile.Name == name {
-			config := cp.convertToConfig(profile)
+			config := p.convertToConfig(profile)
 			return &config
 		}
 	}
 
 	if name == DefaultProfile {
-		config := cp.New()
+		config := p.New()
 		return &config
 	}
 	return nil

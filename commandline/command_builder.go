@@ -50,20 +50,20 @@ func (b CommandBuilder) sort(commands []*cli.Command) {
 	})
 }
 
-func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) (utils.Stream, error) {
+func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) utils.Stream {
 	if b.Input != nil {
-		return b.Input, nil
+		return b.Input
 	}
 	if len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
 		switch value := bodyParameters[0].Value.(type) {
 		case utils.Stream:
-			return value, nil
+			return value
 		default:
 			data := []byte(fmt.Sprintf("%v", value))
-			return utils.NewMemoryStream(parser.RawBodyParameterName, data), nil
+			return utils.NewMemoryStream(parser.RawBodyParameterName, data)
 		}
 	}
-	return nil, nil
+	return nil
 }
 
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
@@ -179,7 +179,7 @@ func (b CommandBuilder) parseUriArgument(context *cli.Context) (*url.URL, error)
 	}
 	uriArgument, err := url.Parse(uriFlag)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing %s argument: %v", uriFlagName, err)
+		return nil, fmt.Errorf("Error parsing %s argument: %w", uriFlagName, err)
 	}
 	return uriArgument, nil
 }
@@ -244,7 +244,7 @@ func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writ
 	return log.NewDefaultLogger(errorWriter)
 }
 
-func (b CommandBuilder) outputWriter(context executor.ExecutionContext, writer io.Writer, format string, query string) output.OutputWriter {
+func (b CommandBuilder) outputWriter(writer io.Writer, format string, query string) output.OutputWriter {
 	var transformer output.Transformer = output.NewDefaultTransformer()
 	if query != "" {
 		transformer = output.NewJmesPathTransformer(query)
@@ -262,7 +262,7 @@ func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer
 	return b.Executor.Call(context, writer, logger)
 }
 
-func (b CommandBuilder) createOperationCommand(definition parser.Definition, operation parser.Operation) *cli.Command {
+func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.Command {
 	flags := b.CreateDefaultFlags(true)
 	flags = append(flags, b.HelpFlag())
 	parameters := operation.Parameters
@@ -318,10 +318,7 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			if err != nil {
 				return err
 			}
-			input, err := b.getBodyInput(bodyParameters)
-			if err != nil {
-				return err
-			}
+			input := b.getBodyInput(bodyParameters)
 			organization := context.String(organizationFlagName)
 			if organization == "" {
 				organization = config.Organization
@@ -358,20 +355,20 @@ func (b CommandBuilder) createOperationCommand(definition parser.Definition, ope
 			go func(reader *io.PipeReader) {
 				defer wg.Done()
 				defer reader.Close()
-				io.Copy(b.StdOut, reader)
+				_, _ = io.Copy(b.StdOut, reader)
 			}(reader)
 			errorReader, errorWriter := io.Pipe()
 			go func(errorReader *io.PipeReader) {
 				defer wg.Done()
 				defer errorReader.Close()
-				io.Copy(b.StdErr, errorReader)
+				_, _ = io.Copy(b.StdErr, errorReader)
 			}(errorReader)
 
 			go func(context executor.ExecutionContext, writer *io.PipeWriter, errorWriter *io.PipeWriter) {
 				defer wg.Done()
 				defer writer.Close()
 				defer errorWriter.Close()
-				outputWriter := b.outputWriter(context, writer, outputFormat, query)
+				outputWriter := b.outputWriter(writer, outputFormat, query)
 				logger := b.logger(context, writer, errorWriter)
 				err = b.executeCommand(context, outputWriter, logger)
 			}(*executionContext, writer, errorWriter)
@@ -395,9 +392,9 @@ func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.C
 	}
 }
 
-func (b CommandBuilder) createServiceCommandCategory(definition parser.Definition, operation parser.Operation, categories map[string]*cli.Command) (bool, *cli.Command) {
+func (b CommandBuilder) createServiceCommandCategory(operation parser.Operation, categories map[string]*cli.Command) (bool, *cli.Command) {
 	isNewCategory := false
-	operationCommand := b.createOperationCommand(definition, operation)
+	operationCommand := b.createOperationCommand(operation)
 	command, found := categories[operation.Category.Name]
 	if !found {
 		command = b.createCategoryCommand(operation)
@@ -413,11 +410,11 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 	commands := []*cli.Command{}
 	for _, operation := range definition.Operations {
 		if operation.Category == nil {
-			command := b.createOperationCommand(definition, operation)
+			command := b.createOperationCommand(operation)
 			commands = append(commands, command)
 			continue
 		}
-		isNewCategory, command := b.createServiceCommandCategory(definition, operation, categories)
+		isNewCategory, command := b.createServiceCommandCategory(operation, categories)
 		if isNewCategory {
 			commands = append(commands, command)
 		}

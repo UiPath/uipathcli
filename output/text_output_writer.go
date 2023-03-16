@@ -64,7 +64,7 @@ func (w TextOutputWriter) write(value interface{}, sortedBy []string) {
 		w.writeArray(result)
 	default:
 		w.writeValue(result)
-		w.output.Write([]byte(ObjectSeparator))
+		fmt.Fprint(w.output, ObjectSeparator)
 	}
 }
 
@@ -85,12 +85,12 @@ func (w TextOutputWriter) writeRow(array []interface{}) {
 	printTab := false
 	for _, value := range array {
 		if printTab {
-			w.output.Write([]byte(FieldSeparator))
+			fmt.Fprint(w.output, FieldSeparator)
 		}
 		printTab = true
 		w.writeValue(value)
 	}
-	w.output.Write([]byte(ObjectSeparator))
+	fmt.Fprint(w.output, ObjectSeparator)
 }
 
 func (w TextOutputWriter) writeArray(array []interface{}) {

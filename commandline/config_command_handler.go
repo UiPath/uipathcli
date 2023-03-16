@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"io"
-	"net/url"
 	"strings"
 
 	"github.com/UiPath/uipathcli/config"
@@ -34,57 +33,78 @@ const PatAuth = "pat"
 
 func (h ConfigCommandHandler) Set(key string, value string, profileName string) error {
 	config := h.getOrCreateProfile(profileName)
-
-	keyParts := strings.Split(key, ".")
-	if key == "organization" {
-		config.Organization = value
-	} else if key == "tenant" {
-		config.Tenant = value
-	} else if key == "uri" {
-		uri, err := url.Parse(value)
-		if err != nil {
-			return fmt.Errorf("Invalid value for 'uri': %v", err)
-		}
-		config.Uri = uri
-	} else if key == "insecure" {
-		insecure, err := h.convertToBool(value)
-		if err != nil {
-			return fmt.Errorf("Invalid value for 'insecure': %v", err)
-		}
-		config.Insecure = insecure
-	} else if key == "debug" {
-		debug, err := h.convertToBool(value)
-		if err != nil {
-			return fmt.Errorf("Invalid value for 'debug': %v", err)
-		}
-		config.Debug = debug
-	} else if len(keyParts) == 2 && keyParts[0] == "header" {
-		config.Header[keyParts[1]] = value
-	} else if len(keyParts) == 2 && keyParts[0] == "path" {
-		config.Path[keyParts[1]] = value
-	} else if len(keyParts) == 2 && keyParts[0] == "query" {
-		config.Query[keyParts[1]] = value
-	} else if key == "auth.grantType" {
-		config.Auth.Config["grantType"] = value
-	} else if key == "auth.scopes" {
-		config.Auth.Config["scopes"] = value
-	} else if len(keyParts) == 3 && keyParts[0] == "auth" && keyParts[1] == "properties" {
-		properties, ok := config.Auth.Config["properties"].(map[interface{}]interface{})
-		if properties == nil || !ok {
-			properties = map[interface{}]interface{}{}
-		}
-		properties[keyParts[2]] = value
-		config.Auth.Config["properties"] = properties
-	} else {
-		return fmt.Errorf("Unknown config key '%s'", key)
+	err := h.setConfigValue(&config, key, value)
+	if err != nil {
+		return err
 	}
-
-	err := h.ConfigProvider.Update(profileName, config)
+	err = h.ConfigProvider.Update(profileName, config)
 	if err != nil {
 		return err
 	}
 	fmt.Fprintln(h.StdOut, successfullySetMessage)
 	return nil
+}
+
+func (h ConfigCommandHandler) setConfigValue(config *config.Config, key string, value string) error {
+	keyParts := strings.Split(key, ".")
+	if key == "organization" {
+		config.ConfigureOrgTenant(value, "")
+		return nil
+	} else if key == "tenant" {
+		config.ConfigureOrgTenant("", value)
+		return nil
+	} else if key == "uri" {
+		return config.SetUri(value)
+	} else if key == "insecure" {
+		insecure, err := h.convertToBool(value)
+		if err != nil {
+			return fmt.Errorf("Invalid value for 'insecure': %w", err)
+		}
+		config.SetInsecure(insecure)
+		return nil
+	} else if key == "debug" {
+		debug, err := h.convertToBool(value)
+		if err != nil {
+			return fmt.Errorf("Invalid value for 'debug': %w", err)
+		}
+		config.SetDebug(debug)
+		return nil
+	} else if key == "auth.grantType" {
+		config.SetAuthGrantType(value)
+		return nil
+	} else if key == "auth.scopes" {
+		config.SetAuthScopes(value)
+		return nil
+	} else if h.isHeaderKey(keyParts) {
+		config.SetHeader(keyParts[1], value)
+		return nil
+	} else if h.isPathKey(keyParts) {
+		config.SetPath(keyParts[1], value)
+		return nil
+	} else if h.isQueryKey(keyParts) {
+		config.SetQuery(keyParts[1], value)
+		return nil
+	} else if h.isAuthPropertyKey(keyParts) {
+		config.SetAuthProperty(keyParts[2], value)
+		return nil
+	}
+	return fmt.Errorf("Unknown config key '%s'", key)
+}
+
+func (h ConfigCommandHandler) isHeaderKey(keyParts []string) bool {
+	return len(keyParts) == 2 && keyParts[0] == "header"
+}
+
+func (h ConfigCommandHandler) isPathKey(keyParts []string) bool {
+	return len(keyParts) == 2 && keyParts[0] == "path"
+}
+
+func (h ConfigCommandHandler) isQueryKey(keyParts []string) bool {
+	return len(keyParts) == 2 && keyParts[0] == "query"
+}
+
+func (h ConfigCommandHandler) isAuthPropertyKey(keyParts []string) bool {
+	return len(keyParts) == 3 && keyParts[0] == "auth" && keyParts[1] == "properties"
 }
 
 func (h ConfigCommandHandler) convertToBool(value string) (bool, error) {
@@ -119,32 +139,8 @@ func (h ConfigCommandHandler) configure(profileName string) error {
 	if err != nil {
 		return nil
 	}
-	authType, err := h.readAuthTypeInput(config, reader)
-	if err != nil {
-		return nil
-	}
 
-	authChanged := false
-	if authType == CredentialsAuth {
-		clientId, clientSecret, err := h.readCredentialsInput(config, reader)
-		if err != nil {
-			return nil
-		}
-		authChanged = config.ConfigureCredentialsAuth(clientId, clientSecret)
-	} else if authType == LoginAuth {
-		clientId, redirectUri, scopes, err := h.readLoginInput(config, reader)
-		if err != nil {
-			return nil
-		}
-		authChanged = config.ConfigureLoginAuth(clientId, redirectUri, scopes)
-	} else if authType == PatAuth {
-		pat, err := h.readPatInput(config, reader)
-		if err != nil {
-			return nil
-		}
-		authChanged = config.ConfigurePatAuth(pat)
-	}
-
+	authChanged := h.readAuthInput(config, reader)
 	orgTenantChanged := config.ConfigureOrgTenant(organization, tenant)
 
 	if orgTenantChanged || authChanged {
@@ -155,6 +151,32 @@ func (h ConfigCommandHandler) configure(profileName string) error {
 		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
+}
+
+func (h ConfigCommandHandler) readAuthInput(config config.Config, reader *bufio.Reader) bool {
+	authType := h.readAuthTypeInput(config, reader)
+	switch authType {
+	case CredentialsAuth:
+		clientId, clientSecret, err := h.readCredentialsInput(config, reader)
+		if err != nil {
+			return false
+		}
+		return config.ConfigureCredentialsAuth(clientId, clientSecret)
+	case LoginAuth:
+		clientId, redirectUri, scopes, err := h.readLoginInput(config, reader)
+		if err != nil {
+			return false
+		}
+		return config.ConfigureLoginAuth(clientId, redirectUri, scopes)
+	case PatAuth:
+		pat, err := h.readPatInput(config, reader)
+		if err != nil {
+			return false
+		}
+		return config.ConfigurePatAuth(pat)
+	default:
+		return false
+	}
 }
 
 func (h ConfigCommandHandler) configureCredentials(profileName string) error {
@@ -339,7 +361,7 @@ func (h ConfigCommandHandler) readPatInput(config config.Config, reader *bufio.R
 	return h.readUserInput(message, reader)
 }
 
-func (h ConfigCommandHandler) readAuthTypeInput(config config.Config, reader *bufio.Reader) (string, error) {
+func (h ConfigCommandHandler) readAuthTypeInput(config config.Config, reader *bufio.Reader) string {
 	authType := h.getAuthType(config)
 	for {
 		message := fmt.Sprintf(`Authentication type [%s]:
@@ -349,17 +371,17 @@ func (h ConfigCommandHandler) readAuthTypeInput(config config.Config, reader *bu
 Select:`, h.getDisplayValue(authType, false))
 		input, err := h.readUserInput(message, reader)
 		if err != nil {
-			return "", nil
+			return ""
 		}
 		switch input {
 		case "":
-			return authType, nil
+			return authType
 		case "1":
-			return CredentialsAuth, nil
+			return CredentialsAuth
 		case "2":
-			return LoginAuth, nil
+			return LoginAuth
 		case "3":
-			return PatAuth, nil
+			return PatAuth
 		}
 	}
 }

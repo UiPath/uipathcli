@@ -62,7 +62,7 @@ func (s *DefinitionFileStore) discoverDefinitions() ([]string, error) {
 	}
 	files, err := os.ReadDir(definitionsDirectory)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading definition files from folder '%s': %v", definitionsDirectory, err)
+		return nil, fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
 	}
 	definitionFiles := []string{}
 	for _, file := range files {
@@ -83,7 +83,7 @@ func (s DefinitionFileStore) definitionsPath() (string, error) {
 	currentDirectory, err := os.Executable()
 	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory)
 	if err != nil {
-		return "", fmt.Errorf("Error reading definition files from folder '%s': %v", definitionsDirectory, err)
+		return "", fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
 	}
 	return definitionsDirectory, nil
 }
@@ -103,7 +103,7 @@ func (s DefinitionFileStore) definitionNames(paths []string) []string {
 func (s DefinitionFileStore) readDefinition(path string) (*DefinitionData, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading definition file '%s': %v", path, err)
+		return nil, fmt.Errorf("Error reading definition file '%s': %w", path, err)
 	}
 	name := s.definitionName(path)
 	return NewDefinitionData(name, data), nil

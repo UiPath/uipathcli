@@ -279,7 +279,7 @@ func (p OpenApiParser) parsePath(baseUri url.URL, route string, pathItem openapi
 func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, error) {
 	uri, err := p.getUri(document)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing server URL: %v", err)
+		return nil, fmt.Errorf("Error parsing server URL: %w", err)
 	}
 	operations := []Operation{}
 	for path := range document.Paths {

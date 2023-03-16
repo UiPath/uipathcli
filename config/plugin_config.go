@@ -11,7 +11,8 @@ type PluginConfig struct {
 
 // AuthenticatorPluginConfig holds the information about how to execute the
 // external authenticator.
-// The Path to the external authenticator executable
+//
+// Authenticator plugins require a name and pathto the external executable.
 type AuthenticatorPluginConfig struct {
 	Name string
 	Path string

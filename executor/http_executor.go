@@ -44,7 +44,7 @@ func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter,
 
 func (e HttpExecutor) requestId() string {
 	bytes := make([]byte, 16)
-	rand.Read(bytes)
+	_, _ = rand.Read(bytes)
 	return fmt.Sprintf("%x%x%x%x%x", bytes[0:4], bytes[4:6], bytes[6:8], bytes[8:10], bytes[10:])
 }
 
@@ -80,16 +80,16 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 		case string:
 			w, err := writer.CreateFormField(parameter.Name)
 			if err != nil {
-				return fmt.Errorf("Error creating form field '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error creating form field '%s': %w", parameter.Name, err)
 			}
 			_, err = w.Write([]byte(v))
 			if err != nil {
-				return fmt.Errorf("Error writing form field '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error writing form field '%s': %w", parameter.Name, err)
 			}
 		case utils.Stream:
 			w, err := writer.CreateFormFile(parameter.Name, v.Name())
 			if err != nil {
-				return fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error writing form file '%s': %w", parameter.Name, err)
 			}
 			data, _, err := v.Data()
 			if err != nil {
@@ -98,7 +98,7 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 			defer data.Close()
 			_, err = io.Copy(w, data)
 			if err != nil {
-				return fmt.Errorf("Error writing form file '%s': %v", parameter.Name, err)
+				return fmt.Errorf("Error writing form file '%s': %w", parameter.Name, err)
 			}
 		}
 	}
@@ -112,9 +112,12 @@ func (e HttpExecutor) serializeJson(body io.Writer, parameters []ExecutionParame
 	}
 	result, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("Error creating body: %v", err)
+		return fmt.Errorf("Error creating body: %w", err)
 	}
-	body.Write(result)
+	_, err = body.Write(result)
+	if err != nil {
+		return fmt.Errorf("Error writing body: %w", err)
+	}
 	return nil
 }
 
@@ -128,7 +131,7 @@ func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
 
 	result, err := url.Parse(uri)
 	if err != nil {
-		return nil, fmt.Errorf("Invalid URI '%s': %v", uri, err)
+		return nil, fmt.Errorf("Invalid URI '%s': %w", uri, err)
 	}
 	return result, nil
 }
@@ -273,7 +276,7 @@ func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan
 
 func (e HttpExecutor) logRequest(logger log.Logger, request *http.Request) {
 	buffer := &bytes.Buffer{}
-	buffer.ReadFrom(request.Body)
+	_, _ = buffer.ReadFrom(request.Body)
 	body := buffer.Bytes()
 	request.Body = io.NopCloser(bytes.NewReader(body))
 	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
@@ -308,7 +311,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	defer uploadBar.Remove()
 	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
 	if err != nil {
-		return fmt.Errorf("Error preparing request: %v", err)
+		return fmt.Errorf("Error preparing request: %w", err)
 	}
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
@@ -323,7 +326,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 
 	transport := &http.Transport{
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: context.Insecure},
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: context.Insecure}, //nolint // This is user configurable and disabled by default
 		ResponseHeaderTimeout: 60 * time.Second,
 	}
 	client := &http.Client{Transport: transport}
@@ -332,15 +335,15 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 	response, err := e.send(client, request, requestError)
 	if err != nil {
-		return utils.Retryable(fmt.Errorf("Error sending request: %v", err))
+		return utils.Retryable(fmt.Errorf("Error sending request: %w", err))
 	}
+	defer response.Body.Close()
 	downloadBar := utils.NewProgressBar(logger)
 	downloadReader := e.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()
-	defer response.Body.Close()
 	body, err := io.ReadAll(downloadReader)
 	if err != nil {
-		return utils.Retryable(fmt.Errorf("Error reading response body: %v", err))
+		return utils.Retryable(fmt.Errorf("Error reading response body: %w", err))
 	}
 	e.logResponse(logger, response, body)
 	if response.StatusCode >= 500 {

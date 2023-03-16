@@ -44,7 +44,7 @@ func (l *DebugLogger) LogRequest(request RequestInfo) {
 func (l DebugLogger) LogResponse(response ResponseInfo) {
 	fmt.Fprintf(l.output, "%s %s\n", response.Protocol, response.Status)
 	l.writeHeaders(response.Header)
-	io.Copy(l.output, response.Body)
+	_, _ = io.Copy(l.output, response.Body)
 	fmt.Fprint(l.output, "\n\n\n")
 }
 

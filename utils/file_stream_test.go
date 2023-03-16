@@ -19,7 +19,10 @@ func TestFileStreamName(t *testing.T) {
 func TestFileStreamData(t *testing.T) {
 	tempFile, _ := os.CreateTemp("", "uipath-test")
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
-	os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
+	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
+	if err != nil {
+		t.Fatalf("Error writing file '%s': %v", tempFile.Name(), err)
+	}
 	param := NewFileStream(tempFile.Name())
 
 	reader, size, err := param.Data()

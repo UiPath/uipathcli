@@ -22,7 +22,7 @@ func (s PluginConfigFileStore) Read() ([]byte, error) {
 	}
 	data, err := os.ReadFile(filename)
 	if err != nil && !errors.Is(err, os.ErrNotExist) {
-		return nil, fmt.Errorf("Error reading plugins file '%s': %v", filename, err)
+		return nil, fmt.Errorf("Error reading plugins file '%s': %w", filename, err)
 	}
 	return data, nil
 }
@@ -33,7 +33,7 @@ func (s PluginConfigFileStore) pluginsFilePath() (string, error) {
 	}
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
-		return "", fmt.Errorf("Error reading plugins file: %v", err)
+		return "", fmt.Errorf("Error reading plugins file: %w", err)
 	}
 	filename := filepath.Join(homeDir, ".uipath", "plugins")
 	return filename, nil

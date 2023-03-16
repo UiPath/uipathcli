@@ -35,8 +35,8 @@ func (w JsonOutputWriter) writeBody(body []byte) error {
 	if err != nil {
 		return err
 	}
-	w.output.Write(result)
-	w.output.Write([]byte("\n"))
+	_, _ = w.output.Write(result)
+	fmt.Fprint(w.output, "\n")
 	return nil
 }
 
