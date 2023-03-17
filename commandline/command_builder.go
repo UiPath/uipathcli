@@ -66,28 +66,36 @@ func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParamete
 	return nil
 }
 
-func (b CommandBuilder) createExecutionParameters(context *cli.Context, in string, operation parser.Operation, additionalParameters map[string]string) ([]executor.ExecutionParameter, error) {
+func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
 	typeConverter := newTypeConverter()
 
 	parameters := []executor.ExecutionParameter{}
 	for _, param := range operation.Parameters {
-		if param.In == in && context.IsSet(param.Name) {
+		if context.IsSet(param.Name) {
 			value, err := typeConverter.Convert(context.String(param.Name), param)
 			if err != nil {
 				return nil, err
 			}
-			parameter := executor.NewExecutionParameter(param.FieldName, value)
+			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
 			parameters = append(parameters, *parameter)
-		} else if param.In == in && param.Required && param.DefaultValue != nil {
-			parameter := executor.NewExecutionParameter(param.FieldName, param.DefaultValue)
+		} else if param.Required && param.DefaultValue != nil {
+			parameter := executor.NewExecutionParameter(param.FieldName, param.DefaultValue, param.In)
 			parameters = append(parameters, *parameter)
 		}
 	}
-	for key, value := range additionalParameters {
-		parameter := executor.NewExecutionParameter(key, value)
+	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Path, parser.ParameterInPath)...)
+	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Query, parser.ParameterInQuery)...)
+	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Header, parser.ParameterInHeader)...)
+	return parameters, nil
+}
+
+func (b CommandBuilder) createExecutionParametersFromConfigMap(params map[string]string, in string) executor.ExecutionParameters {
+	parameters := []executor.ExecutionParameter{}
+	for key, value := range params {
+		parameter := executor.NewExecutionParameter(key, value, in)
 		parameters = append(parameters, *parameter)
 	}
-	return parameters, nil
+	return parameters
 }
 
 func (b CommandBuilder) parameterRequired(parameter parser.Parameter) bool {
@@ -298,27 +306,11 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				}
 			}
 
-			pathParameters, err := b.createExecutionParameters(context, parser.ParameterInPath, operation, config.Path)
+			parameters, err := b.createExecutionParameters(context, config, operation)
 			if err != nil {
 				return err
 			}
-			queryParameters, err := b.createExecutionParameters(context, parser.ParameterInQuery, operation, config.Query)
-			if err != nil {
-				return err
-			}
-			headerParameters, err := b.createExecutionParameters(context, parser.ParameterInHeader, operation, config.Header)
-			if err != nil {
-				return err
-			}
-			bodyParameters, err := b.createExecutionParameters(context, parser.ParameterInBody, operation, map[string]string{})
-			if err != nil {
-				return err
-			}
-			formParameters, err := b.createExecutionParameters(context, parser.ParameterInForm, operation, map[string]string{})
-			if err != nil {
-				return err
-			}
-			input := b.getBodyInput(bodyParameters)
+			input := b.getBodyInput(parameters.Body())
 			organization := context.String(organizationFlagName)
 			if organization == "" {
 				organization = config.Organization
@@ -329,12 +321,6 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 			}
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
-			parameters := executor.NewExecutionContextParameters(
-				pathParameters,
-				queryParameters,
-				headerParameters,
-				bodyParameters,
-				formParameters)
 			executionContext := executor.NewExecutionContext(
 				organization,
 				tenant,
@@ -343,7 +329,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				operation.Route,
 				operation.ContentType,
 				input,
-				*parameters,
+				parameters,
 				config.Auth,
 				insecure,
 				debug,

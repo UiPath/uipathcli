@@ -38,20 +38,10 @@ func (e PluginExecutor) executeAuthenticators(baseUri url.URL, authConfig config
 func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParameter) []plugin.ExecutionParameter {
 	result := []plugin.ExecutionParameter{}
 	for _, parameter := range parameters {
-		name := parameter.Name
-		value := parameter.Value
-		result = append(result, *plugin.NewExecutionParameter(name, value))
+		param := plugin.NewExecutionParameter(parameter.Name, parameter.Value)
+		result = append(result, *param)
 	}
 	return result
-}
-
-func (e PluginExecutor) pluginParameters(context ExecutionContext) []plugin.ExecutionParameter {
-	params := context.Parameters.Path
-	params = append(params, context.Parameters.Query...)
-	params = append(params, context.Parameters.Header...)
-	params = append(params, context.Parameters.Body...)
-	params = append(params, context.Parameters.Form...)
-	return e.convertToPluginParameters(params)
 }
 
 func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthResult {
@@ -67,7 +57,7 @@ func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWrite
 	}
 
 	pluginAuth := e.pluginAuth(auth)
-	pluginParams := e.pluginParameters(context)
+	pluginParams := e.convertToPluginParameters(context.Parameters)
 	pluginContext := plugin.NewExecutionContext(
 		context.Organization,
 		context.Tenant,

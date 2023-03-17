@@ -18,7 +18,7 @@ type ExecutionContext struct {
 	Route        string
 	ContentType  string
 	Input        utils.Stream
-	Parameters   ExecutionContextParameters
+	Parameters   ExecutionParameters
 	AuthConfig   config.AuthConfig
 	Insecure     bool
 	Debug        bool
@@ -33,7 +33,7 @@ func NewExecutionContext(
 	route string,
 	contentType string,
 	input utils.Stream,
-	parameters ExecutionContextParameters,
+	parameters []ExecutionParameter,
 	authConfig config.AuthConfig,
 	insecure bool,
 	debug bool,

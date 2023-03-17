@@ -6,8 +6,9 @@ package executor
 type ExecutionParameter struct {
 	Name  string
 	Value interface{}
+	In    string
 }
 
-func NewExecutionParameter(name string, value interface{}) *ExecutionParameter {
-	return &ExecutionParameter{name, value}
+func NewExecutionParameter(name string, value interface{}, in string) *ExecutionParameter {
+	return &ExecutionParameter{name, value, in}
 }
