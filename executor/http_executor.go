@@ -237,19 +237,21 @@ func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) 
 		e.writeInputBody(writer, context.Input, errorChan)
 		return reader, context.ContentType, -1
 	}
-	if len(context.Parameters.Form) > 0 {
+	formParameters := context.Parameters.Form()
+	if len(formParameters) > 0 {
 		reader, writer := io.Pipe()
-		contentType, contentLength := e.writeMultipartBody(writer, context.Parameters.Form, errorChan)
+		contentType, contentLength := e.writeMultipartBody(writer, formParameters, errorChan)
 		return reader, contentType, contentLength
 	}
-	if len(context.Parameters.Body) > 0 && context.ContentType == "application/x-www-form-urlencoded" {
+	bodyParameters := context.Parameters.Body()
+	if len(bodyParameters) > 0 && context.ContentType == "application/x-www-form-urlencoded" {
 		reader, writer := io.Pipe()
-		e.writeUrlEncodedBody(writer, context.Parameters.Body, errorChan)
+		e.writeUrlEncodedBody(writer, bodyParameters, errorChan)
 		return reader, context.ContentType, -1
 	}
-	if len(context.Parameters.Body) > 0 {
+	if len(bodyParameters) > 0 {
 		reader, writer := io.Pipe()
-		e.writeJsonBody(writer, context.Parameters.Body, errorChan)
+		e.writeJsonBody(writer, bodyParameters, errorChan)
 		return reader, context.ContentType, -1
 	}
 	return bytes.NewReader([]byte{}), context.ContentType, -1
@@ -289,18 +291,18 @@ func (e HttpExecutor) logResponse(logger log.Logger, response *http.Response, bo
 }
 
 func (e HttpExecutor) pathParameters(context ExecutionContext) []ExecutionParameter {
-	pathParameters := context.Parameters.Path
+	pathParameters := context.Parameters.Path()
 	if context.Organization != "" {
-		pathParameters = append(pathParameters, *NewExecutionParameter("organization", context.Organization))
+		pathParameters = append(pathParameters, *NewExecutionParameter("organization", context.Organization, "path"))
 	}
 	if context.Tenant != "" {
-		pathParameters = append(pathParameters, *NewExecutionParameter("tenant", context.Tenant))
+		pathParameters = append(pathParameters, *NewExecutionParameter("tenant", context.Tenant, "path"))
 	}
 	return pathParameters
 }
 
 func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	uri, err := e.formatUri(context.BaseUri, context.Route, e.pathParameters(context), context.Parameters.Query)
+	uri, err := e.formatUri(context.BaseUri, context.Route, e.pathParameters(context), context.Parameters.Query())
 	if err != nil {
 		return err
 	}
@@ -316,7 +318,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
 	}
-	e.addHeaders(request, context.Parameters.Header)
+	e.addHeaders(request, context.Parameters.Header())
 	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
 	if err != nil {
 		return err
