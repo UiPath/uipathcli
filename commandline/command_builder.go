@@ -25,12 +25,23 @@ const uriFlagName = "uri"
 const organizationFlagName = "organization"
 const tenantFlagName = "tenant"
 const helpFlagName = "help"
-
 const outputFormatFlagName = "output"
+const queryFlagName = "query"
+
+var predefinedFlags = []string{
+	insecureFlagName,
+	debugFlagName,
+	profileFlagName,
+	uriFlagName,
+	organizationFlagName,
+	tenantFlagName,
+	helpFlagName,
+	outputFormatFlagName,
+	queryFlagName,
+}
+
 const outputFormatJson = "json"
 const outputFormatText = "text"
-
-const queryFlagName = "query"
 
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
@@ -271,17 +282,19 @@ func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer
 }
 
 func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.Command {
-	flags := b.CreateDefaultFlags(true)
-	flags = append(flags, b.HelpFlag())
 	parameters := operation.Parameters
 	b.sortParameters(parameters)
-	flags = append(flags, b.createFlags(parameters)...)
+
+	flagBuilder := newFlagBuilder()
+	flagBuilder.AddFlags(b.CreateDefaultFlags(true))
+	flagBuilder.AddFlag(b.HelpFlag())
+	flagBuilder.AddFlags(b.createFlags(parameters))
 
 	return &cli.Command{
 		Name:        operation.Name,
 		Usage:       operation.Summary,
 		Description: operation.Description,
-		Flags:       flags,
+		Flags:       flagBuilder.ToList(),
 		Action: func(context *cli.Context) error {
 			profileName := context.String(profileFlagName)
 			config := b.ConfigProvider.Config(profileName)
@@ -471,16 +484,9 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 		},
 		Action: func(context *cli.Context) error {
 			commandText := context.String("command")
-			exclude := []string{
-				"--" + insecureFlagName,
-				"--" + debugFlagName,
-				"--" + profileFlagName,
-				"--" + uriFlagName,
-				"--" + helpFlagName,
-				"--" + outputFormatFlagName,
-				"--" + queryFlagName,
-				"--" + organizationFlagName,
-				"--" + tenantFlagName,
+			exclude := []string{}
+			for _, flagName := range predefinedFlags {
+				exclude = append(exclude, "--"+flagName)
 			}
 			args := strings.Split(commandText, " ")
 			definitions, err := b.loadAutocompleteDefinitions(args)
