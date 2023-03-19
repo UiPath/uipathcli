@@ -418,8 +418,6 @@ uipath orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].Name
 "Automation Developer"
 ```
 
-
-
 ## Debug
 
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
@@ -445,6 +443,35 @@ Content-Type: application/json; charset=utf-8
   "version": "22.8-63-main.v29c916",
   "timestamp": "2022-08-23T12:23:19.0121688Z"
 }
+```
+
+## Wait for conditions
+
+You can specify JMESPath expressions on the response body to retry an operation until the provided condition evaluates to true. This allows you to write a sync call which waits for some backend operation to be carried out instead of polling manually.
+
+The following command adds the DocumentUnderstanding service to a tenant:
+
+```bash
+uipath oms tenant update-tenant --organization-guid "..." \
+                                --tenant-guid "..." \
+                                --services "du=true"
+```
+
+But the operation to add a service to the tenant is asynchronous and can take some time to complete. Instead of calling the `get-tenant` operation in a loop, you can use the `--wait` flag with a condition to wait for:
+
+```bash
+uipath oms tenant get-tenant --organization-guid "..." \
+                             --tenant-guid "..." \
+                             --wait "tenantServiceInstances[?serviceType == 'du'].status == 'Enabled'"
+```
+
+The default timeout is 30s but can be adjusted by providing the `--wait-timeout` flag, e.g.
+
+```bash
+uipath oms tenant get-tenant --organization-guid "..." \
+                             --tenant-guid "..." \
+                             --wait "tenantServiceInstances[?serviceType == 'du'].status == 'Enabled'" \
+                             --wait-timeout 300
 ```
 
 ## Multiple Profiles
@@ -503,6 +530,8 @@ You can either pass global arguments as CLI parameters, set an env variable or s
 | | `UIPATH_CLIENT_ID` | `string` | | Client Id |
 | | `UIPATH_CLIENT_SECRET` | `string` | | Client Secret |
 | | `UIPATH_PAT` | `string` | | Personal Access Token |
+| `--wait` | | `string` | | [JMESPath expression](https://jmespath.org/) to wait for |
+| `--wait-timeout` | | `integer` | 30 | Time in seconds until giving up waiting for condition  |
 
 
 ## FAQ

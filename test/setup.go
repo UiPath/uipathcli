@@ -28,8 +28,9 @@ type ContextBuilder struct {
 func NewContextBuilder() *ContextBuilder {
 	return &ContextBuilder{
 		context: Context{
-			Definitions: []commandline.DefinitionData{},
-			Responses:   map[string]ResponseData{},
+			Definitions:   []commandline.DefinitionData{},
+			NextResponses: []ResponseData{},
+			Responses:     map[string]ResponseData{},
 		},
 	}
 }
@@ -52,6 +53,11 @@ func (b *ContextBuilder) WithConfigFile(configFile string) *ContextBuilder {
 
 func (b *ContextBuilder) WithStdIn(input bytes.Buffer) *ContextBuilder {
 	b.context.StdIn = &input
+	return b
+}
+
+func (b *ContextBuilder) WithNextResponse(statusCode int, body string) *ContextBuilder {
+	b.context.NextResponses = append(b.context.NextResponses, ResponseData{statusCode, body})
 	return b
 }
 
@@ -89,6 +95,7 @@ type Context struct {
 	ConfigFile       string
 	StdIn            *bytes.Buffer
 	Definitions      []commandline.DefinitionData
+	NextResponses    []ResponseData
 	Responses        map[string]ResponseData
 	IdentityResponse ResponseData
 	CommandPlugin    plugin.CommandPlugin
@@ -150,6 +157,11 @@ func RunCli(args []string, context Context) Result {
 			response, found := context.Responses[requestUrl]
 			if !found {
 				response = context.Responses["*"]
+			}
+			nextResponses := context.NextResponses
+			if len(nextResponses) > 0 {
+				response = nextResponses[0]
+				context.NextResponses = nextResponses[1:]
 			}
 			w.WriteHeader(response.Status)
 			_, _ = w.Write([]byte(response.Body))
