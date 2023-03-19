@@ -1361,3 +1361,39 @@ paths:
 		t.Errorf("Wrong data type conversion for url encoded data, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestSameParameterNameIsOnlyDefinedOnce(t *testing.T) {
+	definition := `
+paths:
+  /create/{my-param}:
+    get:
+      operationId: create
+      parameters:
+        - name: my-param
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                my-param:
+                  type: string
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--my-param", "my-value"}, context)
+
+	if result.RequestUrl != "/create/my-value" {
+		t.Errorf("Expected parameter in request url, but got: %v", result.RequestUrl)
+	}
+	if result.RequestBody != `{"my-param":"my-value"}` {
+		t.Errorf("Expected parameter in request body, but got: %v", result.RequestBody)
+	}
+}
