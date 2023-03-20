@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -8,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -27,6 +29,8 @@ const tenantFlagName = "tenant"
 const helpFlagName = "help"
 const outputFormatFlagName = "output"
 const queryFlagName = "query"
+const waitFlagName = "wait"
+const waitTimeoutFlagName = "wait-timeout"
 
 var predefinedFlags = []string{
 	insecureFlagName,
@@ -38,6 +42,8 @@ var predefinedFlags = []string{
 	helpFlagName,
 	outputFormatFlagName,
 	queryFlagName,
+	waitFlagName,
+	waitTimeoutFlagName,
 }
 
 const outputFormatJson = "json"
@@ -306,6 +312,8 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return err
 			}
 			query := context.String(queryFlagName)
+			wait := context.String(waitFlagName)
+			waitTimeout := context.Int(waitTimeoutFlagName)
 
 			baseUri, err := b.createBaseUri(operation, *config, context)
 			if err != nil {
@@ -348,36 +356,88 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				debug,
 				operation.Plugin)
 
-			var wg sync.WaitGroup
-			wg.Add(3)
-			reader, writer := io.Pipe()
-			go func(reader *io.PipeReader) {
-				defer wg.Done()
-				defer reader.Close()
-				_, _ = io.Copy(b.StdOut, reader)
-			}(reader)
-			errorReader, errorWriter := io.Pipe()
-			go func(errorReader *io.PipeReader) {
-				defer wg.Done()
-				defer errorReader.Close()
-				_, _ = io.Copy(b.StdErr, errorReader)
-			}(errorReader)
-
-			go func(context executor.ExecutionContext, writer *io.PipeWriter, errorWriter *io.PipeWriter) {
-				defer wg.Done()
-				defer writer.Close()
-				defer errorWriter.Close()
-				outputWriter := b.outputWriter(writer, outputFormat, query)
-				logger := b.logger(context, writer, errorWriter)
-				err = b.executeCommand(context, outputWriter, logger)
-			}(*executionContext, writer, errorWriter)
-
-			wg.Wait()
-			return err
+			if wait != "" {
+				return b.executeWait(*executionContext, outputFormat, query, wait, waitTimeout)
+			}
+			return b.execute(*executionContext, outputFormat, query, nil)
 		},
 		HideHelp: true,
 		Hidden:   operation.Hidden,
 	}
+}
+
+func (b CommandBuilder) executeWait(executionContext executor.ExecutionContext, outputFormat string, query string, wait string, waitTimeout int) error {
+	logger := log.NewDefaultLogger(b.StdErr)
+	outputWriter := output.NewMemoryOutputWriter()
+	for start := time.Now(); time.Since(start) < time.Duration(waitTimeout)*time.Second; {
+		err := b.execute(executionContext, "json", "", outputWriter)
+		result, evaluationErr := b.evaluateWaitCondition(outputWriter.Response(), wait)
+		if evaluationErr != nil {
+			return evaluationErr
+		}
+		if result {
+			resultWriter := b.outputWriter(b.StdOut, outputFormat, query)
+			_ = resultWriter.WriteResponse(outputWriter.Response())
+			return err
+		}
+		logger.LogError("Condition is not met yet. Waiting...\n")
+		time.Sleep(1 * time.Second)
+	}
+	return errors.New("Timed out waiting for condition")
+}
+
+func (b CommandBuilder) evaluateWaitCondition(response output.ResponseInfo, wait string) (bool, error) {
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return false, nil
+	}
+	var data interface{}
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		return false, nil
+	}
+	transformer := output.NewJmesPathTransformer(wait)
+	result, err := transformer.Execute(data)
+	if err != nil {
+		return false, err
+	}
+	value, ok := result.(bool)
+	if !ok {
+		return false, fmt.Errorf("Error in wait condition: JMESPath expression needs to return boolean")
+	}
+	return value, nil
+}
+
+func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outputFormat string, query string, outputWriter output.OutputWriter) error {
+	var wg sync.WaitGroup
+	wg.Add(3)
+	reader, writer := io.Pipe()
+	go func() {
+		defer wg.Done()
+		defer reader.Close()
+		_, _ = io.Copy(b.StdOut, reader)
+	}()
+	errorReader, errorWriter := io.Pipe()
+	go func() {
+		defer wg.Done()
+		defer errorReader.Close()
+		_, _ = io.Copy(b.StdErr, errorReader)
+	}()
+
+	var err error
+	go func() {
+		defer wg.Done()
+		defer writer.Close()
+		defer errorWriter.Close()
+		if outputWriter == nil {
+			outputWriter = b.outputWriter(writer, outputFormat, query)
+		}
+		logger := b.logger(executionContext, writer, errorWriter)
+		err = b.executeCommand(executionContext, outputWriter, logger)
+	}()
+
+	wg.Wait()
+	return err
 }
 
 func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.Command {
@@ -689,6 +749,18 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Name:   queryFlagName,
 			Usage:  "Perform JMESPath query on output",
 			Value:  "",
+			Hidden: hidden,
+		},
+		&cli.StringFlag{
+			Name:   waitFlagName,
+			Usage:  "Waits for the provided condition (JMESPath expression)",
+			Value:  "",
+			Hidden: hidden,
+		},
+		&cli.IntFlag{
+			Name:   waitTimeoutFlagName,
+			Usage:  "Time to wait in seconds for condition",
+			Value:  30,
 			Hidden: hidden,
 		},
 	}
