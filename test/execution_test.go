@@ -56,7 +56,7 @@ paths:
 	}
 }
 
-func TestGetRequestWithDebugFlagShowsRequestAndResponse(t *testing.T) {
+func TestGetRequestWithDebugFlagShowsRequestAndResponseOnStdError(t *testing.T) {
 	definition := `
 paths:
   /ping:
@@ -71,41 +71,58 @@ paths:
 
 	result := RunCli([]string{"myservice", "get-ping", "--debug"}, context)
 
-	stdout := strings.Split(result.StdOut, "\n")
+	stdErr := strings.Split(result.StdErr, "\n")
 	expected := "GET http://"
-	if !strings.HasPrefix(stdout[0], expected) {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[0])
+	if !strings.HasPrefix(stdErr[0], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[0])
 	}
 	expected = "X-Request-Id:"
-	if !strings.HasPrefix(stdout[1], expected) {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[1])
+	if !strings.HasPrefix(stdErr[1], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[1])
 	}
 	expected = "HTTP/1.1 200 OK"
-	if stdout[4] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[4])
+	if stdErr[4] != expected {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[4])
 	}
 	expected = "Content-Length:"
-	if !strings.HasPrefix(stdout[5], expected) {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[5])
+	if !strings.HasPrefix(stdErr[5], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[5])
 	}
 	expected = "Content-Type: text/plain; charset=utf-8"
-	if stdout[6] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[6])
+	if stdErr[6] != expected {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[6])
 	}
 	expected = "Date:"
-	if !strings.HasPrefix(stdout[7], expected) {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[7])
+	if !strings.HasPrefix(stdErr[7], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[7])
 	}
 	expected = `{"hello":"world"}`
-	if stdout[9] != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, stdout[9])
+	if stdErr[9] != expected {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[9])
 	}
-	expected = `{
+}
+
+func TestGetRequestWithDebugFlagShowsOnlyReponseBodyOnStdOut(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, `{"hello":"world"}`).
+		Build()
+
+	result := RunCli([]string{"myservice", "get-ping", "--debug"}, context)
+
+	expected := `{
   "hello": "world"
-}`
-	body := strings.Join(stdout[12:15], "\n")
-	if body != expected {
-		t.Errorf("Expected on stdout %v, got: %v", expected, body)
+}
+`
+	if result.StdOut != expected {
+		t.Errorf("Expected only response body on stdout %v, got: %v", expected, result.StdOut)
 	}
 }
 

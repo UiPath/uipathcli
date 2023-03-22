@@ -11,8 +11,7 @@ import (
 //
 // It can be enabled using the --debug flag.
 type DebugLogger struct {
-	output      io.Writer
-	errorOutput io.Writer
+	writer io.Writer
 }
 
 func (l DebugLogger) writeHeaders(header http.Header) {
@@ -25,37 +24,33 @@ func (l DebugLogger) writeHeaders(header http.Header) {
 	for _, key := range keys {
 		values := header[key]
 		for _, value := range values {
-			fmt.Fprintf(l.output, "%s: %s\n", key, value)
+			fmt.Fprintf(l.writer, "%s: %s\n", key, value)
 		}
 	}
-	fmt.Fprint(l.output, "\n")
+	fmt.Fprint(l.writer, "\n")
 }
 
 func (l *DebugLogger) LogRequest(request RequestInfo) {
-	fmt.Fprintf(l.output, "%s %s %s\n", request.Method, request.Url, request.Protocol)
+	fmt.Fprintf(l.writer, "%s %s %s\n", request.Method, request.Url, request.Protocol)
 	l.writeHeaders(request.Header)
-	n, _ := io.Copy(l.output, request.Body)
+	n, _ := io.Copy(l.writer, request.Body)
 	if n > 0 {
-		fmt.Fprint(l.output, "\n\n")
+		fmt.Fprint(l.writer, "\n\n")
 	}
-	fmt.Fprint(l.output, "\n")
+	fmt.Fprint(l.writer, "\n")
 }
 
 func (l DebugLogger) LogResponse(response ResponseInfo) {
-	fmt.Fprintf(l.output, "%s %s\n", response.Protocol, response.Status)
+	fmt.Fprintf(l.writer, "%s %s\n", response.Protocol, response.Status)
 	l.writeHeaders(response.Header)
-	_, _ = io.Copy(l.output, response.Body)
-	fmt.Fprint(l.output, "\n\n\n")
-}
-
-func (l DebugLogger) LogDebug(message string) {
-	fmt.Fprint(l.output, message)
+	_, _ = io.Copy(l.writer, response.Body)
+	fmt.Fprint(l.writer, "\n\n\n")
 }
 
 func (l DebugLogger) LogError(message string) {
-	fmt.Fprint(l.errorOutput, message)
+	fmt.Fprint(l.writer, message)
 }
 
-func NewDebugLogger(output io.Writer, errorOutput io.Writer) *DebugLogger {
-	return &DebugLogger{output, errorOutput}
+func NewDebugLogger(writer io.Writer) *DebugLogger {
+	return &DebugLogger{writer}
 }

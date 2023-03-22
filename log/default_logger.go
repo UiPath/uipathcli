@@ -9,7 +9,7 @@ import (
 //
 // It only shows error output on standard error.
 type DefaultLogger struct {
-	errorOutput io.Writer
+	writer io.Writer
 }
 
 func (l *DefaultLogger) LogRequest(request RequestInfo) {
@@ -18,13 +18,10 @@ func (l *DefaultLogger) LogRequest(request RequestInfo) {
 func (l DefaultLogger) LogResponse(response ResponseInfo) {
 }
 
-func (l DefaultLogger) LogDebug(message string) {
-}
-
 func (l DefaultLogger) LogError(message string) {
-	fmt.Fprint(l.errorOutput, message)
+	fmt.Fprint(l.writer, message)
 }
 
-func NewDefaultLogger(errorOutput io.Writer) *DefaultLogger {
-	return &DefaultLogger{errorOutput}
+func NewDefaultLogger(writer io.Writer) *DefaultLogger {
+	return &DefaultLogger{writer}
 }

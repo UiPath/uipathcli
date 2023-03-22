@@ -262,11 +262,11 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
-func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer, errorWriter io.Writer) log.Logger {
+func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
 	if context.Debug {
-		return log.NewDebugLogger(writer, errorWriter)
+		return log.NewDebugLogger(writer)
 	}
-	return log.NewDefaultLogger(errorWriter)
+	return log.NewDefaultLogger(writer)
 }
 
 func (b CommandBuilder) outputWriter(writer io.Writer, format string, query string) output.OutputWriter {
@@ -432,7 +432,7 @@ func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outp
 		if outputWriter == nil {
 			outputWriter = b.outputWriter(writer, outputFormat, query)
 		}
-		logger := b.logger(executionContext, writer, errorWriter)
+		logger := b.logger(executionContext, errorWriter)
 		err = b.executeCommand(executionContext, outputWriter, logger)
 	}()
 
