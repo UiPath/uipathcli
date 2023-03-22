@@ -112,7 +112,13 @@ func (p OpenApiParser) getType(schemaRef *openapi3.SchemaRef) string {
 	return p.getSchemaType(*schemaRef.Value)
 }
 
-func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaRef, in string, requiredFieldnames []string) Parameter {
+func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaRef, in string, requiredFieldnames []string, visitedSchemas map[*openapi3.SchemaRef]bool) *Parameter {
+	_, visited := visitedSchemas[schemaRef]
+	if visited {
+		return nil
+	}
+	visitedSchemas[schemaRef] = true
+
 	name := p.formatName(fieldName)
 	_type := p.getType(schemaRef)
 	required := p.contains(requiredFieldnames, fieldName)
@@ -132,16 +138,18 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 			defaultValue = allowedValues[0]
 		}
 		propertiesSchemas := p.getPropertiesSchemas(schemaRef.Value)
-		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required)
+		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required, visitedSchemas)
 	}
-	return *NewParameter(name, _type, description, in, fieldName, required, defaultValue, allowedValues, parameters)
+	return NewParameter(name, _type, description, in, fieldName, required, defaultValue, allowedValues, parameters)
 }
 
-func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string) []Parameter {
+func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string, visitedSchemas map[*openapi3.SchemaRef]bool) []Parameter {
 	result := []Parameter{}
 	for fieldName, schemaRef := range schemas {
-		parsed := p.parseSchema(fieldName, schemaRef, in, requiredFieldnames)
-		result = append(result, parsed)
+		parsed := p.parseSchema(fieldName, schemaRef, in, requiredFieldnames, visitedSchemas)
+		if parsed != nil {
+			result = append(result, *parsed)
+		}
 	}
 	return result
 }
@@ -177,6 +185,27 @@ func (p OpenApiParser) getPropertiesSchemas(schema *openapi3.Schema) openapi3.Sc
 			result[n] = p
 		}
 	}
+	itemsSchemas := p.getItemsPropertiesSchemas(schema)
+	for n, p := range itemsSchemas {
+		result[n] = p
+	}
+	return result
+}
+
+func (p OpenApiParser) getItemsPropertiesSchemas(schema *openapi3.Schema) openapi3.Schemas {
+	result := openapi3.Schemas{}
+	if schema.Items != nil {
+		for n, p := range schema.Items.Value.Properties {
+			result[n] = p
+		}
+	}
+	for _, s := range schema.AllOf {
+		if s.Value.Items != nil {
+			for n, p := range s.Value.Items.Value.Properties {
+				result[n] = p
+			}
+		}
+	}
 	return result
 }
 
@@ -188,22 +217,22 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 	content := requestBody.Value.Content.Get("application/json")
 	if content != nil {
 		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
-		return "application/json", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required)
+		return "application/json", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required, map[*openapi3.SchemaRef]bool{})
 	}
 	content = requestBody.Value.Content.Get("application/x-www-form-urlencoded")
 	if content != nil {
 		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
-		return "application/x-www-form-urlencoded", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required)
+		return "application/x-www-form-urlencoded", p.parseSchemas(propertiesSchemas, ParameterInBody, content.Schema.Value.Required, map[*openapi3.SchemaRef]bool{})
 	}
 	content = requestBody.Value.Content.Get("multipart/form-data")
 	if content != nil {
 		propertiesSchemas := p.getPropertiesSchemas(content.Schema.Value)
-		return "multipart/form-data", p.parseSchemas(propertiesSchemas, ParameterInForm, content.Schema.Value.Required)
+		return "multipart/form-data", p.parseSchemas(propertiesSchemas, ParameterInForm, content.Schema.Value.Required, map[*openapi3.SchemaRef]bool{})
 	}
 	content = requestBody.Value.Content.Get("application/octet-stream")
 	if content != nil {
-		parameter := p.parseSchema(RawBodyParameterName, content.Schema, ParameterInBody, []string{RawBodyParameterName})
-		return "application/octet-stream", []Parameter{parameter}
+		parameter := p.parseSchema(RawBodyParameterName, content.Schema, ParameterInBody, []string{RawBodyParameterName}, map[*openapi3.SchemaRef]bool{})
+		return "application/octet-stream", []Parameter{*parameter}
 	}
 	return "", parameters
 }
@@ -227,7 +256,7 @@ func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 			defaultValue = allowedValues[0]
 		}
 		propertiesSchemas := p.getPropertiesSchemas(param.Schema.Value)
-		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required)
+		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required, map[*openapi3.SchemaRef]bool{})
 	}
 	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, allowedValues, parameters)
 }

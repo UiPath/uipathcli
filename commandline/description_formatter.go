@@ -18,7 +18,7 @@ func (f parameterFormatter) Description() string {
 func (f parameterFormatter) description(parameter parser.Parameter) string {
 	builder := strings.Builder{}
 
-	builder.WriteString(parameter.Type)
+	builder.WriteString(f.humanReadableType(parameter.Type))
 
 	fields := f.descriptionFields(parameter)
 	if len(fields) > 0 {
@@ -62,11 +62,18 @@ func (f parameterFormatter) descriptionFields(parameter parser.Parameter) []inte
 }
 
 func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
-	if parameter.Type != parser.ParameterTypeObject {
+	var key string
+	switch parameter.Type {
+	case parser.ParameterTypeObject:
+		key = ""
+	case parser.ParameterTypeObjectArray:
+		key = "[0]."
+	default:
 		return ""
 	}
+
 	parameters := map[string]string{}
-	f.collectUsageParameters(parameter, "", parameters)
+	f.collectUsageParameters(parameter, key, parameters)
 
 	builder := strings.Builder{}
 	for key, value := range parameters {
@@ -79,9 +86,12 @@ func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
 func (f parameterFormatter) collectUsageParameters(parameter parser.Parameter, prefix string, result map[string]string) {
 	for _, p := range parameter.Parameters {
 		if p.Type == parser.ParameterTypeObject {
-			f.collectUsageParameters(p, prefix+p.Name+".", result)
+			f.collectUsageParameters(p, prefix+p.FieldName+".", result)
 		}
-		result[prefix+p.Name] = p.Type
+		if p.Type == parser.ParameterTypeObjectArray {
+			f.collectUsageParameters(p, prefix+p.FieldName+"[0].", result)
+		}
+		result[prefix+p.FieldName] = f.humanReadableType(p.Type)
 	}
 }
 
@@ -97,6 +107,33 @@ func (f parameterFormatter) commaSeparatedValues(values []interface{}) string {
 func (f parameterFormatter) writeSeparator(builder *strings.Builder, separator string) {
 	if builder.Len() > 0 {
 		builder.WriteString(separator)
+	}
+}
+
+func (f parameterFormatter) humanReadableType(_type string) string {
+	switch _type {
+	case parser.ParameterTypeString:
+		return "string"
+	case parser.ParameterTypeBinary:
+		return "binary"
+	case parser.ParameterTypeInteger:
+		return "integer"
+	case parser.ParameterTypeNumber:
+		return "float"
+	case parser.ParameterTypeBoolean:
+		return "boolean"
+	case parser.ParameterTypeStringArray:
+		return "string,string,..."
+	case parser.ParameterTypeIntegerArray:
+		return "integer,integer,..."
+	case parser.ParameterTypeNumberArray:
+		return "float,float,..."
+	case parser.ParameterTypeBooleanArray:
+		return "boolean,boolean,..."
+	case parser.ParameterTypeObjectArray:
+		return "object,object,..."
+	default:
+		return "object"
 	}
 }
 
