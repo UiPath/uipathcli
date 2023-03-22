@@ -176,16 +176,24 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(DigitizeCommand{}).
 		WithResponse(202, `{"operationId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path, "--debug"}, context)
 
-	if !strings.Contains(result.StdOut, "/digitize/start") {
-		t.Errorf("Expected stdout to show the start digitize operation, but got: %v", result.StdOut)
+	expected := `{
+  "pages": [],
+  "status": "Done"
+}
+`
+	if result.StdOut != expected {
+		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}
-	if !strings.Contains(result.StdOut, "/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05") {
-		t.Errorf("Expected stdout to show the get digitize result operation, but got: %v", result.StdOut)
+	if !strings.Contains(result.StdErr, "/digitize/start") {
+		t.Errorf("Expected stderr to show the start digitize operation, but got: %v", result.StdErr)
+	}
+	if !strings.Contains(result.StdErr, "/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05") {
+		t.Errorf("Expected stderr to show the get digitize result operation, but got: %v", result.StdErr)
 	}
 }
 

@@ -8,7 +8,6 @@ package log
 // The Logger interface which is used to provide additional information to the
 // user about what operations the CLI is performing.
 type Logger interface {
-	LogDebug(message string)
 	LogError(message string)
 	LogRequest(request RequestInfo)
 	LogResponse(response ResponseInfo)
