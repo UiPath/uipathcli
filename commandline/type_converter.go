@@ -53,7 +53,7 @@ func (c typeConverter) findParameter(parameter *parser.Parameter, name string) *
 		return nil
 	}
 	for _, param := range parameter.Parameters {
-		if param.Name == name {
+		if param.FieldName == name {
 			return &param
 		}
 	}
@@ -102,8 +102,8 @@ func (c typeConverter) convertToObject(value string, parameter parser.Parameter)
 		if len(keyValue) < 2 {
 			keyValue = append(keyValue, "")
 		}
-		keys := c.splitEscaped(keyValue[0], '.')
-		value := keyValue[1]
+		keys := c.splitEscaped(strings.Trim(keyValue[0], " "), '.')
+		value := strings.Trim(keyValue[1], " ")
 		err := c.assignToObject(obj, keys, value, parameter)
 		if err != nil {
 			return nil, err

@@ -1414,3 +1414,63 @@ paths:
 		t.Errorf("Expected parameter in request body, but got: %v", result.RequestBody)
 	}
 }
+
+func TestPostObjectTypeWithSpaces(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `foo = a; bar=b `}, context)
+
+	expected := `{"myparameter":{"bar":"b","foo":"a"}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find nested object in json request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestPostObjectTypeUsesRawPropertyName(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                product:
+                  $ref: '#/components/schemas/Product'
+components:
+  schemas:
+    Product:
+      type: object
+      properties:
+        totalPrice:
+          type: number
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--product", `totalPrice=1.3`}, context)
+
+	expected := `{"product":{"totalPrice":1.3}}`
+	if result.RequestBody != expected {
+		t.Errorf("Object type with custom parameter name not found in request body, expected: %v, but got: %v", expected, result.RequestBody)
+	}
+}
