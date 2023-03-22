@@ -67,6 +67,23 @@ func (c typeConverter) tryConvert(value string, parameter *parser.Parameter) (in
 	return c.Convert(value, *parameter)
 }
 
+func (c typeConverter) isArray(key string) (bool, string, int) {
+	if len(key) < 3 {
+		return false, "", -1
+	}
+	startIndex := strings.LastIndexAny(key, "[")
+	if startIndex == -1 || !strings.HasSuffix(key, "]") {
+		return false, "", -1
+	}
+	property := key[0:startIndex]
+	indexString := key[startIndex+1 : len(key)-1]
+	index, err := strconv.Atoi(indexString)
+	if index < 0 || err != nil {
+		return false, "", -1
+	}
+	return true, property, index
+}
+
 func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string, value string, parameter parser.Parameter) error {
 	current := obj
 	currentParameter := &parameter
@@ -75,6 +92,17 @@ func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string,
 		lastKey := i == len(keys)-1
 		if lastKey && current[key] != nil {
 			return fmt.Errorf("Cannot convert '%s' value because object key '%s' is already defined", parameter.Name, key)
+		}
+
+		isArray, arrayKey, index := c.isArray(key)
+		if isArray {
+			array, item := c.initArray(parameter.Name, current[arrayKey], index)
+			if array == nil || item == nil {
+				return fmt.Errorf("Cannot convert '%s' value because object key '%s' is already defined", parameter.Name, arrayKey)
+			}
+			current[arrayKey] = array
+			current = item
+			continue
 		}
 
 		currentParameter = c.findParameter(currentParameter, key)
@@ -89,13 +117,57 @@ func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string,
 			current[key] = parsedValue
 			break
 		}
-		current = current[key].(map[string]interface{})
+		nextItem, ok := current[key].(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("Cannot convert '%s' value because there is a type mismatch for the object key '%s'", parameter.Name, key)
+		}
+		current = nextItem
 	}
 	return nil
 }
 
+func (c typeConverter) initArrayItem(array []interface{}, index int) ([]interface{}, map[string]interface{}) {
+	if index > len(array)-1 {
+		a := make([]interface{}, index+1)
+		copy(a, array)
+		array = a
+	}
+	obj := array[index]
+	if obj == nil {
+		obj = map[string]interface{}{}
+		array[index] = obj
+	}
+	item, ok := obj.(map[string]interface{})
+	if !ok {
+		return nil, nil
+	}
+	return array, item
+}
+
+func (c typeConverter) initArray(name string, value interface{}, index int) ([]interface{}, map[string]interface{}) {
+	if value == nil {
+		value = []interface{}{}
+	}
+	array, ok := value.([]interface{})
+	if !ok {
+		return nil, nil
+	}
+	return c.initArrayItem(array, index)
+}
+
+func (c typeConverter) initObject(value interface{}) map[string]interface{} {
+	if value == nil {
+		value = map[string]interface{}{}
+	}
+	obj, ok := value.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+	return obj
+}
+
 func (c typeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
-	obj := map[string]interface{}{}
+	var result interface{}
 	assigns := c.splitEscaped(value, ';')
 	for _, assign := range assigns {
 		keyValue := c.splitEscaped(assign, '=')
@@ -104,12 +176,32 @@ func (c typeConverter) convertToObject(value string, parameter parser.Parameter)
 		}
 		keys := c.splitEscaped(strings.Trim(keyValue[0], " "), '.')
 		value := strings.Trim(keyValue[1], " ")
+
+		isArray, arrayKey, index := c.isArray(keys[0])
+		if isArray && arrayKey == "" {
+			array, item := c.initArray(parameter.Name, result, index)
+			if array == nil || item == nil {
+				return nil, fmt.Errorf("Cannot convert '%s' value because there is a type mismatch", parameter.Name)
+			}
+			result = array
+			err := c.assignToObject(item, keys[1:], value, parameter)
+			if err != nil {
+				return nil, err
+			}
+			continue
+		}
+
+		obj := c.initObject(result)
+		if obj == nil {
+			return nil, fmt.Errorf("Cannot convert '%s' value because there is a type mismatch", parameter.Name)
+		}
+		result = obj
 		err := c.assignToObject(obj, keys, value, parameter)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return obj, nil
+	return result, nil
 }
 
 func (c typeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
@@ -158,20 +250,6 @@ func (c typeConverter) convertToBooleanArray(value string, parameter parser.Para
 	return result, nil
 }
 
-func (c typeConverter) convertToObjectArray(value string, parameter parser.Parameter) ([]interface{}, error) {
-	splitted := c.splitEscaped(value, ',')
-
-	result := []interface{}{}
-	for _, itemStr := range splitted {
-		item, err := c.convertToObject(itemStr, parameter)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot convert '%s' values '%s' to object array", parameter.Name, value)
-		}
-		result = append(result, item)
-	}
-	return result, nil
-}
-
 func (c typeConverter) splitEscaped(str string, separator byte) []string {
 	result := []string{}
 	item := []byte{}
@@ -207,7 +285,7 @@ func (c typeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToBoolean(value, parameter)
 	case parser.ParameterTypeBinary:
 		return c.convertToBinary(value, parameter)
-	case parser.ParameterTypeObject:
+	case parser.ParameterTypeObject, parser.ParameterTypeObjectArray:
 		return c.convertToObject(value, parameter)
 	case parser.ParameterTypeStringArray:
 		return c.convertToStringArray(value, parameter)
@@ -217,8 +295,6 @@ func (c typeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToNumberArray(value, parameter)
 	case parser.ParameterTypeBooleanArray:
 		return c.convertToBooleanArray(value, parameter)
-	case parser.ParameterTypeObjectArray:
-		return c.convertToObjectArray(value, parameter)
 	default:
 		return value, nil
 	}

@@ -846,7 +846,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `hello=world,other=object`}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `[0].hello=world; [1].other=object`}, context)
 
 	expected := `{"myparameter":[{"hello":"world"},{"other":"object"}]}`
 	if result.RequestBody != expected {
