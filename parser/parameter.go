@@ -35,6 +35,14 @@ const (
 	ParameterInForm   = "form"
 )
 
+func (p Parameter) IsArray() bool {
+	return p.Type == ParameterTypeBooleanArray ||
+		p.Type == ParameterTypeIntegerArray ||
+		p.Type == ParameterTypeNumberArray ||
+		p.Type == ParameterTypeObjectArray ||
+		p.Type == ParameterTypeStringArray
+}
+
 func NewParameter(name string, t string, description string, in string, fieldName string, required bool, defaultValue interface{}, allowedValues []interface{}, parameters []Parameter) *Parameter {
 	return &Parameter{name, t, description, in, fieldName, required, defaultValue, allowedValues, parameters}
 }

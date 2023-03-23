@@ -47,16 +47,17 @@ func (c Cli) run(args []string, input utils.Stream) error {
 	}
 
 	app := &cli.App{
-		Name:            "uipath",
-		Usage:           "Command-Line Interface for UiPath Services",
-		UsageText:       "uipath <service> <operation> --parameter",
-		Version:         "1.0",
-		Flags:           flags,
-		Commands:        commands,
-		Writer:          c.stdOut,
-		ErrWriter:       c.stdErr,
-		HideVersion:     true,
-		HideHelpCommand: true,
+		Name:                      "uipath",
+		Usage:                     "Command-Line Interface for UiPath Services",
+		UsageText:                 "uipath <service> <operation> --parameter",
+		Version:                   "1.0",
+		Flags:                     flags,
+		Commands:                  commands,
+		Writer:                    c.stdOut,
+		ErrWriter:                 c.stdErr,
+		HideVersion:               true,
+		HideHelpCommand:           true,
+		DisableSliceFlagSeparator: true,
 	}
 	return app.Run(args)
 }

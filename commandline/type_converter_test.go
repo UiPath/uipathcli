@@ -47,7 +47,7 @@ func TestConvertStringToFileStream(t *testing.T) {
 	}
 }
 
-func TestConvertStringToIntegerArray(t *testing.T) {
+func TestConvertCommaSeparatedStringToIntegerArray(t *testing.T) {
 	converter := newTypeConverter()
 
 	parameter := newParameter("metrics", parser.ParameterTypeIntegerArray, []parser.Parameter{})
@@ -58,6 +58,21 @@ func TestConvertStringToIntegerArray(t *testing.T) {
 	}
 	array := result.([]int)
 	if len(array) != 2 || array[0] != 5 || array[1] != 2 {
+		t.Errorf("Result should be integer array, but got: %v", result)
+	}
+}
+
+func TestConvertStringToIntegerArray(t *testing.T) {
+	converter := newTypeConverter()
+
+	parameter := newParameter("metrics", parser.ParameterTypeIntegerArray, []parser.Parameter{})
+	result, err := converter.ConvertArray([]string{"5,2", "3"}, parameter)
+
+	if err != nil {
+		t.Errorf("Should not return error, but got: %v", err)
+	}
+	array := result.([]int)
+	if len(array) != 3 || array[0] != 5 || array[1] != 2 || array[2] != 3 {
 		t.Errorf("Result should be integer array, but got: %v", result)
 	}
 }
@@ -117,7 +132,7 @@ func TestCustomParameterAddedToObject(t *testing.T) {
 func TestConvertObjectArray(t *testing.T) {
 	converter := newTypeConverter()
 
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
+	parameter := newParameter("root", parser.ParameterTypeObject, []parser.Parameter{})
 	result, _ := converter.Convert("nodes[0].id = 1; nodes[0].value = my-value;", parameter)
 
 	firstNode := getArrayValue(result, "nodes", 0)
@@ -131,38 +146,10 @@ func TestConvertObjectArray(t *testing.T) {
 	}
 }
 
-func TestConvertRootArray(t *testing.T) {
-	converter := newTypeConverter()
-
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
-	result, _ := converter.Convert("[0].id = 1; [0].value = my-value;", parameter)
-
-	array := result.([]interface{})
-	id := getValue(array[0], "id")
-	if id != "1" {
-		t.Errorf("Could not find first node id, got: %v", id)
-	}
-	value := getValue(array[0], "value")
-	if value != "my-value" {
-		t.Errorf("Could not find first node value, got: %v", value)
-	}
-}
-
-func TestMixingRootObjectAndArrayReturnsError(t *testing.T) {
-	converter := newTypeConverter()
-
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
-	_, err := converter.Convert("[0].id = 1; value = my-value;", parameter)
-
-	if err.Error() != "Cannot convert 'root' value because there is a type mismatch" {
-		t.Errorf("Should return error, but got: %v", err)
-	}
-}
-
 func TestMixingObjectAndArrayReturnsError(t *testing.T) {
 	converter := newTypeConverter()
 
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
+	parameter := newParameter("root", parser.ParameterTypeObject, []parser.Parameter{})
 	_, err := converter.Convert("nodes[0].id = 1; nodes.value = my-value;", parameter)
 
 	if err.Error() != "Cannot convert 'root' value because there is a type mismatch for the object key 'nodes'" {
@@ -173,10 +160,10 @@ func TestMixingObjectAndArrayReturnsError(t *testing.T) {
 func TestInvalidIndexIsIgnored(t *testing.T) {
 	converter := newTypeConverter()
 
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
-	result, _ := converter.Convert("[invalid].id = 1", parameter)
+	parameter := newParameter("root", parser.ParameterTypeObject, []parser.Parameter{})
+	result, _ := converter.Convert("nodes[invalid].id = 1", parameter)
 
-	value := getValue(result, "[invalid]")
+	value := getValue(result, "nodes[invalid]")
 	id := getValue(value, "id")
 	if id != "1" {
 		t.Errorf("Could not find id value, got: %v", id)
@@ -186,10 +173,10 @@ func TestInvalidIndexIsIgnored(t *testing.T) {
 func TestNegativeIndexIsIgnored(t *testing.T) {
 	converter := newTypeConverter()
 
-	parameter := newParameter("root", parser.ParameterTypeObjectArray, []parser.Parameter{})
-	result, _ := converter.Convert("[-1].id = 1", parameter)
+	parameter := newParameter("root", parser.ParameterTypeObject, []parser.Parameter{})
+	result, _ := converter.Convert("nodes[-1].id = 1", parameter)
 
-	value := getValue(result, "[-1]")
+	value := getValue(result, "nodes[-1]")
 	id := getValue(value, "id")
 	if id != "1" {
 		t.Errorf("Could not find id value, got: %v", id)

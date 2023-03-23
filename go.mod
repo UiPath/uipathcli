@@ -3,10 +3,10 @@ module github.com/UiPath/uipathcli
 go 1.20
 
 require (
-	github.com/getkin/kin-openapi v0.114.0
+	github.com/getkin/kin-openapi v0.115.0
 	github.com/jmespath/go-jmespath v0.4.0
-	github.com/mattn/go-isatty v0.0.17
-	github.com/urfave/cli/v2 v2.25.0
+	github.com/mattn/go-isatty v0.0.18
+	github.com/urfave/cli/v2 v2.25.1
 	golang.org/x/sys v0.6.0
 	gopkg.in/yaml.v2 v2.4.0
 )

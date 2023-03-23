@@ -14,6 +14,14 @@ import (
 // to their respective type.
 type typeConverter struct{}
 
+func (c typeConverter) trimAll(values []string) []string {
+	result := []string{}
+	for _, value := range values {
+		result = append(result, c.trim(value))
+	}
+	return result
+}
+
 func (c typeConverter) trim(value string) string {
 	return strings.TrimSpace(value)
 }
@@ -155,60 +163,29 @@ func (c typeConverter) initArray(name string, value interface{}, index int) ([]i
 	return c.initArrayItem(array, index)
 }
 
-func (c typeConverter) initObject(value interface{}) map[string]interface{} {
-	if value == nil {
-		value = map[string]interface{}{}
-	}
-	obj, ok := value.(map[string]interface{})
-	if !ok {
-		return nil
-	}
-	return obj
-}
-
 func (c typeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
-	var result interface{}
+	obj := map[string]interface{}{}
 	assigns := c.splitEscaped(value, ';')
 	for _, assign := range assigns {
 		keyValue := c.splitEscaped(assign, '=')
 		if len(keyValue) < 2 {
 			keyValue = append(keyValue, "")
 		}
-		keys := c.splitEscaped(strings.Trim(keyValue[0], " "), '.')
-		value := strings.Trim(keyValue[1], " ")
-
-		isArray, arrayKey, index := c.isArray(keys[0])
-		if isArray && arrayKey == "" {
-			array, item := c.initArray(parameter.Name, result, index)
-			if array == nil || item == nil {
-				return nil, fmt.Errorf("Cannot convert '%s' value because there is a type mismatch", parameter.Name)
-			}
-			result = array
-			err := c.assignToObject(item, keys[1:], value, parameter)
-			if err != nil {
-				return nil, err
-			}
-			continue
-		}
-
-		obj := c.initObject(result)
-		if obj == nil {
-			return nil, fmt.Errorf("Cannot convert '%s' value because there is a type mismatch", parameter.Name)
-		}
-		result = obj
+		keys := c.trimAll(c.splitEscaped(keyValue[0], '.'))
+		value := c.trim(keyValue[1])
 		err := c.assignToObject(obj, keys, value, parameter)
 		if err != nil {
 			return nil, err
 		}
 	}
-	return result, nil
+	return obj, nil
 }
 
-func (c typeConverter) convertToStringArray(value string, parameter parser.Parameter) ([]string, error) {
+func (c typeConverter) convertValueToStringArray(value string, parameter parser.Parameter) ([]string, error) {
 	return c.splitEscaped(value, ','), nil
 }
 
-func (c typeConverter) convertToIntegerArray(value string, parameter parser.Parameter) ([]int, error) {
+func (c typeConverter) convertValueToIntegerArray(value string, parameter parser.Parameter) ([]int, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []int{}
@@ -222,7 +199,7 @@ func (c typeConverter) convertToIntegerArray(value string, parameter parser.Para
 	return result, nil
 }
 
-func (c typeConverter) convertToNumberArray(value string, parameter parser.Parameter) ([]float64, error) {
+func (c typeConverter) convertValueToNumberArray(value string, parameter parser.Parameter) ([]float64, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []float64{}
@@ -236,7 +213,7 @@ func (c typeConverter) convertToNumberArray(value string, parameter parser.Param
 	return result, nil
 }
 
-func (c typeConverter) convertToBooleanArray(value string, parameter parser.Parameter) ([]bool, error) {
+func (c typeConverter) convertValueToBooleanArray(value string, parameter parser.Parameter) ([]bool, error) {
 	splitted := c.splitEscaped(value, ',')
 
 	result := []bool{}
@@ -285,18 +262,97 @@ func (c typeConverter) Convert(value string, parameter parser.Parameter) (interf
 		return c.convertToBoolean(value, parameter)
 	case parser.ParameterTypeBinary:
 		return c.convertToBinary(value, parameter)
-	case parser.ParameterTypeObject, parser.ParameterTypeObjectArray:
+	case parser.ParameterTypeObject:
 		return c.convertToObject(value, parameter)
 	case parser.ParameterTypeStringArray:
-		return c.convertToStringArray(value, parameter)
+		return c.convertValueToStringArray(value, parameter)
 	case parser.ParameterTypeIntegerArray:
-		return c.convertToIntegerArray(value, parameter)
+		return c.convertValueToIntegerArray(value, parameter)
 	case parser.ParameterTypeNumberArray:
-		return c.convertToNumberArray(value, parameter)
+		return c.convertValueToNumberArray(value, parameter)
 	case parser.ParameterTypeBooleanArray:
-		return c.convertToBooleanArray(value, parameter)
+		return c.convertValueToBooleanArray(value, parameter)
+	case parser.ParameterTypeObjectArray:
+		return c.convertToObject(value, parameter)
 	default:
 		return value, nil
+	}
+}
+
+func (c typeConverter) convertToObjectArray(values []string, parameter parser.Parameter) ([]interface{}, error) {
+	result := []interface{}{}
+	for _, value := range values {
+		item, err := c.convertToObject(value, parameter)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, item)
+	}
+	return result, nil
+}
+
+func (c typeConverter) convertToStringArray(values []string, parameter parser.Parameter) ([]string, error) {
+	result := []string{}
+	for _, value := range values {
+		items, err := c.convertValueToStringArray(value, parameter)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, items...)
+	}
+	return result, nil
+}
+
+func (c typeConverter) convertToIntegerArray(values []string, parameter parser.Parameter) ([]int, error) {
+	result := []int{}
+	for _, value := range values {
+		items, err := c.convertValueToIntegerArray(value, parameter)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, items...)
+	}
+	return result, nil
+}
+
+func (c typeConverter) convertToNumberArray(values []string, parameter parser.Parameter) ([]float64, error) {
+	result := []float64{}
+	for _, value := range values {
+		items, err := c.convertValueToNumberArray(value, parameter)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, items...)
+	}
+	return result, nil
+}
+
+func (c typeConverter) convertToBooleanArray(values []string, parameter parser.Parameter) ([]bool, error) {
+	result := []bool{}
+	for _, value := range values {
+		items, err := c.convertValueToBooleanArray(value, parameter)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, items...)
+	}
+	return result, nil
+}
+
+func (c typeConverter) ConvertArray(values []string, parameter parser.Parameter) (interface{}, error) {
+	switch parameter.Type {
+	case parser.ParameterTypeObjectArray:
+		return c.convertToObjectArray(values, parameter)
+	case parser.ParameterTypeStringArray:
+		return c.convertToStringArray(values, parameter)
+	case parser.ParameterTypeIntegerArray:
+		return c.convertToIntegerArray(values, parameter)
+	case parser.ParameterTypeNumberArray:
+		return c.convertToNumberArray(values, parameter)
+	case parser.ParameterTypeBooleanArray:
+		return c.convertToBooleanArray(values, parameter)
+	default:
+		return values, nil
 	}
 }
 

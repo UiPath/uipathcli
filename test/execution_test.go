@@ -329,22 +329,22 @@ paths:
 	}
 }
 
-func TestRequestWithPathParameterArray(t *testing.T) {
+func TestCommaSeparatedArrayArgument(t *testing.T) {
 	t.Run("StringArray", func(t *testing.T) {
-		RequestWithPathParameterArray(t, "string", "val1,val2", "val1,val2")
+		CommaSeparatedArrayArgument(t, "string", "val1,val2", "val1,val2")
 	})
 	t.Run("IntegerArray", func(t *testing.T) {
-		RequestWithPathParameterArray(t, "integer", "1,4", "1,4")
+		CommaSeparatedArrayArgument(t, "integer", "1,4", "1,4")
 	})
 	t.Run("NumberArray", func(t *testing.T) {
-		RequestWithPathParameterArray(t, "number", "0.5,0.1,1.3", "0.5,0.1,1.3")
+		CommaSeparatedArrayArgument(t, "number", "0.5,0.1,1.3", "0.5,0.1,1.3")
 	})
 	t.Run("BooleanArray", func(t *testing.T) {
-		RequestWithPathParameterArray(t, "boolean", "true,false,true", "true,false,true")
+		CommaSeparatedArrayArgument(t, "boolean", "true,false,true", "true,false,true")
 	})
 }
 
-func RequestWithPathParameterArray(t *testing.T, itemsType string, argument string, pathValue string) {
+func CommaSeparatedArrayArgument(t *testing.T, itemsType string, argument string, pathValue string) {
 	definition := `
 paths:
   /ping/{ids}:
@@ -367,6 +367,55 @@ paths:
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--ids", argument}, context)
+
+	expected := "/ping/" + pathValue
+	if result.RequestUrl != expected {
+		t.Errorf("Invalid request url, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestMultipleArgumentsArray(t *testing.T) {
+	t.Run("StringArray", func(t *testing.T) {
+		MultipleArgumentsArray(t, "string", []string{"val1", "val2"}, "val1,val2")
+	})
+	t.Run("IntegerArray", func(t *testing.T) {
+		MultipleArgumentsArray(t, "integer", []string{"1", "4"}, "1,4")
+	})
+	t.Run("NumberArray", func(t *testing.T) {
+		MultipleArgumentsArray(t, "number", []string{"0.5", "0.1", "1.3"}, "0.5,0.1,1.3")
+	})
+	t.Run("BooleanArray", func(t *testing.T) {
+		MultipleArgumentsArray(t, "boolean", []string{"true", "false", "true"}, "true,false,true")
+	})
+}
+
+func MultipleArgumentsArray(t *testing.T, itemsType string, arguments []string, pathValue string) {
+	definition := `
+paths:
+  /ping/{ids}:
+    parameters:
+    - name: ids
+      in: path
+      required: true
+      description: The ids
+      schema:
+        type: array
+        items:
+          type: ` + itemsType + `
+    get:
+      operationId: ping
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	args := []string{"myservice", "ping"}
+	for _, arg := range arguments {
+		args = append(args, "--ids", arg)
+	}
+	result := RunCli(args, context)
 
 	expected := "/ping/" + pathValue
 	if result.RequestUrl != expected {
@@ -846,7 +895,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `[0].hello=world; [1].other=object`}, context)
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", "hello=world", "--myparameter", "other=object"}, context)
 
 	expected := `{"myparameter":[{"hello":"world"},{"other":"object"}]}`
 	if result.RequestBody != expected {

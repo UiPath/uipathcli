@@ -317,10 +317,15 @@ Array arguments can be passed as comma-separated strings and are automatically c
 uipath product list --name-filter "my-product,new-product"
 ```
 
+You can also provide arrays by repeating parameters:
+
+```bash
+uipath app create --users "name=Administrator" --users "name=Guest"
+```
+
 Object arrays are also supported and can be provided using the index operator `[integer]`, e.g.
 
 ```bash
-uipath app create --scopes "[0].name = OR\.Users; [1].name = OR\.Machines"
 uipath user create --auth "roles[0].name = admin; roles[1].name = user"
 ```
 

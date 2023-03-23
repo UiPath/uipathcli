@@ -62,18 +62,8 @@ func (f parameterFormatter) descriptionFields(parameter parser.Parameter) []inte
 }
 
 func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
-	var key string
-	switch parameter.Type {
-	case parser.ParameterTypeObject:
-		key = ""
-	case parser.ParameterTypeObjectArray:
-		key = "[0]."
-	default:
-		return ""
-	}
-
 	parameters := map[string]string{}
-	f.collectUsageParameters(parameter, key, parameters)
+	f.collectUsageParameters(parameter, "", parameters)
 
 	builder := strings.Builder{}
 	for key, value := range parameters {
@@ -85,11 +75,12 @@ func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
 
 func (f parameterFormatter) collectUsageParameters(parameter parser.Parameter, prefix string, result map[string]string) {
 	for _, p := range parameter.Parameters {
-		if p.Type == parser.ParameterTypeObject {
-			f.collectUsageParameters(p, prefix+p.FieldName+".", result)
-		}
 		if p.Type == parser.ParameterTypeObjectArray {
 			f.collectUsageParameters(p, prefix+p.FieldName+"[0].", result)
+			continue
+		}
+		if p.Type == parser.ParameterTypeObject {
+			f.collectUsageParameters(p, prefix+p.FieldName+".", result)
 		}
 		result[prefix+p.FieldName] = f.humanReadableType(p.Type)
 	}
@@ -131,7 +122,7 @@ func (f parameterFormatter) humanReadableType(_type string) string {
 	case parser.ParameterTypeBooleanArray:
 		return "boolean,boolean,..."
 	case parser.ParameterTypeObjectArray:
-		return "object,object,..."
+		return "object (multiple)"
 	default:
 		return "object"
 	}

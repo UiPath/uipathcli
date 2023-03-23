@@ -106,7 +106,14 @@ func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *
 
 	parameters := []executor.ExecutionParameter{}
 	for _, param := range operation.Parameters {
-		if context.IsSet(param.Name) {
+		if context.IsSet(param.Name) && param.IsArray() {
+			value, err := typeConverter.ConvertArray(context.StringSlice(param.Name), param)
+			if err != nil {
+				return nil, err
+			}
+			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
+			parameters = append(parameters, *parameter)
+		} else if context.IsSet(param.Name) {
 			value, err := typeConverter.Convert(context.String(param.Name), param)
 			if err != nil {
 				return nil, err
@@ -133,10 +140,6 @@ func (b CommandBuilder) createExecutionParametersFromConfigMap(params map[string
 	return parameters
 }
 
-func (b CommandBuilder) parameterRequired(parameter parser.Parameter) bool {
-	return parameter.Required && parameter.DefaultValue == nil
-}
-
 func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
 	result := ""
 	separator := ""
@@ -150,11 +153,20 @@ func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
 func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 	flags := []cli.Flag{}
 	for _, parameter := range parameters {
-		flag := cli.StringFlag{
-			Name:  parameter.Name,
-			Usage: newParameterFormatter(parameter).Description(),
+		formatter := newParameterFormatter(parameter)
+		if parameter.IsArray() {
+			flag := cli.StringSliceFlag{
+				Name:  parameter.Name,
+				Usage: formatter.Description(),
+			}
+			flags = append(flags, &flag)
+		} else {
+			flag := cli.StringFlag{
+				Name:  parameter.Name,
+				Usage: formatter.Description(),
+			}
+			flags = append(flags, &flag)
 		}
-		flags = append(flags, &flag)
 	}
 	return flags
 }
