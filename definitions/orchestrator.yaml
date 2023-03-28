@@ -8353,6 +8353,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8415,6 +8420,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Package deleted
@@ -8443,6 +8453,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
       responses:
         "200":
           description: Success
@@ -8470,6 +8485,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8527,6 +8547,11 @@ paths:
         Required permissions: Libraries.Create.
       operationId: Libraries_UploadPackage
       parameters:
+        - name: feedId
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -13789,7 +13814,7 @@ paths:
           application/*+json:
             schema:
               $ref: '#/components/schemas/BulkAddQueueItemsRequest'
-        required: false
+        required: true
       responses:
         "200":
           description: Success
@@ -14188,7 +14213,7 @@ paths:
       description: |-
         OAuth required scopes: OR.Execution or OR.Execution.Write.
 
-        Required permissions: Processes.Create.
+        Required permissions: (Processes.Create) and (RemoteControl.Create - Required when creating a process with live streaming enabled.).
       operationId: Releases_Post
       parameters:
         - name: X-UIPATH-OrganizationUnitId
@@ -14308,7 +14333,7 @@ paths:
       description: |-
         OAuth required scopes: OR.Execution or OR.Execution.Write.
 
-        Required permissions: Processes.Edit.
+        Required permissions: (Processes.Edit) and (RemoteControl.Create - Required when changing the live streaming configuration.).
       operationId: Releases_PutById
       parameters:
         - name: key
@@ -14417,7 +14442,7 @@ paths:
       description: |-
         OAuth required scopes: OR.Execution or OR.Execution.Write.
 
-        Required permissions: Processes.Edit.
+        Required permissions: (Processes.Edit) and (RemoteControl.Create - Required when changing the live streaming configuration.).
       operationId: Releases_PatchById
       parameters:
         - name: key
@@ -16305,10 +16330,7 @@ paths:
       responses:
         "200":
           description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RoleDto'
+          content: {}
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -23669,7 +23691,7 @@ components:
             - StartInstall
             - VideoAccess
             - AutomaticallyExploreEnd
-            - Commit
+            - InstallState
           x-ms-enum:
             name: AuditLogDtoAction
             modelAsString: false
@@ -23840,7 +23862,7 @@ components:
             - StartInstall
             - VideoAccess
             - AutomaticallyExploreEnd
-            - Commit
+            - InstallState
           x-ms-enum:
             name: AuditLogEntityDtoAction
             modelAsString: false
@@ -24830,18 +24852,6 @@ components:
         HasChildren:
           type: boolean
           description: True if this folder has children
-        FolderType:
-          type: string
-          description: Folder type
-          readOnly: true
-          enum:
-            - Standard
-            - Personal
-            - Virtual
-            - Solution
-          x-ms-enum:
-            name: ExtendedFolderDtoFolderType
-            modelAsString: false
         Level:
           type: integer
           description: Level in the Folders tree.
@@ -24861,6 +24871,17 @@ components:
           maxLength: 500
           type: string
           description: Description of folder
+        FolderType:
+          type: string
+          description: Folder type
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: FolderDtoFolderType
+            modelAsString: false
         IsPersonal:
           type: boolean
           description: True if Personal
@@ -25218,6 +25239,7 @@ components:
             - UserHasAttachedTriggers
             - MachineHasAttachedTriggers
             - InvalidTimeZoneId
+            - DisabledDueToConsecutiveJobFailures
             - DownloadUnavailable
             - CannotConnectToPackagesRepository
             - NotSupportedByExternalFeeds
@@ -25631,6 +25653,17 @@ components:
           maxLength: 500
           type: string
           description: Description of folder
+        FolderType:
+          type: string
+          description: Folder type
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: FolderDtoFolderType
+            modelAsString: false
         IsPersonal:
           type: boolean
           description: True if Personal
@@ -26148,6 +26181,15 @@ components:
           type: integer
           description: Expected running time in seconds
           format: int64
+        ServerlessJobType:
+          type: string
+          description: The type of the serverless job, RobotJob or Generic
+          enum:
+            - RobotJob
+            - StudioWebDesigner
+          x-ms-enum:
+            name: JobDtoServerlessJobType
+            modelAsString: false
         Id:
           type: integer
           format: int64
@@ -28596,6 +28638,16 @@ components:
           type: string
         RunAsMe:
           type: boolean
+        ConsecutiveJobFailuresThreshold:
+          maximum: 1E+2
+          minimum: 0
+          type: integer
+          format: int32
+        JobFailuresGracePeriodInHours:
+          maximum: 7.2E+2
+          minimum: 0
+          type: integer
+          format: int32
         IsConnected:
           type: boolean
           description: Whether this process trigger represents a connected trigger defined in package bindings
@@ -29457,6 +29509,11 @@ components:
         ExecutorJobId:
           type: integer
           description: The id for the job that processed the queue item
+          format: int64
+          readOnly: true
+        CreatorUserId:
+          type: integer
+          description: The id for the user that created the queue item
           format: int64
           readOnly: true
         RiskSlaDate:
@@ -31440,6 +31497,10 @@ components:
         Info:
           type: string
           readOnly: true
+        SpecificPriorityValue:
+          type: integer
+          format: int32
+          readOnly: true
         OutputArguments:
           type: object
           properties: {}
@@ -32479,6 +32540,9 @@ components:
         TotalFolderCount:
           type: integer
           format: int64
+        Key:
+          type: string
+          format: uuid
     TaskCatalogFoldersShareDto:
       type: object
       properties:
@@ -35092,6 +35156,11 @@ components:
           x-ms-enum:
             name: WebhookJobDtoProcessType
             modelAsString: false
+        SpecificPriorityValue:
+          type: integer
+          description: The priority for a job
+          format: int32
+          readOnly: true
     WebhookProcessingExceptionDto:
       type: object
       properties:
@@ -35113,6 +35182,11 @@ components:
           x-ms-enum:
             name: WebhookProcessingExceptionDtoType
             modelAsString: false
+        Timestamp:
+          type: string
+          description: The creation time
+          format: date-time
+          readOnly: true
         AssociatedImageFilePath:
           type: string
           description: A path on the robot running computer to an image file that stores relevant information about the exception - e.g. a system print screen.
