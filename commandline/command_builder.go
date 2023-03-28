@@ -49,6 +49,24 @@ var predefinedFlags = []string{
 const outputFormatJson = "json"
 const outputFormatText = "text"
 
+const subcommandHelpTemplate = `NAME:
+   {{template "helpNameTemplate" .}}
+
+USAGE:
+   {{if .UsageText}}{{wrap .UsageText 3}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}}{{if .ArgsUsage}}{{.ArgsUsage}}{{else}} [arguments...]{{end}}{{end}}{{if .Description}}
+
+DESCRIPTION:
+   {{template "descriptionTemplate" .}}{{end}}{{if .VisibleCommands}}
+
+COMMANDS:{{template "visibleCommandTemplate" .}}{{end}}{{if .VisibleFlagCategories}}
+
+OPTIONS:{{template "visibleFlagCategoryTemplate" .}}{{else if .VisibleFlags}}
+
+OPTIONS:{{range $i, $e := .VisibleFlags}}
+   --{{$e.Name}} {{wrap $e.Usage 6}}
+{{end}}{{end}}
+`
+
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
 	Input              utils.Stream
@@ -88,7 +106,14 @@ func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *
 
 	parameters := []executor.ExecutionParameter{}
 	for _, param := range operation.Parameters {
-		if context.IsSet(param.Name) {
+		if context.IsSet(param.Name) && param.IsArray() {
+			value, err := typeConverter.ConvertArray(context.StringSlice(param.Name), param)
+			if err != nil {
+				return nil, err
+			}
+			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
+			parameters = append(parameters, *parameter)
+		} else if context.IsSet(param.Name) {
 			value, err := typeConverter.Convert(context.String(param.Name), param)
 			if err != nil {
 				return nil, err
@@ -115,14 +140,7 @@ func (b CommandBuilder) createExecutionParametersFromConfigMap(params map[string
 	return parameters
 }
 
-func (b CommandBuilder) parameterRequired(parameter parser.Parameter) bool {
-	return parameter.Required && parameter.DefaultValue == nil
-}
-
 func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
-	if values == nil {
-		return ""
-	}
 	result := ""
 	separator := ""
 	for _, value := range values {
@@ -132,29 +150,23 @@ func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
 	return result
 }
 
-func (b CommandBuilder) parameterDescription(parameter parser.Parameter) string {
-	description := parameter.Description
-	if parameter.DefaultValue != nil {
-		description = fmt.Sprintf("%s (default: %v)", parameter.Description, parameter.DefaultValue)
-	} else if b.parameterRequired(parameter) {
-		description = fmt.Sprintf("%s (required)", parameter.Description)
-	}
-
-	allowedValues := b.formatAllowedValues(parameter.AllowedValues)
-	if allowedValues != "" {
-		return fmt.Sprintf("%s \nallowed values: %s", description, allowedValues)
-	}
-	return description
-}
-
 func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
 	flags := []cli.Flag{}
 	for _, parameter := range parameters {
-		flag := cli.StringFlag{
-			Name:  parameter.Name,
-			Usage: b.parameterDescription(parameter),
+		formatter := newParameterFormatter(parameter)
+		if parameter.IsArray() {
+			flag := cli.StringSliceFlag{
+				Name:  parameter.Name,
+				Usage: formatter.Description(),
+			}
+			flags = append(flags, &flag)
+		} else {
+			flag := cli.StringFlag{
+				Name:  parameter.Name,
+				Usage: formatter.Description(),
+			}
+			flags = append(flags, &flag)
 		}
-		flags = append(flags, &flag)
 	}
 	return flags
 }
@@ -297,10 +309,11 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 	flagBuilder.AddFlags(b.createFlags(parameters))
 
 	return &cli.Command{
-		Name:        operation.Name,
-		Usage:       operation.Summary,
-		Description: operation.Description,
-		Flags:       flagBuilder.ToList(),
+		Name:               operation.Name,
+		Usage:              operation.Summary,
+		Description:        operation.Description,
+		Flags:              flagBuilder.ToList(),
+		CustomHelpTemplate: subcommandHelpTemplate,
 		Action: func(context *cli.Context) error {
 			profileName := context.String(profileFlagName)
 			config := b.ConfigProvider.Config(profileName)

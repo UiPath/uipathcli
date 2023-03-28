@@ -545,7 +545,7 @@ paths:
 
 	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
-	expected := "This is my parameter (required)"
+	expected := "--myparameter string (required)"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
@@ -574,7 +574,7 @@ paths:
 
 	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
-	expected := "This is my parameter (default: 1)"
+	expected := "--myparameter string (default: 1)"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
@@ -604,7 +604,7 @@ paths:
 
 	result := RunCli([]string{"myservice", "post-validate", "--help"}, context)
 
-	expected := "This is my parameter (default: 1)"
+	expected := "--myparameter string (default: 1)"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain request body parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
@@ -869,8 +869,14 @@ paths:
 
 	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
-	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
-		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
+	if !strings.Contains(result.StdOut, "Allowed values:") {
+		t.Errorf("stdout does not contain allowed values, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- Value1") {
+		t.Errorf("stdout does not contain first allowed value, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- Value2") {
+		t.Errorf("stdout does not contain second allowed value, got: %v", result.StdOut)
 	}
 }
 
@@ -900,8 +906,14 @@ components:
 
 	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
-	if !strings.Contains(result.StdOut, "allowed values: 0, 1") {
-		t.Errorf("stdout does not contain enum options, got: %v", result.StdOut)
+	if !strings.Contains(result.StdOut, "Allowed values:") {
+		t.Errorf("stdout does not contain allowed values, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- 0") {
+		t.Errorf("stdout does not contain first allowed value, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- 1") {
+		t.Errorf("stdout does not contain second allowed value, got: %v", result.StdOut)
 	}
 }
 
@@ -991,8 +1003,14 @@ components:
 
 	result := RunCli([]string{"myservice", "list", "--help"}, context)
 
-	if !strings.Contains(result.StdOut, "allowed values: Value1, Value2") {
-		t.Errorf("stdout does not contain allowed values from allof schema, got: %v", result.StdOut)
+	if !strings.Contains(result.StdOut, "Allowed values:") {
+		t.Errorf("stdout does not contain allowed values, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- Value1") {
+		t.Errorf("stdout does not contain first allowed value, got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "- Value2") {
+		t.Errorf("stdout does not contain second allowed value, got: %v", result.StdOut)
 	}
 }
 

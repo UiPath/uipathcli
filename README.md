@@ -311,10 +311,22 @@ uipath product create --name "new-product" --stock "5" --price "1.4" --deleted "
 
 ### Array arguments
 
-Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean and object arrays.
+Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean arrays.
 
 ```bash
 uipath product list --name-filter "my-product,new-product"
+```
+
+You can also provide arrays by repeating parameters:
+
+```bash
+uipath app create --users "name=Administrator" --users "name=Guest"
+```
+
+Object arrays are also supported and can be provided using the index operator `[integer]`, e.g.
+
+```bash
+uipath user create --auth "roles[0].name = admin; roles[1].name = user"
 ```
 
 ### Nested Object arguments
