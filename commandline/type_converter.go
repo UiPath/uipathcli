@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -163,7 +164,21 @@ func (c typeConverter) initArray(name string, value interface{}, index int) ([]i
 	return c.initArrayItem(array, index)
 }
 
+func (c typeConverter) convertJsonToObject(value string) (interface{}, error) {
+	var data interface{}
+	err := json.Unmarshal([]byte(value), &data)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
+}
+
 func (c typeConverter) convertToObject(value string, parameter parser.Parameter) (interface{}, error) {
+	data, err := c.convertJsonToObject(value)
+	if err == nil {
+		return data, nil
+	}
+
 	obj := map[string]interface{}{}
 	assigns := c.splitEscaped(value, ';')
 	for _, assign := range assigns {

@@ -311,19 +311,26 @@ uipath product create --name "new-product" --stock "5" --price "1.4" --deleted "
 
 ### Array arguments
 
-Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point, boolean arrays.
+Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point and boolean arrays.
 
 ```bash
 uipath product list --name-filter "my-product,new-product"
 ```
 
-You can also provide arrays by repeating parameters:
+You can also provide arrays by specifing the same parameter multiple times:
+
+```bash
+uipath product list --name-filter "my-product" --name-filter "new-product"
+```
+
+This also works for complex objects using the assignment notation or plain JSON:
 
 ```bash
 uipath app create --users "name=Administrator" --users "name=Guest"
+uipath app create --users '{"name": "Administrator"}' --users '{"name": "Guest"}'
 ```
 
-Object arrays are also supported and can be provided using the index operator `[integer]`, e.g.
+Object arrays are also supported and can be provided using the index operator `[0]`,`[1]`, `[2]`, ...
 
 ```bash
 uipath user create --auth "roles[0].name = admin; roles[1].name = user"
@@ -353,6 +360,12 @@ The command creates the following JSON body in the HTTP request:
   }
 }
 ```
+
+You can also specify JSON directly as an argument, e.g.:
+```bash
+uipath product create --product '{ "name": "my-product", "price": { "value": 340, "sale": { "discount": 10, "value": 306 } } }'
+```
+
 ### File Upload arguments
 
 CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
@@ -447,6 +460,9 @@ Authorization: Bearer ...
 HTTP/1.1 200 OK
 Connection: keep-alive
 Content-Type: application/json; charset=utf-8
+
+{"location":"westeurope","serverRegion":"westeurope","clusterId":"du-prod-du-we-g-dns","version":"22.8-63-main.v29c916","timestamp":"2022-08-23T12:23:19.0121688Z"}
+
 
 {
   "location": "westeurope",
