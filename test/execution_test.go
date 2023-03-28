@@ -1523,3 +1523,57 @@ components:
 		t.Errorf("Object type with custom parameter name not found in request body, expected: %v, but got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestJsonInputForObjectType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `{ "hello": "world" }`}, context)
+
+	expected := `{"myparameter":{"hello":"world"}}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find json object in request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
+func TestMultipleJsonObjectArgumentsForObjectArrayType(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                myparameter:
+                  type: array
+                  items:
+                    type: object
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "post-validate", "--myparameter", `{ "foo": 1 }`, "--myparameter", `{ "bar": 2 }`}, context)
+
+	expected := `{"myparameter":[{"foo":1},{"bar":2}]}`
+	if result.RequestBody != expected {
+		t.Errorf("Did not find json object in request body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
