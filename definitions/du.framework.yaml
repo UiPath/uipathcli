@@ -38,49 +38,49 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/extractors:
     get:
       tags:
@@ -122,67 +122,67 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "404":
           description: Not Found
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/classifiers:
     get:
       tags:
         - Discovery
       summary: ""
-      description: "Retrieve all classifiers from a project. \r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
+      description: "Retrieve all classifiers from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
       operationId: classifiers
       parameters:
         - name: api-version
@@ -218,61 +218,61 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "404":
           description: Not Found
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/digitization/start:
     post:
       tags:
@@ -326,85 +326,85 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "401":
           description: Unauthorized
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "404":
           description: Not Found
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "415":
           description: Client Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/classifiers/{classifierId}/classification:
     post:
       tags:
@@ -464,73 +464,73 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "401":
           description: Unauthorized
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "404":
           description: Not Found
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/extractors/{extractorId}/extraction:
     post:
       tags:
@@ -590,73 +590,73 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "401":
           description: Unauthorized
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "403":
           description: Forbidden
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "404":
           description: Not Found
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "500":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "503":
           description: Server Error
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
 components:
   schemas:
     UiPath.DocumentProcessing.Contracts.Box:
@@ -1182,6 +1182,11 @@ components:
           nullable: true
         status:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
+        documentTypeIds:
+          type: array
+          items:
+            type: string
+          nullable: true
         syncUrl:
           type: string
           format: uri
@@ -1263,7 +1268,7 @@ components:
         extractionResult:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
       additionalProperties: false
-    UiPath.DocumentUnderstanding.Framework.Api.Helpers.ErrorResponse:
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse:
       type: object
       properties:
         message:

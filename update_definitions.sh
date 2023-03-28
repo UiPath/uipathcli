@@ -101,23 +101,6 @@ function update_server_url()
 }
 
 ############################################################
-# Sets all tags to the given value
-#
-# Arguments:
-#   - The new tag value
-############################################################
-function update_all_tags() 
-{
-  local tag_name="$1"
-  bin/yq '(.paths[] | select(.get.tags != null)).get.tags = ["'"$tag_name"'"]' \
-  | bin/yq '(.paths[] | select(.post.tags != null)).post.tags = ["'"$tag_name"'"]' \
-  | bin/yq '(.paths[] | select(.put.tags != null)).put.tags = ["'"$tag_name"'"]' \
-  | bin/yq '(.paths[] | select(.patch.tags != null)).patch.tags = ["'"$tag_name"'"]' \
-  | bin/yq '(.paths[] | select(.delete.tags != null)).delete.tags = ["'"$tag_name"'"]' \
-  | bin/yq '(.paths[] | select(.head.tags != null)).head.tags = ["'"$tag_name"'"]'
-}
-
-############################################################
 # Sets a property for the given parameter
 #
 # Arguments:
@@ -145,44 +128,9 @@ fi
 
 mkdir -p definitions/
 
-echo "Updating oms definition..."
-download_definition "https://cloud.uipath.com/$organization/portal_/organization/swagger/v1.0/swagger.json" \
-| update_server_url "https://cloud.uipath.com/{organization}/portal_/organization" \
-| save_definition "oms"
-
 echo "Updating identity definition..."
 download_definition "https://cloud.uipath.com/$organization/identity_/swagger/external/swagger.json" \
 | save_definition "identity"
-
-echo "Updating du.storage definition..."
-download_definition "https://cloud.uipath.com/$organization/$tenant/du_/api/storage/swagger/v1/swagger.json" \
-| update_server_url "https://cloud.uipath.com/{organization}/{tenant}/du_/api/storage" \
-| update_all_tags "Storage" \
-| bin/yq '.paths."/store/{objectKey}".put.requestBody =
-  {
-    "content": {
-      "application/octet-stream": {
-        "schema": {
-          "type": "string",
-          "format": "binary",
-          "description": "The file to upload"
-        }
-      }
-    }
-  }' \
-| save_definition "du.storage"
-
-echo "Updating du.events definition..."
-download_definition "https://cloud.uipath.com/$organization/$tenant/du_/api/eventservice/swagger/v1/swagger.json" \
-| update_server_url "https://cloud.uipath.com/{organization}/{tenant}/du_/api/eventservice" \
-| update_all_tags "Events" \
-| save_definition "du.events"
-
-echo "Updating du.metering definition..."
-download_definition "https://cloud.uipath.com/$organization/$tenant/aimetering_/swagger/v1/swagger.json" \
-| update_server_url "https://cloud.uipath.com/{organization}/{tenant}/aimetering_" \
-| update_all_tags "Metering" \
-| save_definition "du.metering"
 
 echo "Updating du.framework definition..."
 download_definition "https://cloud.uipath.com/$organization/$tenant/du_/api/framework/swagger/v1/swagger.json" \
