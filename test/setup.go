@@ -36,7 +36,13 @@ func NewContextBuilder() *ContextBuilder {
 }
 
 func (b *ContextBuilder) WithDefinition(name string, data string) *ContextBuilder {
-	definitionData := commandline.NewDefinitionData(name, []byte(data))
+	definitionData := commandline.NewDefinitionData(name, "", []byte(data))
+	b.context.Definitions = append(b.context.Definitions, *definitionData)
+	return b
+}
+
+func (b *ContextBuilder) WithDefinitionVersion(name string, version string, data string) *ContextBuilder {
+	definitionData := commandline.NewDefinitionData(name, version, []byte(data))
 	b.context.Definitions = append(b.context.Definitions, *definitionData)
 	return b
 }
@@ -189,17 +195,13 @@ func RunCli(args []string, context Context) Result {
 		commandPlugins = append(commandPlugins, context.CommandPlugin)
 	}
 
-	definitionFiles := []string{}
-	for _, data := range context.Definitions {
-		definitionFiles = append(definitionFiles, data.Name+".yaml")
-	}
 	cli := commandline.NewCli(
 		context.StdIn,
 		stdout,
 		stderr,
 		false,
 		*commandline.NewDefinitionProvider(
-			commandline.NewDefinitionFileStoreWithData(definitionFiles, context.Definitions),
+			commandline.NewDefinitionFileStoreWithData(context.Definitions),
 			parser.NewOpenApiParser(),
 			commandPlugins,
 		),

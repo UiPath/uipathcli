@@ -12,4 +12,5 @@ type profileYaml struct {
 	Insecure     bool                   `yaml:"insecure,omitempty"`
 	Debug        bool                   `yaml:"debug,omitempty"`
 	Output       string                 `yaml:"output,omitempty"`
+	Version      string                 `yaml:"version,omitempty"`
 }

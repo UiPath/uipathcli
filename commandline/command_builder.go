@@ -31,6 +31,7 @@ const outputFormatFlagName = "output"
 const queryFlagName = "query"
 const waitFlagName = "wait"
 const waitTimeoutFlagName = "wait-timeout"
+const versionFlagName = "version"
 
 var predefinedFlags = []string{
 	insecureFlagName,
@@ -44,6 +45,7 @@ var predefinedFlags = []string{
 	queryFlagName,
 	waitFlagName,
 	waitTimeoutFlagName,
+	versionFlagName,
 }
 
 const outputFormatJson = "json"
@@ -459,6 +461,7 @@ func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.C
 		Description: operation.Category.Description,
 		Flags: []cli.Flag{
 			b.HelpFlag(),
+			b.VersionFlag(true),
 		},
 		HideHelp: true,
 	}
@@ -501,6 +504,7 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 		Description: definition.Description,
 		Flags: []cli.Flag{
 			b.HelpFlag(),
+			b.VersionFlag(true),
 		},
 		Subcommands: commands,
 		HideHelp:    true,
@@ -543,7 +547,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 	}
 }
 
-func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
+func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *cli.Command {
 	return &cli.Command{
 		Name:        "complete",
 		Description: "Returns the autocomplete suggestions",
@@ -562,7 +566,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 				exclude = append(exclude, "--"+flagName)
 			}
 			args := strings.Split(commandText, " ")
-			definitions, err := b.loadAutocompleteDefinitions(args)
+			definitions, err := b.loadAutocompleteDefinitions(args, version)
 			if err != nil {
 				return err
 			}
@@ -578,7 +582,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand() *cli.Command {
 	}
 }
 
-func (b CommandBuilder) createAutoCompleteCommand() *cli.Command {
+func (b CommandBuilder) createAutoCompleteCommand(version string) *cli.Command {
 	return &cli.Command{
 		Name:        "autocomplete",
 		Description: "Commands for autocompletion",
@@ -587,7 +591,7 @@ func (b CommandBuilder) createAutoCompleteCommand() *cli.Command {
 		},
 		Subcommands: []*cli.Command{
 			b.createAutoCompleteEnableCommand(),
-			b.createAutoCompleteCompleteCommand(),
+			b.createAutoCompleteCompleteCommand(version),
 		},
 		HideHelp: true,
 	}
@@ -671,22 +675,22 @@ func (b CommandBuilder) createConfigSetCommand() *cli.Command {
 	}
 }
 
-func (b CommandBuilder) loadDefinitions(args []string) ([]parser.Definition, error) {
+func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser.Definition, error) {
 	if len(args) <= 1 || strings.HasPrefix(args[1], "--") {
-		return b.DefinitionProvider.Index()
+		return b.DefinitionProvider.Index(version)
 	}
-	definition, err := b.DefinitionProvider.Load(args[1])
+	definition, err := b.DefinitionProvider.Load(args[1], version)
 	if definition == nil {
 		return nil, err
 	}
 	return []parser.Definition{*definition}, err
 }
 
-func (b CommandBuilder) loadAutocompleteDefinitions(args []string) ([]parser.Definition, error) {
+func (b CommandBuilder) loadAutocompleteDefinitions(args []string, version string) ([]parser.Definition, error) {
 	if len(args) <= 2 {
-		return b.DefinitionProvider.Index()
+		return b.DefinitionProvider.Index(version)
 	}
-	return b.loadDefinitions(args)
+	return b.loadDefinitions(args, version)
 }
 
 func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) []*cli.Command {
@@ -698,13 +702,37 @@ func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) [
 	return commands
 }
 
+func (b CommandBuilder) parseArgument(args []string, name string) string {
+	for i, arg := range args {
+		if strings.TrimSpace(arg) == "--"+name {
+			if len(args) > i+1 {
+				return strings.TrimSpace(args[i+1])
+			}
+		}
+	}
+	return ""
+}
+
+func (b CommandBuilder) versionFromProfile(profile string) string {
+	config := b.ConfigProvider.Config(profile)
+	if config == nil {
+		return ""
+	}
+	return config.Version
+}
+
 func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
-	definitions, err := b.loadDefinitions(args)
+	version := b.parseArgument(args, versionFlagName)
+	profile := b.parseArgument(args, profileFlagName)
+	if version == "" && profile != "" {
+		version = b.versionFromProfile(profile)
+	}
+	definitions, err := b.loadDefinitions(args, version)
 	if err != nil {
 		return nil, err
 	}
 	servicesCommands := b.createServiceCommands(definitions)
-	autocompleteCommand := b.createAutoCompleteCommand()
+	autocompleteCommand := b.createAutoCompleteCommand(version)
 	configCommand := b.createConfigCommand()
 	commands := append(servicesCommands, autocompleteCommand, configCommand)
 	return commands, nil
@@ -776,6 +804,17 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Value:  30,
 			Hidden: hidden,
 		},
+		b.VersionFlag(hidden),
+	}
+}
+
+func (b CommandBuilder) VersionFlag(hidden bool) cli.Flag {
+	return &cli.StringFlag{
+		Name:    versionFlagName,
+		Usage:   "Specific service version",
+		EnvVars: []string{"UIPATH_VERSION"},
+		Value:   "",
+		Hidden:  hidden,
 	}
 }
 
