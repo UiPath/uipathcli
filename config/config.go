@@ -19,6 +19,7 @@ type Config struct {
 	Insecure     bool
 	Debug        bool
 	Output       string
+	Version      string
 }
 
 // AuthConfig with metadata used for authenticating the caller.
@@ -171,4 +172,8 @@ func (c Config) SetAuthProperty(key string, value string) {
 	}
 	properties[key] = value
 	c.Auth.Config["properties"] = properties
+}
+
+func (c *Config) SetVersion(version string) {
+	c.Version = version
 }

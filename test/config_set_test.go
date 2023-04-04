@@ -341,3 +341,24 @@ func TestConfigSetAuthProperties(t *testing.T) {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
 	}
 }
+
+func TestConfigSetVersion(t *testing.T) {
+	configFile := createFile(t)
+	context := NewContextBuilder().
+		WithConfigFile(configFile).
+		Build()
+
+	RunCli([]string{"config", "set", "--key", "version", "--value", "22.10"}, context)
+
+	config, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  version: "22.10"
+`
+	if string(config) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
+	}
+}

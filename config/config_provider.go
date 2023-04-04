@@ -48,6 +48,7 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 	profile.Header = config.Header
 	profile.Path = config.Path
 	profile.Query = config.Query
+	profile.Version = config.Version
 
 	if index == -1 {
 		p.profiles = append(p.profiles, profile)
@@ -89,6 +90,7 @@ func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
 		Insecure: profile.Insecure,
 		Debug:    profile.Debug,
 		Output:   profile.Output,
+		Version:  profile.Version,
 	}
 }
 

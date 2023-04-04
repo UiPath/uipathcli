@@ -47,7 +47,10 @@ func (h ConfigCommandHandler) Set(key string, value string, profileName string) 
 
 func (h ConfigCommandHandler) setConfigValue(config *config.Config, key string, value string) error {
 	keyParts := strings.Split(key, ".")
-	if key == "organization" {
+	if key == "version" {
+		config.SetVersion(value)
+		return nil
+	} else if key == "organization" {
 		config.ConfigureOrgTenant(value, "")
 		return nil
 	} else if key == "tenant" {

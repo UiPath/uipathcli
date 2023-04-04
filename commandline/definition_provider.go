@@ -28,8 +28,8 @@ type DefinitionProvider struct {
 	commandPlugins []plugin.CommandPlugin
 }
 
-func (p DefinitionProvider) Index() ([]parser.Definition, error) {
-	emptyDefinitions, err := p.loadEmptyDefinitions()
+func (p DefinitionProvider) Index(version string) ([]parser.Definition, error) {
+	emptyDefinitions, err := p.loadEmptyDefinitions(version)
 	if err != nil {
 		return nil, err
 	}
@@ -44,15 +44,15 @@ func (p DefinitionProvider) Index() ([]parser.Definition, error) {
 	return result, nil
 }
 
-func (p DefinitionProvider) Load(name string) (*parser.Definition, error) {
-	names, err := p.store.Names()
+func (p DefinitionProvider) Load(name string, version string) (*parser.Definition, error) {
+	names, err := p.store.Names(version)
 	if err != nil {
 		return nil, err
 	}
 	definitions := []*parser.Definition{}
 	for _, n := range names {
 		if p.getServiceName(n) == name {
-			data, err := p.store.Read(n)
+			data, err := p.store.Read(n, version)
 			if err != nil {
 				return nil, err
 			}
@@ -86,8 +86,8 @@ func (p DefinitionProvider) getServiceName(name string) string {
 	return name
 }
 
-func (p DefinitionProvider) loadEmptyDefinitions() ([]DefinitionData, error) {
-	names, err := p.store.Names()
+func (p DefinitionProvider) loadEmptyDefinitions(version string) ([]DefinitionData, error) {
+	names, err := p.store.Names(version)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func (p DefinitionProvider) loadEmptyDefinitions() ([]DefinitionData, error) {
 	for _, name := range names {
 		serviceName := p.getServiceName(name)
 		if len(result) == 0 || result[len(result)-1].Name != serviceName {
-			result = append(result, *NewDefinitionData(serviceName, []byte{}))
+			result = append(result, *NewDefinitionData(serviceName, version, []byte{}))
 		}
 	}
 	return result, nil

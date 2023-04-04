@@ -17,50 +17,65 @@ type DefinitionFileStore struct {
 
 const DefinitionsDirectory = "definitions"
 
-func (s *DefinitionFileStore) Names() ([]string, error) {
-	definitionFiles, err := s.discoverDefinitions()
+func (s *DefinitionFileStore) Names(version string) ([]string, error) {
+	if s.definitions != nil {
+		names := []string{}
+		for _, definition := range s.definitions {
+			if version == definition.Version {
+				names = append(names, definition.Name)
+			}
+		}
+		return names, nil
+	}
+
+	definitionFiles, err := s.discoverDefinitions(version)
 	if err != nil {
 		return nil, err
 	}
 	return s.definitionNames(definitionFiles), nil
 }
 
-func (s *DefinitionFileStore) Read(name string) (*DefinitionData, error) {
+func (s *DefinitionFileStore) Read(name string, version string) (*DefinitionData, error) {
 	if s.definitions != nil {
 		for _, definition := range s.definitions {
-			if name == definition.Name {
+			if name == definition.Name && version == definition.Version {
 				return &definition, nil
 			}
 		}
 	}
 
-	definitionFiles, err := s.discoverDefinitions()
+	definitionFiles, err := s.discoverDefinitions(version)
 	if err != nil {
 		return nil, err
 	}
 
 	for _, path := range definitionFiles {
 		if name == s.definitionName(path) {
-			definition, err := s.readDefinition(path)
-			if definition != nil {
-				s.definitions = append(s.definitions, *definition)
+			data, err := s.readDefinitionData(path)
+			if err != nil {
+				return nil, err
 			}
+			definition := NewDefinitionData(name, version, data)
+			s.definitions = append(s.definitions, *definition)
 			return definition, err
 		}
 	}
 	return nil, nil
 }
 
-func (s *DefinitionFileStore) discoverDefinitions() ([]string, error) {
+func (s *DefinitionFileStore) discoverDefinitions(version string) ([]string, error) {
 	if s.files != nil {
 		return s.files, nil
 	}
 
-	definitionsDirectory, err := s.definitionsPath()
+	definitionsDirectory, err := s.definitionsPath(version)
 	if err != nil {
 		return nil, err
 	}
 	files, err := os.ReadDir(definitionsDirectory)
+	if err != nil && os.IsNotExist(err) && version != "" {
+		return nil, fmt.Errorf("Could not find definition files for version '%s' in folder '%s'", version, definitionsDirectory)
+	}
 	if err != nil {
 		return nil, fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
 	}
@@ -76,12 +91,12 @@ func (s *DefinitionFileStore) discoverDefinitions() ([]string, error) {
 	return definitionFiles, nil
 }
 
-func (s DefinitionFileStore) definitionsPath() (string, error) {
+func (s DefinitionFileStore) definitionsPath(version string) (string, error) {
 	if s.directory != "" {
 		return s.directory, nil
 	}
 	currentDirectory, err := os.Executable()
-	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory)
+	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, version)
 	if err != nil {
 		return "", fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
 	}
@@ -100,13 +115,12 @@ func (s DefinitionFileStore) definitionNames(paths []string) []string {
 	return names
 }
 
-func (s DefinitionFileStore) readDefinition(path string) (*DefinitionData, error) {
+func (s DefinitionFileStore) readDefinitionData(path string) ([]byte, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading definition file '%s': %w", path, err)
 	}
-	name := s.definitionName(path)
-	return NewDefinitionData(name, data), nil
+	return data, nil
 }
 
 func NewDefinitionFileStore(directory string) *DefinitionFileStore {
@@ -115,9 +129,8 @@ func NewDefinitionFileStore(directory string) *DefinitionFileStore {
 	}
 }
 
-func NewDefinitionFileStoreWithData(files []string, data []DefinitionData) *DefinitionFileStore {
+func NewDefinitionFileStoreWithData(data []DefinitionData) *DefinitionFileStore {
 	return &DefinitionFileStore{
-		files:       files,
 		definitions: data,
 	}
 }

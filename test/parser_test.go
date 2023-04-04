@@ -1296,3 +1296,115 @@ paths:
 		t.Errorf("stdout does not contain form parameter description, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
+func TestShowsSpecifiedVersionServiceDefinition(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v1
+`
+	definition2_0 := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
+		Build()
+
+	result := RunCli([]string{"--version", "2.0", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "myversionedservice") {
+		t.Errorf("Could not find versioned service definition, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "myservice") {
+		t.Errorf("Should not parse default service definitions, but got: %v", result.StdOut)
+	}
+}
+
+func TestShowsDefaultVersionServiceDefinitions(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v1
+`
+	definition2_0 := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
+		Build()
+
+	result := RunCli([]string{"--help"}, context)
+
+	if !strings.Contains(result.StdOut, "myservice") {
+		t.Errorf("Could not find default service definition, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "myversionedservice") {
+		t.Errorf("Should not parse versioned service definitions, but got: %v", result.StdOut)
+	}
+}
+
+func TestShowsSpecifiedVersionServiceOperations(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v1
+`
+	definition2_0 := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
+		Build()
+
+	result := RunCli([]string{"myversionedservice", "--version", "2.0", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "ping-v2") {
+		t.Errorf("Could not find versioned service operation, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "ping-v1") {
+		t.Errorf("Should not parse default service operation, but got: %v", result.StdOut)
+	}
+}
+
+func TestShowsDefaultVersionServiceOperations(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v1
+`
+	definition2_0 := `
+paths:
+  /ping:
+    get:
+      operationId: ping-v2
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
+		Build()
+
+	result := RunCli([]string{"myservice", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "ping-v1") {
+		t.Errorf("Could not find default service operation, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "ping-v2") {
+		t.Errorf("Should not parse versioned service operation, but got: %v", result.StdOut)
+	}
+}
