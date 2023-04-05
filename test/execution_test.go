@@ -1109,7 +1109,7 @@ paths:
 	}
 }
 
-func TestPostRequestWithStdInAndParameter(t *testing.T) {
+func TestPostRequestWithStdInAndHeaderParameter(t *testing.T) {
 	definition := `
 paths:
   /create:
@@ -1141,6 +1141,69 @@ paths:
 	expectedHeader := "test-value"
 	if header != expectedHeader {
 		t.Errorf("Did not set correct custom header, expected: %v, got: %v", expectedHeader, header)
+	}
+}
+
+func TestPostRequestWithStdInAndBodyParameterIgnoresStdIn(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+`
+	stdIn := bytes.Buffer{}
+	stdIn.Write([]byte(`{"foo":"bar"}`))
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithStdIn(stdIn).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--first-name", "test-value"}, context)
+
+	expectedBody := `{"firstName":"test-value"}`
+	if result.RequestBody != expectedBody {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expectedBody, result.RequestBody)
+	}
+}
+
+func TestPostRequestWithStdInAndDisableStdInFlagIgnoresStdIn(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  default: test
+              required:
+                - firstName
+`
+	stdIn := bytes.Buffer{}
+	stdIn.Write([]byte(`{"foo":"bar"}`))
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithStdIn(stdIn).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--disable-stdin"}, context)
+
+	expectedBody := `{"firstName":"test"}`
+	if result.RequestBody != expectedBody {
+		t.Errorf("Invalid json request body, expected: %v, got: %v", expectedBody, result.RequestBody)
 	}
 }
 

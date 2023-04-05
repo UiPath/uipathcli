@@ -33,6 +33,7 @@ const (
 	ParameterInHeader = "header"
 	ParameterInBody   = "body"
 	ParameterInForm   = "form"
+	ParameterInCustom = "custom"
 )
 
 func (p Parameter) IsArray() bool {

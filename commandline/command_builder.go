@@ -32,6 +32,7 @@ const queryFlagName = "query"
 const waitFlagName = "wait"
 const waitTimeoutFlagName = "wait-timeout"
 const versionFlagName = "version"
+const disableStdInFlagName = "disable-stdin"
 
 var predefinedFlags = []string{
 	insecureFlagName,
@@ -46,6 +47,7 @@ var predefinedFlags = []string{
 	waitFlagName,
 	waitTimeoutFlagName,
 	versionFlagName,
+	disableStdInFlagName,
 }
 
 const outputFormatJson = "json"
@@ -88,9 +90,6 @@ func (b CommandBuilder) sort(commands []*cli.Command) {
 }
 
 func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) utils.Stream {
-	if b.Input != nil {
-		return b.Input
-	}
 	if len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
 		switch value := bodyParameters[0].Value.(type) {
 		case utils.Stream:
@@ -276,6 +275,18 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
+func (b CommandBuilder) hasBodyParameter(context *cli.Context, parameters []parser.Parameter) bool {
+	for _, parameter := range parameters {
+		if parameter.In == parser.ParameterInBody || parameter.In == parser.ParameterInForm {
+			value := context.String(parameter.Name)
+			if value != "" {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
 	if context.Debug {
 		return log.NewDebugLogger(writer)
@@ -335,7 +346,8 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return err
 			}
 
-			if b.Input == nil {
+			hasStdIn := !context.Bool(disableStdInFlagName) && b.Input != nil && !b.hasBodyParameter(context, operation.Parameters)
+			if !hasStdIn {
 				err = b.validateArguments(context, operation.Parameters, *config)
 				if err != nil {
 					return err
@@ -347,6 +359,10 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return err
 			}
 			input := b.getBodyInput(parameters.Body())
+			if hasStdIn {
+				input = b.Input
+			}
+
 			organization := context.String(organizationFlagName)
 			if organization == "" {
 				organization = config.Organization
@@ -804,7 +820,18 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Value:  30,
 			Hidden: hidden,
 		},
+		b.DisableStdInFlag(),
 		b.VersionFlag(hidden),
+	}
+}
+
+func (b CommandBuilder) DisableStdInFlag() cli.Flag {
+	return &cli.BoolFlag{
+		Name:    disableStdInFlagName,
+		Usage:   "Disable reading from standard input",
+		EnvVars: []string{"UIPATH_DISABLE_STDIN"},
+		Value:   false,
+		Hidden:  true,
 	}
 }
 
