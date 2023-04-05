@@ -21,19 +21,26 @@ func (s FileStream) Name() string {
 	return s.name
 }
 
-func (s FileStream) Data() (io.ReadCloser, int64, error) {
+func (s FileStream) Size() (int64, error) {
+	fileStat, err := os.Stat(s.path)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return -1, fmt.Errorf("File '%s' not found", s.path)
+	}
+	if err != nil {
+		return -1, fmt.Errorf("Error reading file size '%s': %w", s.path, err)
+	}
+	return fileStat.Size(), nil
+}
+
+func (s FileStream) Data() (io.ReadCloser, error) {
 	file, err := os.Open(s.path)
 	if err != nil && errors.Is(err, os.ErrNotExist) {
-		return nil, -1, fmt.Errorf("File '%s' not found", s.path)
+		return nil, fmt.Errorf("File '%s' not found", s.path)
 	}
 	if err != nil {
-		return nil, -1, fmt.Errorf("Error reading file '%s': %w", s.path, err)
+		return nil, fmt.Errorf("Error reading file '%s': %w", s.path, err)
 	}
-	fileStat, err := file.Stat()
-	if err != nil {
-		return nil, -1, fmt.Errorf("Error reading file size '%s': %w", s.path, err)
-	}
-	return file, fileStat.Size(), nil
+	return file, nil
 }
 
 func NewFileStream(path string) *FileStream {

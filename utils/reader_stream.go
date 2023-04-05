@@ -20,8 +20,12 @@ func (s ReaderStream) Name() string {
 	return s.name
 }
 
-func (s ReaderStream) Data() (io.ReadCloser, int64, error) {
-	return s.reader, -1, nil
+func (s ReaderStream) Size() (int64, error) {
+	return -1, nil
+}
+
+func (s ReaderStream) Data() (io.ReadCloser, error) {
+	return s.reader, nil
 }
 
 func NewReaderStream(name string, reader io.ReadCloser) *ReaderStream {

@@ -9,7 +9,7 @@ import (
 )
 
 const DefaultServerBaseUrl = "https://cloud.uipath.com"
-const RawBodyParameterName = "$input"
+const RawBodyParameterName = "$file"
 const CustomParameterNameExtension = "x-name"
 
 // The OpenApiParser parses OpenAPI (2.x and 3.x) specifications.

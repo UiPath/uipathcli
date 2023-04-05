@@ -93,7 +93,7 @@ func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url 
 func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) (string, int64) {
 	go func() {
 		defer bodyWriter.Close()
-		data, _, err := input.Data()
+		data, err := input.Data()
 		if err != nil {
 			errorChan <- err
 			return
@@ -105,10 +105,7 @@ func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input utils.Stream, 
 			return
 		}
 	}()
-	data, size, err := input.Data()
-	if err == nil {
-		defer data.Close()
-	}
+	size, _ := input.Size()
 	return "application/octet-stream", size
 }
 

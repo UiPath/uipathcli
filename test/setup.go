@@ -214,7 +214,7 @@ func RunCli(args []string, context Context) Result {
 	args = append([]string{"uipath"}, args...)
 	var input utils.Stream
 	if context.StdIn != nil {
-		input = utils.NewMemoryStream("$input", context.StdIn.Bytes())
+		input = utils.NewMemoryStream(parser.RawBodyParameterName, context.StdIn.Bytes())
 	}
 	err := cli.Run(args, input)
 

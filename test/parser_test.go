@@ -1102,7 +1102,7 @@ paths:
 	}
 }
 
-func TestRawRequestBodyShowsInputParameter(t *testing.T) {
+func TestRawRequestBodyShowsFileParameter(t *testing.T) {
 	definition := `
 paths:
   /upload:
@@ -1127,7 +1127,7 @@ paths:
 		t.Errorf("stdout does not contain raw request body parameter description, expected: %v, got: %v", expected, result.StdOut)
 	}
 
-	expected = "--input"
+	expected = "--file"
 	if !strings.Contains(result.StdOut, expected) {
 		t.Errorf("stdout does not contain input parameter, expected: %v, got: %v", expected, result.StdOut)
 	}
