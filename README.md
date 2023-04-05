@@ -368,18 +368,18 @@ uipath product create --product '{ "name": "my-product", "price": { "value": 340
 
 ### File Upload arguments
 
-CLI arguments can also refer to files on disk. This command reads the invoice from `/documents/invoice.pdf` and uploads it to the digitize endpoint:
+You can upload a file on disk using the `--file` argument. The following command reads the invoice from `documents/invoice.pdf` and uploads it to the digitize endpoint:
 
 ```bash
-uipath digitizer digitize ---file documents/invoice.pdf
+uipath du digitizer digitize --file documents/invoice.pdf
 ```
 
 ## Standard input (stdin) / Pipes
 
-You can pipe JSON into the CLI as stdin and it will be used as the request body instead of CLI parameters. The following example reads an orchestrator setting, modifies the value using `jq` and pipes the output back into to the CLI to update it:
+You can pipe JSON or any other input into the CLI as stdin and it will be used as the request body when the `--file -` argument was provided:
 
 ```bash
-uipath orchestrator settings-get | jq '.value[] | select(.Id == "Alerts.Email.Enabled") | .Value = "FALSE"' | uipath orchestrator settings-putbyid
+echo '{"hello":"world"}' | uipath du storage upload --object-key "my-data" --file -
 ```
 
 ## Output formats

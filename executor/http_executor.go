@@ -64,9 +64,8 @@ func (e HttpExecutor) calculateMultipartSize(parameters []ExecutionParameter) in
 		case string:
 			result = result + int64(len(v))
 		case utils.Stream:
-			data, size, err := v.Data()
+			size, err := v.Size()
 			if err == nil {
-				defer data.Close()
 				result = result + size
 			}
 		}
@@ -91,7 +90,7 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 			if err != nil {
 				return fmt.Errorf("Error writing form file '%s': %w", parameter.Name, err)
 			}
-			data, _, err := v.Data()
+			data, err := v.Data()
 			if err != nil {
 				return err
 			}
@@ -193,7 +192,7 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
-		data, _, err := input.Data()
+		data, err := input.Data()
 		if err != nil {
 			errorChan <- err
 			return

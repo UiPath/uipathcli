@@ -197,10 +197,7 @@ func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context
 }
 
 func (c DigitizeCommand) calculateMultipartSize(stream utils.Stream) int64 {
-	data, size, err := stream.Data()
-	if err == nil {
-		defer data.Close()
-	}
+	size, _ := stream.Size()
 	return size
 }
 
@@ -212,7 +209,7 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream uti
 	if err != nil {
 		return fmt.Errorf("Error creating form field 'file': %w", err)
 	}
-	data, _, err := stream.Data()
+	data, err := stream.Data()
 	if err != nil {
 		return err
 	}

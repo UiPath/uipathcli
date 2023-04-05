@@ -221,7 +221,7 @@ paths:
 		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--content-type", "application/pdf"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--content-type", "application/pdf", "--file", "-"}, context)
 
 	expectedResult := `{
   "status": "Done"

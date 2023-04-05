@@ -16,6 +16,25 @@ func TestFileStreamName(t *testing.T) {
 	}
 }
 
+func TestFileStreamSize(t *testing.T) {
+	tempFile, _ := os.CreateTemp("", "uipath-test")
+	t.Cleanup(func() { os.Remove(tempFile.Name()) })
+	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
+	if err != nil {
+		t.Fatalf("Error writing file '%s': %v", tempFile.Name(), err)
+	}
+	param := NewFileStream(tempFile.Name())
+
+	size, err := param.Size()
+
+	if size != int64(len("hello-world")) {
+		t.Errorf("Did not return correct file size, but got: %v", size)
+	}
+	if err != nil {
+		t.Errorf("Should not return error, but got: %v", err)
+	}
+}
+
 func TestFileStreamData(t *testing.T) {
 	tempFile, _ := os.CreateTemp("", "uipath-test")
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
@@ -25,14 +44,11 @@ func TestFileStreamData(t *testing.T) {
 	}
 	param := NewFileStream(tempFile.Name())
 
-	reader, size, err := param.Data()
+	reader, err := param.Data()
 	data, _ := io.ReadAll(reader)
 
 	if string(data) != "hello-world" {
 		t.Errorf("Did not return provided data, but got: %v", string(data))
-	}
-	if size != int64(len("hello-world")) {
-		t.Errorf("Did not return correct file size, but got: %v", size)
 	}
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -42,7 +58,7 @@ func TestFileStreamData(t *testing.T) {
 func TestFileStreamFileNotFound(t *testing.T) {
 	param := NewFileStream("unknown-path/my-file.txt")
 
-	_, _, err := param.Data()
+	_, err := param.Data()
 
 	if err.Error() != "File 'unknown-path/my-file.txt' not found" {
 		t.Errorf("Should return file not found error, but got: %v", err)

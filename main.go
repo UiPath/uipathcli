@@ -8,8 +8,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/mattn/go-isatty"
-
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
@@ -44,13 +42,6 @@ func colorsSupported() bool {
 }
 
 func stdIn() utils.Stream {
-	f, err := os.Stdin.Stat()
-	if err != nil {
-		return nil
-	}
-	if f.Mode()&os.ModeNamedPipe == 0 || isatty.IsTerminal(os.Stdin.Fd()) || isatty.IsCygwinTerminal(os.Stdin.Fd()) {
-		return nil
-	}
 	return utils.NewReaderStream(parser.RawBodyParameterName, os.Stdin)
 }
 

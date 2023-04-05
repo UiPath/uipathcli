@@ -20,6 +20,8 @@ import (
 	"github.com/urfave/cli/v2"
 )
 
+const FromStdIn = "-"
+
 const insecureFlagName = "insecure"
 const debugFlagName = "debug"
 const profileFlagName = "profile"
@@ -32,7 +34,7 @@ const queryFlagName = "query"
 const waitFlagName = "wait"
 const waitTimeoutFlagName = "wait-timeout"
 const versionFlagName = "version"
-const disableStdInFlagName = "disable-stdin"
+const fileFlagName = "file"
 
 var predefinedFlags = []string{
 	insecureFlagName,
@@ -47,7 +49,7 @@ var predefinedFlags = []string{
 	waitFlagName,
 	waitTimeoutFlagName,
 	versionFlagName,
-	disableStdInFlagName,
+	fileFlagName,
 }
 
 const outputFormatJson = "json"
@@ -89,17 +91,20 @@ func (b CommandBuilder) sort(commands []*cli.Command) {
 	})
 }
 
-func (b CommandBuilder) getBodyInput(bodyParameters []executor.ExecutionParameter) utils.Stream {
-	if len(bodyParameters) == 1 && bodyParameters[0].Name == parser.RawBodyParameterName {
-		switch value := bodyParameters[0].Value.(type) {
-		case utils.Stream:
-			return value
-		default:
-			data := []byte(fmt.Sprintf("%v", value))
-			return utils.NewMemoryStream(parser.RawBodyParameterName, data)
+func (b CommandBuilder) fileInput(context *cli.Context, parameters []parser.Parameter) utils.Stream {
+	value := context.String(fileFlagName)
+	if value == "" {
+		return nil
+	}
+	if value == FromStdIn {
+		return b.Input
+	}
+	for _, param := range parameters {
+		if param.FieldName == fileFlagName {
+			return nil
 		}
 	}
-	return nil
+	return utils.NewFileStream(value)
 }
 
 func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
@@ -275,18 +280,6 @@ func (b CommandBuilder) validateArguments(context *cli.Context, parameters []par
 	return err
 }
 
-func (b CommandBuilder) hasBodyParameter(context *cli.Context, parameters []parser.Parameter) bool {
-	for _, parameter := range parameters {
-		if parameter.In == parser.ParameterInBody || parameter.In == parser.ParameterInForm {
-			value := context.String(parameter.Name)
-			if value != "" {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
 	if context.Debug {
 		return log.NewDebugLogger(writer)
@@ -317,9 +310,9 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 	b.sortParameters(parameters)
 
 	flagBuilder := newFlagBuilder()
+	flagBuilder.AddFlags(b.createFlags(parameters))
 	flagBuilder.AddFlags(b.CreateDefaultFlags(true))
 	flagBuilder.AddFlag(b.HelpFlag())
-	flagBuilder.AddFlags(b.createFlags(parameters))
 
 	return &cli.Command{
 		Name:               operation.Name,
@@ -346,8 +339,8 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return err
 			}
 
-			hasStdIn := !context.Bool(disableStdInFlagName) && b.Input != nil && !b.hasBodyParameter(context, operation.Parameters)
-			if !hasStdIn {
+			input := b.fileInput(context, operation.Parameters)
+			if input == nil {
 				err = b.validateArguments(context, operation.Parameters, *config)
 				if err != nil {
 					return err
@@ -357,10 +350,6 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 			parameters, err := b.createExecutionParameters(context, config, operation)
 			if err != nil {
 				return err
-			}
-			input := b.getBodyInput(parameters.Body())
-			if hasStdIn {
-				input = b.Input
 			}
 
 			organization := context.String(organizationFlagName)
@@ -820,18 +809,13 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Value:  30,
 			Hidden: hidden,
 		},
-		b.DisableStdInFlag(),
+		&cli.StringFlag{
+			Name:   fileFlagName,
+			Usage:  "Provide input from file (use - for stdin)",
+			Value:  "",
+			Hidden: hidden,
+		},
 		b.VersionFlag(hidden),
-	}
-}
-
-func (b CommandBuilder) DisableStdInFlag() cli.Flag {
-	return &cli.BoolFlag{
-		Name:    disableStdInFlagName,
-		Usage:   "Disable reading from standard input",
-		EnvVars: []string{"UIPATH_DISABLE_STDIN"},
-		Value:   false,
-		Hidden:  true,
 	}
 }
 

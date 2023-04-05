@@ -1101,7 +1101,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := RunCli([]string{"myservice", "create"}, context)
+	result := RunCli([]string{"myservice", "create", "--file", "-"}, context)
 
 	expected := `{"firstName":"foo"}`
 	if result.RequestBody != expected {
@@ -1130,7 +1130,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	result := RunCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value"}, context)
+	result := RunCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value", "--file", "-"}, context)
 
 	expectedBody := `{"foo":"bar"}`
 	if result.RequestBody != expectedBody {
@@ -1174,39 +1174,6 @@ paths:
 	}
 }
 
-func TestPostRequestWithStdInAndDisableStdInFlagIgnoresStdIn(t *testing.T) {
-	definition := `
-paths:
-  /create:
-    post:
-      operationId: create
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                firstName:
-                  type: string
-                  default: test
-              required:
-                - firstName
-`
-	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte(`{"foo":"bar"}`))
-	context := NewContextBuilder().
-		WithDefinition("myservice", definition).
-		WithStdIn(stdIn).
-		WithResponse(200, "").
-		Build()
-
-	result := RunCli([]string{"myservice", "create", "--disable-stdin"}, context)
-
-	expectedBody := `{"firstName":"test"}`
-	if result.RequestBody != expectedBody {
-		t.Errorf("Invalid json request body, expected: %v, got: %v", expectedBody, result.RequestBody)
-	}
-}
-
 func TestPostWithFileAsRawRequestBody(t *testing.T) {
 	definition := `
 paths:
@@ -1228,7 +1195,7 @@ paths:
 
 	path := createFile(t)
 	writeFile(t, path, []byte("hello-world"))
-	result := RunCli([]string{"myservice", "upload", "--input", path}, context)
+	result := RunCli([]string{"myservice", "upload", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {
@@ -1263,7 +1230,7 @@ paths:
 
 	currentPath, _ := os.Getwd()
 	relativePath, _ := filepath.Rel(currentPath, path)
-	result := RunCli([]string{"myservice", "upload", "--input", relativePath}, context)
+	result := RunCli([]string{"myservice", "upload", "--file", relativePath}, context)
 
 	contentType := result.RequestHeader["content-type"]
 	if contentType != "application/octet-stream" {

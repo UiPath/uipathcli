@@ -20,8 +20,12 @@ func (s MemoryStream) Name() string {
 	return s.name
 }
 
-func (s MemoryStream) Data() (io.ReadCloser, int64, error) {
-	return io.NopCloser(bytes.NewReader(s.data)), int64(len(s.data)), nil
+func (s MemoryStream) Size() (int64, error) {
+	return int64(len(s.data)), nil
+}
+
+func (s MemoryStream) Data() (io.ReadCloser, error) {
+	return io.NopCloser(bytes.NewReader(s.data)), nil
 }
 
 func NewMemoryStream(name string, data []byte) *MemoryStream {

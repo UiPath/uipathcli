@@ -10,5 +10,6 @@ import (
 // loading them in memory first.
 type Stream interface {
 	Name() string
-	Data() (io.ReadCloser, int64, error)
+	Size() (int64, error)
+	Data() (io.ReadCloser, error)
 }
