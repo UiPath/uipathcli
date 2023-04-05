@@ -142,7 +142,7 @@ func (p DefinitionProvider) convertToParameters(parameters []plugin.CommandParam
 			p.Name,
 			p.Type,
 			p.Description,
-			parser.ParameterInBody,
+			parser.ParameterInCustom,
 			p.Name,
 			p.Required,
 			nil,
