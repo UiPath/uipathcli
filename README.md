@@ -2,7 +2,7 @@
 
 The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
-<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started_uipath.gif" />
+<img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_uipath.gif" />
 
 ## Install
 
@@ -17,19 +17,19 @@ In order to get started quickly, you can run the install scripts for Windows, Li
 ### Windows
 
 ```powershell
-Invoke-WebRequest "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-windows-amd64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
+Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-windows-amd64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
 ```
 
 ### Linux
 
 ```bash
-curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-linux-amd64.tar.gz" | tar --extract --gzip --overwrite
+curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-amd64.tar.gz" | tar --extract --gzip --overwrite
 ```
 
 ### MacOS
 
 ```bash
-curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-amd64.tar.gz" | tar --extract --gzip --overwrite
+curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-amd64.tar.gz" | tar --extract --gzip --overwrite
 ```
 
   </p>
@@ -42,19 +42,19 @@ curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-amd64
 ### Windows (ARM)
 
 ```powershell
-Invoke-WebRequest "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-windows-arm64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
+Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-windows-arm64.zip" -OutFile "uipathcli.zip" ; Expand-Archive -Force -Path "uipathcli.zip" -DestinationPath "."
 ```
 
 ### Linux (ARM)
 
 ```bash
-curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-linux-arm64.tar.gz" | tar --extract --gzip --overwrite
+curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-arm64.tar.gz" | tar --extract --gzip --overwrite
 ```
 
 ### MacOS (ARM)
 
 ```bash
-curl --silent "https://du-nst-cdn.azureedge.net/uipathcli/uipathcli-darwin-arm64.tar.gz" | tar --extract --gzip --overwrite
+curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar --extract --gzip --overwrite
 ```
 
   </p>
@@ -118,7 +118,7 @@ The CLI supports multiple ways to authorize with the UiPath services:
 
 In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret):
 
-<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started_auth_credentials.gif" />
+<img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_auth_credentials.gif" />
 
 
 1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/externalApps](https://cloud.uipath.com)
@@ -171,7 +171,7 @@ Response:
 
 In order to use oauth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
 
-<img src="https://du-nst-cdn.azureedge.net/uipathcli/getting_started_auth_login.gif" />
+<img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_auth_login.gif" />
 
 1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/externalApps](https://cloud.uipath.com)
 
