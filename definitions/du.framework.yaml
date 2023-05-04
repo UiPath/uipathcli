@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Document Understanding REST APIs Preview
-  description: 'Document Understanding as a Service, exposing framework capabilities as REST APIs. All the APIs are in the context of a Document Understanding Center project. Both pre-trained and custom resources are available for consumption.<br><br>Supported file types: png, jpg, pdf, tiff. Multi-page documents can have up to 5 pages. <br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/reference/api-overview">here.</A>'
+  description: Document Understanding as a Service, exposing framework capabilities as REST APIs. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/api-overview">here.</A>
   version: "1.0"
 paths:
   /projects:
@@ -9,8 +9,8 @@ paths:
       tags:
         - Discovery
       summary: ""
-      description: "Retrieve all available projects from Document Understanding Center.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
-      operationId: projects
+      description: "Retrieve all available projects from Document Understanding.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: Projects
       parameters:
         - name: api-version
           in: query
@@ -81,13 +81,13 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
-  /projects/{projectId}/extractors:
+  /projects/{projectId}:
     get:
       tags:
         - Discovery
       summary: ""
-      description: "Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
-      operationId: extractors
+      description: "Retrieve details about a specific project from Document Understanding.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: ProjectById
       parameters:
         - name: api-version
           in: query
@@ -104,6 +104,193 @@ paths:
           schema:
             type: string
             default: 00000000-0000-0000-0000-000000000000
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectDetailsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectDetailsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectDetailsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/document-types:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve all document types from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: DocumentTypes
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypesResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypesResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypesResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/document-types/{documentTypeId}:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve details about a specific document type from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: DocumentTypeById
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: documentTypeId
+          in: path
+          description: ID of the Document Type.
+          required: true
+          schema:
+            type: string
+            default: invoices
       responses:
         "200":
           description: Success
@@ -182,8 +369,8 @@ paths:
       tags:
         - Discovery
       summary: ""
-      description: "Retrieve all classifiers from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api</b></br>"
-      operationId: classifiers
+      description: "Retrieve all classifiers from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: Classifiers
       parameters:
         - name: api-version
           in: query
@@ -273,13 +460,315 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve details about a specific classifier from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: ClassifierById
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: ID of the Classifier.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: Extractors
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}:
+    get:
+      tags:
+        - Discovery
+      summary: ""
+      description: "Retrieve details about a specific extractor from a project. It can be either a Forms AI or a deep-learning extraction skill.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      operationId: ExtractorById
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: ID of the Extractor.
+          required: true
+          schema:
+            type: string
+            default: invoices
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorDetailsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorDetailsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorDetailsResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
   /projects/{projectId}/digitization/start:
     post:
       tags:
         - Digitization
       summary: ""
-      description: "Digitize a document using the OCR settings of the associated Document Understanding Center project.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
-      operationId: start
+      description: "Digitize a document using the OCR settings of the associated Document Understanding project.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
+      operationId: Start
       parameters:
         - name: api-version
           in: query
@@ -302,11 +791,11 @@ paths:
             schema:
               type: object
               properties:
-                file:
+                File:
                   type: string
                   format: binary
             encoding:
-              file:
+              File:
                 style: form
       responses:
         "202":
@@ -411,7 +900,7 @@ paths:
         - Classification
       summary: ""
       description: "Classify a document.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
-      operationId: classify
+      operationId: Classify
       parameters:
         - name: api-version
           in: query
@@ -452,13 +941,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse'
         "400":
           description: Bad Request
           content:
@@ -471,6 +960,215 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}/classification/start:
+    post:
+      tags:
+        - Classification
+      summary: ""
+      description: "Start classification operation. To monitor the status and retrieve the classification result, use the \"Get Classification Result\" route.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
+      operationId: Start
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the classifier exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: The identifier of the classifier used for classification.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.StartClassificationResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.StartClassificationResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.StartClassificationResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}/classification/result/{operationId}:
+    get:
+      tags:
+        - Classification
+      summary: ""
+      description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
+      operationId: Get
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the classifier exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: The identifier of the classifier used for classification.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+        - name: operationId
+          in: path
+          description: The operation identifier obtained from the START classification route.
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.SwaggerGetClassificationResultResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.SwaggerGetClassificationResultResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.SwaggerGetClassificationResultResponse'
         "401":
           description: Unauthorized
           content:
@@ -537,7 +1235,7 @@ paths:
         - Extraction
       summary: ""
       description: "Extract all fields from a document.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
-      operationId: extract
+      operationId: Extract
       parameters:
         - name: api-version
           in: query
@@ -565,26 +1263,26 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
           text/json:
             schema:
-              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
           application/*+json:
             schema:
-              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody'
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
       responses:
         "200":
           description: Success
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
         "400":
           description: Bad Request
           content:
@@ -597,6 +1295,227 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "413":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}/extraction/start:
+    post:
+      tags:
+        - Extraction
+      summary: ""
+      description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
+      operationId: Start
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the extractor exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: The identifier of the extractor used for extraction.
+          required: true
+          schema:
+            type: string
+            default: invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}/extraction/result/{operationId}:
+    get:
+      tags:
+        - Extraction
+      summary: ""
+      description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
+      operationId: Get
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the extractor exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: The identifier of the extractor used for extraction.
+          required: true
+          schema:
+            type: string
+            default: invoices
+        - name: operationId
+          in: path
+          description: The operation identifier obtained from the START extraction route.
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.SwaggerGetExtractionResultResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.SwaggerGetExtractionResultResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.SwaggerGetExtractionResultResponse'
         "401":
           description: Unauthorized
           content:
@@ -657,50 +1576,526 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}/validation/start:
+    post:
+      tags:
+        - Validation
+      summary: ""
+      description: "Start classification validation operation. To monitor the status and retrieve the validation result, use the \"Get Classification Validation Result\" route.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
+      operationId: StartClassificationValidation
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the classifier exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: The identifier of the classifier used for classification.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "424":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/classifiers/{classifierId}/validation/result/{operationId}:
+    get:
+      tags:
+        - Validation
+      summary: ""
+      description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
+      operationId: GetClassificationValidation
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the classifier exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: classifierId
+          in: path
+          description: The identifier of the classifier used for classification.
+          required: true
+          schema:
+            type: string
+            default: ml-classification
+        - name: operationId
+          in: path
+          description: The operation identifier obtained from the START classification validation route.
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetClassificationValidationTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetClassificationValidationTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetClassificationValidationTaskResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "424":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}/validation/start:
+    post:
+      tags:
+        - Validation
+      summary: ""
+      description: "Start extraction validation operation. To monitor the status and retrieve the validation result, use the \"Get Extraction Validation Result\" route.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
+      operationId: StartExtractionValidation
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the extractor exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: The identifier of the extractor used for extraction.
+          required: true
+          schema:
+            type: string
+            default: invoices
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+          text/json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+      responses:
+        "202":
+          description: Accepted
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "424":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/extractors/{extractorId}/validation/result/{operationId}:
+    get:
+      tags:
+        - Validation
+      summary: ""
+      description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
+      operationId: GetExtractionValidation
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: The identifier of the project in which the extractor exists.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: extractorId
+          in: path
+          description: The identifier of the extractor used for extraction.
+          required: true
+          schema:
+            type: string
+            default: invoices
+        - name: operationId
+          in: path
+          description: The operation identifier obtained from the START extraction validation route.
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetExtractionValidationTaskResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetExtractionValidationTaskResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetExtractionValidationTaskResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "424":
+          description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
 components:
   schemas:
-    UiPath.DocumentProcessing.Contracts.Box:
+    UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority:
+      enum:
+        - Low
+        - Medium
+        - High
+        - Critical
+      type: string
+    UiPath.DocumentProcessing.Contracts.Actions.DocumentActionStatus:
+      enum:
+        - Unassigned
+        - Pending
+        - Completed
+      type: string
+    UiPath.DocumentProcessing.Contracts.Actions.DocumentActionType:
+      enum:
+        - Validation
+        - Classification
+      type: string
+    UiPath.DocumentProcessing.Contracts.Actions.UserData:
       type: object
       properties:
-        top:
-          type: number
-          format: double
-          readOnly: true
-        left:
-          type: number
-          format: double
-          readOnly: true
-        width:
-          type: number
-          format: double
-          readOnly: true
-        height:
-          type: number
-          format: double
-          readOnly: true
-        bottom:
-          type: number
-          format: double
-          readOnly: true
-        verticalCenter:
-          type: number
-          format: double
-          readOnly: true
-        right:
-          type: number
-          format: double
-          readOnly: true
-        horizontalCenter:
-          type: number
-          format: double
-          readOnly: true
-        area:
-          type: number
-          format: double
-          readOnly: true
-        isEmpty:
-          type: boolean
-          readOnly: true
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        emailAddress:
+          type: string
+          nullable: true
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.BusinessRules.FieldValue:
       type: object
@@ -760,6 +2155,17 @@ components:
           type: string
           nullable: true
       additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Dom.TextType:
+      enum:
+        - Unknown
+        - Text
+        - Checkbox
+        - Handwriting
+        - Barcode
+        - QRcode
+        - Stamp
+        - Logo
+      type: string
     UiPath.DocumentProcessing.Contracts.Results.ClassificationResult:
       type: object
       properties:
@@ -865,6 +2271,8 @@ components:
         - Automatic
         - Manual
         - ManuallyChanged
+        - Defaulted
+        - External
       type: string
     UiPath.DocumentProcessing.Contracts.Results.ResultsDerivedField:
       type: object
@@ -1051,6 +2459,8 @@ components:
         ocrConfidence:
           type: number
           format: float
+        textType:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.TextType'
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Results.ResultsValueTokens:
       type: object
@@ -1073,7 +2483,12 @@ components:
         boxes:
           type: array
           items:
-            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Box'
+            maxItems: 4
+            minItems: 4
+            type: array
+            items:
+              type: number
+            example: '[23.2, 723.3, 41.5, 18.2]'
           nullable: true
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.ComparisonOperator:
@@ -1153,14 +2568,47 @@ components:
           format: uuid
           example: ID of the document obtained from the Digitization operation.
       additionalProperties: false
-    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationSyncResponse:
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.StartClassificationResponse:
       type: object
       properties:
-        classificationResults:
-          type: array
-          items:
-            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+        operationId:
+          type: string
+          description: The Operation ID
+          format: uuid
+          example: ID of the classification operation
+        resultUrl:
+          type: string
+          description: The url that can be used to access the result of the classification task.
+          format: uri
           nullable: true
+          example: Url that can be used to access the result of the classification task.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.SwaggerGetClassificationResultResponse:
+      type: object
+      properties:
+        status:
+          title: Operation Status
+          enum:
+            - Succeeded
+            - Failed
+            - Running
+            - NotStarted
+          type: enum
+          example: Succeeded
+        createdAt:
+          type: string
+          description: The time the operation was created
+          format: date-time
+          example: "2022-06-21T13:49:00.4971596Z"
+        lastUpdatedAt:
+          type: string
+          description: The last time the operation was updated
+          format: date-time
+          example: "2022-06-21T13:49:10.1105179Z"
+        error:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        result:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse'
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse:
       type: object
@@ -1187,7 +2635,111 @@ components:
           items:
             type: string
           nullable: true
+        detailsUrl:
+          type: string
+          format: uri
+          nullable: true
         syncUrl:
+          type: string
+          format: uri
+          nullable: true
+        asyncUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        detailsUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentType:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        detailsUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Extractor:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
+        detailsUrl:
+          type: string
+          format: uri
+          nullable: true
+        syncUrl:
+          type: string
+          format: uri
+          nullable: true
+        asyncUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsDocumentTypeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Discovery.Model.ClassifierDocumentTypeType'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
+        documentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsDocumentTypeResponse'
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+        syncUrl:
+          type: string
+          format: uri
+          nullable: true
+        asyncUrl:
           type: string
           format: uri
           nullable: true
@@ -1201,6 +2753,89 @@ components:
             $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Classifier'
           nullable: true
           readOnly: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypesResponse:
+      type: object
+      properties:
+        documentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentType'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorDetailsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
+        projectId:
+          type: string
+          format: uuid
+        documentTypeName:
+          type: string
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+        syncUrl:
+          type: string
+          format: uri
+          nullable: true
+        asyncUrl:
+          type: string
+          format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse:
+      type: object
+      properties:
+        extractors:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Extractor'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectDetailsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
+          nullable: true
+        documentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+          nullable: true
+        classifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+          nullable: true
+        extractors:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse:
       type: object
@@ -1223,11 +2858,15 @@ components:
         description:
           type: string
           nullable: true
-        digitizationStartUrl:
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+        detailsUrl:
           type: string
           format: uri
           nullable: true
-        extractorsDiscoveryUrl:
+        digitizationStartUrl:
           type: string
           format: uri
           nullable: true
@@ -1235,9 +2874,9 @@ components:
           type: string
           format: uri
           nullable: true
-        createdOn:
+        extractorsDiscoveryUrl:
           type: string
-          format: date-time
+          format: uri
           nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus:
@@ -1253,7 +2892,7 @@ components:
         - Error
         - Deleting
       type: string
-    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractRequestBody:
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody:
       type: object
       properties:
         documentId:
@@ -1262,12 +2901,233 @@ components:
           format: uuid
           example: ID of the document obtained from the Digitization operation.
       additionalProperties: false
-    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.ExtractSyncResult:
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult:
       type: object
       properties:
         extractionResult:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse:
+      type: object
+      properties:
+        operationId:
+          type: string
+          description: The Operation ID
+          format: uuid
+          example: ID of the Extraction operation.
+        resultUrl:
+          type: string
+          description: The url that can be used to access the result of the extraction task.
+          format: uri
+          nullable: true
+          example: Url that can be used to access the result of the extraction task.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.SwaggerGetExtractionResultResponse:
+      type: object
+      properties:
+        status:
+          title: Operation Status
+          enum:
+            - Succeeded
+            - Failed
+            - Running
+            - NotStarted
+          type: enum
+          example: Succeeded
+        createdAt:
+          type: string
+          description: The time the operation was created
+          format: date-time
+          example: "2022-06-21T13:49:00.4971596Z"
+        lastUpdatedAt:
+          type: string
+          description: The last time the operation was updated
+          format: date-time
+          example: "2022-06-21T13:49:10.1105179Z"
+        error:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        result:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ClassificationValidationResult:
+      type: object
+      properties:
+        actionStatus:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus'
+        actionData:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel'
+        validatedClassificationResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          description: The validation result
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ExtractionValidationResult:
+      type: object
+      properties:
+        actionStatus:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus'
+        actionData:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentExtractionActionDataModel'
+        validatedExtractionResults:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetClassificationValidationTaskResponse:
+      type: object
+      properties:
+        status:
+          title: Operation Status
+          enum:
+            - Succeeded
+            - Failed
+            - Running
+            - NotStarted
+          type: enum
+          description: The status of the operation
+        error:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        createdAt:
+          type: string
+          description: The time the operation was created
+          format: date-time
+          example: "2022-06-21T13:49:00.4971596Z"
+        lastUpdatedAt:
+          type: string
+          description: The last time the operation was updated
+          format: date-time
+          example: "2022-06-21T13:49:10.1105179Z"
+        result:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ClassificationValidationResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetExtractionValidationTaskResponse:
+      type: object
+      properties:
+        status:
+          title: Operation Status
+          enum:
+            - Succeeded
+            - Failed
+            - Running
+            - NotStarted
+          type: enum
+          description: The status of the operation
+        error:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        createdAt:
+          type: string
+          description: The time the operation was created
+          format: date-time
+          example: "2022-06-21T13:49:00.4971596Z"
+        lastUpdatedAt:
+          type: string
+          description: The last time the operation was updated
+          format: date-time
+          example: "2022-06-21T13:49:10.1105179Z"
+        result:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ExtractionValidationResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: The Document ID associated with the Extraction Result that needs validation
+          format: uuid
+          example: ID of the Document that needs to be validated
+        actionTitle:
+          type: string
+          description: The Title of the action that will be created in action center
+          nullable: true
+          example: Title of the action in action center
+        actionPriority:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority'
+        actionCatalog:
+          type: string
+          description: The name of the catalog in which the action is created.
+          nullable: true
+          example: default_du_actions
+        actionFolder:
+          type: string
+          description: The name of the folder in which the action is created.
+          nullable: true
+          example: Shared
+        storageBucketName:
+          type: string
+          description: The name of the storage bucket in which the action is created.
+          nullable: true
+          example: du_storage_bucket
+        storageBucketDirectoryPath:
+          type: string
+          description: The name of the storage bucket in which the action is created.
+          nullable: true
+          example: du_storage_bucket
+        classificationResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          description: The Classification Result that requires validation
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest:
+      type: object
+      properties:
+        documentId:
+          type: string
+          description: The Document ID associated with the Extraction Result that needs validation
+          format: uuid
+          example: ID of the Document that needs to be validated
+        actionTitle:
+          type: string
+          description: The Title of the action that will be created in action center
+          nullable: true
+          example: Title of the action in action center
+        actionPriority:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority'
+        actionCatalog:
+          type: string
+          description: The name of the catalog in which the action is created.
+          nullable: true
+          example: default_du_actions
+        actionFolder:
+          type: string
+          description: The name of the folder in which the action is created.
+          nullable: true
+          example: Shared
+        storageBucketName:
+          type: string
+          description: The name of the storage bucket in which the action is created.
+          nullable: true
+          example: du_storage_bucket
+        storageBucketDirectoryPath:
+          type: string
+          description: The name of the storage bucket in which the action is created.
+          nullable: true
+          example: du_storage_bucket
+        extractionResult:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse:
+      type: object
+      properties:
+        operationId:
+          type: string
+          description: The Operation ID
+          format: uuid
+          example: ID of the Validation operation.
+        resultUrl:
+          type: string
+          description: The url that can be used to access the result of the validation task.
+          format: uri
+          nullable: true
+          example: Url that can be used to access the result of the validation task.
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Discovery.Model.ClassifierDocumentTypeType:
+      enum:
+        - FormsAi
+        - SemiStructuredAi
+        - Unknown
+      type: string
     UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse:
       type: object
       properties:
@@ -1275,8 +3135,13 @@ components:
           type: string
           nullable: true
         severity:
-          type: string
-          nullable: true
+          title: Message Severity
+          enum:
+            - Info
+            - Warning
+            - Error
+          type: enum
+          example: Error
         code:
           type: string
           nullable: true
@@ -1286,10 +3151,152 @@ components:
             type: string
           nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse:
+      type: object
+      properties:
+        classificationResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority:
+      enum:
+        - Low
+        - Medium
+        - High
+        - Critical
+      type: string
+    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus:
+      enum:
+        - Unassigned
+        - Pending
+        - Completed
+      type: string
+    UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionStatus'
+        title:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        taskCatalogName:
+          type: string
+          nullable: true
+        taskUrl:
+          type: string
+          nullable: true
+        folderPath:
+          type: string
+          nullable: true
+        folderId:
+          type: integer
+          format: int64
+          nullable: true
+        data:
+          nullable: true
+        action:
+          type: string
+          nullable: true
+        isDeleted:
+          type: boolean
+          nullable: true
+        assignedToUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        creatorUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        deleterUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        lastModifierUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        completedByUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        creationTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastAssignedTime:
+          type: string
+          format: date-time
+          nullable: true
+        completionTime:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionType'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentExtractionActionDataModel:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          nullable: true
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionStatus'
+        title:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        taskCatalogName:
+          type: string
+          nullable: true
+        taskUrl:
+          type: string
+          nullable: true
+        folderPath:
+          type: string
+          nullable: true
+        folderId:
+          type: integer
+          format: int64
+          nullable: true
+        data:
+          nullable: true
+        action:
+          type: string
+          nullable: true
+        isDeleted:
+          type: boolean
+          nullable: true
+        assignedToUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        creatorUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        deleterUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        lastModifierUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        completedByUser:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.UserData'
+        creationTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastAssignedTime:
+          type: string
+          format: date-time
+          nullable: true
+        completionTime:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionType'
+      additionalProperties: false
   securitySchemes:
     oauth2:
       type: oauth2
-      description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/document-understanding/reference/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
+      description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
           tokenUrl: https://cloud.uipath.com/identity_/connect/token
@@ -1297,6 +3304,7 @@ components:
             Du.Digitization.Api: Digitization Api Scope
             Du.Classification.Api: Classification Api Scope
             Du.Extraction.Api: Extraction Api Scope
+            Du.Validation.Api: Validation Api Scope
 security:
   - oauth2:
       - Du.Digitization.Api
