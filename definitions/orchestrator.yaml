@@ -266,6 +266,22 @@ paths:
           in: query
           schema:
             type: string
+        - name: folderTypes
+          in: query
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - Standard
+                - Personal
+                - Virtual
+                - Solution
+              x-ms-enum:
+                name: FolderType
+                modelAsString: false
       responses:
         "200":
           description: Success
@@ -1756,6 +1772,24 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfAlertDto'
       security:
         - OAuth2: []
+  /odata/Alerts/UiPath.Server.Configuration.OData.ExpandCurrentUserGroupAlerts:
+    post:
+      tags:
+        - Alerts
+      description: |-
+        OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.
+
+        Required permissions: Alerts.View.
+      operationId: Alerts_ExpandCurrentUserGroupAlerts
+      responses:
+        "200":
+          description: Success
+          content: {}
+        "204":
+          description: Success
+          content: {}
+      security:
+        - OAuth2: []
   /odata/Alerts/UiPath.Server.Configuration.OData.GetUnreadCount:
     get:
       tags:
@@ -2614,46 +2648,46 @@ paths:
         content:
           application/json;odata.metadata=minimal;odata.streaming=true:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=minimal;odata.streaming=false:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=minimal:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=full;odata.streaming=true:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=full;odata.streaming=false:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=full:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=none;odata.streaming=true:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=none;odata.streaming=false:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.metadata=none:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.streaming=true:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json;odata.streaming=false:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/json-patch+json:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
           application/*+json:
             schema:
-              $ref: '#/components/schemas/AsstetsSetRobotAssetsByKeyRequest'
+              $ref: '#/components/schemas/AssetsSetRobotAssetsByKeyRequest'
         required: false
       responses:
         "204":
@@ -8658,6 +8692,7 @@ paths:
               - AutomationKit
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
+              - AttendedStudioWeb
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -8815,6 +8850,7 @@ paths:
               - AutomationKit
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
+              - AttendedStudioWeb
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -11055,6 +11091,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfBoolean'
+        "207":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/ErrorResult'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResult'
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -16832,6 +16888,7 @@ paths:
               - AutomationKit
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
+              - AttendedStudioWeb
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -16928,6 +16985,7 @@ paths:
               - AutomationKit
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
+              - AttendedStudioWeb
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -23501,6 +23559,16 @@ components:
           type: string
         assetName:
           type: string
+    AssetsSetRobotAssetsByKeyRequest:
+      required:
+        - robotAsset
+        - robotKey
+      type: object
+      properties:
+        robotKey:
+          type: string
+        robotAsset:
+          $ref: '#/components/schemas/RobotAssetDto'
     AssetUserValueDto:
       type: object
       properties:
@@ -23571,16 +23639,6 @@ components:
           type: integer
           format: int64
       description: Stores the value of an asset associated with a user.
-    AsstetsSetRobotAssetsByKeyRequest:
-      required:
-        - robotAsset
-        - robotKey
-      type: object
-      properties:
-        robotKey:
-          type: string
-        robotAsset:
-          $ref: '#/components/schemas/RobotAssetDto'
     AttendedRobotDto:
       type: object
       properties:
@@ -23619,6 +23677,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: AttendedRobotDtoRobotType
             modelAsString: false
@@ -23692,6 +23751,8 @@ components:
             - VideoAccess
             - AutomaticallyExploreEnd
             - InstallState
+            - FinishInstall
+            - FinishUninstall
           x-ms-enum:
             name: AuditLogDtoAction
             modelAsString: false
@@ -23863,6 +23924,8 @@ components:
             - VideoAccess
             - AutomaticallyExploreEnd
             - InstallState
+            - FinishInstall
+            - FinishUninstall
           x-ms-enum:
             name: AuditLogEntityDtoAction
             modelAsString: false
@@ -23870,44 +23933,6 @@ components:
           type: integer
           format: int64
       description: Stores audit information about any action performed in Orchestrator.
-    AutoScalingProfileDto:
-      type: object
-      properties:
-        MinMachinesAvailable:
-          maximum: 2147483647
-          minimum: 0
-          type: integer
-          format: int32
-        IdleTimeoutMinutes:
-          maximum: 2147483647
-          minimum: 0
-          type: integer
-          format: int32
-        AllocationScaleFactor:
-          maximum: 1
-          minimum: 0
-          type: number
-          format: decimal
-        Type:
-          type: string
-          enum:
-            - CostEfficient
-            - Balanced
-            - Fast
-            - Custom
-            - Always
-          x-ms-enum:
-            name: AutoScalingProfileDtoType
-            modelAsString: false
-        StartTime:
-          type: string
-          format: date-time
-        EndTime:
-          type: string
-          format: date-time
-        Id:
-          type: integer
-          format: int64
     BlobFileAccessDto:
       type: object
       properties:
@@ -24458,6 +24483,9 @@ components:
           type: object
           additionalProperties:
             type: object
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -24475,7 +24503,7 @@ components:
           type: integer
           format: int64
       description: An event triggered by a robot Orchestrator activity
-      x-webhook-event: CustomEventDto
+      x-webhook-event: custom
     CustomKeyValuePair:
       type: object
       properties:
@@ -24729,6 +24757,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ValidationErrorInfo'
+    ErrorResult:
+      type: object
+      properties:
+        Message:
+          type: string
+          readOnly: true
+        ErrorCode:
+          type: integer
+          format: int32
+          readOnly: true
+        TraceId:
+          type: string
+        ResourceIds:
+          type: array
+          readOnly: true
+          items:
+            type: integer
+            format: int64
     ExecutionMediaDeleteMediaByJobIdRequest:
       required:
         - jobId
@@ -24994,6 +25040,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -25336,6 +25383,7 @@ components:
             - LicenseNotCompatible
             - AutomationCloudLicenseLimitExceeded
             - AutomationExpressNotSupported
+            - StudioWebLocalRobotNotSupported
             - ArgumentMetadataExtract
             - ArgumentMetadataValidation
             - ArgumentDefinitionExtract
@@ -25463,6 +25511,7 @@ components:
             - NotSuccessfulEntityMigration
             - FolderTypeMismatch
             - ActionNotAllowedInClassicFolder
+            - CannotRenameSolutionFolder
             - MaintenanceActive
             - TenantMaintenanceActive
             - TenantMaintenanceNotActive
@@ -25575,6 +25624,7 @@ components:
             - CredentialsProxyHealthRequestFailed
             - CredentialsProxyRequestFailedInvalidCredentials
             - CredentialsProxyConnectionRefused
+            - CredentialsProxyTypeCannotBeUpdated
             - ServerlessCreateMachineTemplateErrorCode
             - ServerlessUpdateMachineTemplateErrorCode
             - ServerlessDeleteMachineTemplateErrorCode
@@ -25595,6 +25645,7 @@ components:
             - SolutionsResourcesNotFound
             - ExportTimeout
             - InvalidMessageReceived
+            - IntegrationServiceApiFailure
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -25957,6 +26008,9 @@ components:
           format: date-time
         Job:
           $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26040,6 +26094,7 @@ components:
             - IntegrationTrigger
             - StudioDesktop
             - AutomationOpsPipelines
+            - Apps
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -26123,6 +26178,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: JobDtoRuntimeType
             modelAsString: false
@@ -26215,6 +26271,9 @@ components:
           format: date-time
         Job:
           $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26256,6 +26315,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookJobDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26293,6 +26355,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26328,6 +26393,9 @@ components:
           format: date-time
         Job:
           $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26363,6 +26431,9 @@ components:
           format: date-time
         Job:
           $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -26837,6 +26908,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: LicenseStatsModelRobotType
             modelAsString: false
@@ -26875,6 +26947,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: LicensesToggleEnabledRequestRobotType
             modelAsString: false
@@ -26984,6 +27057,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: LogDtoRuntimeType
             modelAsString: false
@@ -27122,11 +27196,6 @@ components:
           description: Robots assigned to template machine.
           items:
             $ref: '#/components/schemas/RobotUserDto'
-        AutoScalingProfiles:
-          type: array
-          description: AutoScaling Profiles assigned to the machine.
-          items:
-            $ref: '#/components/schemas/AutoScalingProfileDto'
         AutoScalingProfile:
           type: string
           description: The profile that drives auto scaling.
@@ -27237,6 +27306,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: MachineRuntimeDtoType
             modelAsString: false
@@ -27393,6 +27463,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: MachineSessionRuntimeDtoRuntimeType
             modelAsString: false
@@ -28265,6 +28336,9 @@ components:
         Timestamp:
           type: string
           format: date-time
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -28281,6 +28355,7 @@ components:
         UserId:
           type: integer
           format: int64
+      description: This event is triggered immediately after a webhook was created or updated to test the availability of destination URl
       x-webhook-event: ping
     ProcessAlertDto:
       required:
@@ -28519,6 +28594,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: ProcessScheduleDtoRuntimeType
             modelAsString: false
@@ -28679,6 +28755,9 @@ components:
         Reason:
           type: string
           readOnly: true
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -28700,6 +28779,8 @@ components:
       type: object
       properties:
         enabled:
+          type: boolean
+        multistatusEnabled:
           type: boolean
         scheduleIds:
           type: array
@@ -28748,6 +28829,9 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -28918,6 +29002,9 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -28980,6 +29067,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/QueueItemSimpleEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -29047,6 +29137,9 @@ components:
           $ref: '#/components/schemas/QueueItemSimpleEventDto'
         Queue:
           $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -29361,6 +29454,9 @@ components:
           $ref: '#/components/schemas/QueueItemSimpleEventDto'
         Queue:
           $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -29401,6 +29497,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/QueueItemSimpleEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -29584,6 +29683,9 @@ components:
           $ref: '#/components/schemas/QueueItemSimpleEventDto'
         Queue:
           $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         TenantId:
           type: integer
           format: int32
@@ -29875,6 +29977,9 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -29938,6 +30043,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: ReexecuteTestCasesOptionsDtoRuntimeType
             modelAsString: false
@@ -29965,6 +30071,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookReleaseDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -30007,6 +30116,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookReleaseDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -30243,6 +30355,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookReleaseDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -30463,6 +30578,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookRobotDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -30515,6 +30633,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookRobotDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -30595,6 +30716,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -30796,6 +30918,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -30916,6 +31039,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookRobotDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -31015,6 +31141,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -31357,6 +31484,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/SessionEventData'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -31743,6 +31873,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -31858,6 +31989,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: SimpleRobotEventDtoType
             modelAsString: false
@@ -32021,6 +32153,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: UserDtoLicenseType
             modelAsString: false
@@ -32210,6 +32343,7 @@ components:
             - IntegrationTrigger
             - StudioDesktop
             - AutomationOpsPipelines
+            - Apps
           x-ms-enum:
             name: StartProcessDtoSource
             modelAsString: false
@@ -32249,6 +32383,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: StartProcessDtoRuntimeType
             modelAsString: false
@@ -32457,6 +32592,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskAssignmentChangedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -32551,7 +32689,12 @@ components:
           items:
             type: integer
             format: int64
-        FolderIds:
+        ToAddFolderIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        ToRemoveFolderIds:
           type: array
           items:
             type: integer
@@ -32600,6 +32743,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskCompletedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -32657,6 +32803,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskCreatedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -32883,6 +33032,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskDeletedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -33186,6 +33338,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskForwardedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -33337,6 +33492,9 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/WebhookTaskSavedDto'
+        EventTime:
+          type: string
+          format: date-time
         EventSourceId:
           type: integer
           format: int64
@@ -33701,6 +33859,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: TestCaseExecutionDtoRuntimeType
             modelAsString: false
@@ -34113,6 +34272,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: TestSetExecutionOptionsDtoRuntimeType
             modelAsString: false
@@ -34605,6 +34765,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: UserDtoLicenseType
             modelAsString: false
@@ -35070,6 +35231,7 @@ components:
             - IntegrationTrigger
             - StudioDesktop
             - AutomationOpsPipelines
+            - Apps
           x-ms-enum:
             name: WebhookJobDtoSourceType
             modelAsString: false
@@ -35142,6 +35304,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: WebhookJobDtoRuntimeType
             modelAsString: false
@@ -35368,6 +35531,7 @@ components:
             - AutomationKit
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: WebhookRobotDtoType
             modelAsString: false
@@ -35526,6 +35690,7 @@ components:
             - IntegrationTrigger
             - StudioDesktop
             - AutomationOpsPipelines
+            - Apps
           x-ms-enum:
             name: WebhookStartProcessDtoSource
             modelAsString: false
