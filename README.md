@@ -23,13 +23,13 @@ Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/
 ### Linux
 
 ```bash
-curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-amd64.tar.gz" | tar --extract --gzip --overwrite
+curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-amd64.tar.gz" | tar -xzv
 ```
 
 ### MacOS
 
 ```bash
-curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-amd64.tar.gz" | tar --extract --gzip --overwrite
+curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-amd64.tar.gz" | tar -xzv
 ```
 
   </p>
@@ -48,13 +48,13 @@ Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/
 ### Linux (ARM)
 
 ```bash
-curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-arm64.tar.gz" | tar --extract --gzip --overwrite
+curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-arm64.tar.gz" | tar -xzv
 ```
 
 ### MacOS (ARM)
 
 ```bash
-curl --silent "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar --extract --gzip --overwrite
+curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar -xzv
 ```
 
   </p>
@@ -228,7 +228,7 @@ You need to generate a personal access token (PAT) and configure the CLI to use 
 4. Run the interactive CLI configuration:
 
 ```bash
-uipath config -- auth pat
+uipath config --auth pat
 ```
 
 The CLI will ask you to enter the main config settings like
