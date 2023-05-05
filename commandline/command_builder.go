@@ -100,7 +100,7 @@ func (b CommandBuilder) fileInput(context *cli.Context, parameters []parser.Para
 		return b.Input
 	}
 	for _, param := range parameters {
-		if param.FieldName == fileFlagName {
+		if strings.EqualFold(param.FieldName, fileFlagName) {
 			return nil
 		}
 	}

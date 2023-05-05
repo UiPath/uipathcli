@@ -946,6 +946,36 @@ paths:
 	}
 }
 
+func TestPostFormRequestWithUppercaseFile(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                File:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	path := createFile(t)
+	writeFile(t, path, []byte("hello-world"))
+	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
+
+	expected := fmt.Sprintf(`Content-Disposition: form-data; name="File"; filename="%s"`, filepath.Base(path))
+	if !strings.Contains(result.RequestBody, expected) {
+		t.Errorf("Did not find Content-Disposition in body, expected: %v, got: %v", expected, result.RequestBody)
+	}
+}
+
 func TestPostFormRequestFromFileReference(t *testing.T) {
 	definition := `
 paths:
