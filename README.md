@@ -108,11 +108,10 @@ More details about how to configure the CLI can be found in the following sectio
 ## Configuration
 
 The CLI supports multiple ways to authorize with the UiPath services:
-- **Client Credentials**: Generate secret and configure the CLI to use these long-term credentials.
 
-- **OAuth Login**: Login to UiPath using your browser and SSO of choice: Microsoft Login, Google Login, LinkedIn, Custom SSO or simple username/password. No need to manage any credentials.
+- **Client Credentials**: Generate secret and configure the CLI to use these long-term credentials. Client credentials should be used in case you want to use the CLI from a script in an automated way. 
 
-- **Personal Access Token**: Generate a PAT and configure the CLI to use the access token.
+- **OAuth Login**: Login to UiPath using your browser and SSO of choice. This is the preferred flow when you are using the CLI interactively. No need to manage any credentials.
 
 ### Client Credentials
 
@@ -209,40 +208,6 @@ Successfully configured uipath CLI
 ```bash
 uipath orchestrator Users_Get
 ```
-
-### Personal Access Token
-
-You need to generate a personal access token (PAT) and configure the CLI to use it:
-
-1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/personalAccessToken](https://cloud.uipath.com)
-
-2. Click **+ Generate new token**
-
-3. Fill out the fields:
-* **Name**: *\<token-name\>*
-* **Expiration Date**: Set an expiry date for the token
-* **+ Add Scopes**: Add the permissions you want to grant the PAT
-
-5. Click **Save** and make sure you copy the generated token.
-
-4. Run the interactive CLI configuration:
-
-```bash
-uipath config --auth pat
-```
-
-The CLI will ask you to enter the main config settings like
-- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
-- `pat` your personal access token
-
-```
-Enter organization [not set]: uipatcleitzc
-Enter tenant [not set]: DefaultTenant
-Enter personal access token [*******9026]: <your-pat>
-Successfully configured uipath CLI
-```
-
-After that the CLI should be ready and you can validate that it is working by invoking one of the services.
 
 ### Configuration File
 
