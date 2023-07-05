@@ -153,4 +153,15 @@ components:
       scheme: bearer
       bearerFormat: JWT
 security:
-  - BearerToken: [ ]
+  - oauth2:
+      - DocumentUnderstanding
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/measure
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant  
