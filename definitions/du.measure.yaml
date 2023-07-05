@@ -1,0 +1,156 @@
+openapi: 3.0.1
+info:
+  title: UiPath.DocumentUnderstanding.Measure.Api
+  version: v1
+paths:
+  '/projects/{projectId}/ratings':
+    get:
+      tags:
+        - Measure
+      operationId: ratings
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/GetRatingsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRatingsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/GetRatingsResponse'
+  '/projects/{projectId}/recommendations':
+    get:
+      tags:
+        - Measure
+      operationId: recommendations
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/GetRecommendationsResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetRecommendationsResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/GetRecommendationsResponse'
+components:
+  schemas:
+    ActionType:
+      enum:
+        - UploadMoreDocuments
+        - LabelMoreDocuments
+      type: string
+    GetRatingsResponse:
+      type: object
+      properties:
+        ratings:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelRating'
+          nullable: true
+      additionalProperties: false
+    GetRecommendationsResponse:
+      type: object
+      properties:
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+          nullable: true
+      additionalProperties: false
+    ModelRating:
+      type: object
+      properties:
+        ratingType:
+          $ref: '#/components/schemas/ModelRatingType'
+        rating:
+          type: number
+          format: double
+        documentTypeId:
+          type: string
+          nullable: true
+        factors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelRatingFactor'
+          nullable: true
+      additionalProperties: false
+    ModelRatingFactor:
+      type: object
+      properties:
+        factorType:
+          $ref: '#/components/schemas/ModelRatingFactorType'
+        rating:
+          type: number
+          format: double
+          readOnly: true
+      additionalProperties: false
+    ModelRatingFactorType:
+      enum:
+        - DatasetSize
+        - TrainedModelPerformance
+        - UnderPerformingFields
+      type: string
+    ModelRatingType:
+      enum:
+        - Project
+        - Classifier
+        - Extractor
+      type: string
+    Recommendation:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/RecommendationType'
+        action:
+          $ref: '#/components/schemas/ActionType'
+        priority:
+          type: integer
+          format: int32
+        documentTypeId:
+          type: string
+          nullable: true
+        modelRatingFactors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelRatingFactorType'
+          nullable: true
+        parameters:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+      additionalProperties: false
+    RecommendationType:
+      enum:
+        - Classifier
+        - Extractor
+      type: string
+  securitySchemes:
+    BearerToken:
+      type: http
+      description: Authorization header using the Bearer scheme
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - BearerToken: [ ]
