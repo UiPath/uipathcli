@@ -9,6 +9,14 @@ paths:
         - Measure
       operationId: ratings
       parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string      
         - name: projectId
           in: path
           required: true
@@ -34,6 +42,14 @@ paths:
         - Measure
       operationId: recommendations
       parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string      
         - name: projectId
           in: path
           required: true
