@@ -127,7 +127,7 @@ In order to use client credentials, you need to set up an [External Application 
 3. Fill out the fields:
 * **Application Name**: *\<your-app\>*
 * **Application Type**: `Confidential application` 
-* **+ Add Scopes**: Add the permissions you want to assign to your credentials
+* **+ Add Scopes**: Add the permissions you want to assign to your credentials, e.g. `OR.Users.Read`
 
 4. Click **Add** and the app id (`clientId`) and app secret (`clientSecret`) should be displayed.
 
@@ -149,20 +149,26 @@ Enter client secret [*******pcnN]: <your-client-secret>
 Successfully configured uipath CLI
 ```
 
-After that the CLI should be ready and you can validate that it is working by invoking one of the services:
+After that the CLI should be ready and you can validate that it is working by invoking one of the services (requires `OR.Users.Read` scope):
 
 ```bash
-uipath du metering ping
+uipath orchestrator users get
 ```
 
 Response:
 ```json
 {
-  "location": "westeurope",
-  "serverRegion": "westeurope",
-  "clusterId": "du-prod-du-we-g-dns",
-  "version": "22.11-20-main.v0b5ce6",
-  "timestamp": "2022-11-24T09:46:57.3190592Z"
+  "@odata.context": "https://cloud.uipath.com/uipatcleitzc/DefaultTenant/orchestrator_/odata/$metadata#Users",
+  "@odata.count": 1,
+  "value": [
+    {
+      "CreationTime": "2021-10-19T10:49:18.907Z",
+      "Name": "Administrators",
+      "Type": "DirectoryGroup",
+      "UserName": "administrators"
+      ...
+    }
+  ]
 }
 ```
 
@@ -206,7 +212,7 @@ Successfully configured uipath CLI
 5. After that the CLI should be ready and you can validate that it is working by invoking one of the services:
 
 ```bash
-uipath orchestrator Users_Get
+uipath orchestrator users get
 ```
 
 ### Configuration File
@@ -229,7 +235,7 @@ EOT
 Once you have created the configuration file with the proper secrets, org and tenant information, you should be able to successfully call the services, e.g.
 
 ```bash
-uipath du metering ping
+uipath orchestrator users get
 ```
 
 ### Set Config File Values
@@ -263,7 +269,7 @@ uipath <service-name> <operation-name> <arguments>
 Example:
 
 ```bash
-uipath du metering validate --product-name "DU" --model-name "my-model"
+uipath product create --name "new-product" --stock "5"
 ```
 
 ### Basic arguments
@@ -336,7 +342,7 @@ uipath product create --product '{ "name": "my-product", "price": { "value": 340
 You can upload a file on disk using the `--file` argument. The following command reads the invoice from `documents/invoice.pdf` and uploads it to the digitize endpoint:
 
 ```bash
-uipath du digitizer digitize --file documents/invoice.pdf
+uipath du digitization digitize --project-id "c10e9750-7d33-46ba-8484-9e5cf6ea7374" --file documents/invoice.pdf
 ```
 
 ## Standard input (stdin) / Pipes
@@ -344,7 +350,7 @@ uipath du digitizer digitize --file documents/invoice.pdf
 You can pipe JSON or any other input into the CLI as stdin and it will be used as the request body when the `--file -` argument was provided:
 
 ```bash
-echo '{"hello":"world"}' | uipath du storage upload --object-key "my-data" --file -
+cat documents/invoice.pdf | uipath du digitization digitize --project-id "c10e9750-7d33-46ba-8484-9e5cf6ea7374" --content-type "application/pdf" --file -
 ```
 
 ## Output formats
@@ -358,13 +364,13 @@ The CLI supports multiple output formats:
 In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
 
 ```bash
-uipath du metering ping --output text
+uipath du discovery projects --query 'projects' --output text
 
-du-prod-du-we-g-dns westeurope  westeurope  2023-01-27T10:56:59.8477522Z  23.1-105-main.v3105ad
+0001-01-01T00:00:00 Predefined models to be used for standard scenarios. For custom extractors, create a Project in the Document Understanding app in Automation Cloud  00000000-0000-0000-0000-000000000000  Predefined  https://cloud.uipath.com:443/081bb1eb-e8b7-4f93-9d95-541e3fdfd6ae/0da159c2-d799-4f7a-be31-30447a48571a/du_/api/framework/projects/00000000-0000-0000-0000-000000000000?api-version=1.0
 ```
 
 ```bash
-uipath orchestrator users-get --query "value[].[Name, CreationTime]" --output text | while IFS=$'\t' read -r name creation_time; do
+uipath orchestrator users get --query "value[].[Name, CreationTime]" --output text | while IFS=$'\t' read -r name creation_time; do
     echo "User ${name} was created at ${creation_time}"
 done
 
@@ -380,7 +386,7 @@ Examples:
 
 ```bash
 # Select only the name of all returned users
-uipath orchestrator users-get --query "value[].Name"
+uipath orchestrator users get --query "value[].Name"
 
 [
   "Administrator",
@@ -391,7 +397,7 @@ uipath orchestrator users-get --query "value[].Name"
 
 ```bash
 # Select the first user with the name "Administrator"
-uipath orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
+uipath orchestrator users get --query "value[?Name == 'Administrator'] | [0]"
 
 {
   "Id": 123456,
@@ -403,7 +409,7 @@ uipath orchestrator users-get --query "value[?Name == 'Administrator'] | [0]"
 
 ```bash
 # Sort the users by creation time and get the name of last created user
-uipath orchestrator users-get --query "sort_by(value, &CreationTime) | [-1].Name"
+uipath orchestrator users get --query "sort_by(value, &CreationTime) | [-1].Name"
 
 "Automation Developer"
 ```
@@ -497,13 +503,13 @@ profiles:
 If you do not provide the `--profile` parameter, the `default` profile is automatically selected. Otherwise it will use the settings from the provided profile. The following command will send a request to the alpha.uipath.com environment:
 
 ```bash
-uipath du metering ping --profile alpha
+uipath orchestrator users get --profile alpha
 ```
 
 You can also change the profile using an environment variable (`UIPATH_PROFILE`):
 
 ```bash
-UIPATH_PROFILE=alpha uipath du metering ping
+UIPATH_PROFILE=alpha uipath orchestrator users get
 ```
 
 ## Global Arguments
@@ -550,7 +556,7 @@ profiles:
 And you simply call the CLI with the `--profile automationsuite` parameter:
 
 ```bash
-uipath du metering ping --profile automationsuite
+uipath orchestrator users get --profile automationsuite
 ```
 
 ### How to bootstrap Automation Suite?
