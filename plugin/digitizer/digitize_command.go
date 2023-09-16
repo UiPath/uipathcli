@@ -28,18 +28,19 @@ func (c DigitizeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("du").
 		WithCategory("digitization", "Document Digitization").
 		WithOperation("digitize", "Digitize the given file").
+		WithParameter("project-id", plugin.ParameterTypeString, "The project id", true).
 		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true).
 		WithParameter("content-type", plugin.ParameterTypeString, "The content type", false)
 }
 
 func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	operationId, err := c.startDigitization(context, logger)
+	documentId, err := c.startDigitization(context, logger)
 	if err != nil {
 		return err
 	}
 
 	for i := 1; i <= 60; i++ {
-		finished, err := c.waitForDigitization(operationId, context, writer, logger)
+		finished, err := c.waitForDigitization(documentId, context, writer, logger)
 		if err != nil {
 			return err
 		}
@@ -48,7 +49,7 @@ func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.
 		}
 		time.Sleep(1 * time.Second)
 	}
-	return fmt.Errorf("Digitization with operationId '%s' did not finish in time", operationId)
+	return fmt.Errorf("Digitization with documentId '%s' did not finish in time", documentId)
 }
 
 func (c DigitizeCommand) startDigitization(context plugin.ExecutionContext, logger log.Logger) (string, error) {
@@ -80,11 +81,11 @@ func (c DigitizeCommand) startDigitization(context plugin.ExecutionContext, logg
 	if err != nil {
 		return "", fmt.Errorf("Error parsing json response: %w", err)
 	}
-	return result.OperationId, nil
+	return result.DocumentId, nil
 }
 
-func (c DigitizeCommand) waitForDigitization(operationId string, context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
-	request, err := c.createDigitizeStatusRequest(operationId, context)
+func (c DigitizeCommand) waitForDigitization(documentId string, context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
+	request, err := c.createDigitizeStatusRequest(documentId, context)
 	if err != nil {
 		return true, err
 	}
@@ -123,6 +124,10 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	if context.Tenant == "" {
 		return nil, errors.New("Tenant is not set")
 	}
+	projectId, _ := c.getParameter("project-id", context.Parameters)
+	if projectId == "" {
+		return nil, errors.New("ProjectId is not set")
+	}
 	var err error
 	file := context.Input
 	if file == nil {
@@ -140,7 +145,7 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	contentType, contentLength := c.writeMultipartBody(bodyWriter, file, contentType, requestError)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 
-	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + "/digitize/start?api-version=1"
+	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant, projectId) + "/digitization/start?api-version=1"
 	request, err := http.NewRequest("POST", uri, uploadReader)
 	if err != nil {
 		return nil, err
@@ -166,26 +171,31 @@ func (c DigitizeCommand) progressReader(text string, completedText string, reade
 	return progressReader
 }
 
-func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) string {
+func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string, projectId string) string {
 	path := baseUri.Path
 	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/du_/api/digitizer"
+		path = "/{organization}/{tenant}/du_/api/framework/projects/{projectId}"
 	}
 	path = strings.ReplaceAll(path, "{organization}", org)
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
+	path = strings.ReplaceAll(path, "{projectId}", projectId)
 	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
-func (c DigitizeCommand) createDigitizeStatusRequest(operationId string, context plugin.ExecutionContext) (*http.Request, error) {
+func (c DigitizeCommand) createDigitizeStatusRequest(documentId string, context plugin.ExecutionContext) (*http.Request, error) {
 	if context.Organization == "" {
 		return nil, errors.New("Organization is not set")
 	}
 	if context.Tenant == "" {
 		return nil, errors.New("Tenant is not set")
 	}
+	projectId, _ := c.getParameter("project-id", context.Parameters)
+	if projectId == "" {
+		return nil, errors.New("ProjectId is not set")
+	}
 
-	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/digitize/result/%s?api-version=1", operationId)
+	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant, projectId) + fmt.Sprintf("/digitization/result/%s?api-version=1", documentId)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
 	if err != nil {
 		return nil, err

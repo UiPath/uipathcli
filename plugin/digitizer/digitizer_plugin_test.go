@@ -10,6 +10,26 @@ import (
 	"github.com/UiPath/uipathcli/test"
 )
 
+func TestDigitizeWithoutProjectIdParameterShowsValidationError(t *testing.T) {
+	definition := `
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithCommandPlugin(DigitizeCommand{}).
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", "myfile"}, context)
+
+	if !strings.Contains(result.StdErr, "Argument --project-id is missing") {
+		t.Errorf("Expected stderr to show that project-id parameter is missing, but got: %v", result.StdErr)
+	}
+}
+
 func TestDigitizeWithoutFileParameterShowsValidationError(t *testing.T) {
 	definition := `
 paths:
@@ -23,7 +43,7 @@ paths:
 		WithCommandPlugin(DigitizeCommand{}).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234"}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --file is missing") {
 		t.Errorf("Expected stderr to show that file parameter is missing, but got: %v", result.StdErr)
@@ -50,7 +70,7 @@ paths:
 		WithCommandPlugin(DigitizeCommand{}).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", "does-not-exist"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", "does-not-exist"}, context)
 
 	if !strings.Contains(result.StdErr, "Error sending request: File 'does-not-exist' not found") {
 		t.Errorf("Expected stderr to show that file was not found, but got: %v", result.StdErr)
@@ -70,7 +90,7 @@ paths:
 		WithCommandPlugin(DigitizeCommand{}).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", "hello-world"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", "hello-world"}, context)
 
 	if !strings.Contains(result.StdErr, "Organization is not set") {
 		t.Errorf("Expected stderr to show that organization parameter is missing, but got: %v", result.StdErr)
@@ -101,7 +121,7 @@ paths:
 		WithResponse(400, "validation error").
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
 
 	if !strings.Contains(result.StdErr, "Digitizer returned status code '400' and body 'validation error'") {
 		t.Errorf("Expected stderr to show that digitizer call failed, but got: %v", result.StdErr)
@@ -120,7 +140,7 @@ func TestDigitizeSuccessfully(t *testing.T) {
 
 	definition := `
 servers:
-- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/digitizer
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework
   description: The production url
   variables:
     organization:
@@ -139,11 +159,11 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(DigitizeCommand{}).
-		WithResponse(202, `{"operationId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
 
 	expectedResult := `{
   "status": "Done"
@@ -175,11 +195,11 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(DigitizeCommand{}).
-		WithResponse(202, `{"operationId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
+		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path, "--debug"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path, "--debug"}, context)
 
 	expected := `{
   "pages": [],
@@ -189,11 +209,11 @@ paths:
 	if result.StdOut != expected {
 		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}
-	if !strings.Contains(result.StdErr, "/digitize/start") {
-		t.Errorf("Expected stderr to show the start digitize operation, but got: %v", result.StdErr)
+	if !strings.Contains(result.StdErr, "/digitization/start") {
+		t.Errorf("Expected stderr to show the start digitization operation, but got: %v", result.StdErr)
 	}
-	if !strings.Contains(result.StdErr, "/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05") {
-		t.Errorf("Expected stderr to show the get digitize result operation, but got: %v", result.StdErr)
+	if !strings.Contains(result.StdErr, "/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05") {
+		t.Errorf("Expected stderr to show the get digitization result operation, but got: %v", result.StdErr)
 	}
 }
 
@@ -217,11 +237,11 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(DigitizeCommand{}).
 		WithStdIn(stdIn).
-		WithResponse(202, `{"operationId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/digitizer/digitize/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--content-type", "application/pdf", "--file", "-"}, context)
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--content-type", "application/pdf", "--file", "-"}, context)
 
 	expectedResult := `{
   "status": "Done"
