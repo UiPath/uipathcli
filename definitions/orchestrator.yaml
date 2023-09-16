@@ -75,7 +75,7 @@ paths:
       description: |-
         OAuth required scopes: OR.Users or OR.Users.Read.
 
-        Required permissions: Users.View or Units.Edit or SubFolders.Edit.
+        Required permissions: (Users.View or Units.Edit or SubFolders.Edit).
       operationId: DirectoryService_GetDomains
       responses:
         "200":
@@ -96,7 +96,7 @@ paths:
       description: |-
         OAuth required scopes: OR.Users or OR.Users.Read.
 
-        Required permissions: Users.View or Units.Edit or SubFolders.Edit.
+        Required permissions: (Users.View or Units.Edit or SubFolders.Edit).
       operationId: DirectoryService_SearchForUsersAndGroups
       parameters:
         - name: searchContext
@@ -436,7 +436,7 @@ paths:
             format: int32
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -511,7 +511,7 @@ paths:
             format: int32
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -1517,7 +1517,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -1550,7 +1550,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -1665,7 +1665,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -1704,7 +1704,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -1786,7 +1786,7 @@ paths:
           description: Success
           content: {}
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -2769,7 +2769,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "404":
           description: Asset or one of the folders specified does not exist.
@@ -2992,10 +2992,7 @@ paths:
       tags:
         - AuditLogs
       summary: Returns a CSV containing the filtered audit.
-      description: |-
-        OAuth required scopes: OR.Audit or OR.Audit.Read.
-
-        Required permissions: Audit.View.
+      description: "OAuth required scopes: OR.Audit or OR.Audit.Read.\n\nRequired permissions: Audit.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: AuditLogs_Reports
       parameters:
         - name: x-UIPATH-AuditedService
@@ -3071,6 +3068,7 @@ paths:
               schema:
                 type: string
                 format: binary
+      deprecated: true
       security:
         - OAuth2: []
   /odata/Buckets:
@@ -3397,7 +3395,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -3921,7 +3919,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "404":
           description: One of the specified entities does not exist.
@@ -4042,7 +4040,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -4175,7 +4173,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -4368,7 +4366,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -4502,7 +4500,7 @@ paths:
             type: boolean
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -4965,7 +4963,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -5119,7 +5117,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -5197,7 +5195,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -5276,7 +5274,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -5355,7 +5353,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -5666,7 +5664,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -5704,6 +5702,70 @@ paths:
               schema:
                 type: string
                 format: binary
+      security:
+        - OAuth2: []
+  /odata/Exports({key}):
+    get:
+      tags:
+        - Exports
+      description: Requires authentication.
+      operationId: Exports_GetById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportModel'
+      security:
+        - OAuth2: []
+  /odata/Exports({key})/UiPath.Server.Configuration.OData.GetDownloadLink:
+    get:
+      tags:
+        - Exports
+      description: Requires authentication.
+      operationId: Exports_GetDownloadLinkById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlobFileAccessDto'
       security:
         - OAuth2: []
   /odata/Folders:
@@ -5819,7 +5881,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -5853,7 +5915,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6051,7 +6113,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6121,7 +6183,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6183,7 +6245,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6245,7 +6307,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6307,7 +6369,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6821,7 +6883,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -6940,7 +7002,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "404":
           description: Not Found
@@ -8071,7 +8133,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -9016,7 +9078,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -9149,7 +9211,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -9278,7 +9340,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Empty machineIds collection in payload
@@ -9405,139 +9467,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfMachineRuntimeDto'
       security:
         - OAuth2: []
-  /odata/MessageTemplates:
-    get:
-      tags:
-        - MessageTemplates
-      summary: Gets the message templates.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Read.
-
-        Host only. Requires authentication.
-      operationId: MessageTemplates_Get
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfIEnumerableOfMessageTemplateDto'
-      security:
-        - OAuth2: []
-  /odata/MessageTemplates('{key}'):
-    put:
-      tags:
-        - MessageTemplates
-      summary: Edits a message template.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: MessageTemplates_PutById
-      parameters:
-        - name: key
-          in: path
-          description: Message template name
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Message template entity
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/MessageTemplateDto'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
-        "400":
-          description: No message template was found with the given name.
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
   /odata/OrganizationUnits:
     get:
       tags:
@@ -9652,7 +9581,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/OrganizationUnitDto'
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -9779,7 +9708,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       deprecated: true
       security:
@@ -10142,7 +10071,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -10166,7 +10095,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -10189,7 +10118,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -10742,7 +10671,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -10867,18 +10796,9 @@ paths:
               $ref: '#/components/schemas/ProcessScheduleDto'
         required: false
       responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProcessScheduleDto'
         "204":
-          description: Successful put
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProcessScheduleDto'
+          description: No Content
+          content: {}
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -10908,7 +10828,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -11346,7 +11266,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -11621,10 +11541,7 @@ paths:
       tags:
         - QueueDefinitions
       summary: Returns an Excel file containing all the items in the given queue.
-      description: |-
-        OAuth required scopes: OR.Queues or OR.Queues.Read.
-
-        Required permissions: Queues.View and Transactions.View.
+      description: "OAuth required scopes: OR.Queues or OR.Queues.Read.\n\nRequired permissions: Queues.View and Transactions.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: QueueDefinitions_ReportsById
       parameters:
         - name: key
@@ -11687,6 +11604,7 @@ paths:
               schema:
                 type: string
                 format: binary
+      deprecated: true
       security:
         - OAuth2: []
   /odata/QueueDefinitions/UiPath.Server.Configuration.OData.GetFoldersForQueue(id={id}):
@@ -11870,7 +11788,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "404":
           description: A queue or one of the folders specified does not exist.
@@ -12010,7 +11928,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -12164,7 +12082,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -12658,7 +12576,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -13629,7 +13547,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -13789,7 +13707,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -13963,7 +13881,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/QueueItemDto'
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -14175,7 +14093,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -14327,7 +14245,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -14487,7 +14405,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -15041,10 +14959,7 @@ paths:
       tags:
         - RobotLogs
       summary: Reports.
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.
-
-        Required permissions: Logs.View.
+      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.\n\nRequired permissions: Logs.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: RobotLogs_Reports
       parameters:
         - name: fileNameSubject
@@ -15104,6 +15019,7 @@ paths:
               schema:
                 type: string
                 format: binary
+      deprecated: true
       security:
         - OAuth2: []
   /odata/Robots:
@@ -15236,7 +15152,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -15390,7 +15306,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -15613,7 +15529,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Empty robotIds collection in payload
@@ -16278,7 +16194,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -16408,7 +16324,7 @@ paths:
             format: int32
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -16728,7 +16644,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -16793,7 +16709,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -17158,6 +17074,68 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfString'
       security:
         - OAuth2: []
+  /odata/Sessions/UiPath.Server.Configuration.OData.SetMaintenanceMode:
+    post:
+      tags:
+        - Sessions
+      summary: Sets the execution capabilities for a specified host
+      description: |-
+        OAuth required scopes: OR.Robots or OR.Robots.Write.
+
+        Required permissions: Robots.Edit.
+      operationId: Sessions_SetMaintenanceMode
+      requestBody:
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/SessionMaintenanceModeParameters'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
   /odata/Settings:
     get:
       tags:
@@ -17492,7 +17470,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -18911,11 +18889,259 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "404":
           description: One of the specified entities does not exist.
           content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /odata/TaskDefinitions:
+    get:
+      tags:
+        - TaskDefinitions
+      summary: Gets Task Definition objects with the given OData queries.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Required permissions: ActionDesign.View.
+      operationId: TaskDefinitions_Get
+      parameters:
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataValueOfIEnumerableOfTaskDefinitionDto'
+      security:
+        - OAuth2: []
+  /odata/TaskDefinitions({key}):
+    get:
+      tags:
+        - TaskDefinitions
+      summary: Gets a Task Definition item by Id.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Required permissions: ActionDesign.View.
+      operationId: TaskDefinitions_GetById
+      parameters:
+        - name: key
+          in: path
+          description: id of the object
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDefinitionDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+  /odata/TaskDefinitions({key})/UiPath.Server.Configuration.OData.UpdateTaskDefinition:
+    post:
+      tags:
+        - TaskDefinitions
+      summary: Updates Task Definition.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: ActionDesign.Edit.
+      operationId: TaskDefinitions_UpdateTaskDefinitionById
+      parameters:
+        - name: key
+          in: path
+          description: Key of the object
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: TaskDefinition to be updated
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+        required: false
+      responses:
+        "200":
+          description: Updated
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /odata/TaskDefinitions/UiPath.Server.Configuration.OData.CreateTaskDefinition:
+    post:
+      tags:
+        - TaskDefinitions
+      summary: Creates a new Task Definition.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: ActionDesign.Create.
+      operationId: TaskDefinitions_CreateTaskDefinition
+      parameters:
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+      requestBody:
+        description: The Task Definition to be created.
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TaskDefinitionRequest'
+        required: false
+      responses:
+        "201":
+          description: Created response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDefinitionDto'
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -18996,7 +19222,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -20063,7 +20289,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -20125,7 +20351,7 @@ paths:
             format: int32
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -20794,7 +21020,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -21210,7 +21436,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -21489,7 +21715,7 @@ paths:
           required: true
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -21752,7 +21978,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -21882,7 +22108,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -22421,7 +22647,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UserDto'
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -22594,7 +22820,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -22727,7 +22953,7 @@ paths:
             format: int64
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
       security:
         - OAuth2: []
@@ -22831,7 +23057,7 @@ paths:
             type: string
       responses:
         "202":
-          description: Success
+          description: Accepted
           content:
             application/json:
               schema:
@@ -22980,11 +23206,204 @@ paths:
         required: false
       responses:
         "202":
-          description: Success
+          description: Accepted
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/CustomEventDto'
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /tasks/AppTasks/CompleteAppTask:
+    post:
+      tags:
+        - AppTasks
+      summary: Complete the task by saving app task data and action taken
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: Tasks.Edit.
+      operationId: AppTasks_CompleteAppTask
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      requestBody:
+        description: TaskCompletionRequest
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCompletionRequest'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /tasks/AppTasks/CreateAppTask:
+    post:
+      tags:
+        - AppTasks
+      summary: Creates a new App Task.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: Tasks.Create.
+      operationId: AppTasks_CreateAppTask
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      requestBody:
+        description: The app task to be created.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppTasksCreateRequest'
+        required: false
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTasksDataDto'
+        "400":
+          description: Bad Request
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /tasks/AppTasks/GetAppTaskById:
+    get:
+      tags:
+        - AppTasks
+      summary: Returns dto to render app task
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Required permissions: Tasks.View.
+      operationId: AppTasks_GetAppTaskById
+      parameters:
+        - name: taskId
+          in: query
+          description: Task id
+          schema:
+            type: integer
+            format: int64
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppTasksDataDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+  /tasks/AppTasks/SaveAndReassignAppTasks:
+    post:
+      tags:
+        - AppTasks
+      summary: Save changes done by the current user and Reassign Task to another user
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: Tasks.Edit.
+      operationId: AppTasks_SaveAndReassignAppTasks
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      requestBody:
+        description: TaskSaveAndReassignmentRequest
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskSaveAndReassignmentRequest'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /tasks/AppTasks/SaveAppTasksData:
+    put:
+      tags:
+        - AppTasks
+      summary: Save task data
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: Tasks.Edit.
+      operationId: AppTasks_SaveAppTasksData
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      requestBody:
+        description: TaskDataSaveRequest
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskDataSaveRequest'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -23016,7 +23435,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -23055,7 +23474,7 @@ paths:
         required: false
       responses:
         "201":
-          description: Success
+          description: Created
           content:
             application/json:
               schema:
@@ -23128,7 +23547,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -23167,7 +23586,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -23206,7 +23625,7 @@ paths:
         required: false
       responses:
         "204":
-          description: Success
+          description: No Content
           content: {}
         "400":
           description: Bad Request
@@ -23340,6 +23759,221 @@ components:
           items:
             type: string
             format: uuid
+    AppTasksCreateRequest:
+      required:
+        - appId
+        - appVersion
+        - taskDefinitionId
+        - title
+      type: object
+      properties:
+        taskDefinitionId:
+          type: integer
+          description: Id for associated task definition
+          format: int64
+        taskDefinitionVersion:
+          type: integer
+          description: Version of Task Definition to get associated properties
+          format: int32
+        appId:
+          maxLength: 34
+          minLength: 1
+          type: string
+          description: Id representing AppId for AppTask
+        appVersion:
+          type: integer
+          description: Version of App for AppTask
+          format: int32
+        type:
+          type: string
+          description: Gets or sets type of this task, allowed type is 'ExternalTask'.
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskCreateRequestType
+            modelAsString: false
+        title:
+          maxLength: 512
+          minLength: 0
+          type: string
+          description: Gets or sets title of this task.
+        priority:
+          type: string
+          description: Gets or sets priority of this task.
+          enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-ms-enum:
+            name: BaseTaskCreateRequestPriority
+            modelAsString: false
+        data:
+          type: object
+          description: Task data
+        taskCatalogName:
+          maxLength: 50
+          type: string
+          description: Gets or sets the task catalog/category of the task
+        externalTag:
+          maxLength: 128
+          type: string
+          description: Reference or name of external system
+        tags:
+          type: array
+          description: List of tags associated to the task.
+          items:
+            $ref: '#/components/schemas/TagDto'
+      description: Class with only attributes needed for Creating Task (TaskType = TaskType.AppTask)
+    AppTasksDataDto:
+      type: object
+      properties:
+        appTasksMetadata:
+          $ref: '#/components/schemas/AppTasksMetadataDto'
+        status:
+          type: string
+          description: Task status
+          enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-ms-enum:
+            name: TaskDataDtoStatus
+            modelAsString: false
+        data:
+          type: object
+          description: Task form data json
+        action:
+          type: string
+          description: Task form action
+        waitJobState:
+          type: string
+          description: State of the job(if any) waiting on the current task
+          enum:
+            - Pending
+            - Running
+            - Stopping
+            - Terminating
+            - Faulted
+            - Successful
+            - Stopped
+            - Suspended
+            - Resumed
+          x-ms-enum:
+            name: TaskDataDtoWaitJobState
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          description: Fully qualified folder name
+        tags:
+          type: array
+          description: List of tags associated to the task.
+          items:
+            $ref: '#/components/schemas/TagDto'
+        assignedToUser:
+          $ref: '#/components/schemas/UserLoginInfoDto'
+        title:
+          type: string
+          description: Gets or sets title of this task.
+        type:
+          type: string
+          description: Gets or sets type of this task.
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskMetadataDtoType
+            modelAsString: false
+        priority:
+          type: string
+          description: Gets or sets priority of this task.
+          enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-ms-enum:
+            name: TaskMetadataDtoPriority
+            modelAsString: false
+        assignedToUserId:
+          type: integer
+          description: Gets the id of the actual assigned user, if any.
+          format: int64
+        organizationUnitId:
+          type: integer
+          description: Gets or sets the folder/organization-unit id.
+          format: int64
+        externalTag:
+          type: string
+          description: Identifier of external system where this task is handled
+        creatorJobKey:
+          type: string
+          description: Key of the job which created this task
+          format: uuid
+        waitJobKey:
+          type: string
+          description: Key job which is waiting on this task
+          format: uuid
+        lastAssignedTime:
+          type: string
+          description: Datetime when task was last assigned.
+          format: date-time
+        completionTime:
+          type: string
+          description: Datetime when task was completed.
+          format: date-time
+        isDeleted:
+          type: boolean
+        deleterUserId:
+          type: integer
+          format: int64
+        deletionTime:
+          type: string
+          format: date-time
+        lastModificationTime:
+          type: string
+          format: date-time
+        lastModifierUserId:
+          type: integer
+          format: int64
+        creationTime:
+          type: string
+          format: date-time
+        creatorUserId:
+          type: integer
+          format: int64
+        id:
+          type: integer
+          format: int64
+      description: Dto with attributes required for App Task
+    AppTasksMetadataDto:
+      type: object
+      properties:
+        appId:
+          type: string
+          description: Associated App Id for App Tasks
+        appVersion:
+          type: integer
+          description: Associated App Version for App Tasks
+          format: int32
+        creationTime:
+          type: string
+          format: date-time
+        creatorUserId:
+          type: integer
+          format: int64
+        id:
+          type: integer
+          format: int64
     ArgumentMetadata:
       type: object
       properties:
@@ -23347,6 +23981,96 @@ components:
           type: string
         Output:
           type: string
+    AssetCreatedEvent:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        key:
+          type: string
+          format: uuid
+        assetType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetCreatedEventAssetType
+            modelAsString: false
+        assetScope:
+          type: string
+          description: Defines the visibility level of an asset.
+          enum:
+            - Global
+            - PerRobot
+          x-ms-enum:
+            name: AssetCreatedEventAssetScope
+            modelAsString: false
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    AssetDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        assetType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetDeletedEventAssetType
+            modelAsString: false
+        assetScope:
+          type: string
+          description: Defines the visibility level of an asset.
+          enum:
+            - Global
+            - PerRobot
+          x-ms-enum:
+            name: AssetDeletedEventAssetScope
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     AssetDto:
       required:
         - Name
@@ -23359,6 +24083,7 @@ components:
           format: uuid
         Name:
           maxLength: 256
+          minLength: 1
           type: string
           description: A custom name for the asset.
         CanBeDeleted:
@@ -23549,26 +24274,54 @@ components:
           type: integer
           format: int64
       description: Stores the value of an asset associated with a robot as well as the robot association data.
-    AssetsGetRobotByNameAndKeyRequest:
-      required:
-        - assetName
-        - robotKey
+    AssetUpdatedEvent:
       type: object
       properties:
-        robotKey:
+        name:
           type: string
-        assetName:
+        description:
           type: string
-    AssetsSetRobotAssetsByKeyRequest:
-      required:
-        - robotAsset
-        - robotKey
-      type: object
-      properties:
-        robotKey:
+        key:
           type: string
-        robotAsset:
-          $ref: '#/components/schemas/RobotAssetDto'
+          format: uuid
+        assetType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetUpdatedEventAssetType
+            modelAsString: false
+        assetScope:
+          type: string
+          description: Defines the visibility level of an asset.
+          enum:
+            - Global
+            - PerRobot
+          x-ms-enum:
+            name: AssetUpdatedEventAssetScope
+            modelAsString: false
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     AssetUserValueDto:
       type: object
       properties:
@@ -23639,6 +24392,29 @@ components:
           type: integer
           format: int64
       description: Stores the value of an asset associated with a user.
+    AssetsGetRobotByNameAndKeyRequest:
+      required:
+        - assetName
+        - robotKey
+      type: object
+      properties:
+        robotKey:
+          minLength: 1
+          type: string
+        assetName:
+          minLength: 1
+          type: string
+    AssetsSetRobotAssetsByKeyRequest:
+      required:
+        - robotAsset
+        - robotKey
+      type: object
+      properties:
+        robotKey:
+          minLength: 1
+          type: string
+        robotAsset:
+          $ref: '#/components/schemas/RobotAssetDto'
     AttendedRobotDto:
       type: object
       properties:
@@ -23940,6 +24716,8 @@ components:
           type: string
         Verb:
           type: string
+        RequiresAuth:
+          type: boolean
         Headers:
           $ref: '#/components/schemas/ResponseDictionaryDto'
     BlobFileDto:
@@ -24047,12 +24825,15 @@ components:
           type: integer
           format: int64
         versionNumber:
+          minLength: 1
           type: string
         testCaseUniqueIds:
           type: array
           items:
             type: string
             format: uuid
+        enableCoverage:
+          type: boolean
     BulkAddQueueItemsRequest:
       required:
         - commitType
@@ -24060,6 +24841,7 @@ components:
       type: object
       properties:
         queueName:
+          minLength: 1
           type: string
         commitType:
           type: string
@@ -24198,6 +24980,7 @@ components:
       type: object
       properties:
         action:
+          minLength: 1
           type: string
           description: Action taken on this task
         taskIds:
@@ -24293,6 +25076,7 @@ components:
       type: object
       properties:
         calendarName:
+          minLength: 1
           type: string
     CloudTemplateDto:
       description: The cloud template that hosts the Robot
@@ -24370,37 +25154,6 @@ components:
           x-ms-enum:
             name: CredentialSetDefaultStoreForResourceTypeRequestResourceType
             modelAsString: false
-    CredentialsProxyResourceDto:
-      required:
-        - CredentialStoreId
-        - CredentialStoreName
-        - Name
-        - Type
-      type: object
-      properties:
-        Name:
-          type: string
-        Type:
-          type: string
-          description: This enum describes the type of resources that can be affiliated to a Credentials Proxy.
-          enum:
-            - AssetCredential
-            - RobotCredential
-            - BucketCredential
-            - Secrets
-            - CredentialStore
-          x-ms-enum:
-            name: CredentialsProxyResourceDtoType
-            modelAsString: false
-        CredentialStoreId:
-          type: integer
-          format: int64
-        CredentialStoreName:
-          type: string
-        Id:
-          type: integer
-          format: int64
-      description: Defines the resources such as credential stores, assets, robots or bucket for a Credentials Proxy.
     CredentialStoreDetailsDto:
       type: object
       properties:
@@ -24417,11 +25170,21 @@ components:
         ProxyId:
           type: integer
           format: int64
+        ProxyType:
+          type: string
+          enum:
+            - Connected
+            - Disconnected
+          x-ms-enum:
+            name: CredentialStoreDtoProxyType
+            modelAsString: false
         HostName:
           type: string
         Name:
+          minLength: 1
           type: string
         Type:
+          minLength: 1
           type: string
         AdditionalConfiguration:
           type: string
@@ -24444,6 +25207,7 @@ components:
       type: object
       properties:
         Name:
+          minLength: 1
           type: string
         Type:
           type: string
@@ -24460,6 +25224,39 @@ components:
           type: integer
           format: int64
       description: Defines the resources such as assets, robots or bucket for a Credential Store.
+    CredentialsProxyResourceDto:
+      required:
+        - CredentialStoreId
+        - CredentialStoreName
+        - Name
+        - Type
+      type: object
+      properties:
+        Name:
+          minLength: 1
+          type: string
+        Type:
+          type: string
+          description: This enum describes the type of resources that can be affiliated to a Credentials Proxy.
+          enum:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
+            - CredentialStore
+          x-ms-enum:
+            name: CredentialsProxyResourceDtoType
+            modelAsString: false
+        CredentialStoreId:
+          type: integer
+          format: int64
+        CredentialStoreName:
+          minLength: 1
+          type: string
+        Id:
+          type: integer
+          format: int64
+      description: Defines the resources such as credential stores, assets, robots or bucket for a Credentials Proxy.
     CustomEventDto:
       required:
         - EventId
@@ -24468,6 +25265,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -24726,6 +25524,7 @@ components:
       type: object
       properties:
         robotId:
+          minLength: 1
           type: string
     EnvironmentsSetRobotsRequest:
       required:
@@ -24908,6 +25707,7 @@ components:
           format: uuid
         DisplayName:
           maxLength: 115
+          minLength: 1
           type: string
           description: Display name for the folder.
         FullyQualifiedName:
@@ -25209,8 +26009,8 @@ components:
             - MachineKeyCannotChange
             - TenantIdMismatch
             - UserDoesNotHaveRobot
-            - NoDefaultAutoScalingProfile
-            - InvalidAutoScalingProfileSchedule
+            - RobotDisabled
+            - UnattendedRobotNotFound
             - CannotPropagateMachineToSubfolders
             - MachineRuntimeProtected
             - IncompatibleOS
@@ -25225,6 +26025,7 @@ components:
             - SameRobotUsernameMappedToDiferentUser
             - ClassicCannotCleanNotFailedMigrations
             - InvalidSlots
+            - RobotNotFoundByKey
             - InvalidJobKey
             - MachineSessionNotFound
             - EnvironmentDeploymentConflict
@@ -25332,6 +26133,7 @@ components:
             - CyberArkEditPasswordNotAllowed
             - LogMessageNotFound
             - LogRobotNameNotFound
+            - InvalidElasticQuery
             - EncryptionKeyNotFound
             - EncryptionKeyIncorrectFormat
             - AzureKeyVaultRetrieveIssue
@@ -25405,6 +26207,7 @@ components:
             - JobAssignedToDifferentRobot
             - JobNotCompleted
             - JobVideoRecordingNotEnabled
+            - QueueItemVideoRecordingNotEnabled
             - CannotDeleteDefaultCredentialStore
             - CredentialStoreNotFound
             - UnknownCredentialStoreType
@@ -25413,6 +26216,7 @@ components:
             - FailedToWriteToCredentialStore
             - CannotDeleteNonEmptyCredentialStore
             - FailedToDeleteFromCredentialStore
+            - InvalidCredentialStoreType
             - TaskAssignmentError
             - TaskCompletionError
             - TaskAssigneeMismatchError
@@ -25468,6 +26272,17 @@ components:
             - TasksSummaryDateDiffOutOfRange
             - TasksSummaryEndDateShouldBeGreater
             - TaskDefinitionPropertiesRequired
+            - TaskDefinitionNotFound
+            - TaskDefinitionVersionNotFound
+            - AppTaskNoAction
+            - AppTaskInvalidPayload
+            - AppTaskNoData
+            - TaskProviderInvalidModifiedDate
+            - TaskProviderInvalidTaskUrn
+            - TaskDefinitionAllowedActionsRequired
+            - AppTaskDataItemViolatesContentJsonSchema
+            - TaskDefinitionSchemaNotAnObject
+            - TaskDefinitionNameIsAlreadyUsed
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -25625,6 +26440,12 @@ components:
             - CredentialsProxyRequestFailedInvalidCredentials
             - CredentialsProxyConnectionRefused
             - CredentialsProxyTypeCannotBeUpdated
+            - CredentialsProxyRequestFailedForbidden
+            - CredentialsProxyRequestFailedNotFound
+            - CredentialsProxyRequestFailedInternalServerError
+            - CredentialsProxyRequestFailedUnhandledError
+            - CredentialsProxyRequestFailedBadRequest
+            - CredentialsProxyTypeCannotBeCreated
             - ServerlessCreateMachineTemplateErrorCode
             - ServerlessUpdateMachineTemplateErrorCode
             - ServerlessDeleteMachineTemplateErrorCode
@@ -25643,9 +26464,20 @@ components:
             - SolutionsResourceNotFound
             - SolutionsResourceNotSupported
             - SolutionsResourcesNotFound
+            - FolderKeyRequired
+            - SolutionsCannotInstallInClassicFolder
+            - SolutionsCannotInstallInSolutionFolder
+            - SolutionIsNotInstallAtPath
+            - SolutionFolderNotFound
+            - SolutionFolderHasJobsNotInFinalState
+            - SolutionFileNotFound
+            - SolutionPackageUrlIsInvalid
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
+            - JobFaulted
+            - JobStopped
+            - JobUnknownFinalStatus
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -25668,6 +26500,13 @@ components:
       properties:
         assignments:
           $ref: '#/components/schemas/MachineAssignmentsDto'
+    FolderAssignUsersRequest:
+      required:
+        - assignments
+      type: object
+      properties:
+        assignments:
+          $ref: '#/components/schemas/UserAssignmentsDto'
     FolderAssignmentsDto:
       type: object
       properties:
@@ -25677,13 +26516,51 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoleUsersDto'
-    FolderAssignUsersRequest:
-      required:
-        - assignments
+    FolderCreatedEvent:
       type: object
       properties:
-        assignments:
-          $ref: '#/components/schemas/UserAssignmentsDto'
+        id:
+          type: integer
+          format: int64
+        key:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        path:
+          type: string
+        fullyQualifiedName:
+          type: string
+        type:
+          type: string
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: FolderCreatedEventType
+            modelAsString: false
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    FolderDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     FolderDto:
       required:
         - DisplayName
@@ -25695,6 +26572,7 @@ components:
           format: uuid
         DisplayName:
           maxLength: 115
+          minLength: 1
           type: string
           description: Display name for the folder.
         FullyQualifiedName:
@@ -25814,6 +26692,40 @@ components:
             type: integer
             format: int32
       description: Association between a folder and a set of roles.
+    FolderUpdatedEvent:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        key:
+          type: string
+          format: uuid
+        displayName:
+          type: string
+        description:
+          type: string
+        code:
+          type: string
+        path:
+          type: string
+        fullyQualifiedName:
+          type: string
+        type:
+          type: string
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: FolderUpdatedEventType
+            modelAsString: false
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     FormTaskCreateRequest:
       required:
         - title
@@ -25995,6 +26907,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -26095,6 +27008,7 @@ components:
             - StudioDesktop
             - AutomationOpsPipelines
             - Apps
+            - SAP
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -26258,6 +27172,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -26288,7 +27203,7 @@ components:
           format: int64
       description: This event is raised whenever a job has failed to finish execution
       x-webhook-event: job.faulted
-    JobsCreatedEventDto:
+    JobResumedEventDto:
       required:
         - EventId
         - Timestamp
@@ -26296,6 +27211,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -26307,14 +27223,8 @@ components:
         Timestamp:
           type: string
           format: date-time
-        StartInfo:
-          $ref: '#/components/schemas/WebhookStartProcessDto'
-        Jobs:
-          type: array
-          description: List of jobs that were created and are in pending state
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/WebhookJobDto'
+        Job:
+          $ref: '#/components/schemas/SimpleJobEventDto'
         EventTime:
           type: string
           format: date-time
@@ -26330,48 +27240,7 @@ components:
         UserId:
           type: integer
           format: int64
-      description: This event is raised whenever jobs were created and queued for execution
-      x-webhook-event: job.created
-    JobsStoppedEventDto:
-      required:
-        - EventId
-        - Timestamp
-        - Type
-      type: object
-      properties:
-        Type:
-          type: string
-        EventId:
-          maxLength: 50
-          minLength: 0
-          type: string
-        EntityKey:
-          type: string
-          format: uuid
-        Timestamp:
-          type: string
-          format: date-time
-        Jobs:
-          type: array
-          items:
-            $ref: '#/components/schemas/SimpleJobEventDto'
-        EventTime:
-          type: string
-          format: date-time
-        TenantId:
-          type: integer
-          format: int32
-        OrganizationUnitId:
-          type: integer
-          format: int64
-        OrganizationUnitKey:
-          type: string
-          format: uuid
-        UserId:
-          type: integer
-          format: int64
-      description: This event is raised whenever jobs were stopped
-      x-webhook-event: job.stopped
+      x-webhook-event: job.resumed
     JobStartedEventDto:
       required:
         - EventId
@@ -26380,6 +27249,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -26410,6 +27280,44 @@ components:
           format: int64
       description: This event is raised whenever a job has started execution on a robot
       x-webhook-event: job.started
+    JobStoppingEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        Job:
+          $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: job.stopping
     JobSuspendedEventDto:
       required:
         - EventId
@@ -26418,6 +27326,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -26448,6 +27357,44 @@ components:
           format: int64
       description: This event is raised whenever a job has suspended execution on a robot
       x-webhook-event: job.suspended
+    JobTerminatingEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        Job:
+          $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: job.terminating
     JobTriggerDto:
       type: object
       properties:
@@ -26463,6 +27410,7 @@ components:
             - Job
             - Task
             - Timer
+            - Integration
           x-ms-enum:
             name: JobTriggerDtoTriggerType
             modelAsString: false
@@ -26511,6 +27459,7 @@ components:
             - Job
             - Task
             - Timer
+            - Integration
           x-ms-enum:
             name: JobTriggerWaitEventModelTriggerType
             modelAsString: false
@@ -26562,6 +27511,92 @@ components:
           type: string
           description: Modification time of the item
           format: date-time
+    JobsCreatedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        StartInfo:
+          $ref: '#/components/schemas/WrappedStartProcessDto'
+        Jobs:
+          type: array
+          description: List of jobs that were created and are in pending state
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/WrappedJobDto'
+        EventTime:
+          type: string
+          format: date-time
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      description: This event is raised whenever jobs were created and queued for execution
+      x-webhook-event: job.created
+    JobsStoppedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        Jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SimpleJobEventDto'
+        EventTime:
+          type: string
+          format: date-time
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      description: This event is raised whenever jobs were stopped
+      x-webhook-event: job.stopped
     KeyValuePairOfStringString:
       type: object
       properties:
@@ -26792,8 +27827,10 @@ components:
       type: object
       properties:
         licenseKey:
+          minLength: 1
           type: string
         environment:
+          minLength: 1
           type: string
         email:
           type: string
@@ -26926,6 +27963,7 @@ components:
       type: object
       properties:
         key:
+          minLength: 1
           type: string
         robotType:
           type: string
@@ -27036,6 +28074,10 @@ components:
           type: integer
           description: The Id of the Machine on which the Robot that generated the log is running.
           format: int64
+        MachineKey:
+          type: string
+          description: The Key of the Machine on which the Robot that generated the log is running.
+          format: uuid
         RuntimeType:
           type: string
           description: The RuntimeType of the job referenced by the JobKey field
@@ -27074,8 +28116,10 @@ components:
         tenancyName:
           type: string
         usernameOrEmailAddress:
+          minLength: 1
           type: string
         password:
+          minLength: 1
           type: string
     LongVersionedEntity:
       type: object
@@ -27196,18 +28240,6 @@ components:
           description: Robots assigned to template machine.
           items:
             $ref: '#/components/schemas/RobotUserDto'
-        AutoScalingProfile:
-          type: string
-          description: The profile that drives auto scaling.
-          enum:
-            - CostEfficient
-            - Balanced
-            - Fast
-            - Custom
-            - Always
-          x-ms-enum:
-            name: MachineDtoAutoScalingProfile
-            modelAsString: false
         AutomationType:
           type: string
           description: The automation type the machine supports.
@@ -27441,6 +28473,14 @@ components:
           format: int64
         MachineName:
           type: string
+        MaintenanceMode:
+          type: string
+          enum:
+            - Default
+            - Enabled
+          x-ms-enum:
+            name: MachineSessionRuntimeDtoMaintenanceMode
+            modelAsString: false
         HostMachineName:
           type: string
         RuntimeType:
@@ -27529,6 +28569,11 @@ components:
         TriggersCount:
           type: integer
           format: int32
+    MachineVpnSettingsDto:
+      type: object
+      properties:
+        cidr:
+          type: string
     MachinesFolderAssociationsDto:
       type: object
       properties:
@@ -27559,11 +28604,6 @@ components:
           type: integer
           description: The Id of the Machine.
           format: int64
-    MachineVpnSettingsDto:
-      type: object
-      properties:
-        cidr:
-          type: string
     MaintenanceSetting:
       type: object
       properties:
@@ -27638,21 +28678,6 @@ components:
           description: The next execution time of the maintenance window
           format: date-time
       description: Represents a maintenance window for a cloud machine
-    MessageTemplateDto:
-      required:
-        - Name
-      type: object
-      properties:
-        Name:
-          maxLength: 256
-          type: string
-          description: The name of a specific template (e.g. Templates.LoginLayout).
-        Value:
-          type: string
-          description: The value assigned to a specific template.
-        Id:
-          type: string
-      description: Used to store various predefined application message templates like custom login layout.
     MoveFolderMachineChange:
       type: object
       properties:
@@ -27760,13 +28785,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConfigurationEntry'
-    ODataValueOfIEnumerableOfCredentialsProxyResourceDto:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref: '#/components/schemas/CredentialsProxyResourceDto'
     ODataValueOfIEnumerableOfCredentialStoreDto:
       type: object
       properties:
@@ -27781,6 +28799,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CredentialStoreResourceDto'
+    ODataValueOfIEnumerableOfCredentialsProxyResourceDto:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/CredentialsProxyResourceDto'
     ODataValueOfIEnumerableOfEnvironmentDto:
       type: object
       properties:
@@ -27929,13 +28954,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/MachineSessionRuntimeDto'
-    ODataValueOfIEnumerableOfMessageTemplateDto:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref: '#/components/schemas/MessageTemplateDto'
     ODataValueOfIEnumerableOfMoveFolderMachineChange:
       type: object
       properties:
@@ -28104,6 +29122,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskCatalogDto'
+    ODataValueOfIEnumerableOfTaskDefinitionDto:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDefinitionDto'
     ODataValueOfIEnumerableOfTaskDto:
       type: object
       properties:
@@ -28241,12 +29266,69 @@ components:
       properties:
         DisplayName:
           maxLength: 128
+          minLength: 1
           type: string
           description: The name of the organization unit.
         Id:
           type: integer
           format: int64
       description: "Stores information about an organization unit in Orchestrator.\r\n<para /> An orchestrator unit can be understood as a company department and it is used to group different entities."
+    PackageDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        version:
+          type: string
+        feedId:
+          type: string
+          format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    PackageUploadedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        version:
+          type: string
+        feedId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-ms-enum:
+            name: PackageUploadedEventType
+            modelAsString: false
+        description:
+          type: string
+        folderKey:
+          type: string
+          format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     PageResultDtoOfFolderDto:
       type: object
       properties:
@@ -28316,6 +29398,7 @@ components:
       type: object
       properties:
         folderName:
+          minLength: 1
           type: string
     PingEventDto:
       required:
@@ -28325,6 +29408,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -28485,42 +29569,6 @@ components:
         Id:
           type: string
       description: A process is a project defined in UiPath Studio and published in Orchestrator from UiPath Studio or manually.
-    ProcessesSetArgumentsRequest:
-      required:
-        - arguments
-        - key
-      type: object
-      properties:
-        key:
-          type: string
-        arguments:
-          $ref: '#/components/schemas/ArgumentMetadata'
-    ProcessingExceptionDto:
-      type: object
-      properties:
-        Reason:
-          type: string
-          description: The reason the processing failed.
-        Details:
-          type: string
-          description: Stores additional details about the exception.
-        Type:
-          type: string
-          description: The processing exception type, if any.
-          enum:
-            - ApplicationException
-            - BusinessException
-          x-ms-enum:
-            name: ProcessingExceptionDtoType
-            modelAsString: false
-        AssociatedImageFilePath:
-          type: string
-          description: A path on the robot running computer to an image file that stores relevant information about the exception - e.g. a system print screen.
-        CreationTime:
-          type: string
-          description: Time when the exception occurred
-          format: date-time
-      description: Stores information about exceptions thrown while processing failed queue items.
     ProcessScheduleDto:
       required:
         - Name
@@ -28536,6 +29584,7 @@ components:
           description: Specifies if the schedule is active or not.
         Name:
           maxLength: 255
+          minLength: 1
           type: string
           description: The name of the schedule.
         ReleaseId:
@@ -28644,6 +29693,7 @@ components:
           format: uuid
         TimeZoneId:
           maxLength: 80
+          minLength: 1
           type: string
           description: The timezone under which the schedule will run.
         TimeZoneIana:
@@ -28674,6 +29724,9 @@ components:
         QueueDefinitionName:
           type: string
           description: The Name of the queue that uses this schedule for activation (trigger jobs when new queue items are added)
+        ActivateOnJobComplete:
+          type: boolean
+          description: Flag for activating the queue trigger on each completed job.
         ItemsActivationThreshold:
           maximum: 1E+4
           minimum: 1
@@ -28739,6 +29792,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -28751,7 +29805,7 @@ components:
           type: string
           format: date-time
         ProcessSchedule:
-          $ref: '#/components/schemas/WebhookProcessScheduleDto'
+          $ref: '#/components/schemas/WrappedProcessScheduleDto'
         Reason:
           type: string
           readOnly: true
@@ -28805,6 +29859,43 @@ components:
           type: boolean
         AlwaysRunning:
           type: boolean
+    ProcessesSetArgumentsRequest:
+      required:
+        - arguments
+        - key
+      type: object
+      properties:
+        key:
+          minLength: 1
+          type: string
+        arguments:
+          $ref: '#/components/schemas/ArgumentMetadata'
+    ProcessingExceptionDto:
+      type: object
+      properties:
+        Reason:
+          type: string
+          description: The reason the processing failed.
+        Details:
+          type: string
+          description: Stores additional details about the exception.
+        Type:
+          type: string
+          description: The processing exception type, if any.
+          enum:
+            - ApplicationException
+            - BusinessException
+          x-ms-enum:
+            name: ProcessingExceptionDtoType
+            modelAsString: false
+        AssociatedImageFilePath:
+          type: string
+          description: A path on the robot running computer to an image file that stores relevant information about the exception - e.g. a system print screen.
+        CreationTime:
+          type: string
+          description: Time when the exception occurred
+          format: date-time
+      description: Stores information about exceptions thrown while processing failed queue items.
     QueueCreatedEventDto:
       required:
         - EventId
@@ -28813,6 +29904,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -28860,6 +29952,7 @@ components:
           description: A unique identifier associated to each queue.
           format: uuid
         Name:
+          minLength: 1
           type: string
           description: A custom name for the queue.
         Description:
@@ -28986,6 +30079,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29049,6 +30143,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29122,6 +30217,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29195,6 +30291,12 @@ components:
         Progress:
           type: string
           description: String field which is used to keep track of the business flow progress.
+        Source:
+          maxLength: 20
+          minLength: 0
+          pattern: Manual|Apps
+          type: string
+          description: The Source type of the item.
       description: Defines the work item content.
     QueueItemDeleteBulkRequest:
       type: object
@@ -29331,6 +30433,9 @@ components:
           type: integer
           description: "The number of times this work item has been processed.\r\n<para />This can be higher than 0 only if MaxRetried number is set and the item processing failed at least once with ApplicationException."
           format: int32
+        HasVideoRecorded:
+          type: boolean
+          description: True if any execution video has been recorded for this queue item, false otherwise.
         SpecificData:
           type: string
           description: A JSON representation of the specific content.
@@ -29439,6 +30544,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29471,49 +30577,6 @@ components:
           format: int64
       description: This event is raised whenever a queue item transaction has failed
       x-webhook-event: queueItem.transactionFailed
-    QueueItemsAbandonedEventDto:
-      required:
-        - EventId
-        - Timestamp
-        - Type
-      type: object
-      properties:
-        Type:
-          type: string
-        EventId:
-          maxLength: 50
-          minLength: 0
-          type: string
-        EntityKey:
-          type: string
-          format: uuid
-        Timestamp:
-          type: string
-          format: date-time
-        Queue:
-          $ref: '#/components/schemas/QueueDefinitionEventDto'
-        QueueItems:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/QueueItemSimpleEventDto'
-        EventTime:
-          type: string
-          format: date-time
-        TenantId:
-          type: integer
-          format: int32
-        OrganizationUnitId:
-          type: integer
-          format: int64
-        OrganizationUnitKey:
-          type: string
-          format: uuid
-        UserId:
-          type: integer
-          format: int64
-      description: This event is raised whenever queue item transactions have expired and were abandoned
-      x-webhook-event: queueItem.transactionAbandoned
     QueueItemSimpleEventDto:
       type: object
       properties:
@@ -29563,7 +30626,7 @@ components:
             name: QueueItemSimpleEventDtoReviewStatus
             modelAsString: false
         ProcessingException:
-          $ref: '#/components/schemas/WebhookProcessingExceptionDto'
+          $ref: '#/components/schemas/WrappedProcessingExceptionDto'
         DueDate:
           type: string
           description: The latest date and time at which the item should be processed. If empty the item can be processed at any given time.
@@ -29645,7 +30708,7 @@ components:
           format: int64
           readOnly: true
         Robot:
-          $ref: '#/components/schemas/WebhookRobotDto'
+          $ref: '#/components/schemas/WrappedRobotDto'
         ReviewerUser:
           $ref: '#/components/schemas/WebhookSimpleUserDto'
         SpecificContent:
@@ -29660,6 +30723,10 @@ components:
             type: object
           description: A collection of key value pairs containing custom data resulted after successful processing.
           readOnly: true
+        Source:
+          type: string
+          description: Where the queue item was created
+          readOnly: true
     QueueItemStartedEventDto:
       required:
         - EventId
@@ -29668,6 +30735,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29700,6 +30768,50 @@ components:
           format: int64
       description: This event is raised whenever a new queue item transaction is started
       x-webhook-event: queueItem.transactionStarted
+    QueueItemsAbandonedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        Queue:
+          $ref: '#/components/schemas/QueueDefinitionEventDto'
+        QueueItems:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/QueueItemSimpleEventDto'
+        EventTime:
+          type: string
+          format: date-time
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      description: This event is raised whenever queue item transactions have expired and were abandoned
+      x-webhook-event: queueItem.transactionAbandoned
     QueueProcessingRecordDto:
       type: object
       properties:
@@ -29900,6 +31012,19 @@ components:
         BucketId:
           type: integer
           format: int64
+    QueueSetItemReviewStatusRequest:
+      required:
+        - queueItems
+        - status
+      type: object
+      properties:
+        status:
+          minLength: 1
+          type: string
+        queueItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/LongVersionedEntity'
     QueueSetItemReviewerRequest:
       required:
         - queueItems
@@ -29909,18 +31034,6 @@ components:
         userId:
           type: integer
           format: int64
-        queueItems:
-          type: array
-          items:
-            $ref: '#/components/schemas/LongVersionedEntity'
-    QueueSetItemReviewStatusRequest:
-      required:
-        - queueItems
-        - status
-      type: object
-      properties:
-        status:
-          type: string
         queueItems:
           type: array
           items:
@@ -29937,13 +31050,6 @@ components:
       properties:
         transactionResult:
           $ref: '#/components/schemas/TransactionResultDto'
-    QueuesStartTransactionRequest:
-      required:
-        - transactionData
-      type: object
-      properties:
-        transactionData:
-          $ref: '#/components/schemas/TransactionDataDto'
     QueueUnsetItemReviewerRequest:
       required:
         - queueItems
@@ -29961,6 +31067,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -29998,6 +31105,13 @@ components:
           format: int64
       description: This event is raised whenever queue definitions were updated
       x-webhook-event: queue.updated
+    QueuesStartTransactionRequest:
+      required:
+        - transactionData
+      type: object
+      properties:
+        transactionData:
+          $ref: '#/components/schemas/TransactionDataDto'
     RaiseProcessAlertRequest:
       required:
         - processAlert
@@ -30047,6 +31161,8 @@ components:
           x-ms-enum:
             name: ReexecuteTestCasesOptionsDtoRuntimeType
             modelAsString: false
+        enforceExecutionOrder:
+          type: boolean
     ReleaseCreatedEventDto:
       required:
         - EventId
@@ -30055,6 +31171,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -30070,7 +31187,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookReleaseDto'
+            $ref: '#/components/schemas/WrappedReleaseDto'
         EventTime:
           type: string
           format: date-time
@@ -30100,6 +31217,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -30115,7 +31233,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookReleaseDto'
+            $ref: '#/components/schemas/WrappedReleaseDto'
         EventTime:
           type: string
           format: date-time
@@ -30148,9 +31266,11 @@ components:
           type: string
           description: A unique identifier associated to each release.
         ProcessKey:
+          minLength: 1
           type: string
           description: The unique identifier of the process associated with the release.
         ProcessVersion:
+          minLength: 1
           type: string
           description: The version of the process associated with the release.
         IsLatestVersion:
@@ -30163,6 +31283,7 @@ components:
           type: string
           description: Used to add additional information about a release in order to better identify it.
         Name:
+          minLength: 1
           type: string
           description: A custom name of the release. The default name format is ProcessName_EnvironmentName.
         EnvironmentId:
@@ -30177,6 +31298,8 @@ components:
         EntryPointId:
           type: integer
           format: int64
+        EntryPointPath:
+          type: string
         EntryPoint:
           $ref: '#/components/schemas/EntryPointDto'
         InputArguments:
@@ -30216,6 +31339,8 @@ components:
         VideoRecordingSettings:
           $ref: '#/components/schemas/VideoRecordingSettingsDto'
         AutoUpdate:
+          type: boolean
+        HiddenForAttendedUser:
           type: boolean
         FeedId:
           type: string
@@ -30312,25 +31437,6 @@ components:
         BucketId:
           type: integer
           format: int64
-    ReleasesUpdateToLatestPackageVersionBulkRequest:
-      required:
-        - releaseIds
-      type: object
-      properties:
-        releaseIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-        mergePackageTags:
-          type: boolean
-    ReleasesUpdateToSpecificPackageVersionRequest:
-      required:
-        - packageVersion
-      type: object
-      properties:
-        packageVersion:
-          type: string
     ReleaseUpdatedEventDto:
       required:
         - EventId
@@ -30339,6 +31445,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -30354,7 +31461,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookReleaseDto'
+            $ref: '#/components/schemas/WrappedReleaseDto'
         EventTime:
           type: string
           format: date-time
@@ -30388,6 +31495,7 @@ components:
           format: int64
         VersionNumber:
           maxLength: 50
+          minLength: 1
           type: string
           description: The version of process associated with the release.
         CreationTime:
@@ -30401,6 +31509,26 @@ components:
           type: integer
           format: int64
       description: "Stores data about a version of the various versions of the process associated with a certain release.\r\n<para />If a certain version is associated on and off with a release a new ReleaseVersion object is created for each association."
+    ReleasesUpdateToLatestPackageVersionBulkRequest:
+      required:
+        - releaseIds
+      type: object
+      properties:
+        releaseIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        mergePackageTags:
+          type: boolean
+    ReleasesUpdateToSpecificPackageVersionRequest:
+      required:
+        - packageVersion
+      type: object
+      properties:
+        packageVersion:
+          minLength: 1
+          type: string
     RemoveMachinesFromFolderRequest:
       required:
         - machineIds
@@ -30445,11 +31573,13 @@ components:
             - TimeTrigger
             - EventTrigger
             - QueueTrigger
+            - AppsTrigger
             - Property
           x-ms-enum:
             name: ResourceOverwriteDto`1ResourceType
             modelAsString: false
         resourceKey:
+          minLength: 1
           type: string
           description: The key of the resource to be overwritten
         entityId:
@@ -30502,6 +31632,7 @@ components:
       properties:
         Name:
           maxLength: 128
+          minLength: 1
           type: string
           description: The asset name.
         ValueType:
@@ -30562,6 +31693,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -30577,7 +31709,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookRobotDto'
+            $ref: '#/components/schemas/WrappedRobotDto'
         EventTime:
           type: string
           format: date-time
@@ -30617,6 +31749,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -30632,7 +31765,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookRobotDto'
+            $ref: '#/components/schemas/WrappedRobotDto'
         EventTime:
           type: string
           format: date-time
@@ -30832,189 +31965,6 @@ components:
           type: integer
           format: int64
       description: Entity that represents an acquired Robot license
-    RobotsConvertToFloatingRequest:
-      required:
-        - robotId
-      type: object
-      properties:
-        robotId:
-          type: integer
-          format: int64
-    RobotsFromFolderModel:
-      required:
-        - HostingType
-        - Name
-        - Type
-      type: object
-      properties:
-        UserType:
-          type: string
-          enum:
-            - User
-            - Robot
-            - DirectoryUser
-            - DirectoryGroup
-            - DirectoryRobot
-            - DirectoryExternalApplication
-          x-ms-enum:
-            name: RobotsFromFolderModelUserType
-            modelAsString: false
-        UserEmail:
-          type: string
-        UserFullName:
-          type: string
-        LicenseKey:
-          maxLength: 255
-          minLength: 0
-          type: string
-          description: "The key is automatically generated from the server for the Robot machine.\r\n<para />For the robot to work, the same key must exist on both the robot and Orchestrator.\r\n<para />All robots on a machine must have the same license key in order to register correctly."
-        MachineName:
-          maxLength: 450
-          minLength: 0
-          type: string
-          description: The name of the machine a Robot is hosted on.
-        MachineId:
-          type: integer
-          description: The Id of the machine a Robot is hosted on
-          format: int64
-        Name:
-          maxLength: 19
-          minLength: 0
-          type: string
-          description: A custom name for the robot.
-        Username:
-          maxLength: 100
-          minLength: 0
-          type: string
-          description: "The machine username. If the user is under a domain, you are required to also specify it in a DOMAIN\\username format.\r\n<para />Note: You must use short domain names, such as desktop\\administrator and NOT desktop.local/administrator."
-        ExternalName:
-          maxLength: 450
-          minLength: 0
-          type: string
-          description: Contains the value of the key in the external store used to store the password.
-        Description:
-          maxLength: 500
-          minLength: 0
-          type: string
-          description: Used to add additional information about a robot in order to better identify it.
-        Type:
-          type: string
-          description: The Robot type.
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - RpaDeveloperPro
-            - StudioPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: RobotDtoType
-            modelAsString: false
-        HostingType:
-          type: string
-          description: The Robot hosting type (Standard / Floating).
-          enum:
-            - Standard
-            - Floating
-          x-ms-enum:
-            name: RobotDtoHostingType
-            modelAsString: false
-        ProvisionType:
-          type: string
-          description: The Robot provision type.
-          enum:
-            - Manual
-            - Automatic
-          x-ms-enum:
-            name: RobotDtoProvisionType
-            modelAsString: false
-        Password:
-          maxLength: 100
-          minLength: 0
-          type: string
-          description: The Windows password associated with the machine username.
-        CredentialStoreId:
-          type: integer
-          description: The Credential Store used to store the password.
-          format: int64
-        UserId:
-          type: integer
-          description: The associated user's Id.
-          format: int64
-        Enabled:
-          type: boolean
-          description: Specificies the state of the Robot (enabled/disabled) - a disabled robot cannot connect to Orchestrator
-        CredentialType:
-          type: string
-          description: The robot credentials type (Default/ SmartCard)
-          enum:
-            - Default
-            - SmartCard
-            - NCipher
-            - SafeNet
-            - NoCredential
-          x-ms-enum:
-            name: RobotDtoCredentialType
-            modelAsString: false
-        Environments:
-          type: array
-          description: The collection of environments the robot is part of.
-          items:
-            $ref: '#/components/schemas/EnvironmentDto'
-        RobotEnvironments:
-          type: string
-          description: The comma separated textual representation of environment names the robot is part of.
-        ExecutionSettings:
-          type: object
-          additionalProperties:
-            type: object
-          description: A collection of key value pairs containing execution settings for this robot.
-        IsExternalLicensed:
-          type: boolean
-          description: Flag to indicate if the robot uses an external license
-        LimitConcurrentExecution:
-          type: boolean
-          description: Specifies if the robot can be used concurrently on multiple machines
-        LastModificationTime:
-          type: string
-          format: date-time
-        LastModifierUserId:
-          type: integer
-          format: int64
-        CreationTime:
-          type: string
-          format: date-time
-        CreatorUserId:
-          type: integer
-          format: int64
-        Id:
-          type: integer
-          format: int64
-    RobotsToggleEnabledStatusRequest:
-      required:
-        - enabled
-        - robotIds
-      type: object
-      properties:
-        robotIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-        enabled:
-          type: boolean
     RobotUpdatedEventDto:
       required:
         - EventId
@@ -31023,6 +31973,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -31038,7 +31989,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookRobotDto'
+            $ref: '#/components/schemas/WrappedRobotDto'
         EventTime:
           type: string
           format: date-time
@@ -31226,6 +32177,189 @@ components:
           type: integer
           format: int64
       description: Entity derived from RobotDto. Is shares all the properties of the base entity and includes the license field.
+    RobotsConvertToFloatingRequest:
+      required:
+        - robotId
+      type: object
+      properties:
+        robotId:
+          type: integer
+          format: int64
+    RobotsFromFolderModel:
+      required:
+        - HostingType
+        - Name
+        - Type
+      type: object
+      properties:
+        UserType:
+          type: string
+          enum:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
+          x-ms-enum:
+            name: RobotsFromFolderModelUserType
+            modelAsString: false
+        UserEmail:
+          type: string
+        UserFullName:
+          type: string
+        LicenseKey:
+          maxLength: 255
+          minLength: 0
+          type: string
+          description: "The key is automatically generated from the server for the Robot machine.\r\n<para />For the robot to work, the same key must exist on both the robot and Orchestrator.\r\n<para />All robots on a machine must have the same license key in order to register correctly."
+        MachineName:
+          maxLength: 450
+          minLength: 0
+          type: string
+          description: The name of the machine a Robot is hosted on.
+        MachineId:
+          type: integer
+          description: The Id of the machine a Robot is hosted on
+          format: int64
+        Name:
+          maxLength: 19
+          minLength: 0
+          type: string
+          description: A custom name for the robot.
+        Username:
+          maxLength: 100
+          minLength: 0
+          type: string
+          description: "The machine username. If the user is under a domain, you are required to also specify it in a DOMAIN\\username format.\r\n<para />Note: You must use short domain names, such as desktop\\administrator and NOT desktop.local/administrator."
+        ExternalName:
+          maxLength: 450
+          minLength: 0
+          type: string
+          description: Contains the value of the key in the external store used to store the password.
+        Description:
+          maxLength: 500
+          minLength: 0
+          type: string
+          description: Used to add additional information about a robot in order to better identify it.
+        Type:
+          type: string
+          description: The Robot type.
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - RpaDeveloperPro
+            - StudioPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: RobotDtoType
+            modelAsString: false
+        HostingType:
+          type: string
+          description: The Robot hosting type (Standard / Floating).
+          enum:
+            - Standard
+            - Floating
+          x-ms-enum:
+            name: RobotDtoHostingType
+            modelAsString: false
+        ProvisionType:
+          type: string
+          description: The Robot provision type.
+          enum:
+            - Manual
+            - Automatic
+          x-ms-enum:
+            name: RobotDtoProvisionType
+            modelAsString: false
+        Password:
+          maxLength: 100
+          minLength: 0
+          type: string
+          description: The Windows password associated with the machine username.
+        CredentialStoreId:
+          type: integer
+          description: The Credential Store used to store the password.
+          format: int64
+        UserId:
+          type: integer
+          description: The associated user's Id.
+          format: int64
+        Enabled:
+          type: boolean
+          description: Specificies the state of the Robot (enabled/disabled) - a disabled robot cannot connect to Orchestrator
+        CredentialType:
+          type: string
+          description: The robot credentials type (Default/ SmartCard)
+          enum:
+            - Default
+            - SmartCard
+            - NCipher
+            - SafeNet
+            - NoCredential
+          x-ms-enum:
+            name: RobotDtoCredentialType
+            modelAsString: false
+        Environments:
+          type: array
+          description: The collection of environments the robot is part of.
+          items:
+            $ref: '#/components/schemas/EnvironmentDto'
+        RobotEnvironments:
+          type: string
+          description: The comma separated textual representation of environment names the robot is part of.
+        ExecutionSettings:
+          type: object
+          additionalProperties:
+            type: object
+          description: A collection of key value pairs containing execution settings for this robot.
+        IsExternalLicensed:
+          type: boolean
+          description: Flag to indicate if the robot uses an external license
+        LimitConcurrentExecution:
+          type: boolean
+          description: Specifies if the robot can be used concurrently on multiple machines
+        LastModificationTime:
+          type: string
+          format: date-time
+        LastModifierUserId:
+          type: integer
+          format: int64
+        CreationTime:
+          type: string
+          format: date-time
+        CreatorUserId:
+          type: integer
+          format: int64
+        Id:
+          type: integer
+          format: int64
+    RobotsToggleEnabledStatusRequest:
+      required:
+        - enabled
+        - robotIds
+      type: object
+      properties:
+        robotIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        enabled:
+          type: boolean
     RoleDto:
       type: object
       properties:
@@ -31450,16 +32584,28 @@ components:
           x-ms-enum:
             name: SessionEventDataLicenseErrorCode
             modelAsString: false
-    SessionsToggleMachineSessionDebugModeRequest:
-      required:
-        - enabled
+    SessionMaintenanceModeParameters:
       type: object
       properties:
-        enabled:
-          type: boolean
-        minutes:
+        sessionId:
           type: integer
-          format: int32
+          format: int64
+        maintenanceMode:
+          type: string
+          enum:
+            - Default
+            - Enabled
+          x-ms-enum:
+            name: SessionMaintenanceModeParametersMaintenanceMode
+            modelAsString: false
+        stopJobsStrategy:
+          type: string
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: SessionMaintenanceModeParametersStopJobsStrategy
+            modelAsString: false
     SessionUpdatedEventDto:
       required:
         - EventId
@@ -31468,6 +32614,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -31505,6 +32652,32 @@ components:
           format: int64
       description: This event is raised whenever robot's session has changed
       x-webhook-event: robot.status
+    SessionsToggleMachineSessionDebugModeRequest:
+      required:
+        - enabled
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        minutes:
+          type: integer
+          format: int32
+    SetUsersRequest:
+      required:
+        - addedUserIds
+        - removedUserIds
+      type: object
+      properties:
+        addedUserIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        removedUserIds:
+          type: array
+          items:
+            type: integer
+            format: int64
     SettingsDeleteBulkRequest:
       type: object
       properties:
@@ -31519,6 +32692,7 @@ components:
       properties:
         Name:
           maxLength: 128
+          minLength: 1
           type: string
           description: The name of a specific setting (e.g. Abp.Net.Mail.DefaultFromAddress).
         Value:
@@ -31545,22 +32719,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SettingsDto'
-    SetUsersRequest:
-      required:
-        - addedUserIds
-        - removedUserIds
-      type: object
-      properties:
-        addedUserIds:
-          type: array
-          items:
-            type: integer
-            format: int64
-        removedUserIds:
-          type: array
-          items:
-            type: integer
-            format: int64
     SignalRActivitySettingsDto:
       type: object
       properties:
@@ -31592,6 +32750,16 @@ components:
           type: string
           format: uuid
           readOnly: true
+        Type:
+          type: string
+          readOnly: true
+          enum:
+            - Unattended
+            - Attended
+            - ServerlessGeneric
+          x-ms-enum:
+            name: SimpleJobEventDtoType
+            modelAsString: false
         State:
           type: string
           readOnly: true
@@ -31631,6 +32799,47 @@ components:
           type: integer
           format: int32
           readOnly: true
+        RuntimeType:
+          type: string
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - RpaDeveloperPro
+            - StudioPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: SimpleJobEventDtoRuntimeType
+            modelAsString: false
+        SourceType:
+          type: string
+          readOnly: true
+          enum:
+            - Manual
+            - Schedule
+            - Agent
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+          x-ms-enum:
+            name: SimpleJobEventDtoSourceType
+            modelAsString: false
         OutputArguments:
           type: object
           properties: {}
@@ -31638,9 +32847,41 @@ components:
         Robot:
           $ref: '#/components/schemas/SimpleRobotEventDto'
         Machine:
-          $ref: '#/components/schemas/WebhookSimpleMachineDto'
+          $ref: '#/components/schemas/SimpleMachineDto'
         Release:
           $ref: '#/components/schemas/SimpleReleaseEventDto'
+    SimpleMachineDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+        Key:
+          type: string
+          format: uuid
+        Name:
+          type: string
+        ServiceUserName:
+          type: string
+        Type:
+          type: string
+          enum:
+            - Standard
+            - Template
+          x-ms-enum:
+            name: SimpleMachineDtoType
+            modelAsString: false
+        Scope:
+          type: string
+          enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-ms-enum:
+            name: SimpleMachineDtoScope
+            modelAsString: false
     SimpleReleaseDto:
       required:
         - Name
@@ -31652,9 +32893,11 @@ components:
           type: string
           description: A unique identifier associated to each release.
         ProcessKey:
+          minLength: 1
           type: string
           description: The unique identifier of the process associated with the release.
         ProcessVersion:
+          minLength: 1
           type: string
           description: The version of the process associated with the release.
         IsLatestVersion:
@@ -31667,6 +32910,7 @@ components:
           type: string
           description: Used to add additional information about a release in order to better identify it.
         Name:
+          minLength: 1
           type: string
           description: A custom name of the release. The default name format is ProcessName_EnvironmentName.
         EnvironmentId:
@@ -31681,6 +32925,8 @@ components:
         EntryPointId:
           type: integer
           format: int64
+        EntryPointPath:
+          type: string
         EntryPoint:
           $ref: '#/components/schemas/EntryPointDto'
         InputArguments:
@@ -31720,6 +32966,8 @@ components:
         VideoRecordingSettings:
           $ref: '#/components/schemas/VideoRecordingSettingsDto'
         AutoUpdate:
+          type: boolean
+        HiddenForAttendedUser:
           type: boolean
         FeedId:
           type: string
@@ -31808,7 +33056,7 @@ components:
         ProcessKey:
           type: string
           description: The name of the process
-        DisplayName:
+        Name:
           type: string
           description: The display name of the process
     SimpleRobotDto:
@@ -32237,6 +33485,7 @@ components:
       type: object
       properties:
         Host:
+          minLength: 1
           type: string
         Port:
           type: integer
@@ -32344,6 +33593,7 @@ components:
             - StudioDesktop
             - AutomationOpsPipelines
             - Apps
+            - SAP
           x-ms-enum:
             name: StartProcessDtoSource
             modelAsString: false
@@ -32576,6 +33826,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -32706,6 +33957,7 @@ components:
       properties:
         Name:
           maxLength: 50
+          minLength: 1
           type: string
           description: Name of the Task Catalog.
         Description:
@@ -32727,6 +33979,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -32779,6 +34032,56 @@ components:
         action:
           type: string
           description: Action taken on this task
+    TaskCreateRequest:
+      required:
+        - title
+      type: object
+      properties:
+        type:
+          type: string
+          description: Gets or sets type of this task, allowed type is 'ExternalTask'.
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskCreateRequestType
+            modelAsString: false
+        title:
+          maxLength: 512
+          minLength: 0
+          type: string
+          description: Gets or sets title of this task.
+        priority:
+          type: string
+          description: Gets or sets priority of this task.
+          enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-ms-enum:
+            name: BaseTaskCreateRequestPriority
+            modelAsString: false
+        data:
+          type: object
+          description: Task data
+        taskCatalogName:
+          maxLength: 50
+          type: string
+          description: Gets or sets the task catalog/category of the task
+        externalTag:
+          maxLength: 128
+          type: string
+          description: Reference or name of external system
+        tags:
+          type: array
+          description: List of tags associated to the task.
+          items:
+            $ref: '#/components/schemas/TagDto'
     TaskCreatedEventDto:
       required:
         - EventId
@@ -32787,6 +34090,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -32824,55 +34128,6 @@ components:
           format: int64
       description: Dto for UiPath.Orchestrator.LedgerEvents.TaskCreated. Gets raised when task is completed
       x-webhook-event: task.created
-    TaskCreateRequest:
-      required:
-        - title
-      type: object
-      properties:
-        type:
-          type: string
-          description: Gets or sets type of this task, allowed type is 'ExternalTask'.
-          enum:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-          x-ms-enum:
-            name: TaskCreateRequestType
-            modelAsString: false
-        title:
-          maxLength: 512
-          minLength: 0
-          type: string
-          description: Gets or sets title of this task.
-        priority:
-          type: string
-          description: Gets or sets priority of this task.
-          enum:
-            - Low
-            - Medium
-            - High
-            - Critical
-          x-ms-enum:
-            name: BaseTaskCreateRequestPriority
-            modelAsString: false
-        data:
-          type: object
-          description: Task data
-        taskCatalogName:
-          maxLength: 50
-          type: string
-          description: Gets or sets the task catalog/category of the task
-        externalTag:
-          maxLength: 128
-          type: string
-          description: Reference or name of external system
-        tags:
-          type: array
-          description: List of tags associated to the task.
-          items:
-            $ref: '#/components/schemas/TagDto'
     TaskDataDto:
       type: object
       properties:
@@ -32930,6 +34185,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -33008,6 +34264,98 @@ components:
         data:
           type: object
           description: Task data json
+    TaskDefinitionDto:
+      type: object
+      properties:
+        Name:
+          type: string
+          description: Name of the Task Definition.
+        Key:
+          type: string
+          description: Unique key for Task Definition
+          format: uuid
+        Description:
+          type: string
+          description: Description of this task definition.
+        Properties:
+          $ref: '#/components/schemas/TaskDefinitionPropertiesDto'
+        IsDeleted:
+          type: boolean
+        DeleterUserId:
+          type: integer
+          format: int64
+        DeletionTime:
+          type: string
+          format: date-time
+        LastModificationTime:
+          type: string
+          format: date-time
+        LastModifierUserId:
+          type: integer
+          format: int64
+        CreationTime:
+          type: string
+          format: date-time
+        CreatorUserId:
+          type: integer
+          format: int64
+        Id:
+          type: integer
+          format: int64
+      description: Task Definition entity for external access
+    TaskDefinitionPropertiesDto:
+      type: object
+      properties:
+        version:
+          type: integer
+          description: Version number of the property set
+          format: int32
+        schema:
+          type: string
+          description: Field Schema for the definition
+        allowedActions:
+          type: array
+          description: Set of allowed actions for this version of Task Definition
+          items:
+            type: string
+        allowedActionsForDefinition:
+          type: string
+        taskDefinitionKey:
+          type: string
+          format: uuid
+        creationTime:
+          type: string
+          format: date-time
+        creatorUserId:
+          type: integer
+          format: int64
+        id:
+          type: integer
+          format: int64
+      description: Task Definition Properties created for a definition
+    TaskDefinitionPropertiesRequest:
+      type: object
+      properties:
+        schema:
+          type: string
+        allowedActions:
+          type: array
+          items:
+            type: string
+    TaskDefinitionRequest:
+      type: object
+      properties:
+        Name:
+          maxLength: 50
+          type: string
+          description: Name of the Task Definition.
+        Description:
+          maxLength: 512
+          type: string
+          description: Description of this task definition.
+        Properties:
+          $ref: '#/components/schemas/TaskDefinitionPropertiesRequest'
+      description: Task Definition entity for Creating or Updating Task Definition
     TaskDeletedEventDto:
       required:
         - EventId
@@ -33016,6 +34364,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -33031,7 +34380,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookTaskDeletedDto'
+            $ref: '#/components/schemas/WrappedTaskDeletedDto'
         EventTime:
           type: string
           format: date-time
@@ -33113,6 +34462,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -33249,6 +34599,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -33322,6 +34673,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -33337,7 +34689,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookTaskForwardedDto'
+            $ref: '#/components/schemas/WrappedTaskForwardedDto'
         EventTime:
           type: string
           format: date-time
@@ -33432,15 +34784,6 @@ components:
           type: string
           description: Gets or sets the userNameOrEmail for this task operation
       description: Class to hold error details of an operation (assign/unassign/reassign/delete) on a task.
-    TasksAssignRequest:
-      required:
-        - taskAssignments
-      type: object
-      properties:
-        taskAssignments:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaskAssignmentRequest'
     TaskSaveAndReassignmentRequest:
       type: object
       properties:
@@ -33476,6 +34819,7 @@ components:
       type: object
       properties:
         Type:
+          minLength: 1
           type: string
         EventId:
           maxLength: 50
@@ -33491,7 +34835,7 @@ components:
           type: array
           readOnly: true
           items:
-            $ref: '#/components/schemas/WebhookTaskSavedDto'
+            $ref: '#/components/schemas/WrappedTaskSavedDto'
         EventTime:
           type: string
           format: date-time
@@ -33513,16 +34857,6 @@ components:
           format: int64
       description: Dto for UiPath.Orchestrator.LedgerEvents.TaskSaved. Gets raised when task is Saved
       x-webhook-event: task.saved
-    TasksDeleteRequest:
-      required:
-        - taskIds
-      type: object
-      properties:
-        taskIds:
-          type: array
-          items:
-            type: integer
-            format: int64
     TaskTagsSaveRequest:
       required:
         - taskId
@@ -33537,6 +34871,25 @@ components:
           description: Tags collection
           items:
             $ref: '#/components/schemas/TagDto'
+    TasksAssignRequest:
+      required:
+        - taskAssignments
+      type: object
+      properties:
+        taskAssignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskAssignmentRequest'
+    TasksDeleteRequest:
+      required:
+        - taskIds
+      type: object
+      properties:
+        taskIds:
+          type: array
+          items:
+            type: integer
+            format: int64
     TenantDto:
       type: object
       properties:
@@ -33713,6 +35066,7 @@ components:
           type: integer
           format: int64
         VersionNumber:
+          minLength: 1
           type: string
         TestSetId:
           type: integer
@@ -33744,6 +35098,9 @@ components:
           format: int64
         inputArguments:
           type: object
+        executionOrder:
+          type: integer
+          format: int32
     TestCaseExecutionAttachmentDto:
       type: object
       properties:
@@ -33878,6 +35235,9 @@ components:
           x-ms-enum:
             name: TestCaseExecutionDtoTestCaseType
             modelAsString: false
+        ExecutionOrder:
+          type: integer
+          format: int32
         Id:
           type: integer
           format: int64
@@ -33895,12 +35255,16 @@ components:
           type: array
           items:
             type: object
+        executionOrder:
+          type: integer
+          format: int32
     TestDataQueueAddItemDto:
       required:
         - queueName
       type: object
       properties:
         queueName:
+          minLength: 1
           type: string
         content:
           type: object
@@ -33911,6 +35275,7 @@ components:
       type: object
       properties:
         queueName:
+          minLength: 1
           type: string
         items:
           type: array
@@ -33924,10 +35289,12 @@ components:
       properties:
         Name:
           maxLength: 256
+          minLength: 1
           type: string
         Description:
           type: string
         ContentJsonSchema:
+          minLength: 1
           type: string
         ItemsCount:
           type: integer
@@ -33965,6 +35332,7 @@ components:
       type: object
       properties:
         queueName:
+          minLength: 1
           type: string
         setConsumed:
           type: boolean
@@ -34001,6 +35369,7 @@ components:
       type: object
       properties:
         queueName:
+          minLength: 1
           type: string
         isConsumed:
           type: boolean
@@ -34056,6 +35425,7 @@ components:
           type: string
           format: uuid
         Name:
+          minLength: 1
           type: string
         Description:
           type: string
@@ -34219,6 +35589,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TestSetExecutionAttachmentDto'
+        EnforceExecutionOrder:
+          type: boolean
         CreationTime:
           type: string
           format: date-time
@@ -34282,6 +35654,8 @@ components:
         machineSessionId:
           type: integer
           format: int64
+        enforceExecutionOrder:
+          type: boolean
     TestSetInputArgumentDto:
       required:
         - Name
@@ -34290,10 +35664,13 @@ components:
       type: object
       properties:
         Name:
+          minLength: 1
           type: string
         Type:
+          minLength: 1
           type: string
         Value:
+          minLength: 1
           type: string
         LastModificationTime:
           type: string
@@ -34322,8 +35699,10 @@ components:
         TestSet:
           $ref: '#/components/schemas/TestSetDto'
         VersionMask:
+          minLength: 1
           type: string
         PackageIdentifier:
+          minLength: 1
           type: string
         IncludePrerelease:
           type: boolean
@@ -34353,6 +35732,7 @@ components:
           type: boolean
         Name:
           maxLength: 256
+          minLength: 1
           type: string
         Description:
           type: string
@@ -34363,6 +35743,7 @@ components:
           type: string
         TimeZoneId:
           maxLength: 80
+          minLength: 1
           type: string
         TimeZoneIana:
           type: string
@@ -34607,6 +35988,16 @@ components:
       properties:
         setting:
           $ref: '#/components/schemas/SettingsDto'
+    UserAssignRolesRequest:
+      required:
+        - roleIds
+      type: object
+      properties:
+        roleIds:
+          type: array
+          items:
+            type: integer
+            format: int32
     UserAssignmentsDto:
       type: object
       properties:
@@ -34619,22 +36010,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FolderRolesDto'
-    UserAssignRolesRequest:
-      required:
-        - roleIds
-      type: object
-      properties:
-        roleIds:
-          type: array
-          items:
-            type: integer
-            format: int32
     UserChangeCultureRequest:
       required:
         - culture
       type: object
       properties:
         culture:
+          minLength: 1
           type: string
     UserDto:
       type: object
@@ -35044,6 +36426,7 @@ components:
       type: object
       properties:
         role:
+          minLength: 1
           type: string
         toggle:
           type: boolean
@@ -35073,12 +36456,42 @@ components:
           readOnly: true
           items:
             type: string
+        ErrorCodes:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            enum:
+              - RobotNotAssignedToFolder
+              - RobotNotFound
+              - RobotNoCredentials
+              - RobotBusy
+              - RobotConcurrencyLimit
+              - TemplateNoRuntime
+              - TemplateNoHostsAvailable
+              - TemplateNoLicense
+              - TemplateFullCapacity
+              - TemplateNotAssignedToFolder
+              - TemplateMaintenanceMode
+              - DynamicJobAccountCredentialsInvalid
+              - DynamicJobForegroundAutomationTypeInvalid
+              - DynamicJobBackgroundAutomationTypeInvalid
+              - DynamicJobWindowsTargetFrameworkInvalid
+              - DynamicJobCrossPlatformTargetFrameworkInvalid
+              - DynamicJobConnectedMachinesInvalid
+              - DynamicJobConnectedMachinesUserCredentialsInvalid
+              - DynamicJobConnectedMachinesCrossPlatformRobotVersionInvalid
+              - DynamicJobConnectedMachinesWindowsRobotVersionInvalid
+            x-ms-enum:
+              name: JobPendingReasons
+              modelAsString: false
     VerifySmtpSettingRequest:
       required:
         - sendTo
       type: object
       properties:
         sendTo:
+          minLength: 1
           type: string
         smtpSettingModel:
           $ref: '#/components/schemas/SmtpSettingModel'
@@ -35095,6 +36508,16 @@ components:
           x-ms-enum:
             name: VideoRecordingSettingsDtoVideoRecordingType
             modelAsString: false
+        QueueItemVideoRecordingType:
+          type: string
+          default: None
+          enum:
+            - None
+            - Failed
+            - All
+          x-ms-enum:
+            name: VideoRecordingSettingsDtoQueueItemVideoRecordingType
+            modelAsString: false
         MaxDurationSeconds:
           type: integer
           format: int32
@@ -35102,6 +36525,7 @@ components:
       required:
         - AllowInsecureSsl
         - Enabled
+        - Name
         - SubscribeToAllEvents
         - Url
       type: object
@@ -35139,19 +36563,6 @@ components:
         Id:
           type: integer
           format: int64
-    WebhookEnvironmentDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-          readOnly: true
-        Name:
-          type: string
-          readOnly: true
-        Description:
-          type: string
-          readOnly: true
     WebhookEventDto:
       required:
         - EventType
@@ -35170,422 +36581,6 @@ components:
         Group:
           type: string
           description: Group
-    WebhookJobDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-          readOnly: true
-        Key:
-          type: string
-          description: The unique job identifier.
-          format: uuid
-          readOnly: true
-        CreationTime:
-          type: string
-          description: The Creation time of the job
-          format: date-time
-          readOnly: true
-        StartTime:
-          type: string
-          description: The date and time when the job execution started or null if the job hasn't started yet.
-          format: date-time
-          readOnly: true
-        EndTime:
-          type: string
-          description: The date and time when the job execution ended or null if the job hasn't ended yet.
-          format: date-time
-          readOnly: true
-        State:
-          type: string
-          description: The state in which the job is.
-          readOnly: true
-          enum:
-            - Pending
-            - Running
-            - Stopping
-            - Terminating
-            - Faulted
-            - Successful
-            - Stopped
-            - Suspended
-            - Resumed
-          x-ms-enum:
-            name: WebhookJobDtoState
-            modelAsString: false
-        Source:
-          type: string
-          description: The Source name of the job.
-          readOnly: true
-        SourceType:
-          type: string
-          description: The Source type of the job.
-          readOnly: true
-          enum:
-            - Manual
-            - Schedule
-            - Agent
-            - Queue
-            - StudioWeb
-            - IntegrationTrigger
-            - StudioDesktop
-            - AutomationOpsPipelines
-            - Apps
-          x-ms-enum:
-            name: WebhookJobDtoSourceType
-            modelAsString: false
-        BatchExecutionKey:
-          type: string
-          description: The unique identifier grouping multiple jobs. It is usually generated when the job is created by a schedule.
-          format: uuid
-          readOnly: true
-        Info:
-          type: string
-          description: Additional information about the current job.
-          readOnly: true
-        StartingScheduleId:
-          type: integer
-          description: The Id of the schedule that started the job, or null if the job was started by the user.
-          format: int64
-          readOnly: true
-        ReleaseName:
-          type: string
-          description: The name of the release associated with the current name.
-          readOnly: true
-        Type:
-          type: string
-          description: The type of the job, Attended if started via the robot, Unattended otherwise
-          readOnly: true
-          enum:
-            - Unattended
-            - Attended
-            - ServerlessGeneric
-          x-ms-enum:
-            name: WebhookJobDtoType
-            modelAsString: false
-        HostMachineName:
-          type: string
-          description: The name of the machine where the Robot run the job.
-          readOnly: true
-        Robot:
-          $ref: '#/components/schemas/WebhookRobotDto'
-        Release:
-          $ref: '#/components/schemas/WebhookReleaseDto'
-        InputArguments:
-          type: object
-          properties: {}
-          description: Input parameters in JSON format to be passed to job execution
-          readOnly: true
-        OutputArguments:
-          type: object
-          properties: {}
-          description: Output parameters in JSON format resulted from job execution
-          readOnly: true
-        RuntimeType:
-          type: string
-          description: The type of license used to run the job
-          readOnly: true
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - RpaDeveloperPro
-            - StudioPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: WebhookJobDtoRuntimeType
-            modelAsString: false
-        ProcessType:
-          type: string
-          description: The type of process
-          readOnly: true
-          enum:
-            - Undefined
-            - Process
-            - TestAutomationProcess
-          x-ms-enum:
-            name: WebhookJobDtoProcessType
-            modelAsString: false
-        SpecificPriorityValue:
-          type: integer
-          description: The priority for a job
-          format: int32
-          readOnly: true
-    WebhookProcessingExceptionDto:
-      type: object
-      properties:
-        Reason:
-          type: string
-          description: The reason the processing failed.
-          readOnly: true
-        Details:
-          type: string
-          description: Stores additional details about the exception.
-          readOnly: true
-        Type:
-          type: string
-          description: The processing exception type, if any.
-          readOnly: true
-          enum:
-            - ApplicationException
-            - BusinessException
-          x-ms-enum:
-            name: WebhookProcessingExceptionDtoType
-            modelAsString: false
-        Timestamp:
-          type: string
-          description: The creation time
-          format: date-time
-          readOnly: true
-        AssociatedImageFilePath:
-          type: string
-          description: A path on the robot running computer to an image file that stores relevant information about the exception - e.g. a system print screen.
-          readOnly: true
-    WebhookProcessScheduleDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-          readOnly: true
-        Name:
-          type: string
-          description: The name of the schedule.
-          readOnly: true
-        Enabled:
-          type: boolean
-          description: Specifies if the schedule is active or not.
-          readOnly: true
-        EnvironmentId:
-          type: string
-          description: The Id of the environment associated with the schedule.
-          readOnly: true
-        EnvironmentName:
-          type: string
-          description: The name of the environment associated with the schedule.
-          readOnly: true
-        StartProcessCron:
-          type: string
-          description: The start cron expression of the schedule.
-          readOnly: true
-        StartStrategy:
-          type: string
-          description: States which robots from the environment are being run by the schedule.
-          readOnly: true
-          enum:
-            - All
-            - Specific
-            - RobotCount
-            - JobsCount
-            - ModernJobsCount
-          x-ms-enum:
-            name: WebhookProcessScheduleDtoStartStrategy
-            modelAsString: false
-        StopStrategy:
-          type: string
-          description: The way a running process is stopped.
-          readOnly: true
-          enum:
-            - SoftStop
-            - Kill
-          x-ms-enum:
-            name: WebhookProcessScheduleDtoStopStrategy
-            modelAsString: false
-        ExternalJobKey:
-          type: string
-          description: The unique identifier of the external job associated with the jobs generated by this schedule. A key is generated for each group of jobs triggered by this schedule.
-          readOnly: true
-        ExternalJobKeyScheduler:
-          type: string
-          description: The unique identifier of the external background task schedule associated with the background tasks generated by this schedule. A key is generated for each batch of background tasks triggered by this schedule.
-          format: uuid
-          readOnly: true
-        TimeZoneId:
-          type: string
-          description: The timezone under which the schedule will run.
-          readOnly: true
-        TimeZoneIana:
-          type: string
-          description: The timezone under which the schedule will run in Iana Standard.
-          readOnly: true
-        UseCalendar:
-          type: boolean
-          description: DEPRECATED. Specify whether the schedule uses a calendar
-          readOnly: true
-          x-deprecated: true
-        CalendarId:
-          type: integer
-          description: Specify which calendar to use
-          format: int64
-          readOnly: true
-        Release:
-          $ref: '#/components/schemas/SimpleReleaseEventDto'
-        ExecutorRobots:
-          type: array
-          description: The collection of specific robots selected to be targeted by the current schedule. This collection must be empty if the start strategy is not 0 (specific robots).
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/SimpleRobotEventDto'
-        InputArguments:
-          type: object
-          properties: {}
-          description: Input parameters that will be passed to each job created by this schedule.
-          readOnly: true
-    WebhookReleaseDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-          readOnly: true
-        Key:
-          type: string
-          readOnly: true
-        ProcessKey:
-          type: string
-          readOnly: true
-        ProcessVersion:
-          type: string
-          readOnly: true
-        Name:
-          type: string
-          readOnly: true
-        Description:
-          type: string
-          readOnly: true
-        IsLatestVersion:
-          type: boolean
-          readOnly: true
-        EnvironmentId:
-          type: integer
-          format: int64
-          readOnly: true
-        Environment:
-          $ref: '#/components/schemas/WebhookEnvironmentDto'
-        InputArguments:
-          type: object
-          properties: {}
-          readOnly: true
-    WebhookRobotDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-          readOnly: true
-        Key:
-          type: string
-          format: uuid
-          readOnly: true
-        Name:
-          type: string
-          readOnly: true
-        MachineId:
-          type: integer
-          format: int64
-          readOnly: true
-        MachineKey:
-          type: string
-          format: uuid
-          readOnly: true
-        MachineName:
-          type: string
-          readOnly: true
-        Description:
-          type: string
-          readOnly: true
-        UserName:
-          type: string
-          readOnly: true
-        Type:
-          type: string
-          readOnly: true
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - RpaDeveloperPro
-            - StudioPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: WebhookRobotDtoType
-            modelAsString: false
-        HostingType:
-          type: string
-          readOnly: true
-          enum:
-            - Standard
-            - Floating
-          x-ms-enum:
-            name: WebhookRobotDtoHostingType
-            modelAsString: false
-        Environments:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/WebhookEnvironmentDto'
-        ExecutionSettings:
-          type: object
-          additionalProperties:
-            type: object
-          readOnly: true
-    WebhookSimpleMachineDto:
-      type: object
-      properties:
-        Id:
-          type: integer
-          format: int64
-        Key:
-          type: string
-          format: uuid
-        Name:
-          type: string
-        ServiceUserName:
-          type: string
-        Type:
-          type: string
-          enum:
-            - Standard
-            - Template
-          x-ms-enum:
-            name: WebhookSimpleMachineDtoType
-            modelAsString: false
-        Scope:
-          type: string
-          enum:
-            - Default
-            - Shared
-            - PersonalWorkspace
-            - Cloud
-            - Serverless
-          x-ms-enum:
-            name: WebhookSimpleMachineDtoScope
-            modelAsString: false
     WebhookSimpleUserDto:
       type: object
       properties:
@@ -35645,55 +36640,6 @@ components:
           type: string
           description: The source which authenticated this user.
           readOnly: true
-    WebhookStartProcessDto:
-      type: object
-      properties:
-        ReleaseKey:
-          type: string
-          description: The unique key of the release associated with the process.
-          format: uuid
-          readOnly: true
-        Strategy:
-          type: string
-          description: States which robots from the environment are being run by the process.
-          readOnly: true
-          enum:
-            - All
-            - Specific
-            - RobotCount
-            - JobsCount
-            - ModernJobsCount
-          x-ms-enum:
-            name: WebhookStartProcessDtoStrategy
-            modelAsString: false
-        RobotIds:
-          type: array
-          description: The collection of ids of specific robots selected to be run by the current process. This collection must be empty only if the start strategy is not Specific.
-          readOnly: true
-          items:
-            type: integer
-            format: int64
-        JobsCount:
-          type: integer
-          description: Number of pending jobs to be created in the environment, for the current process. This number must be greater than 0 only if the start strategy is JobsCount.
-          format: int32
-          readOnly: true
-        Source:
-          type: string
-          description: The Source of the job starting the current process.
-          readOnly: true
-          enum:
-            - Manual
-            - Schedule
-            - Queue
-            - StudioWeb
-            - IntegrationTrigger
-            - StudioDesktop
-            - AutomationOpsPipelines
-            - Apps
-          x-ms-enum:
-            name: WebhookStartProcessDtoSource
-            modelAsString: false
     WebhookTaskAssignmentChangedDto:
       type: object
       properties:
@@ -35709,6 +36655,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -35773,6 +36720,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -35836,6 +36784,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -35880,7 +36829,455 @@ components:
           format: int64
           readOnly: true
       description: This class defines DTO for Tasks Collection for webhook event Task.Created
-    WebhookTaskDeletedDto:
+    WrappedEnvironmentDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        Name:
+          type: string
+          readOnly: true
+        Description:
+          type: string
+          readOnly: true
+    WrappedJobDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        Key:
+          type: string
+          description: The unique job identifier.
+          format: uuid
+          readOnly: true
+        CreationTime:
+          type: string
+          description: The Creation time of the job
+          format: date-time
+          readOnly: true
+        StartTime:
+          type: string
+          description: The date and time when the job execution started or null if the job hasn't started yet.
+          format: date-time
+          readOnly: true
+        EndTime:
+          type: string
+          description: The date and time when the job execution ended or null if the job hasn't ended yet.
+          format: date-time
+          readOnly: true
+        State:
+          type: string
+          description: The state in which the job is.
+          readOnly: true
+          enum:
+            - Pending
+            - Running
+            - Stopping
+            - Terminating
+            - Faulted
+            - Successful
+            - Stopped
+            - Suspended
+            - Resumed
+          x-ms-enum:
+            name: WrappedJobDtoState
+            modelAsString: false
+        Source:
+          type: string
+          description: The Source name of the job.
+          readOnly: true
+        SourceType:
+          type: string
+          description: The Source type of the job.
+          readOnly: true
+          enum:
+            - Manual
+            - Schedule
+            - Agent
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+          x-ms-enum:
+            name: WrappedJobDtoSourceType
+            modelAsString: false
+        BatchExecutionKey:
+          type: string
+          description: The unique identifier grouping multiple jobs. It is usually generated when the job is created by a schedule.
+          format: uuid
+          readOnly: true
+        Info:
+          type: string
+          description: Additional information about the current job.
+          readOnly: true
+        StartingScheduleId:
+          type: integer
+          description: The Id of the schedule that started the job, or null if the job was started by the user.
+          format: int64
+          readOnly: true
+        ReleaseName:
+          type: string
+          description: The name of the release associated with the current name.
+          readOnly: true
+        Type:
+          type: string
+          description: The type of the job, Attended if started via the robot, Unattended otherwise
+          readOnly: true
+          enum:
+            - Unattended
+            - Attended
+            - ServerlessGeneric
+          x-ms-enum:
+            name: WrappedJobDtoType
+            modelAsString: false
+        HostMachineName:
+          type: string
+          description: The name of the machine where the Robot run the job.
+          readOnly: true
+        Robot:
+          $ref: '#/components/schemas/WrappedRobotDto'
+        Release:
+          $ref: '#/components/schemas/WrappedReleaseDto'
+        InputArguments:
+          type: object
+          properties: {}
+          description: Input parameters in JSON format to be passed to job execution
+          readOnly: true
+        OutputArguments:
+          type: object
+          properties: {}
+          description: Output parameters in JSON format resulted from job execution
+          readOnly: true
+        RuntimeType:
+          type: string
+          description: The type of license used to run the job
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - RpaDeveloperPro
+            - StudioPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: WrappedJobDtoRuntimeType
+            modelAsString: false
+        ProcessType:
+          type: string
+          description: The type of process
+          readOnly: true
+          enum:
+            - Undefined
+            - Process
+            - TestAutomationProcess
+          x-ms-enum:
+            name: WrappedJobDtoProcessType
+            modelAsString: false
+        SpecificPriorityValue:
+          type: integer
+          description: The priority for a job
+          format: int32
+          readOnly: true
+    WrappedProcessScheduleDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        Name:
+          type: string
+          description: The name of the schedule.
+          readOnly: true
+        Enabled:
+          type: boolean
+          description: Specifies if the schedule is active or not.
+          readOnly: true
+        EnvironmentId:
+          type: string
+          description: The Id of the environment associated with the schedule.
+          readOnly: true
+        EnvironmentName:
+          type: string
+          description: The name of the environment associated with the schedule.
+          readOnly: true
+        StartProcessCron:
+          type: string
+          description: The start cron expression of the schedule.
+          readOnly: true
+        StartStrategy:
+          type: string
+          description: States which robots from the environment are being run by the schedule.
+          readOnly: true
+          enum:
+            - All
+            - Specific
+            - RobotCount
+            - JobsCount
+            - ModernJobsCount
+          x-ms-enum:
+            name: WrappedProcessScheduleDtoStartStrategy
+            modelAsString: false
+        StopStrategy:
+          type: string
+          description: The way a running process is stopped.
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: WrappedProcessScheduleDtoStopStrategy
+            modelAsString: false
+        ExternalJobKey:
+          type: string
+          description: The unique identifier of the external job associated with the jobs generated by this schedule. A key is generated for each group of jobs triggered by this schedule.
+          readOnly: true
+        ExternalJobKeyScheduler:
+          type: string
+          description: The unique identifier of the external background task schedule associated with the background tasks generated by this schedule. A key is generated for each batch of background tasks triggered by this schedule.
+          format: uuid
+          readOnly: true
+        TimeZoneId:
+          type: string
+          description: The timezone under which the schedule will run.
+          readOnly: true
+        TimeZoneIana:
+          type: string
+          description: The timezone under which the schedule will run in Iana Standard.
+          readOnly: true
+        UseCalendar:
+          type: boolean
+          description: DEPRECATED. Specify whether the schedule uses a calendar
+          readOnly: true
+          x-deprecated: true
+        CalendarId:
+          type: integer
+          description: Specify which calendar to use
+          format: int64
+          readOnly: true
+        Release:
+          $ref: '#/components/schemas/SimpleReleaseEventDto'
+        ExecutorRobots:
+          type: array
+          description: The collection of specific robots selected to be targeted by the current schedule. This collection must be empty if the start strategy is not 0 (specific robots).
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/SimpleRobotEventDto'
+        InputArguments:
+          type: object
+          properties: {}
+          description: Input parameters that will be passed to each job created by this schedule.
+          readOnly: true
+    WrappedProcessingExceptionDto:
+      type: object
+      properties:
+        Reason:
+          type: string
+          description: The reason the processing failed.
+          readOnly: true
+        Details:
+          type: string
+          description: Stores additional details about the exception.
+          readOnly: true
+        Type:
+          type: string
+          description: The processing exception type, if any.
+          readOnly: true
+          enum:
+            - ApplicationException
+            - BusinessException
+          x-ms-enum:
+            name: WrappedProcessingExceptionDtoType
+            modelAsString: false
+        Timestamp:
+          type: string
+          description: The creation time
+          format: date-time
+          readOnly: true
+        AssociatedImageFilePath:
+          type: string
+          description: A path on the robot running computer to an image file that stores relevant information about the exception - e.g. a system print screen.
+          readOnly: true
+    WrappedReleaseDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        Key:
+          type: string
+          readOnly: true
+        ProcessKey:
+          type: string
+          readOnly: true
+        ProcessVersion:
+          type: string
+          readOnly: true
+        Name:
+          type: string
+          readOnly: true
+        Description:
+          type: string
+          readOnly: true
+        IsLatestVersion:
+          type: boolean
+          readOnly: true
+        EnvironmentId:
+          type: integer
+          format: int64
+          readOnly: true
+        Environment:
+          $ref: '#/components/schemas/WrappedEnvironmentDto'
+        InputArguments:
+          type: object
+          properties: {}
+          readOnly: true
+    WrappedRobotDto:
+      type: object
+      properties:
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        Key:
+          type: string
+          format: uuid
+          readOnly: true
+        Name:
+          type: string
+          readOnly: true
+        MachineId:
+          type: integer
+          format: int64
+          readOnly: true
+        MachineKey:
+          type: string
+          format: uuid
+          readOnly: true
+        MachineName:
+          type: string
+          readOnly: true
+        Description:
+          type: string
+          readOnly: true
+        UserName:
+          type: string
+          readOnly: true
+        Type:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - RpaDeveloperPro
+            - StudioPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: WrappedRobotDtoType
+            modelAsString: false
+        HostingType:
+          type: string
+          readOnly: true
+          enum:
+            - Standard
+            - Floating
+          x-ms-enum:
+            name: WrappedRobotDtoHostingType
+            modelAsString: false
+        Environments:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/WrappedEnvironmentDto'
+        ExecutionSettings:
+          type: object
+          additionalProperties:
+            type: object
+          readOnly: true
+    WrappedStartProcessDto:
+      type: object
+      properties:
+        ReleaseKey:
+          type: string
+          description: The unique key of the release associated with the process.
+          format: uuid
+          readOnly: true
+        Strategy:
+          type: string
+          description: States which robots from the environment are being run by the process.
+          readOnly: true
+          enum:
+            - All
+            - Specific
+            - RobotCount
+            - JobsCount
+            - ModernJobsCount
+          x-ms-enum:
+            name: WrappedStartProcessDtoStrategy
+            modelAsString: false
+        RobotIds:
+          type: array
+          description: The collection of ids of specific robots selected to be run by the current process. This collection must be empty only if the start strategy is not Specific.
+          readOnly: true
+          items:
+            type: integer
+            format: int64
+        JobsCount:
+          type: integer
+          description: Number of pending jobs to be created in the environment, for the current process. This number must be greater than 0 only if the start strategy is JobsCount.
+          format: int32
+          readOnly: true
+        Source:
+          type: string
+          description: The Source of the job starting the current process.
+          readOnly: true
+          enum:
+            - Manual
+            - Schedule
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+          x-ms-enum:
+            name: WrappedStartProcessDtoSource
+            modelAsString: false
+    WrappedTaskDeletedDto:
       type: object
       properties:
         Title:
@@ -35895,6 +37292,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -35953,7 +37351,7 @@ components:
           format: date-time
           readOnly: true
       description: This class defines DTO for Tasks Collection for webhook event Task.Deleted
-    WebhookTaskForwardedDto:
+    WrappedTaskForwardedDto:
       type: object
       properties:
         Title:
@@ -35968,6 +37366,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -36017,7 +37416,7 @@ components:
           format: int64
           readOnly: true
       description: This class defines DTO for Tasks Collection for webhook event Task.Forwarded
-    WebhookTaskSavedDto:
+    WrappedTaskSavedDto:
       type: object
       properties:
         Title:
@@ -36032,6 +37431,7 @@ components:
             - DocumentValidationTask
             - DocumentClassificationTask
             - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false

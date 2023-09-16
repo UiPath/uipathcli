@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: v1
+  version: 23.9.6-release.20
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
@@ -21,7 +21,6 @@ paths:
           in: query
           schema:
             type: string
-            nullable: true
         - name: top
           in: query
           schema:
@@ -40,7 +39,6 @@ paths:
           in: query
           schema:
             type: string
-            nullable: true
         - name: sortOrder
           in: query
           schema:
@@ -49,13 +47,7 @@ paths:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/AuditQueryRecordDtoPagedResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/AuditQueryRecordDtoPagedResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/AuditQueryRecordDtoPagedResult'
   /api/AuditQuery/{organizationId}/download:
@@ -74,20 +66,19 @@ paths:
           in: query
           schema:
             type: string
-            nullable: true
         - name: size
           in: query
           schema:
             type: integer
             format: int32
-            nullable: true
       responses:
         "200":
           description: Success
           content:
             application/octet-stream:
               schema:
-                type: string
+                type: file
+                format: binary
   /api/Group/{partitionGlobalId}:
     get:
       tags:
@@ -102,23 +93,12 @@ paths:
           required: true
           schema:
             type: string
-            description: partition id
             format: uuid
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GroupDto'
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GroupDto'
-            text/json:
               schema:
                 type: array
                 items:
@@ -138,21 +118,12 @@ paths:
             format: uuid
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/BulkGroupDeleteCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/BulkGroupDeleteCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/BulkGroupDeleteCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/BulkGroupDeleteCommand'
       responses:
         "204":
-          description: Success
+          description: No Content
   /api/Group/{partitionGlobalId}/{groupId}:
     get:
       tags:
@@ -177,13 +148,7 @@ paths:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/GroupDto'
     delete:
@@ -207,7 +172,7 @@ paths:
             format: uuid
       responses:
         "204":
-          description: Success
+          description: No Content
   /api/Group:
     post:
       tags:
@@ -217,29 +182,14 @@ paths:
       operationId: Group_CreateGroup
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/CreateGroupCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateGroupCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/CreateGroupCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/CreateGroupCommand'
       responses:
         "201":
-          description: Success
+          description: Created
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/GroupDto'
   /api/Group/{groupId}:
@@ -258,29 +208,14 @@ paths:
             format: uuid
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/UpdateGroupCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateGroupCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/UpdateGroupCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/UpdateGroupCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/GroupDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/GroupDto'
   /api/MessageTemplate/{templateId}:
@@ -300,13 +235,7 @@ paths:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/MessageTemplateDto'
     put:
@@ -323,29 +252,14 @@ paths:
             format: int64
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/UpdateMessageTemplateCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateMessageTemplateCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/UpdateMessageTemplateCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/UpdateMessageTemplateCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/MessageTemplateDto'
   /api/MessageTemplate:
@@ -359,18 +273,11 @@ paths:
           in: query
           schema:
             type: string
-            nullable: true
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/MessageTemplateDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/MessageTemplateDto'
   /api/RobotAccount/{partitionGlobalId}:
@@ -391,7 +298,6 @@ paths:
           in: query
           schema:
             type: string
-            nullable: true
         - name: top
           in: query
           description: The number of records to return. Default is 10.
@@ -399,7 +305,6 @@ paths:
             maximum: 2147483647
             minimum: 0
             type: integer
-            description: The number of records to return. Default is 10.
             format: int32
         - name: skip
           in: query
@@ -408,15 +313,12 @@ paths:
             maximum: 2147483647
             minimum: 0
             type: integer
-            description: The number of records to skip. Default is 0.
             format: int32
         - name: sortBy
           in: query
           description: The name of the field to sort by.
           schema:
             type: string
-            description: The name of the field to sort by.
-            nullable: true
         - name: sortOrder
           in: query
           description: The sort order.
@@ -426,13 +328,7 @@ paths:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDtoPagedResultDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDtoPagedResultDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDtoPagedResultDto'
     delete:
@@ -450,21 +346,12 @@ paths:
             format: uuid
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/BulkRobotAccountDeleteCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/BulkRobotAccountDeleteCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/BulkRobotAccountDeleteCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/BulkRobotAccountDeleteCommand'
       responses:
         "204":
-          description: Success
+          description: No Content
   /api/RobotAccount/{partitionGlobalId}/{robotAccountId}:
     get:
       tags:
@@ -489,13 +376,7 @@ paths:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDto'
     delete:
@@ -519,7 +400,7 @@ paths:
             format: uuid
       responses:
         "204":
-          description: Success
+          description: No Content
   /api/RobotAccount:
     post:
       tags:
@@ -529,29 +410,14 @@ paths:
       operationId: RobotAccount_CreateRobotAccount
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/CreateRobotAccountCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateRobotAccountCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/CreateRobotAccountCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/CreateRobotAccountCommand'
       responses:
         "201":
-          description: Success
+          description: Created
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDto'
   /api/RobotAccount/{robotAccountId}:
@@ -570,31 +436,240 @@ paths:
             format: uuid
       requestBody:
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/UpdateRobotAccountCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRobotAccountCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/UpdateRobotAccountCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/UpdateRobotAccountCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/RobotAccountDto'
             application/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDto'
-            text/json:
+  /scim/groups:
+    post:
+      tags:
+        - ScimGroups
+      summary: Creates a new scim group.
+      operationId: ScimGroups_CreateGroups
+      requestBody:
+        description: The data used to create a new group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroupCommandSCIM'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
               schema:
-                $ref: '#/components/schemas/RobotAccountDto'
+                $ref: '#/components/schemas/SCIMGroupDTO'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMGroupDTO'
+    get:
+      tags:
+        - ScimGroups
+      summary: SCIM Get By Filter for Groups
+      operationId: ScimGroups_Get
+      parameters:
+        - name: excludedAttributes
+          in: query
+          schema:
+            type: string
+        - name: filter
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMGroupFilteredResponse'
+  /scim/groups/{groupID}:
+    get:
+      tags:
+        - ScimGroups
+      summary: SCIM Groups GET API.
+      operationId: ScimGroups_GetGroups
+      parameters:
+        - name: groupId
+          in: path
+          description: The data used to create a new user.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMGroupDTO'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMGroupDTO'
+  /scim/groups/{groupId}:
+    delete:
+      tags:
+        - ScimGroups
+      summary: Deletes a group.
+      operationId: ScimGroups_DeleteGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: The data used to create a new group.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+    patch:
+      tags:
+        - ScimGroups
+      summary: SCIM API for updating a group.
+      operationId: ScimGroups_UpdateGroup
+      parameters:
+        - name: groupId
+          in: path
+          description: The groupId of the group to be updated.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The data used to update a group.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserCommandSCIM'
+      responses:
+        "200":
+          description: Success
+  /scim/users/{userId}:
+    get:
+      tags:
+        - ScimUsers
+      summary: SCIM API for getting a user.
+      operationId: ScimUsers_GetUsers
+      parameters:
+        - name: userId
+          in: path
+          description: userId of the user.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
+    patch:
+      tags:
+        - ScimUsers
+      summary: SCIM API for updating a user.
+      operationId: ScimUsers_UpdateUsers
+      parameters:
+        - name: userId
+          in: path
+          description: The userId of the user to be updated.
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The update payload used to perform the updates.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserCommandSCIM'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
+    delete:
+      tags:
+        - ScimUsers
+      summary: SCIM API for deleting a user.
+      operationId: ScimUsers_DeleteUsers
+      parameters:
+        - name: userId
+          in: path
+          description: userID of the user to be deleted.
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+  /scim/users:
+    get:
+      tags:
+        - ScimUsers
+      summary: SCIM API for getting a user given filters.
+      operationId: ScimUsers_Get
+      parameters:
+        - name: filter
+          in: query
+          description: filter for users.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserFilteredResponse'
+    post:
+      tags:
+        - ScimUsers
+      summary: SCIM API for creating a new user.
+      operationId: ScimUsers_CreateUsers
+      requestBody:
+        description: The data used to create a new user.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserCommandSCIM'
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SCIMUserDTO'
   /api/Setting:
     get:
       tags:
@@ -610,35 +685,22 @@ paths:
             type: array
             items:
               type: string
-            nullable: true
           explode: true
         - name: partitionGlobalId
           in: query
           schema:
             type: string
             format: uuid
-            nullable: true
         - name: userId
           in: query
           schema:
             type: string
             format: uuid
-            nullable: true
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SettingDto'
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SettingDto'
-            text/json:
               schema:
                 type: array
                 items:
@@ -652,33 +714,14 @@ paths:
       requestBody:
         description: A bulk command to create/update a list of settings on a specific tenant.
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/BulkCreateOrUpdateSettingsCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/BulkCreateOrUpdateSettingsCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/BulkCreateOrUpdateSettingsCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/BulkCreateOrUpdateSettingsCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SettingDto'
             application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/SettingDto'
-            text/json:
               schema:
                 type: array
                 items:
@@ -699,19 +742,12 @@ paths:
           required: true
           schema:
             type: string
-            description: The data used to create a new user.
             format: uuid
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/UserDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/UserDto'
     put:
@@ -727,46 +763,24 @@ paths:
           required: true
           schema:
             type: string
-            description: The database identifier of the user.
             format: uuid
       requestBody:
         description: The command that stores the information to update user.
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/UpdateUserCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
         "400":
           description: Bad Request
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
     delete:
@@ -781,11 +795,10 @@ paths:
           required: true
           schema:
             type: string
-            description: The id of the user that will be deleted.
             format: uuid
       responses:
         "204":
-          description: Success
+          description: No Content
   /api/User:
     post:
       tags:
@@ -796,41 +809,20 @@ paths:
       requestBody:
         description: The data used to create a new user.
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/CreateUserCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/CreateUserCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
         "400":
           description: Bad Request
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
     delete:
@@ -841,21 +833,62 @@ paths:
       requestBody:
         description: The bulk delete command.
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/BulkSoftDeleteCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/BulkSoftDeleteCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/BulkSoftDeleteCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/BulkSoftDeleteCommand'
       responses:
         "204":
+          description: No Content
+  /api/User/users/{partitionGlobalId}:
+    get:
+      tags:
+        - User
+      description: 'OAuth required scopes: PM.User or PM.User.Read.'
+      operationId: User_GetUsers
+      parameters:
+        - name: partitionGlobalId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: searchTerm
+          in: query
+          schema:
+            type: string
+        - name: top
+          in: query
+          description: The number of records to return. Default is 10.
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          description: The number of records to skip. Default is 0.
+          schema:
+            maximum: 2147483647
+            minimum: 0
+            type: integer
+            format: int32
+        - name: sortBy
+          in: query
+          description: The name of the field to sort by.
+          schema:
+            type: string
+        - name: sortOrder
+          in: query
+          description: The sort order.
+          schema:
+            $ref: '#/components/schemas/SortOrderDto'
+      responses:
+        "200":
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDtoPagedResultDto'
   /api/User/BulkCreate:
     post:
       tags:
@@ -866,41 +899,20 @@ paths:
       requestBody:
         description: The data used to create a users in bulk.
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/CreateUsersCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUsersCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/CreateUsersCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/CreateUsersCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
         "400":
           description: Bad Request
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
   /api/User/{userId}/changepassword:
@@ -917,46 +929,24 @@ paths:
           required: true
           schema:
             type: string
-            description: The database user id.
             format: uuid
       requestBody:
         description: The change user password command..
         content:
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/ChangeUserPasswordCommand'
           application/json:
-            schema:
-              $ref: '#/components/schemas/ChangeUserPasswordCommand'
-          text/json:
-            schema:
-              $ref: '#/components/schemas/ChangeUserPasswordCommand'
-          application/*+json:
             schema:
               $ref: '#/components/schemas/ChangeUserPasswordCommand'
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
         "400":
           description: Bad Request
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
             application/json:
-              schema:
-                $ref: '#/components/schemas/IdentityResult'
-            text/json:
               schema:
                 $ref: '#/components/schemas/IdentityResult'
   /api/User/{userId}/loginAttempts:
@@ -973,15 +963,12 @@ paths:
           required: true
           schema:
             type: string
-            description: The data used to create a new user.
             format: uuid
         - name: userSID
           in: query
           description: The AD user SID.
           schema:
             type: string
-            description: The AD user SID.
-            nullable: true
         - name: top
           in: query
           description: The number of records to return. Default is 10.
@@ -989,7 +976,6 @@ paths:
             maximum: 2147483647
             minimum: 0
             type: integer
-            description: The number of records to return. Default is 10.
             format: int32
         - name: skip
           in: query
@@ -998,15 +984,12 @@ paths:
             maximum: 2147483647
             minimum: 0
             type: integer
-            description: The number of records to skip. Default is 0.
             format: int32
         - name: sortBy
           in: query
           description: The name of the field to sort by.
           schema:
             type: string
-            description: The name of the field to sort by.
-            nullable: true
         - name: sortOrder
           in: query
           description: The sort order.
@@ -1017,32 +1000,16 @@ paths:
           description: The date since records should be returned.
           schema:
             type: string
-            description: The date since records should be returned.
             format: date-time
-            nullable: true
       responses:
         "200":
           description: Success
           content:
-            text/plain:
-              schema:
-                $ref: '#/components/schemas/UserLoginAttemptDtoPagedResultDto'
             application/json:
-              schema:
-                $ref: '#/components/schemas/UserLoginAttemptDtoPagedResultDto'
-            text/json:
               schema:
                 $ref: '#/components/schemas/UserLoginAttemptDtoPagedResultDto'
 components:
   schemas:
-    SortOrder:
-      enum:
-        - asc
-        - desc
-      type: string
-      x-ms-enum:
-        name: SortOrder
-        modelAsString: false
     AuditQueryRecordDto:
       type: object
       properties:
@@ -1084,14 +1051,329 @@ components:
           items:
             $ref: '#/components/schemas/AuditQueryRecordDto'
           nullable: true
-    GroupType:
-      enum:
-        - builtIn
-        - custom
-      type: string
-      x-ms-enum:
-        name: GroupType
-        modelAsString: false
+    BulkCreateOrUpdateSettingsCommand:
+      required:
+        - settings
+      type: object
+      properties:
+        settings:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateOrUpdateSettingCommand'
+          description: The list of settings to be created/updated.
+        partitionGlobalId:
+          type: string
+          description: The partition global Id of the setting
+          format: uuid
+          nullable: true
+        userId:
+          type: string
+          description: The user global Id of the setting.
+          format: uuid
+          nullable: true
+      description: Class used to create/update a list of settings in a bulk operation.
+    BulkGroupDeleteCommand:
+      type: object
+      properties:
+        groupIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the groups to be removed
+          nullable: true
+      description: Command used to delete multiple groups.
+    BulkRobotAccountDeleteCommand:
+      type: object
+      properties:
+        robotAccountIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the robot accounts to be removed
+          nullable: true
+      description: Command used for deleting multiple robot accounts.
+    BulkSoftDeleteCommand:
+      type: object
+      properties:
+        partitionGlobalId:
+          type: string
+          format: uuid
+        userIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+          nullable: true
+    ChangeUserPasswordCommand:
+      type: object
+      properties:
+        oldPassword:
+          type: string
+          description: The user's old password.
+          nullable: true
+        newPassword:
+          type: string
+          description: The user's new password.
+          nullable: true
+      description: Command used to change user's password.
+    CreateGroupCommand:
+      type: object
+      properties:
+        partitionGlobalId:
+          type: string
+          description: Group partition identifier
+          format: uuid
+        id:
+          type: string
+          description: Group unique identifier
+          format: uuid
+        name:
+          type: string
+          description: Group Name
+          nullable: true
+        directoryUserMemberIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the users to be added as members of the group.
+          nullable: true
+      description: Command used to create a new local group.
+    CreateGroupCommandSCIM:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/MetaGroup'
+    CreateOrUpdateSettingCommand:
+      required:
+        - key
+      type: object
+      properties:
+        key:
+          type: string
+          description: The setting Key
+        value:
+          type: string
+          description: The value of the setting.
+          nullable: true
+      description: Command used to create or update an application setting.
+    CreateRobotAccountCommand:
+      type: object
+      properties:
+        partitionGlobalId:
+          type: string
+          description: Robot account partition identifier
+          format: uuid
+        name:
+          type: string
+          description: Robot account name
+          nullable: true
+        displayName:
+          type: string
+          description: The friendly name of the robot account.
+          nullable: true
+        groupIDsToAdd:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the groups this robot account should be added to.
+          nullable: true
+      description: Command used to create a new robot account.
+    CreateUserCommand:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user global id
+          format: uuid
+          nullable: true
+        userName:
+          type: string
+          description: The user's name.
+          nullable: true
+        email:
+          type: string
+          description: The user's email address.
+          format: email
+          nullable: true
+        name:
+          type: string
+          description: The name of the user.
+          nullable: true
+        surname:
+          type: string
+          description: The name of the user.
+          nullable: true
+        displayName:
+          type: string
+          description: Display name of the user
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UserType'
+        bypassBasicAuthRestriction:
+          type: boolean
+          description: Flag indicating if this user will bypass the basic authentication restriction.
+        legacyId:
+          type: integer
+          description: "User legacy id can be specified from an external source. If null, uses the default auto-increment behavior.\r\nThis is needed to stay in sync with the TMS user data while we are in dual-mode."
+          format: int64
+          nullable: true
+        invitationAccepted:
+          type: boolean
+          description: Flag indicating whether the user has accepted invitation or not.
+        partitionGlobalId:
+          type: string
+          description: The tenant global id that the user belongs to.
+          format: uuid
+        password:
+          type: string
+          description: The user's password.
+          nullable: true
+        validatePassword:
+          type: boolean
+          description: Flag indicating if we need to validate the password.
+        groupIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the groups this user is a member of.
+          nullable: true
+        userLogins:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateUserLoginCommand'
+          description: The user logins
+          nullable: true
+      description: Command used to create a new user.
+    CreateUserCommandBase:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The user global id
+          format: uuid
+          nullable: true
+        userName:
+          type: string
+          description: The user's name.
+          nullable: true
+        email:
+          type: string
+          description: The user's email address.
+          format: email
+          nullable: true
+        name:
+          type: string
+          description: The name of the user.
+          nullable: true
+        surname:
+          type: string
+          description: The name of the user.
+          nullable: true
+        displayName:
+          type: string
+          description: Display name of the user
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UserType'
+        bypassBasicAuthRestriction:
+          type: boolean
+          description: Flag indicating if this user will bypass the basic authentication restriction.
+        legacyId:
+          type: integer
+          description: "User legacy id can be specified from an external source. If null, uses the default auto-increment behavior.\r\nThis is needed to stay in sync with the TMS user data while we are in dual-mode."
+          format: int64
+          nullable: true
+        invitationAccepted:
+          type: boolean
+          description: Flag indicating whether the user has accepted invitation or not.
+    CreateUserCommandSCIM:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        id:
+          type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+        userName:
+          type: string
+          nullable: true
+        name:
+          $ref: '#/components/schemas/Name'
+        active:
+          type: boolean
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/Email'
+          nullable: true
+    CreateUserLoginCommand:
+      type: object
+      properties:
+        loginProvider:
+          type: string
+          description: Gets or sets the login provider for the login (e.g. facebook, google)
+          nullable: true
+        providerKey:
+          type: string
+          description: Gets or sets the unique provider identifier for this login.
+          nullable: true
+        providerDisplayName:
+          type: string
+          description: Gets or sets the friendly name used in a UI for this login.
+          nullable: true
+    CreateUsersCommand:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/CreateUserCommandBase'
+          description: Users information.
+          nullable: true
+        partitionGlobalId:
+          type: string
+          description: The tenant global id that the user belongs to.
+          format: uuid
+        groupIDs:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the groups this user is a member of.
+          nullable: true
+      description: Command used to create new users.
+    DirectoryApplication:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/DirectoryEntity'
+      properties:
+        applicationId:
+          type: string
+          nullable: true
     DirectoryEntity:
       required:
         - objectType
@@ -1099,62 +1381,73 @@ components:
       properties:
         objectType:
           type: string
-        source:
-          type: string
-          nullable: true
         identifier:
           type: string
           nullable: true
         name:
           type: string
           nullable: true
-        email:
+        displayName:
           type: string
           nullable: true
-        displayName:
+        source:
+          type: string
+          nullable: true
+        email:
           type: string
           nullable: true
       discriminator:
         propertyName: objectType
-    DirectoryUser:
-      allOf:
-        - $ref: '#/components/schemas/DirectoryEntity'
-        - type: object
-          properties:
-            firstName:
-              type: string
-              nullable: true
-            lastName:
-              type: string
-              nullable: true
-            jobTitle:
-              type: string
-              nullable: true
-            companyName:
-              type: string
-              nullable: true
-            city:
-              type: string
-              nullable: true
-            department:
-              type: string
-              nullable: true
     DirectoryGroup:
+      type: object
       allOf:
         - $ref: '#/components/schemas/DirectoryEntity'
-        - type: object
     DirectoryRobotUser:
+      type: object
       allOf:
         - $ref: '#/components/schemas/DirectoryEntity'
-        - type: object
-    DirectoryApplication:
+    DirectoryUser:
+      type: object
       allOf:
         - $ref: '#/components/schemas/DirectoryEntity'
-        - type: object
-          properties:
-            applicationId:
-              type: string
-              nullable: true
+      properties:
+        firstName:
+          type: string
+          nullable: true
+        lastName:
+          type: string
+          nullable: true
+        jobTitle:
+          type: string
+          nullable: true
+        companyName:
+          type: string
+          nullable: true
+        city:
+          type: string
+          nullable: true
+        department:
+          type: string
+          nullable: true
+        extensionUserAttributes:
+          type: object
+          additionalProperties:
+            type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+    Email:
+      type: object
+      properties:
+        value:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        primary:
+          type: boolean
     GroupDto:
       type: object
       properties:
@@ -1192,66 +1485,51 @@ components:
               - $ref: '#/components/schemas/DirectoryApplication'
           nullable: true
       description: Represents a group entity.
-    BulkGroupDeleteCommand:
+    GroupType:
+      enum:
+        - builtIn
+        - custom
+      type: string
+      x-ms-enum:
+        name: GroupType
+        modelAsString: false
+    IdentityError:
       type: object
       properties:
-        groupIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the groups to be removed
+        code:
+          type: string
           nullable: true
-      description: Command used to delete multiple groups.
-    CreateGroupCommand:
+        description:
+          type: string
+          nullable: true
+    IdentityResult:
       type: object
       properties:
-        partitionGlobalId:
-          type: string
-          description: Group partition identifier
-          format: uuid
-        id:
-          type: string
-          description: Group unique identifier
-          format: uuid
-        name:
-          type: string
-          description: Group Name
-          nullable: true
-        directoryUserMemberIDs:
+        succeeded:
+          type: boolean
+          readOnly: true
+        errors:
           type: array
           items:
-            type: string
-            format: uuid
-          description: IDs of the users to be added as members of the group.
+            $ref: '#/components/schemas/IdentityError'
           nullable: true
-      description: Command used to create a new local group.
-    UpdateGroupCommand:
-      type: object
-      properties:
-        partitionGlobalId:
-          type: string
-          description: Group partition identifier
-          format: uuid
-        name:
-          type: string
-          description: Group Name
-          nullable: true
-        directoryUserIDsToAdd:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the users to be added as members of the group.
-          nullable: true
-        directoryUserIDsToRemove:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the users to be removed from the group.
-          nullable: true
-      description: Command used to update group information.
+          readOnly: true
+    LoginAttemptResult:
+      enum:
+        - success
+        - invalidPassword
+        - userIsNotActive
+        - invalidUserNameTenancyName
+        - tenantIsNotActive
+        - userEmailIsNotConfirmed
+        - unknownExternalLogin
+        - lockedOut
+        - externalFailedAuthentication
+        - adLogin
+      type: string
+      x-ms-enum:
+        name: LoginAttemptResult
+        modelAsString: false
     MessageTemplateDto:
       type: object
       properties:
@@ -1264,24 +1542,36 @@ components:
         value:
           type: string
           nullable: true
-    UpdateMessageTemplateCommand:
+    Meta:
       type: object
       properties:
-        id:
-          type: integer
-          format: int64
-        value:
+        resourceType:
           type: string
           nullable: true
-      description: Command used to update an existing message template
-    SortOrderDto:
-      enum:
-        - asc
-        - desc
-      type: string
-      x-ms-enum:
-        name: SortOrderDto
-        modelAsString: false
+        created:
+          type: string
+          nullable: true
+        lastModified:
+          type: string
+          nullable: true
+    MetaGroup:
+      type: object
+      properties:
+        resourceType:
+          type: string
+          nullable: true
+    Name:
+      type: object
+      properties:
+        formatted:
+          type: string
+          nullable: true
+        familyName:
+          type: string
+          nullable: true
+        givenName:
+          type: string
+          nullable: true
     RobotAccountDto:
       type: object
       properties:
@@ -1327,40 +1617,189 @@ components:
             $ref: '#/components/schemas/RobotAccountDto'
           description: The results from the current page.
           nullable: true
-    BulkRobotAccountDeleteCommand:
+    SCIMGroupDTO:
       type: object
       properties:
-        robotAccountIDs:
+        schemas:
           type: array
           items:
             type: string
-            format: uuid
-          description: IDs of the robot accounts to be removed
           nullable: true
-      description: Command used for deleting multiple robot accounts.
-    CreateRobotAccountCommand:
+        id:
+          type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+        displayName:
+          type: string
+          nullable: true
+        members:
+          type: array
+          items:
+            type: string
+          nullable: true
+    SCIMGroupFilteredResponse:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        totalResults:
+          type: integer
+          format: int32
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SCIMGroupDTO'
+          nullable: true
+        startIndex:
+          type: integer
+          format: int32
+        itemsPerPage:
+          type: integer
+          format: int32
+    SCIMUserDTO:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        id:
+          type: string
+          nullable: true
+        externalId:
+          type: string
+          nullable: true
+        meta:
+          $ref: '#/components/schemas/Meta'
+        userName:
+          type: string
+          nullable: true
+        name:
+          $ref: '#/components/schemas/Name'
+        active:
+          type: boolean
+        emails:
+          type: array
+          items:
+            $ref: '#/components/schemas/Email'
+          nullable: true
+    SCIMUserFilteredResponse:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        totalResults:
+          type: integer
+          format: int32
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/SCIMUserDTO'
+          nullable: true
+        startIndex:
+          type: integer
+          format: int32
+        itemsPerPage:
+          type: integer
+          format: int32
+    ScimOperation:
+      type: object
+      properties:
+        op:
+          type: string
+          nullable: true
+        path:
+          type: string
+          nullable: true
+        value:
+          nullable: true
+    SettingDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The database id.
+          format: int64
+        key:
+          type: string
+          description: The setting Key
+          nullable: true
+        value:
+          type: string
+          description: The value of the setting.
+          nullable: true
+        partitionGlobalId:
+          type: string
+          description: Value indicating if the partition this setting belongs to.
+          format: uuid
+        userId:
+          type: string
+          description: The user global Id of the setting.
+          format: uuid
+          nullable: true
+    SortOrder:
+      enum:
+        - asc
+        - desc
+      type: string
+      x-ms-enum:
+        name: SortOrder
+        modelAsString: false
+    SortOrderDto:
+      enum:
+        - asc
+        - desc
+      type: string
+      x-ms-enum:
+        name: SortOrderDto
+        modelAsString: false
+    UpdateGroupCommand:
       type: object
       properties:
         partitionGlobalId:
           type: string
-          description: Robot account partition identifier
+          description: Group partition identifier
           format: uuid
         name:
           type: string
-          description: Robot account name
+          description: Group Name
           nullable: true
-        displayName:
-          type: string
-          description: The friendly name of the robot account.
-          nullable: true
-        groupIDsToAdd:
+        directoryUserIDsToAdd:
           type: array
           items:
             type: string
             format: uuid
-          description: IDs of the groups this robot account should be added to.
+          description: IDs of the users to be added as members of the group.
           nullable: true
-      description: Command used to create a new robot account.
+        directoryUserIDsToRemove:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the users to be removed from the group.
+          nullable: true
+      description: Command used to update group information.
+    UpdateMessageTemplateCommand:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        value:
+          type: string
+          nullable: true
+      description: Command used to update an existing message template
     UpdateRobotAccountCommand:
       type: object
       properties:
@@ -1387,77 +1826,82 @@ components:
           description: IDs of the groups this robot account should be removed from.
           nullable: true
       description: "Command used to update robot account information.\r\nOnly Display Name and group membership can be change. \r\nUsername is read-only after creation since change in username cannot be handled in Orchestrator"
-    SettingDto:
+    UpdateUserCommand:
       type: object
       properties:
-        id:
-          type: integer
-          description: The database id.
-          format: int64
-        key:
+        name:
           type: string
-          description: The setting Key
+          description: The name of the user.
           nullable: true
-        value:
+        surname:
           type: string
-          description: The value of the setting.
+          description: The name of the user.
           nullable: true
-        partitionGlobalId:
+        displayName:
           type: string
-          description: Value indicating if the partition this setting belongs to.
-          format: uuid
-        userId:
-          type: string
-          description: The user global Id of the setting.
-          format: uuid
+          description: Display name of the user
           nullable: true
-    CreateOrUpdateSettingCommand:
-      required:
-        - key
-      type: object
-      properties:
-        key:
+        email:
           type: string
-          description: The setting Key
-        value:
-          type: string
-          description: The value of the setting.
+          description: The user's email address.
+          format: email
           nullable: true
-      description: Command used to create or update an application setting.
-    BulkCreateOrUpdateSettingsCommand:
-      required:
-        - settings
-      type: object
-      properties:
-        settings:
+        isActive:
+          type: boolean
+          description: Flag indicating if the user is active.
+          nullable: true
+        password:
+          type: string
+          description: The user's new password.
+          nullable: true
+        groupIDsToAdd:
           type: array
           items:
-            $ref: '#/components/schemas/CreateOrUpdateSettingCommand'
-          description: The list of settings to be created/updated.
-        partitionGlobalId:
-          type: string
-          description: The partition global Id of the setting
-          format: uuid
+            type: string
+            format: uuid
+          description: IDs of the groups this user should be added to.
           nullable: true
-        userId:
-          type: string
-          description: The user global Id of the setting.
-          format: uuid
+        groupIDsToRemove:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: IDs of the groups this user should be removed from.
           nullable: true
-      description: Class used to create/update a list of settings in a bulk operation.
-    UserType:
-      enum:
-        - user
-        - robot
-        - directoryUser
-        - directoryGroup
-        - robotAccount
-        - application
-      type: string
-      description: Defines how a user was created and how it is supposed to be used.
-      x-ms-enum:
-        name: UserType
-        modelAsString: false
+        bypassBasicAuthRestriction:
+          type: boolean
+          description: Flag indicating if this user will bypass the basic authentication restriction.
+          nullable: true
+        invitationAccepted:
+          type: boolean
+          description: Flag indicating whether the user has accepted invitation or not.
+          nullable: true
+        extensionUserAttributesToAddOrUpdate:
+          type: object
+          additionalProperties:
+            type: string
+          description: Extension user attributes this user should be added to or updated on.
+          nullable: true
+        extensionUserAttributesToRemove:
+          type: array
+          items:
+            type: string
+          description: Extension user attributes this user should be removed from.
+          nullable: true
+      description: Command used to update the user.
+    UpdateUserCommandSCIM:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            type: string
+          nullable: true
+        operations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScimOperation'
+          nullable: true
     UserDto:
       type: object
       properties:
@@ -1522,263 +1966,19 @@ components:
         invitationAccepted:
           type: boolean
           description: Flag indicating whether the user has accepted invitation or not.
-    UpdateUserCommand:
+    UserDtoPagedResultDto:
       type: object
       properties:
-        name:
-          type: string
-          description: The name of the user.
-          nullable: true
-        surname:
-          type: string
-          description: The name of the user.
-          nullable: true
-        displayName:
-          type: string
-          description: Display name of the user
-          nullable: true
-        email:
-          type: string
-          description: The user's email address.
-          format: email
-          nullable: true
-        isActive:
-          type: boolean
-          description: Flag indicating if the user is active.
-          nullable: true
-        password:
-          type: string
-          description: The user's new password.
-          nullable: true
-        groupIDsToAdd:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the groups this user should be added to.
-          nullable: true
-        groupIDsToRemove:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the groups this user should be removed from.
-          nullable: true
-        bypassBasicAuthRestriction:
-          type: boolean
-          description: Flag indicating if this user will bypass the basic authentication restriction.
-          nullable: true
-        invitationAccepted:
-          type: boolean
-          description: Flag indicating whether the user has accepted invitation or not.
-          nullable: true
-      description: Command used to update the user.
-    IdentityError:
-      type: object
-      properties:
-        code:
-          type: string
-          nullable: true
-        description:
-          type: string
-          nullable: true
-    IdentityResult:
-      type: object
-      properties:
-        succeeded:
-          type: boolean
-          readOnly: true
-        errors:
-          type: array
-          items:
-            $ref: '#/components/schemas/IdentityError'
-          nullable: true
-          readOnly: true
-    CreateUserLoginCommand:
-      type: object
-      properties:
-        loginProvider:
-          type: string
-          description: Gets or sets the login provider for the login (e.g. facebook, google)
-          nullable: true
-        providerKey:
-          type: string
-          description: Gets or sets the unique provider identifier for this login.
-          nullable: true
-        providerDisplayName:
-          type: string
-          description: Gets or sets the friendly name used in a UI for this login.
-          nullable: true
-    CreateUserCommand:
-      type: object
-      properties:
-        partitionGlobalId:
-          type: string
-          description: The tenant global id that the user belongs to.
-          format: uuid
-        password:
-          type: string
-          description: The user's password.
-          nullable: true
-        validatePassword:
-          type: boolean
-          description: Flag indicating if we need to validate the password.
-        groupIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the groups this user is a member of.
-          nullable: true
-        userLogins:
-          type: array
-          items:
-            $ref: '#/components/schemas/CreateUserLoginCommand'
-          description: The user logins
-          nullable: true
-        id:
-          type: string
-          description: The user global id
-          format: uuid
-          nullable: true
-        userName:
-          type: string
-          description: The user's name.
-          nullable: true
-        email:
-          type: string
-          description: The user's email address.
-          format: email
-          nullable: true
-        name:
-          type: string
-          description: The name of the user.
-          nullable: true
-        surname:
-          type: string
-          description: The name of the user.
-          nullable: true
-        displayName:
-          type: string
-          description: Display name of the user
-          nullable: true
-        type:
-          $ref: '#/components/schemas/UserType'
-        bypassBasicAuthRestriction:
-          type: boolean
-          description: Flag indicating if this user will bypass the basic authentication restriction.
-        legacyId:
+        totalCount:
           type: integer
-          description: "User legacy id can be specified from an external source. If null, uses the default auto-increment behavior.\r\nThis is needed to stay in sync with the TMS user data while we are in dual-mode."
+          description: The total number of entities.
           format: int64
-          nullable: true
-        invitationAccepted:
-          type: boolean
-          description: Flag indicating whether the user has accepted invitation or not.
-      description: Command used to create a new user.
-    BulkSoftDeleteCommand:
-      type: object
-      properties:
-        partitionGlobalId:
-          type: string
-          format: uuid
-        userIds:
+        results:
           type: array
           items:
-            type: string
-            format: uuid
+            $ref: '#/components/schemas/UserDto'
+          description: The results from the current page.
           nullable: true
-    CreateUserCommandBase:
-      type: object
-      properties:
-        id:
-          type: string
-          description: The user global id
-          format: uuid
-          nullable: true
-        userName:
-          type: string
-          description: The user's name.
-          nullable: true
-        email:
-          type: string
-          description: The user's email address.
-          format: email
-          nullable: true
-        name:
-          type: string
-          description: The name of the user.
-          nullable: true
-        surname:
-          type: string
-          description: The name of the user.
-          nullable: true
-        displayName:
-          type: string
-          description: Display name of the user
-          nullable: true
-        type:
-          $ref: '#/components/schemas/UserType'
-        bypassBasicAuthRestriction:
-          type: boolean
-          description: Flag indicating if this user will bypass the basic authentication restriction.
-        legacyId:
-          type: integer
-          description: "User legacy id can be specified from an external source. If null, uses the default auto-increment behavior.\r\nThis is needed to stay in sync with the TMS user data while we are in dual-mode."
-          format: int64
-          nullable: true
-        invitationAccepted:
-          type: boolean
-          description: Flag indicating whether the user has accepted invitation or not.
-    CreateUsersCommand:
-      type: object
-      properties:
-        users:
-          type: array
-          items:
-            $ref: '#/components/schemas/CreateUserCommandBase'
-          description: Users information.
-          nullable: true
-        partitionGlobalId:
-          type: string
-          description: The tenant global id that the user belongs to.
-          format: uuid
-        groupIDs:
-          type: array
-          items:
-            type: string
-            format: uuid
-          description: IDs of the groups this user is a member of.
-          nullable: true
-      description: Command used to create new users.
-    ChangeUserPasswordCommand:
-      type: object
-      properties:
-        oldPassword:
-          type: string
-          description: The user's old password.
-          nullable: true
-        newPassword:
-          type: string
-          description: The user's new password.
-          nullable: true
-      description: Command used to change user's password.
-    LoginAttemptResult:
-      enum:
-        - success
-        - invalidPassword
-        - userIsNotActive
-        - invalidUserNameTenancyName
-        - tenantIsNotActive
-        - userEmailIsNotConfirmed
-        - unknownExternalLogin
-        - lockedOut
-        - externalFailedAuthentication
-        - adLogin
-      type: string
-      x-ms-enum:
-        name: LoginAttemptResult
-        modelAsString: false
     UserLoginAttemptDto:
       type: object
       properties:
@@ -1834,6 +2034,19 @@ components:
             $ref: '#/components/schemas/UserLoginAttemptDto'
           description: The results from the current page.
           nullable: true
+    UserType:
+      enum:
+        - user
+        - robot
+        - directoryUser
+        - directoryGroup
+        - robotAccount
+        - application
+      type: string
+      description: Defines how a user was created and how it is supposed to be used.
+      x-ms-enum:
+        name: UserType
+        modelAsString: false
   securitySchemes:
     Bearer:
       type: apiKey
