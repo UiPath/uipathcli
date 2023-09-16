@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: Document Understanding REST APIs Preview
-  description: Document Understanding as a Service, exposing framework capabilities as REST APIs. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/api-overview">here.</A>
+  title: Document Understanding Cloud APIs
+  description: Consume Document Understanding capabilities via APIs, hosted in the cloud. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/api-overview">here.</A>
   version: "1.0"
 paths:
   /projects:
@@ -785,6 +785,9 @@ paths:
           schema:
             type: string
             default: 00000000-0000-0000-0000-000000000000
+        - name: x-uipath-page-range
+          in: header
+          description: Specifies the page range of the document to be digitized. Page range can be provided as a range of consecutive pages (e.g. 2-5), as one specific page (e.g. 2) or as a range of consecutive pages and individual pages (e.g. 2-5,6,7). It also allows the specification of the start (^) and the end ($) of the document (e.g. ^-3,5-$).
       requestBody:
         content:
           multipart/form-data:
@@ -860,6 +863,118 @@ paths:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "415":
           description: Client Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "500":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "503":
+          description: Server Error
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+  /projects/{projectId}/digitization/result/{documentId}:
+    get:
+      tags:
+        - Digitization
+      summary: ""
+      description: "Get the digitization result of a document.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
+      operationId: Get
+      parameters:
+        - name: api-version
+          in: query
+          description: Version of the APIs.
+          required: true
+          schema:
+            enum:
+              - "1"
+            type: string
+        - name: projectId
+          in: path
+          description: ID of the Project.
+          required: true
+          schema:
+            type: string
+            default: 00000000-0000-0000-0000-000000000000
+        - name: documentId
+          in: path
+          description: The document identifier obtained from the START digitization route.
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "403":
+          description: Forbidden
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        "404":
+          description: Not Found
           content:
             text/plain:
               schema:
@@ -2559,6 +2674,19 @@ components:
         - Expression
         - TableExpression
       type: string
+    UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus:
+      enum:
+        - Unassigned
+        - Pending
+        - Completed
+      type: string
+    UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority:
+      enum:
+        - Low
+        - Medium
+        - High
+        - Critical
+      type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody:
       type: object
       properties:
@@ -2609,6 +2737,42 @@ components:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         result:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.Classification.ClassificationResponse'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResponse:
+      type: object
+      properties:
+        status:
+          title: Operation Status
+          enum:
+            - Succeeded
+            - Failed
+            - Running
+            - NotStarted
+          type: enum
+          example: Succeeded
+        error:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+        result:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResult'
+        createdAt:
+          type: string
+          description: The time the operation was created
+          format: date-time
+          example: "2022-06-21T13:49:00.4971596Z"
+        lastUpdatedAt:
+          type: string
+          description: The last time the operation was updated
+          format: date-time
+          example: "2022-06-21T13:49:10.1105179Z"
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.GetDigitizeJobResult:
+      type: object
+      properties:
+        documentObjectModel:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.SerializedResult'
+        documentText:
+          type: string
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Digitization.StartDigitizationResponse:
       type: object
@@ -2949,11 +3113,18 @@ components:
         result:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.SerializedResult:
+      type: object
+      properties:
+        result:
+          type: string
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ClassificationValidationResult:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel'
         validatedClassificationResults:
@@ -2967,7 +3138,7 @@ components:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentExtractionActionDataModel'
         validatedExtractionResults:
@@ -3034,6 +3205,7 @@ components:
           type: string
           description: The Document ID associated with the Extraction Result that needs validation
           format: uuid
+          nullable: true
           example: ID of the Document that needs to be validated
         actionTitle:
           type: string
@@ -3041,7 +3213,7 @@ components:
           nullable: true
           example: Title of the action in action center
         actionPriority:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority'
         actionCatalog:
           type: string
           description: The name of the catalog in which the action is created.
@@ -3076,6 +3248,7 @@ components:
           type: string
           description: The Document ID associated with the Extraction Result that needs validation
           format: uuid
+          nullable: true
           example: ID of the Document that needs to be validated
         actionTitle:
           type: string
@@ -3083,7 +3256,7 @@ components:
           nullable: true
           example: Title of the action in action center
         actionPriority:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority'
         actionCatalog:
           type: string
           description: The name of the catalog in which the action is created.
@@ -3160,19 +3333,6 @@ components:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
           nullable: true
       additionalProperties: false
-    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.CreateTaskActionPriority:
-      enum:
-        - Low
-        - Medium
-        - High
-        - Critical
-      type: string
-    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationTaskStatus:
-      enum:
-        - Unassigned
-        - Pending
-        - Completed
-      type: string
     UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel:
       type: object
       properties:
@@ -3296,7 +3456,7 @@ components:
   securitySchemes:
     oauth2:
       type: oauth2
-      description: In order to enable access to the REST API you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
+      description: In order to enable access to the Cloud APIs you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
           tokenUrl: https://cloud.uipath.com/identity_/connect/token
