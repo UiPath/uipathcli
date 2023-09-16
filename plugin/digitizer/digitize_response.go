@@ -1,5 +1,5 @@
 package digitzer
 
 type digitizeResponse struct {
-	OperationId string `json:"operationId"`
+	DocumentId string `json:"documentId"`
 }
