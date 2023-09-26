@@ -81,11 +81,8 @@ func (h ConfigCommandHandler) setConfigValue(config *config.Config, key string, 
 	} else if h.isHeaderKey(keyParts) {
 		config.SetHeader(keyParts[1], value)
 		return nil
-	} else if h.isPathKey(keyParts) {
-		config.SetPath(keyParts[1], value)
-		return nil
-	} else if h.isQueryKey(keyParts) {
-		config.SetQuery(keyParts[1], value)
+	} else if h.isParameterKey(keyParts) {
+		config.SetParameter(keyParts[1], value)
 		return nil
 	} else if h.isAuthPropertyKey(keyParts) {
 		config.SetAuthProperty(keyParts[2], value)
@@ -98,12 +95,8 @@ func (h ConfigCommandHandler) isHeaderKey(keyParts []string) bool {
 	return len(keyParts) == 2 && keyParts[0] == "header"
 }
 
-func (h ConfigCommandHandler) isPathKey(keyParts []string) bool {
-	return len(keyParts) == 2 && keyParts[0] == "path"
-}
-
-func (h ConfigCommandHandler) isQueryKey(keyParts []string) bool {
-	return len(keyParts) == 2 && keyParts[0] == "query"
+func (h ConfigCommandHandler) isParameterKey(keyParts []string) bool {
+	return len(keyParts) == 2 && keyParts[0] == "parameter"
 }
 
 func (h ConfigCommandHandler) isAuthPropertyKey(keyParts []string) bool {

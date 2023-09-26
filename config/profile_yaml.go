@@ -5,8 +5,7 @@ type profileYaml struct {
 	Organization string                 `yaml:"organization,omitempty"`
 	Tenant       string                 `yaml:"tenant,omitempty"`
 	Uri          urlYaml                `yaml:"uri,omitempty"`
-	Path         map[string]string      `yaml:"path,omitempty"`
-	Query        map[string]string      `yaml:"query,omitempty"`
+	Parameter    map[string]string      `yaml:"parameter,omitempty"`
 	Header       map[string]string      `yaml:"header,omitempty"`
 	Auth         map[string]interface{} `yaml:"auth,omitempty"`
 	Insecure     bool                   `yaml:"insecure,omitempty"`
