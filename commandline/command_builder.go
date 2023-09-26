@@ -126,13 +126,18 @@ func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *
 			}
 			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
 			parameters = append(parameters, *parameter)
+		} else if configValue, ok := config.Parameter[param.Name]; ok {
+			value, err := typeConverter.Convert(configValue, param)
+			if err != nil {
+				return nil, err
+			}
+			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
+			parameters = append(parameters, *parameter)
 		} else if param.Required && param.DefaultValue != nil {
 			parameter := executor.NewExecutionParameter(param.FieldName, param.DefaultValue, param.In)
 			parameters = append(parameters, *parameter)
 		}
 	}
-	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Path, parser.ParameterInPath)...)
-	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Query, parser.ParameterInQuery)...)
 	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Header, parser.ParameterInHeader)...)
 	return parameters, nil
 }
@@ -232,11 +237,7 @@ func (b CommandBuilder) getValue(parameter parser.Parameter, context *cli.Contex
 	if value != "" {
 		return value
 	}
-	value = config.Path[parameter.Name]
-	if value != "" {
-		return value
-	}
-	value = config.Query[parameter.Name]
+	value = config.Parameter[parameter.Name]
 	if value != "" {
 		return value
 	}

@@ -231,13 +231,13 @@ func TestConfigSetHeader(t *testing.T) {
 	}
 }
 
-func TestConfigSetPath(t *testing.T) {
+func TestConfigSetParameter(t *testing.T) {
 	configFile := createFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
 
-	RunCli([]string{"config", "set", "--key", "path.org", "--value", "my-org"}, context)
+	RunCli([]string{"config", "set", "--key", "parameter.org", "--value", "my-org"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -245,30 +245,8 @@ func TestConfigSetPath(t *testing.T) {
 	}
 	expectedConfig := `profiles:
 - name: default
-  path:
+  parameter:
     org: my-org
-`
-	if string(config) != expectedConfig {
-		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
-	}
-}
-
-func TestConfigSetQuery(t *testing.T) {
-	configFile := createFile(t)
-	context := NewContextBuilder().
-		WithConfigFile(configFile).
-		Build()
-
-	RunCli([]string{"config", "set", "--key", "query.filter", "--value", "my-filter"}, context)
-
-	config, err := os.ReadFile(configFile)
-	if err != nil {
-		t.Errorf("Config file does not exist: %v", err)
-	}
-	expectedConfig := `profiles:
-- name: default
-  query:
-    filter: my-filter
 `
 	if string(config) != expectedConfig {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))

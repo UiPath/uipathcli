@@ -105,11 +105,11 @@ paths:
 	}
 }
 
-func TestPathConfig(t *testing.T) {
+func TestPathParameterConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    path:
+    parameter:
       id: my-id
 `
 	definition := `
@@ -140,11 +140,11 @@ paths:
 	}
 }
 
-func TestQueryConfig(t *testing.T) {
+func TestQueryParameterConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    query:
+    parameter:
       filter: my-filter
 `
 	definition := `
@@ -152,6 +152,13 @@ paths:
   /ping:
     get:
       summary: Ping operation
+      parameters:
+      - name: filter
+        in: query
+        required: true
+        description: The filter
+        schema:
+          type: string
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
@@ -167,12 +174,118 @@ paths:
 	}
 }
 
-func TestHeaderConfig(t *testing.T) {
+func TestHeaderParameterConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    header:
-      x-uipath-test: abc    
+    parameter:
+      x-uipath-test: abc
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Ping operation
+      parameters:
+      - name: x-uipath-test
+        in: header
+        required: true
+        description: The custom header
+        schema:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "get-ping"}, context)
+
+	value := result.RequestHeader["x-uipath-test"]
+	expected := "abc"
+	if value != expected {
+		t.Errorf("Did not set correct custom header from config, expected: %v, got: %v", expected, value)
+	}
+}
+
+func TestCliParameterTakesPrecedenceOverConfigParameter(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    parameter:
+      id: my-config-id
+`
+	definition := `
+paths:
+  /ping/{id}:
+    get:
+      summary: Ping operation
+      operationId: ping
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The id
+        schema:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "ping", "--id", "my-id"}, context)
+
+	expected := "my-id"
+	if !strings.Contains(result.RequestUrl, expected) {
+		t.Errorf("Did not set correct parameter, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestConfigParameterTakesPrecedenceOverDefaultValue(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    parameter:
+      test-filter: my-filter
+`
+	definition := `
+paths:
+  /ping/{TestFilter}:
+    get:
+      summary: Ping operation
+      operationId: ping
+      parameters:
+      - name: TestFilter
+        in: path
+        required: true
+        default: my-default-filter
+        description: The test filter
+        schema:
+          type: string
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "ping"}, context)
+
+	expected := "my-filter"
+	if !strings.Contains(result.RequestUrl, expected) {
+		t.Errorf("Did not set correct parameter, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
+func TestConfigParameterNotPassedWhenNotDefined(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    parameter:
+      x-uipath-test: abc
 `
 	definition := `
 paths:
@@ -189,9 +302,8 @@ paths:
 	result := RunCli([]string{"myservice", "get-ping"}, context)
 
 	value := result.RequestHeader["x-uipath-test"]
-	expected := "abc"
-	if value != expected {
-		t.Errorf("Did not set correct custom header from config, expected: %v, got: %v", expected, value)
+	if value != "" {
+		t.Errorf("Header parameter should not be sent, but got: %v", value)
 	}
 }
 
@@ -256,7 +368,7 @@ func TestRequiredPathParameterFromConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    path:
+    parameter:
       id: abc
 `
 	definition := `
@@ -290,7 +402,7 @@ func TestRequiredQueryParameterFromConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    query:
+    parameter:
       id: abc
 `
 	definition := `
@@ -324,7 +436,7 @@ func TestRequiredHeaderParameterFromConfig(t *testing.T) {
 	config := `
 profiles:
   - name: default
-    header:
+    parameter:
       x-uipath-test: abc
 `
 	definition := `
@@ -350,6 +462,33 @@ paths:
 
 	if result.StdErr != "" {
 		t.Errorf("Should not require header parameter when provided by config, got %v", result.StdErr)
+	}
+}
+
+func TestAdditionalHeaderParameterFromConfig(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    header:
+      x-uipath-test: abc
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "get-ping"}, context)
+
+	header := result.RequestHeader["x-uipath-test"]
+	if header != "abc" {
+		t.Errorf("Should send additional header from config, but got %v", header)
 	}
 }
 

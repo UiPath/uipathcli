@@ -46,8 +46,7 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 	profile.Tenant = config.Tenant
 	profile.Auth = config.Auth.Config
 	profile.Header = config.Header
-	profile.Path = config.Path
-	profile.Query = config.Query
+	profile.Parameter = config.Parameter
 	profile.Version = config.Version
 
 	if index == -1 {
@@ -67,21 +66,17 @@ func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
 	if profile.Auth == nil {
 		profile.Auth = map[string]interface{}{}
 	}
-	if profile.Path == nil {
-		profile.Path = map[string]string{}
+	if profile.Parameter == nil {
+		profile.Parameter = map[string]string{}
 	}
 	if profile.Header == nil {
 		profile.Header = map[string]string{}
-	}
-	if profile.Query == nil {
-		profile.Query = map[string]string{}
 	}
 	return Config{
 		Organization: profile.Organization,
 		Tenant:       profile.Tenant,
 		Uri:          profile.Uri.URL,
-		Path:         profile.Path,
-		Query:        profile.Query,
+		Parameter:    profile.Parameter,
 		Header:       profile.Header,
 		Auth: AuthConfig{
 			Type:   fmt.Sprintf("%v", profile.Auth["type"]),

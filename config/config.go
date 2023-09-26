@@ -12,8 +12,7 @@ type Config struct {
 	Uri          *url.URL
 	Organization string
 	Tenant       string
-	Path         map[string]string
-	Query        map[string]string
+	Parameter    map[string]string
 	Header       map[string]string
 	Auth         AuthConfig
 	Insecure     bool
@@ -149,12 +148,8 @@ func (c Config) SetHeader(key string, value string) {
 	c.Header[key] = value
 }
 
-func (c Config) SetPath(key string, value string) {
-	c.Path[key] = value
-}
-
-func (c Config) SetQuery(key string, value string) {
-	c.Query[key] = value
+func (c Config) SetParameter(key string, value string) {
+	c.Parameter[key] = value
 }
 
 func (c Config) SetAuthGrantType(grantType string) {
