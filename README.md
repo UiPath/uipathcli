@@ -364,9 +364,11 @@ The CLI supports multiple output formats:
 In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
 
 ```bash
-uipath du discovery projects --query 'projects' --output text
+uipath orchestrator users get --query "value[].Name" --output text
 
-0001-01-01T00:00:00 Predefined models to be used for standard scenarios. For custom extractors, create a Project in the Document Understanding app in Automation Cloud  00000000-0000-0000-0000-000000000000  Predefined  https://cloud.uipath.com:443/081bb1eb-e8b7-4f93-9d95-541e3fdfd6ae/0da159c2-d799-4f7a-be31-30447a48571a/du_/api/framework/projects/00000000-0000-0000-0000-000000000000?api-version=1.0
+Administrator
+Automation User
+Automation Developer
 ```
 
 ```bash
@@ -419,11 +421,11 @@ uipath orchestrator users get --query "sort_by(value, &CreationTime) | [-1].Name
 You can set the environment variable `UIPATH_DEBUG=true` or pass the parameter `--debug` in order to see detailed output of the request and response messages:
 
 ```bash
-uipath du metering ping --debug
+uipath du discovery projects --debug
 ```
 
 ```bash
-GET https://cloud.uipath.com/uipatcleitzc/DefaultTenant/du_/api/metering/ping HTTP/1.1
+GET https://cloud.uipath.com/uipatcleitzc/DefaultTenant/du_/api/framework/projects?api-version=1 HTTP/1.1
 X-Request-Id: b033e39294147bcb1174c5b7ace6ac7c
 Authorization: Bearer ...
 
@@ -432,15 +434,16 @@ HTTP/1.1 200 OK
 Connection: keep-alive
 Content-Type: application/json; charset=utf-8
 
-{"location":"westeurope","serverRegion":"westeurope","clusterId":"du-prod-du-we-g-dns","version":"22.8-63-main.v29c916","timestamp":"2022-08-23T12:23:19.0121688Z"}
+{"projects":[{"id":"00000000-0000-0000-0000-000000000000","name":"Predefined"}]}
 
 
 {
-  "location": "westeurope",
-  "serverRegion": "westeurope",
-  "clusterId": "du-prod-du-we-g-dns",
-  "version": "22.8-63-main.v29c916",
-  "timestamp": "2022-08-23T12:23:19.0121688Z"
+  "projects": [
+    {
+      "id": "00000000-0000-0000-0000-000000000000",
+      "name": "Predefined"
+    },
+  ]
 }
 ```
 
