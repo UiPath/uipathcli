@@ -31,6 +31,34 @@ jobs:
           path: build/packages/
           if-no-files-found: error
 
+  publish_pages:
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Download packages
+        uses: actions/download-artifact@v3
+        with:
+          name: packages
+          path: build/packages/
+      - name: Generate commands 
+        run: |
+          tar -xzvf build/packages/uipathcli-linux-amd64.tar.gz
+          ./uipath commands show > documentation/commands.json
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: 'documentation'
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v2
+
   release:
     needs: build
     if: github.ref == 'refs/heads/main'

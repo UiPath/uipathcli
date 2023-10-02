@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: IdentityServer Internal API
+  title: IdentityServer External API
   version: v1
 servers:
   - url: https://cloud.uipath.com/identity_

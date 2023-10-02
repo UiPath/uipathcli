@@ -60,7 +60,6 @@ func (s *DefinitionFileStore) Read(name string, version string) (*DefinitionData
 				return nil, err
 			}
 			definition := NewDefinitionData(name, version, data)
-			s.definitions = append(s.definitions, *definition)
 			return definition, err
 		}
 	}
