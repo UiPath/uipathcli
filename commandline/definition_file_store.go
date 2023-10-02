@@ -95,6 +95,15 @@ func (s DefinitionFileStore) definitionsPath(version string) (string, error) {
 	if s.directory != "" {
 		return s.directory, nil
 	}
+	homeDir, err := os.UserHomeDir()
+	if err == nil {
+		definitionsDirectory := filepath.Join(homeDir, ".uipath", "definitions")
+		_, err := os.Stat(definitionsDirectory)
+		if err == nil {
+			return definitionsDirectory, nil
+		}
+	}
+
 	currentDirectory, err := os.Executable()
 	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, version)
 	if err != nil {
