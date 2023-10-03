@@ -95,8 +95,16 @@ func (s DefinitionFileStore) definitionsPath(version string) (string, error) {
 	if s.directory != "" {
 		return s.directory, nil
 	}
-	currentDirectory, err := os.Executable()
-	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, version)
+
+	currentExecutable, err := os.Executable()
+	if err != nil {
+		return "", err
+	}
+	absoluteExecutablePath, err := filepath.EvalSymlinks(currentExecutable)
+	if err != nil {
+		return "", err
+	}
+	definitionsDirectory := filepath.Join(filepath.Dir(absoluteExecutablePath), DefinitionsDirectory, version)
 	if err != nil {
 		return "", fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
 	}
