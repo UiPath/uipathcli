@@ -1,9 +1,12 @@
 package commandline
 
 import (
+	"embed"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -11,6 +14,7 @@ import (
 // the definitions/ folder and returns the data for a particular definition file.
 type DefinitionFileStore struct {
 	directory   string
+	embedded    embed.FS
 	files       []string
 	definitions []DefinitionData
 }
@@ -49,9 +53,9 @@ func (s *DefinitionFileStore) Read(name string, version string) (*DefinitionData
 		return nil, err
 	}
 
-	for _, path := range definitionFiles {
-		if name == s.definitionName(path) {
-			data, err := s.readDefinitionData(path)
+	for _, fileName := range definitionFiles {
+		if name == s.definitionName(fileName) {
+			data, err := s.readDefinitionData(version, fileName)
 			if err != nil {
 				return nil, err
 			}
@@ -68,39 +72,65 @@ func (s *DefinitionFileStore) discoverDefinitions(version string) ([]string, err
 		return s.files, nil
 	}
 
-	definitionsDirectory, err := s.definitionsPath(version)
-	if err != nil {
-		return nil, err
+	definitionFiles := map[string]string{}
+
+	embeddedFiles := s.discoverDefinitionsEmbedded()
+	for _, fileName := range embeddedFiles {
+		definitionFiles[fileName] = fileName
 	}
-	files, err := os.ReadDir(definitionsDirectory)
-	if err != nil && os.IsNotExist(err) && version != "" {
-		return nil, fmt.Errorf("Could not find definition files for version '%s' in folder '%s'", version, definitionsDirectory)
+	directoryFiles := s.discoverDefinitionsDirectory(version)
+	for _, fileName := range directoryFiles {
+		definitionFiles[fileName] = fileName
 	}
-	if err != nil {
-		return nil, fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
+
+	if len(definitionFiles) == 0 {
+		return nil, fmt.Errorf("Could not find definition files in folder '%s'", s.definitionsPath(version))
 	}
-	definitionFiles := []string{}
-	for _, file := range files {
-		filename := file.Name()
-		if strings.HasSuffix(filename, "yaml") || strings.HasSuffix(filename, "yml") || strings.HasSuffix(filename, "json") {
-			path := filepath.Join(definitionsDirectory, file.Name())
-			definitionFiles = append(definitionFiles, path)
-		}
+
+	result := []string{}
+	for _, path := range definitionFiles {
+		result = append(result, path)
 	}
-	s.files = definitionFiles
-	return definitionFiles, nil
+	sort.Strings(result)
+	s.files = result
+	return result, nil
 }
 
-func (s DefinitionFileStore) definitionsPath(version string) (string, error) {
+func (s DefinitionFileStore) discoverDefinitionsEmbedded() []string {
+	definitionFiles := []string{}
+	embeddedDir, err := s.embedded.ReadDir(DefinitionsDirectory)
+	if err == nil {
+		for _, file := range embeddedDir {
+			definitionFiles = append(definitionFiles, file.Name())
+		}
+	}
+	return definitionFiles
+}
+
+func (s DefinitionFileStore) discoverDefinitionsDirectory(version string) []string {
+	definitionFiles := []string{}
+	definitionsDirectory := s.definitionsPath(version)
+	files, err := os.ReadDir(definitionsDirectory)
+	if err == nil {
+		for _, file := range files {
+			filename := file.Name()
+			if strings.HasSuffix(filename, "yaml") || strings.HasSuffix(filename, "yml") || strings.HasSuffix(filename, "json") {
+				definitionFiles = append(definitionFiles, filename)
+			}
+		}
+	}
+	return definitionFiles
+}
+
+func (s DefinitionFileStore) definitionsPath(version string) string {
 	if s.directory != "" {
-		return s.directory, nil
+		return s.directory
 	}
 	currentDirectory, err := os.Executable()
-	definitionsDirectory := filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, version)
 	if err != nil {
-		return "", fmt.Errorf("Error reading definition files from folder '%s': %w", definitionsDirectory, err)
+		return filepath.Join(DefinitionsDirectory, version)
 	}
-	return definitionsDirectory, nil
+	return filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, version)
 }
 
 func (s DefinitionFileStore) definitionName(path string) string {
@@ -115,17 +145,23 @@ func (s DefinitionFileStore) definitionNames(paths []string) []string {
 	return names
 }
 
-func (s DefinitionFileStore) readDefinitionData(path string) ([]byte, error) {
-	data, err := os.ReadFile(path)
+func (s DefinitionFileStore) readDefinitionData(version string, fileName string) ([]byte, error) {
+	definitionsFilePath := filepath.Join(s.definitionsPath(version), fileName)
+	data, err := os.ReadFile(definitionsFilePath)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading definition file '%s': %w", path, err)
+		embeddedFilePath := path.Join(DefinitionsDirectory, fileName)
+		data, err = s.embedded.ReadFile(embeddedFilePath)
+	}
+	if err != nil {
+		return nil, fmt.Errorf("Error reading definition file '%s': %w", fileName, err)
 	}
 	return data, nil
 }
 
-func NewDefinitionFileStore(directory string) *DefinitionFileStore {
+func NewDefinitionFileStore(directory string, embedded embed.FS) *DefinitionFileStore {
 	return &DefinitionFileStore{
 		directory: directory,
+		embedded:  embedded,
 	}
 }
 
