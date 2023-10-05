@@ -4,6 +4,7 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"os"
 	"runtime"
@@ -19,6 +20,9 @@ import (
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
 	"github.com/UiPath/uipathcli/utils"
 )
+
+//go:embed definitions/*.yaml
+var embedded embed.FS
 
 func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
 	authenticators := []auth.Authenticator{}
@@ -71,7 +75,7 @@ func main() {
 		os.Stderr,
 		colorsSupported(),
 		*commandline.NewDefinitionProvider(
-			commandline.NewDefinitionFileStore(os.Getenv("UIPATH_DEFINITIONS_PATH")),
+			commandline.NewDefinitionFileStore(os.Getenv("UIPATH_DEFINITIONS_PATH"), embedded),
 			parser.NewOpenApiParser(),
 			[]plugin.CommandPlugin{
 				plugin_digitizer.DigitizeCommand{},

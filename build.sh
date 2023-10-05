@@ -1,9 +1,8 @@
 #! /bin/bash
 set -e
 
-echo "Copying OpenAPI definitions"
-mkdir -p build/definitions
-cp definitions/* build/definitions/
+echo "Copying README.md"
+mkdir -p build
 cp README.md build/README.md
 
 echo "Building Linux (amd64) executable"

@@ -1,6 +1,5 @@
-Write-Host "Copying OpenAPI definitions"
-New-Item -ItemType Directory -Force -Path build/definitions | out-null
-Copy-Item definitions/* -Destination build/definitions/
+Write-Host "Copying README.md"
+New-Item -ItemType Directory -Force -Path build | out-null
 Copy-Item README.md -Destination build/README.md
 
 Write-Host "Building Linux (amd64) executable"
