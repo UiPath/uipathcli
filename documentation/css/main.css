@@ -1,0 +1,174 @@
+* {
+    color: #273139;
+    font-family: noto-sans, "Noto Sans JP", "Noto Sans KR", "Noto Sans SC", "Noto Sans TC", "Noto Sans", -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,sans-serif;
+    font-size: 16px;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    position: relative;
+    min-height: 100vh;
+}
+
+h1 {
+    font-size: 26px;
+}
+
+h2 {
+    font-size: 20px;
+    border-bottom: 1px solid rgb(164, 177, 184);
+    width: 90%;
+}
+
+a {
+    color: #0067df;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+code {
+    font-family: monospace;
+    font-size: 14px;
+    padding: 2px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+    border: 1px solid #e1e1e8;
+}
+
+.content {
+    padding-bottom: 50px;
+}
+
+.main {
+    margin: 20px;
+}
+
+.header {
+    height: 48px;
+    border-bottom: 1px solid rgb(207, 216, 221);
+    display: flex;
+    flex-direction: row;
+}
+
+.header-icon {
+    padding-top: 6px;
+    padding-left: 8px;
+    line-height: 48px;
+    vertical-align: middle;
+}
+
+.header-text {
+    padding-left: 15px;
+    font-weight: 600;
+    line-height: 48px;
+    vertical-align: middle;
+}
+
+.breadcrumb
+{
+    color: #526069;
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+}
+
+.breadcrumb:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+
+.breadcrumb ol {
+    padding-left: 0;
+    list-style: none;
+}
+
+.breadcrumb li {
+	float: left;
+}
+
+.breadcrumb li:after
+{
+	content: '/';
+    padding-left: 8px;
+    padding-right: 8px;
+	display: inline;
+}
+
+.breadcrumb li:last-child
+{
+    font-weight: 400;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    margin-top: 20px;
+    height: 50px;
+    width: 100%;
+    background: rgb(29, 29, 30);
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.footer-icon {
+    padding-left: 8px;
+    margin-top: 10px;
+}
+
+.footer-text {
+    padding-right: 15px;
+    margin-top: 14px;
+    color: rgb(89, 90, 92);
+}
+
+.services li {
+    padding-bottom: 5px;
+}
+
+.commands li {
+    padding-bottom: 5px;    
+}
+
+.usage {
+    padding: 5px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+    border: 1px solid #e1e1e8;
+    font-family: monospace;
+}
+
+.parameters {
+    padding-left: 0;
+    list-style: none;
+}
+
+.parameter {
+    margin: 20px;
+}
+
+.parameter-name {
+    padding: 2px;
+    background-color: #f7f7f7;
+    border-radius: 4px;
+    border: 1px solid #e1e1e8;
+    font-family: monospace;
+}
+
+.parameter-description {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 100%;
+} 
+
+.parameter-allowed-values ul {
+    list-style-type: square;
+}
+
+.parameter-example-code {
+    font-family: monospace;
+    font-size: 14px;
+    margin: 5px 0 0 20px;
+}

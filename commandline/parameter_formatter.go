@@ -15,6 +15,10 @@ func (f parameterFormatter) Description() string {
 	return f.description(f.parameter)
 }
 
+func (f parameterFormatter) UsageExample() string {
+	return f.usageExample(f.parameter)
+}
+
 func (f parameterFormatter) description(parameter parser.Parameter) string {
 	builder := strings.Builder{}
 

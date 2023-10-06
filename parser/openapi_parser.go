@@ -36,9 +36,12 @@ func (p OpenApiParser) contains(strs []string, str string) bool {
 	return false
 }
 
-func (p OpenApiParser) getTitle(document openapi3.T) string {
+func (p OpenApiParser) getDescription(document openapi3.T) string {
 	if document.Info == nil {
 		return ""
+	}
+	if document.Info.Description != "" {
+		return document.Info.Description
 	}
 	return document.Info.Title
 }
@@ -315,8 +318,8 @@ func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, err
 		pathItem := document.Paths.Find(path)
 		operations = append(operations, p.parsePath(*uri, path, *pathItem, document)...)
 	}
-	title := p.getTitle(document)
-	return NewDefinition(name, title, operations), nil
+	description := p.getDescription(document)
+	return NewDefinition(name, description, operations), nil
 }
 
 func (p OpenApiParser) Parse(name string, data []byte) (*Definition, error) {

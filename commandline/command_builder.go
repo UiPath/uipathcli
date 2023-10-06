@@ -685,6 +685,9 @@ func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser
 	if len(args) <= 1 || strings.HasPrefix(args[1], "--") {
 		return b.DefinitionProvider.Index(version)
 	}
+	if len(args) > 1 && args[1] == "commands" {
+		return b.loadAllDefinitions(version)
+	}
 	definition, err := b.DefinitionProvider.Load(args[1], version)
 	if definition == nil {
 		return nil, err
@@ -692,11 +695,66 @@ func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser
 	return []parser.Definition{*definition}, err
 }
 
+func (b CommandBuilder) loadAllDefinitions(version string) ([]parser.Definition, error) {
+	all, err := b.DefinitionProvider.Index(version)
+	if err != nil {
+		return nil, err
+	}
+	definitions := []parser.Definition{}
+	for _, d := range all {
+		definition, err := b.DefinitionProvider.Load(d.Name, version)
+		if err != nil {
+			return nil, err
+		}
+		if definition != nil {
+			definitions = append(definitions, *definition)
+		}
+	}
+	return definitions, nil
+}
+
 func (b CommandBuilder) loadAutocompleteDefinitions(args []string, version string) ([]parser.Definition, error) {
 	if len(args) <= 2 {
 		return b.DefinitionProvider.Index(version)
 	}
 	return b.loadDefinitions(args, version)
+}
+
+func (b CommandBuilder) createShowCommand(definitions []parser.Definition, commands []*cli.Command) *cli.Command {
+	return &cli.Command{
+		Name:        "commands",
+		Description: "Command to inspect available uipath CLI operations",
+		Flags: []cli.Flag{
+			b.HelpFlag(),
+		},
+		Subcommands: []*cli.Command{
+			{
+				Name:        "show",
+				Description: "Print available uipath CLI commands",
+				Flags: []cli.Flag{
+					b.HelpFlag(),
+				},
+				Action: func(context *cli.Context) error {
+					flagBuilder := newFlagBuilder()
+					flagBuilder.AddFlags(b.CreateDefaultFlags(false))
+					flagBuilder.AddFlag(b.HelpFlag())
+					flags := flagBuilder.ToList()
+
+					handler := newShowCommandHandler()
+					output, err := handler.Execute(definitions, flags)
+					if err != nil {
+						return err
+					}
+					fmt.Fprintln(b.StdOut, output)
+					return nil
+				},
+				HideHelp: true,
+				Hidden:   true,
+			},
+		},
+		HideHelp: true,
+		Hidden:   true,
+	}
 }
 
 func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) []*cli.Command {
@@ -740,7 +798,8 @@ func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
 	servicesCommands := b.createServiceCommands(definitions)
 	autocompleteCommand := b.createAutoCompleteCommand(version)
 	configCommand := b.createConfigCommand()
-	commands := append(servicesCommands, autocompleteCommand, configCommand)
+	showCommand := b.createShowCommand(definitions, servicesCommands)
+	commands := append(servicesCommands, autocompleteCommand, configCommand, showCommand)
 	return commands, nil
 }
 
