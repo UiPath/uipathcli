@@ -16,12 +16,18 @@ jobs:
         run: go get .
       - name: Build
         run: go build .
-      - name: Test
-        run: go test -v ./...
       - name: Lint
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.51.2
           golangci-lint run
+      - name: Test
+        run: go test -coverprofile="coverage.out" -coverpkg "$(go list github.com/UiPath/uipathcli/... | grep -v 'test' | tr '\n' ',')" ./...
+      - name: Coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+        run: |
+          go install github.com/mattn/goveralls@latest
+          goveralls -coverprofile="coverage.out" -service="github"
       - name: Package
         run: ./build.sh && ./package.sh
       - name: Upload packages
