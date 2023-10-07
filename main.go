@@ -24,18 +24,12 @@ import (
 //go:embed definitions/*.yaml
 var embedded embed.FS
 
-func authenticators(pluginsCfg config.PluginConfig) []auth.Authenticator {
-	authenticators := []auth.Authenticator{}
-	for _, authenticator := range pluginsCfg.Authenticators {
-		authenticators = append(authenticators, auth.NewExternalAuthenticator(
-			*auth.NewExternalAuthenticatorConfig(authenticator.Name, authenticator.Path),
-		))
-	}
-	return append(authenticators,
+func authenticators() []auth.Authenticator {
+	return []auth.Authenticator{
 		auth.NewPatAuthenticator(),
 		auth.NewOAuthAuthenticator(cache.NewFileCache(), auth.NewExecBrowserLauncher()),
 		auth.NewBearerAuthenticator(cache.NewFileCache()),
-	)
+	}
 }
 
 func colorsSupported() bool {
@@ -58,17 +52,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, err.Error())
 		os.Exit(131)
 	}
-	pluginConfigProvider := config.NewPluginConfigProvider(
-		config.NewPluginConfigFileStore(os.Getenv("UIPATH_PLUGINS_PATH")),
-	)
-	err = pluginConfigProvider.Load()
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err.Error())
-		os.Exit(132)
-	}
 
-	pluginConfig := pluginConfigProvider.Config()
-	authenticators := authenticators(pluginConfig)
+	authenticators := authenticators()
 	cli := commandline.NewCli(
 		os.Stdin,
 		os.Stdout,
