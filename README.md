@@ -1,16 +1,18 @@
 [![GitHub Release](https://img.shields.io/github/release/UiPath/uipathcli?style=flat-square)](https://github.com/UiPath/uipathcli/releases)
 [![MIT License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/UiPath/uipathcli/blob/main/LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/UiPath/uipathcli/ci.yaml?style=flat-square&color=light-green)](https://github.com/UiPath/uipathcli/actions)
+[![Code Coverage](https://img.shields.io/coverallsCoverage/github/UiPath/uipathcli?style=flat-square&color=light-green)](https://coveralls.io/github/UiPath/uipathcli)
 [![Documentation](https://img.shields.io/badge/Documentation-146e22?style=flat-square&logo=gitbook&logoColor=white)](https://uipath.github.io/uipathcli/)
 
-# UiPath OpenAPI Command-Line-Interface (preview)
+# uipathcli
 
-The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
+The uipathcli project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
 
 <img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_uipath.gif" />
 
-## Install
-
 *Try it out, enjoy, and let us know what you think. Remember, uipathcli is still in preview phase, a special time when your feedback, thoughts, or questions are more than appreciated, so please submit them [here](https://github.com/UiPath/uipathcli/issues).*
+
+## Install
 
 In order to get started quickly, you can run the install scripts for Windows, Linux and MacOS.
 
