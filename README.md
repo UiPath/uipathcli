@@ -1,3 +1,7 @@
+[![GitHub Release](https://img.shields.io/github/release/UiPath/uipathcli?style=flat-square)](https://github.com/UiPath/uipathcli/releases)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](https://github.com/UiPath/uipathcli/blob/main/LICENSE)
+[![Documentation](https://img.shields.io/badge/Documentation-146e22?style=flat-square&logo=gitbook&logoColor=white)](https://uipath.github.io/uipathcli/)
+
 # UiPath OpenAPI Command-Line-Interface (preview)
 
 The UiPath OpenAPI CLI project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
@@ -166,7 +170,6 @@ Response:
       "Name": "Administrators",
       "Type": "DirectoryGroup",
       "UserName": "administrators"
-      ...
     }
   ]
 }
@@ -404,8 +407,7 @@ uipath orchestrator users get --query "value[?Name == 'Administrator'] | [0]"
 {
   "Id": 123456,
   "CreationTime": "2023-01-27T10:45:24.763Z",
-  "Name": "Administrator",
-  ...
+  "Name": "Administrator"
 }
 ```
 
