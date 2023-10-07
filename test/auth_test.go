@@ -67,6 +67,8 @@ profiles:
     auth:
       clientId: success-client-id
       clientSecret: success-client-secret
+      properties:
+        custom: myvalue
 `
 	definition := `
 paths:

@@ -1013,6 +1013,35 @@ paths:
 	}
 }
 
+func TestPostFormRequestWithLargeFile(t *testing.T) {
+	definition := `
+paths:
+  /validate:
+    post:
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The file to upload
+`
+	context := NewContextBuilder().
+		WithResponse(200, "{}").
+		WithDefinition("myservice", definition).
+		Build()
+
+	path := createFile(t)
+	writeFile(t, path, make([]byte, 10*1024*1024))
+	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
+
+	if len(result.RequestBody) < 10*1024*1024 {
+		t.Errorf("Request body does not contain large file, got only %v bytes", len(result.RequestBody))
+	}
+}
+
 func TestPostRequestWithDefaultValueWhenRequired(t *testing.T) {
 	definition := `
 paths:
