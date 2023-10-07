@@ -184,17 +184,7 @@ func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string, p
 }
 
 func (c DigitizeCommand) createDigitizeStatusRequest(documentId string, context plugin.ExecutionContext) (*http.Request, error) {
-	if context.Organization == "" {
-		return nil, errors.New("Organization is not set")
-	}
-	if context.Tenant == "" {
-		return nil, errors.New("Tenant is not set")
-	}
 	projectId, _ := c.getParameter("project-id", context.Parameters)
-	if projectId == "" {
-		return nil, errors.New("ProjectId is not set")
-	}
-
 	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant, projectId) + fmt.Sprintf("/digitization/result/%s?api-version=1", documentId)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
 	if err != nil {

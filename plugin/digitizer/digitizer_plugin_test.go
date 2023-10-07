@@ -97,6 +97,26 @@ paths:
 	}
 }
 
+func TestDigitizeWithoutTenantShowsValidationError(t *testing.T) {
+	definition := `
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithCommandPlugin(DigitizeCommand{}).
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--organization", "myorg", "--project-id", "1234", "--file", "hello-world"}, context)
+
+	if !strings.Contains(result.StdErr, "Tenant is not set") {
+		t.Errorf("Expected stderr to show that tenant parameter is missing, but got: %v", result.StdErr)
+	}
+}
+
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
 	path := createFile(t)
 	writeFile(path, []byte("hello-world"))
@@ -119,6 +139,38 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(DigitizeCommand{}).
 		WithResponse(400, "validation error").
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
+
+	if !strings.Contains(result.StdErr, "Digitizer returned status code '400' and body 'validation error'") {
+		t.Errorf("Expected stderr to show that digitizer call failed, but got: %v", result.StdErr)
+	}
+}
+
+func TestDigitizeWithFailedResultResponseReturnsError(t *testing.T) {
+	path := createFile(t)
+	writeFile(path, []byte("hello-world"))
+
+	config := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+`
+
+	definition := `
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithConfig(config).
+		WithCommandPlugin(DigitizeCommand{}).
+		WithResponse(202, `{"documentId":"04908673-2b65-4647-8ab3-dde8a3aa7885"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/04908673-2b65-4647-8ab3-dde8a3aa7885?api-version=1", 400, `validation error`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
@@ -242,6 +294,52 @@ paths:
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--content-type", "application/pdf", "--file", "-"}, context)
+
+	expectedResult := `{
+  "status": "Done"
+}
+`
+	if result.StdOut != expectedResult {
+		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
+	}
+}
+
+func TestDigitizeLargeFileSuccessfully(t *testing.T) {
+	path := createFile(t)
+	writeFile(path, make([]byte, 10*1024*1024))
+
+	config := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+`
+
+	definition := `
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithConfig(config).
+		WithCommandPlugin(DigitizeCommand{}).
+		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
 
 	expectedResult := `{
   "status": "Done"
