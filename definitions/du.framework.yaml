@@ -297,13 +297,13 @@ paths:
           content:
             text/plain:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsResponse'
             application/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsResponse'
             text/json:
               schema:
-                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetProjectsResponse'
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsResponse'
         "401":
           description: Unauthorized
           content:
@@ -702,6 +702,18 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorDetailsResponse'
+        "400":
+          description: Bad Request
+          content:
+            text/plain:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+            text/json:
+              schema:
+                $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         "401":
           description: Unauthorized
           content:
@@ -2867,6 +2879,30 @@ components:
           format: uri
           nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ExtractorField:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        section:
+          type: string
+          nullable: true
+        isMultiValue:
+          type: boolean
+        color:
+          type: string
+          nullable: true
+        hotkey:
+          type: string
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsDocumentTypeResponse:
       type: object
       properties:
@@ -2918,6 +2954,34 @@ components:
           nullable: true
           readOnly: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        numberOfDocuments:
+          type: integer
+          format: int32
+          nullable: true
+        numberOfPages:
+          type: integer
+          format: int32
+          nullable: true
+        classifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+          nullable: true
+        extractors:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypesResponse:
       type: object
       properties:
@@ -2958,6 +3022,11 @@ components:
         asyncUrl:
           type: string
           format: uri
+          nullable: true
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ExtractorField'
           nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse:
@@ -3299,6 +3368,7 @@ components:
       enum:
         - FormsAi
         - SemiStructuredAi
+        - Helix
         - Unknown
       type: string
     UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse:
@@ -3331,6 +3401,16 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ClassificationPrompt:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        description:
+          type: string
           nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel:
