@@ -1,17 +1,18 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: 23.9.6-release.20
+  version: 3.0.3
+  x-uipath-version: 3.0.3
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
-  /api/AuditQuery/{organizationId}:
+  /api/AuditQuery/{partitionGlobalId}:
     get:
       tags:
         - AuditQuery
       operationId: AuditQuery_GetAuditEvents
       parameters:
-        - name: organizationId
+        - name: partitionGlobalId
           in: path
           required: true
           schema:
@@ -50,13 +51,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditQueryRecordDtoPagedResult'
-  /api/AuditQuery/{organizationId}/download:
+  /api/AuditQuery/{partitionGlobalId}/download:
     get:
       tags:
         - AuditQuery
       operationId: AuditQuery_DownloadAuditEvents
       parameters:
-        - name: organizationId
+        - name: partitionGlobalId
           in: path
           required: true
           schema:
@@ -223,7 +224,7 @@ paths:
       tags:
         - MessageTemplate
       summary: Get a message template by Id.
-      operationId: MessageTemplate_GetTemplate
+      operationId: MessageTemplate_GetTemplate_By_Id
       parameters:
         - name: templateId
           in: path
@@ -492,7 +493,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SCIMGroupFilteredResponse'
-  /scim/groups/{groupID}:
+  /scim/groups/{groupId}:
     get:
       tags:
         - ScimGroups
@@ -518,7 +519,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SCIMGroupDTO'
-  /scim/groups/{groupId}:
     delete:
       tags:
         - ScimGroups
@@ -2049,9 +2049,9 @@ components:
         modelAsString: false
   securitySchemes:
     Bearer:
-      type: apiKey
+      type: http
       description: 'JWT Authorization header using the Bearer scheme. Example: "Bearer {token}"'
-      name: Authorization
-      in: header
+      scheme: bearer
+      bearerFormat: JWT
 security:
   - Bearer: []

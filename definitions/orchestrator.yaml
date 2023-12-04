@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: UiPath.WebApi 16.0
+  title: UiPath.WebApi 17.0
   description: Orchestrator API
-  version: "16.0"
+  version: "17.0"
 servers:
   - url: https://cloud.uipath.com/{organization}/{tenant}/orchestrator_
     description: The production url
@@ -134,6 +134,60 @@ paths:
                   $ref: '#/components/schemas/DirectoryObjectDto'
       security:
         - OAuth2: []
+  /api/Folders/DeleteByKey:
+    delete:
+      tags:
+        - Folders
+      summary: "Deletes a folder. Succeeds only if no entities or user associations\r\nexist in this folder or any of its descendants."
+      description: |-
+        OAuth required scopes: OR.Folders or OR.Folders.Write.
+
+        Required permissions: (Units.Delete or SubFolders.Delete - Deletes any folder or only if user has SubFolders.Delete permission on the provided folder).
+      operationId: Folders_DeleteByKey
+      parameters:
+        - name: key
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Deleted
+          content: {}
+      security:
+        - OAuth2: []
+  /api/Folders/PatchNameDescription:
+    patch:
+      tags:
+        - Folders
+      summary: Edits a folder.
+      description: |-
+        OAuth required scopes: OR.Folders or OR.Folders.Write.
+
+        Required permissions: (Units.Edit or SubFolders.Edit - Edits any folder or edits only if user has SubFolders.Edit permission on the provided folder).
+      operationId: Folders_PatchNameDescription
+      parameters:
+        - name: key
+          in: query
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FolderUpdateNameDescriptionRequest'
+        required: false
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FolderDto'
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
   /api/FoldersNavigation/GetAllFoldersForCurrentUser:
     get:
       tags:
@@ -197,6 +251,10 @@ paths:
           schema:
             type: integer
             format: int32
+        - name: searchText
+          in: query
+          schema:
+            type: string
       responses:
         "200":
           description: Success
@@ -539,6 +597,27 @@ paths:
               schema:
                 type: string
                 format: uuid
+      security:
+        - OAuth2: []
+  /api/Releases/DeleteByKey:
+    delete:
+      tags:
+        - Releases
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Write.
+
+        Required permissions: (Processes.Delete).
+      operationId: Releases_DeleteByKey
+      parameters:
+        - name: key
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: No Content
+          content: {}
       security:
         - OAuth2: []
   /api/Stats/GetConsumptionLicenseStats:
@@ -6420,6 +6499,10 @@ paths:
           x-ms-enum:
             name: DirectoryObjectType
             modelAsString: false
+        - name: searchText
+          in: query
+          schema:
+            type: string
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -7025,6 +7108,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file:
                   type: string
@@ -7539,6 +7623,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file:
                   type: string
@@ -8522,11 +8607,11 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
-          description: Package deleted
-          content: {}
         "204":
           description: Deleted
+          content: {}
+        "200":
+          description: Package deleted
           content: {}
         "400":
           description: Bad Request
@@ -8679,6 +8764,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file1:
                   type: string
@@ -9775,11 +9861,11 @@ paths:
               $ref: '#/components/schemas/SetUsersRequest'
         required: false
       responses:
-        "200":
-          description: Success
-          content: {}
         "204":
           description: Nothing returned
+          content: {}
+        "200":
+          description: Success
           content: {}
       deprecated: true
       security:
@@ -10243,11 +10329,11 @@ paths:
             type: string
             format: uuid
       responses:
-        "200":
-          description: Package deleted
-          content: {}
         "204":
           description: Deleted
+          content: {}
+        "200":
+          description: Package deleted
           content: {}
       security:
         - OAuth2: []
@@ -10494,6 +10580,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file1:
                   type: string
@@ -11011,14 +11098,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfBoolean'
-        "207":
-          description: Success
-          content:
-            application/json:
-              schema:
-                type: object
-                additionalProperties:
-                  $ref: '#/components/schemas/ErrorResult'
         "400":
           description: Bad Request
           content:
@@ -11031,6 +11110,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResult'
+        "207":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  $ref: '#/components/schemas/ErrorResult'
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -13788,7 +13875,7 @@ paths:
           application/*+json:
             schema:
               $ref: '#/components/schemas/BulkAddQueueItemsRequest'
-        required: true
+        required: false
       responses:
         "200":
           description: Success
@@ -14672,6 +14759,80 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfInt64'
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /odata/Releases/UiPath.Server.Configuration.OData.UpdateByKey:
+    post:
+      tags:
+        - Releases
+      summary: Updates the package entry point for the given release.
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Write.
+
+        Required permissions: Processes.Edit.
+      operationId: Releases_UpdateByKey
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-name: folder-id
+          required: true
+      requestBody:
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/ReleasesUpdateByKeyRequest'
+        required: false
+      responses:
+        "200":
+          description: Success
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -17314,6 +17475,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file:
                   type: string
@@ -18179,6 +18341,7 @@ paths:
             schema:
               required:
                 - file
+              type: object
               properties:
                 file:
                   type: string
@@ -18470,11 +18633,11 @@ paths:
         "204":
           description: Successfully deleted task catalog.
           content: {}
-        "400":
-          description: Bad Request
-          content: {}
         "409":
           description: Catalog have associated tasks.
+          content: {}
+        "400":
+          description: Bad Request
           content: {}
       security:
         - OAuth2: []
@@ -19145,6 +19308,46 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
+  /odata/TaskDefinitions/UiPath.Server.Configuration.OData.GetTaskDefinitionVersions(id={id}):
+    get:
+      tags:
+        - TaskDefinitions
+      summary: Get all versions of Task Definition.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Required permissions: ActionDesign.View.
+      operationId: TaskDefinitions_GetTaskDefinitionVersionsById
+      parameters:
+        - name: id
+          in: path
+          description: Id of the Task Definition
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDefintionVersionDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
   /odata/TaskNotes/UiPath.Server.Configuration.OData.CreateTaskNote:
     post:
       tags:
@@ -21804,67 +22007,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/UserLoginAttempts({key}):
-    get:
-      tags:
-        - UserLoginAttempts
-      summary: Gets the user's login attempts
-      description: "OAuth required scopes: OR.Users or OR.Users.Read.\n\nRequires authentication.\nDEPRECATED: \nThis API is deprecated. Since we switched to access token authentication, user login attempts are no longer saved in Orchestrator. Only use it to retrieve historical data.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
-      operationId: UserLoginAttempts_GetById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfIEnumerableOfUserLoginAttemptDto'
-      deprecated: true
-      security:
-        - OAuth2: []
   /odata/Users:
     get:
       tags:
@@ -23759,6 +23901,100 @@ components:
           items:
             type: string
             format: uuid
+    AlertsSubscribedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        UserKey:
+          type: string
+          format: uuid
+        NotificationNames:
+          type: array
+          items:
+            type: string
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: alert.subscribed
+    AlertsUnsubscribedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        UserKey:
+          type: string
+          format: uuid
+        NotificationNames:
+          type: array
+          items:
+            type: string
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: alert.unsubscribed
     AppTasksCreateRequest:
       required:
         - appId
@@ -23835,6 +24071,9 @@ components:
       properties:
         appTasksMetadata:
           $ref: '#/components/schemas/AppTasksMetadataDto'
+        actionLabel:
+          type: string
+          description: App Task action label
         status:
           type: string
           description: Task status
@@ -24578,6 +24817,7 @@ components:
             - RemoteControl
             - TaskSolutions
             - TaskDefinitions
+            - HttpTriggers
             - TestSets
             - TestSetSchedules
             - TestDataQueues
@@ -24734,6 +24974,50 @@ components:
           type: boolean
         Id:
           type: string
+    BucketCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    BucketDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     BucketDto:
       required:
         - Identifier
@@ -24815,6 +25099,30 @@ components:
           items:
             type: integer
             format: int64
+    BucketUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     BuildTestSetRequestMessage:
       required:
         - releaseId
@@ -25079,6 +25387,20 @@ components:
           minLength: 1
           type: string
     CloudTemplateDto:
+      properties:
+        externalPoolKey:
+          type: string
+          description: The external pool associated with the machine.
+          format: uuid
+        hosting:
+          type: string
+          description: The Hosting type of the spec
+          enum:
+            - Customer
+            - System
+          x-ms-enum:
+            name: CloudTemplateDtoHosting
+            modelAsString: false
       description: The cloud template that hosts the Robot
       allOf:
         - $ref: '#/components/schemas/MachineDto'
@@ -25683,6 +26005,9 @@ components:
           items:
             type: string
             format: date-time
+        Key:
+          type: string
+          format: uuid
         Id:
           type: integer
           format: int64
@@ -25774,6 +26099,9 @@ components:
           type: integer
           format: int64
     ExtendedMachineDto:
+      properties:
+        UpdateInfo:
+          $ref: '#/components/schemas/UpdateInfoDto'
       allOf:
         - $ref: '#/components/schemas/MachineDto'
     ExtendedRobotDto:
@@ -26029,6 +26357,7 @@ components:
             - InvalidJobKey
             - MachineSessionNotFound
             - EnvironmentDeploymentConflict
+            - UnattendedRobotCredentialsNotFound
             - ServerConflict
             - ActionAlreadyPerformed
             - UnavailableResources
@@ -26088,6 +26417,7 @@ components:
             - MachineHasAttachedTriggers
             - InvalidTimeZoneId
             - DisabledDueToConsecutiveJobFailures
+            - ScheduleJobsNotCreated
             - DownloadUnavailable
             - CannotConnectToPackagesRepository
             - NotSupportedByExternalFeeds
@@ -26155,6 +26485,10 @@ components:
             - QueueSlaPredictedBreach
             - QueueItemContentSizeExceeded
             - QueueItemInvalidTransitionFromFinalStatus
+            - QueueItemInvalidStatusForRetry
+            - QueueItemOutputDataSizeExceeded
+            - QueueItemAnalyticsDataSizeExceeded
+            - QueueProcessingExceptionFieldSizeExceeded
             - LicenseNotFound
             - LicenseExpired
             - LicenseAlreadyInUse
@@ -26217,6 +26551,7 @@ components:
             - CannotDeleteNonEmptyCredentialStore
             - FailedToDeleteFromCredentialStore
             - InvalidCredentialStoreType
+            - NotAllowedByLicensePlanToRetriveCredentialsFromDisconnectedOCP
             - TaskAssignmentError
             - TaskCompletionError
             - TaskAssigneeMismatchError
@@ -26467,17 +26802,24 @@ components:
             - FolderKeyRequired
             - SolutionsCannotInstallInClassicFolder
             - SolutionsCannotInstallInSolutionFolder
-            - SolutionIsNotInstallAtPath
+            - SolutionIsNotInstalledAtPath
             - SolutionFolderNotFound
             - SolutionFolderHasJobsNotInFinalState
             - SolutionFileNotFound
             - SolutionPackageUrlIsInvalid
+            - SolutionInstallationFolderNotFound
+            - SolutionPackageNotInScope
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
             - JobFaulted
             - JobStopped
             - JobUnknownFinalStatus
+            - TriggerBadRequest
+            - MaxTriggersLimitReached
+            - CallbackNotEnabledForTrigger
+            - CallbackIsRequired
+            - CalendarNotFound
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -26692,6 +27034,13 @@ components:
             type: integer
             format: int32
       description: Association between a folder and a set of roles.
+    FolderUpdateNameDescriptionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
     FolderUpdatedEvent:
       type: object
       properties:
@@ -26980,7 +27329,7 @@ components:
             name: JobDtoJobPriority
             modelAsString: false
         SpecificPriorityValue:
-          maximum: 1E+2
+          maximum: 100
           minimum: 1
           type: integer
           description: Value for more granular control over execution priority.
@@ -27009,6 +27358,11 @@ components:
             - AutomationOpsPipelines
             - Apps
             - SAP
+            - HttpTrigger
+            - HttpTriggerCallback
+            - RobotAPI
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -27051,10 +27405,12 @@ components:
           description: The name of the machine where the Robot run the job.
         HasMediaRecorded:
           type: boolean
-          description: True if any execution media has been recorded for this job, false otherwise.
+          description: DEPRECATED. True if any execution media has been recorded for this job, false otherwise.
+          x-deprecated: true
         HasVideoRecorded:
           type: boolean
-          description: True if any execution video has been recorded for this job, false otherwise.
+          description: DEPRECATED. True if any execution video has been recorded for this job, false otherwise.
+          x-deprecated: true
         PersistenceId:
           type: string
           description: The persistence instance id for a suspended job
@@ -27147,6 +27503,10 @@ components:
           x-ms-enum:
             name: JobDtoRemoteControlAccess
             modelAsString: false
+        StartingTriggerId:
+          type: string
+          description: Starting Trigger Id. Can be ApiTriggerId or HttpTriggerId.
+          format: uuid
         MaxExpectedRunningTimeSeconds:
           type: integer
           description: Expected running time in seconds
@@ -27160,6 +27520,12 @@ components:
           x-ms-enum:
             name: JobDtoServerlessJobType
             modelAsString: false
+        ResumeTime:
+          type: string
+          format: date-time
+        LastModificationTime:
+          type: string
+          format: date-time
         Id:
           type: integer
           format: int64
@@ -28278,6 +28644,19 @@ components:
           format: int64
       description: The Machine that hosts the Robot
     MachineFolderDto:
+      properties:
+        IsAssignedToFolder:
+          type: boolean
+        HasMachineRobots:
+          type: boolean
+        IsInherited:
+          type: boolean
+        PropagateToSubFolders:
+          type: boolean
+        InheritedFromFolderName:
+          type: string
+        UpdateInfo:
+          $ref: '#/components/schemas/UpdateInfoDto'
       allOf:
         - $ref: '#/components/schemas/MachineDto'
     MachineRobotDto:
@@ -29213,13 +29592,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UserDto'
-    ODataValueOfIEnumerableOfUserLoginAttemptDto:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserLoginAttemptDto'
     ODataValueOfIEnumerableOfUserLoginInfoDto:
       type: object
       properties:
@@ -29617,7 +29989,7 @@ components:
             name: ProcessScheduleDtoJobPriority
             modelAsString: false
         SpecificPriorityValue:
-          maximum: 1E+2
+          maximum: 100
           minimum: 1
           type: integer
           description: Value for more granular control over execution priority.
@@ -29710,6 +30082,9 @@ components:
         CalendarName:
           type: string
           description: The name of the calendar.
+        CalendarKey:
+          type: string
+          format: uuid
         StopProcessDate:
           type: string
           format: date-time
@@ -29728,19 +30103,19 @@ components:
           type: boolean
           description: Flag for activating the queue trigger on each completed job.
         ItemsActivationThreshold:
-          maximum: 1E+4
+          maximum: 10000
           minimum: 1
           type: integer
           description: The minimum number of queue items that should trigger the process activation.
           format: int64
         ItemsPerJobActivationTarget:
-          maximum: 1E+4
+          maximum: 10000
           minimum: 1
           type: integer
           description: The target ratio between the number of queue items and the Total number of jobs created by a process.
           format: int64
         MaxJobsForActivation:
-          maximum: 1E+4
+          maximum: 10000
           minimum: 1
           type: integer
           description: The maximum number of jobs that a process can create as result of a Queue driven activation.
@@ -29768,12 +30143,12 @@ components:
         RunAsMe:
           type: boolean
         ConsecutiveJobFailuresThreshold:
-          maximum: 1E+2
+          maximum: 100
           minimum: 0
           type: integer
           format: int32
         JobFailuresGracePeriodInHours:
-          maximum: 7.2E+2
+          maximum: 720
           minimum: 0
           type: integer
           format: int32
@@ -29896,6 +30271,30 @@ components:
           description: Time when the exception occurred
           format: date-time
       description: Stores information about exceptions thrown while processing failed queue items.
+    QueueCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     QueueCreatedEventDto:
       required:
         - EventId
@@ -29952,13 +30351,18 @@ components:
           description: A unique identifier associated to each queue.
           format: uuid
         Name:
-          minLength: 1
+          maxLength: 50
+          minLength: 0
           type: string
           description: A custom name for the queue.
         Description:
+          maxLength: 250
+          minLength: 0
           type: string
           description: Used to add additional information about a queue in order to better identify it.
         MaxNumberOfRetries:
+          maximum: 50
+          minimum: 0
           type: integer
           description: An integer value representing the number of times an item of this queue can be retried if its processing fails with application exception and auto retry is on.
           format: int32
@@ -30071,6 +30475,26 @@ components:
           format: int32
           readOnly: true
       description: The definition of a work queue. A work queue contains work items that are processed by robots.
+    QueueDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     QueueDeletedEventDto:
       required:
         - EventId
@@ -30373,7 +30797,7 @@ components:
           $ref: '#/components/schemas/SimpleUserDto'
         Key:
           type: string
-          description: The unique identifier of a queue item.
+          description: The Key of a queue item. In a retry-chain, all retries will inherit the initial queue item's Key.
           format: uuid
         Reference:
           maxLength: 128
@@ -30427,15 +30851,36 @@ components:
           format: int32
         AncestorId:
           type: integer
-          description: The Id of an ancestor item connected to the current item.
+          description: The Id of the item being Automatically retried.
           format: int64
+        AncestorUniqueKey:
+          type: string
+          description: The Unique Key of the item being Automatically retried.
+          format: uuid
         RetryNumber:
           type: integer
           description: "The number of times this work item has been processed.\r\n<para />This can be higher than 0 only if MaxRetried number is set and the item processing failed at least once with ApplicationException."
           format: int32
+        ManualAncestorId:
+          type: integer
+          description: The Id of the item being Manually retried.
+          format: int64
+        ManualAncestorUniqueKey:
+          type: string
+          description: The Unique Key of the item being Manually retried.
+          format: uuid
+        ManualRetryNumber:
+          type: integer
+          description: The number of times this work item has been Manually retried.
+          format: int32
+        UniqueKey:
+          type: string
+          description: The Unique Key of the item.
+          format: uuid
         HasVideoRecorded:
           type: boolean
-          description: True if any execution video has been recorded for this queue item, false otherwise.
+          description: DEPRECATED. True if any execution video has been recorded for this queue item, false otherwise.
+          x-deprecated: true
         SpecificData:
           type: string
           description: A JSON representation of the specific content.
@@ -30586,7 +31031,7 @@ components:
           readOnly: true
         Key:
           type: string
-          description: The unique identifier of a queue item.
+          description: The Key of a queue item. In a retry-chain, all retries will inherit the initial queue item's Key.
           format: uuid
           readOnly: true
         Reference:
@@ -30668,10 +31113,20 @@ components:
           description: The id for the job that created the queue item
           format: int64
           readOnly: true
+        CreatorJobKey:
+          type: string
+          description: The unique identifier for the job that created the queue item
+          format: uuid
+          readOnly: true
         ExecutorJobId:
           type: integer
           description: The id for the job that processed the queue item
           format: int64
+          readOnly: true
+        ExecutorJobKey:
+          type: string
+          description: The unique identifier for the job that processed the queue item
+          format: uuid
           readOnly: true
         CreatorUserId:
           type: integer
@@ -30690,13 +31145,38 @@ components:
           readOnly: true
         AncestorId:
           type: integer
-          description: The Id of an ancestor item connected to the current item.
+          description: The Id of the item being Automatically retried.
           format: int64
+          readOnly: true
+        AncestorUniqueKey:
+          type: string
+          description: The Unique Key of the item being Automatically retried.
+          format: uuid
           readOnly: true
         RetryNumber:
           type: integer
           description: "The number of times this work item has been processed.\r\n<para />This can be higher than 0 only if MaxRetried number is set and the item processing failed at least once with ApplicationException."
           format: int32
+          readOnly: true
+        ManualAncestorId:
+          type: integer
+          description: The Id of the item being Manually retried.
+          format: int64
+          readOnly: true
+        ManualAncestorUniqueKey:
+          type: string
+          description: The Unique Key of the item being Manually retried.
+          format: uuid
+          readOnly: true
+        ManualRetryNumber:
+          type: integer
+          description: The number of times this work item has been Manually retried.
+          format: int32
+          readOnly: true
+        UniqueKey:
+          type: string
+          description: The Unique Key of the item
+          format: uuid
           readOnly: true
         Progress:
           type: string
@@ -31059,6 +31539,33 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LongVersionedEntity'
+    QueueUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        retentionBucketId:
+          type: integer
+          format: int64
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     QueueUpdatedEventDto:
       required:
         - EventId
@@ -31356,7 +31863,7 @@ components:
             name: ReleaseDtoJobPriority
             modelAsString: false
         SpecificPriorityValue:
-          maximum: 1E+2
+          maximum: 100
           minimum: 1
           type: integer
           description: Value for more granular control over execution priority.
@@ -31509,6 +32016,20 @@ components:
           type: integer
           format: int64
       description: "Stores data about a version of the various versions of the process associated with a certain release.\r\n<para />If a certain version is associated on and off with a release a new ReleaseVersion object is created for each association."
+    ReleasesUpdateByKeyRequest:
+      required:
+        - releaseKey
+      type: object
+      properties:
+        releaseKey:
+          minLength: 1
+          type: string
+        processVersion:
+          type: string
+        entryPointPath:
+          type: string
+        inputArgs:
+          type: string
     ReleasesUpdateToLatestPackageVersionBulkRequest:
       required:
         - releaseIds
@@ -32837,6 +33358,11 @@ components:
             - AutomationOpsPipelines
             - Apps
             - SAP
+            - HttpTrigger
+            - HttpTriggerCallback
+            - RobotAPI
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: SimpleJobEventDtoSourceType
             modelAsString: false
@@ -32983,7 +33509,7 @@ components:
             name: ReleaseDtoJobPriority
             modelAsString: false
         SpecificPriorityValue:
-          maximum: 1E+2
+          maximum: 100
           minimum: 1
           type: integer
           description: Value for more granular control over execution priority.
@@ -33426,7 +33952,8 @@ components:
           description: 'Specifies whether this user is allowed to have an Unattended Robot attached (default: false)'
         BypassBasicAuthRestriction:
           type: boolean
-          description: 'Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: false)'
+          description: 'DEPRECATED. Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: null)'
+          x-deprecated: true
         MayHavePersonalWorkspace:
           type: boolean
           description: Specifies whether this user is allowed to have a Personal Workspace
@@ -33526,7 +34053,7 @@ components:
             type: integer
             format: int64
         timeFrameMinutes:
-          maximum: 4.32E+4
+          maximum: 43200
           minimum: 1
           type: integer
           format: int32
@@ -33594,6 +34121,12 @@ components:
             - AutomationOpsPipelines
             - Apps
             - SAP
+            - HttpTrigger
+            - HttpTriggerWithCallback
+            - RobotAPI
+            - Assistant
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: StartProcessDtoSource
             modelAsString: false
@@ -33608,7 +34141,7 @@ components:
             name: StartProcessDtoJobPriority
             modelAsString: false
         SpecificPriorityValue:
-          maximum: 1E+2
+          maximum: 100
           minimum: 1
           type: integer
           description: Value for more granular control over execution priority.
@@ -33699,6 +34232,9 @@ components:
           type: string
         RunAsMe:
           type: boolean
+        TransactionId:
+          type: string
+          format: uuid
       description: The Start Process transfers information from client to the server during JobsController.StartJobs custom action.
     StopJobRequest:
       required:
@@ -34356,6 +34892,35 @@ components:
         Properties:
           $ref: '#/components/schemas/TaskDefinitionPropertiesRequest'
       description: Task Definition entity for Creating or Updating Task Definition
+    TaskDefintionAssociatedVersionsDto:
+      type: object
+      properties:
+        version:
+          type: integer
+          format: int32
+        creationDate:
+          type: string
+          format: date-time
+        userName:
+          type: string
+    TaskDefintionVersionDto:
+      type: object
+      properties:
+        TaskDefinitionName:
+          type: string
+        TaskDefintionCurrentVersion:
+          type: integer
+          format: int32
+        TaskDefintionCreationDate:
+          type: string
+          format: date-time
+        TaskDefintionUpdationTime:
+          type: string
+          format: date-time
+        TaskDefintionVersions:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDefintionAssociatedVersionsDto'
     TaskDeletedEventDto:
       required:
         - EventId
@@ -34940,17 +35505,20 @@ components:
           description: Specifies if the tenant is active or not.
         AcceptedDomainsList:
           type: array
-          description: Accepted DNS list.
+          description: DEPRECATED. Accepted DNS list.
           items:
             type: string
+          x-deprecated: true
         HasConnectionString:
           type: boolean
-          description: Specifies if the the tenant has a connection string defined
+          description: DEPRECATED. Specifies if the the tenant has a connection string defined
+          x-deprecated: true
         ConnectionString:
           maxLength: 1024
           minLength: 0
           type: string
-          description: DB connection string
+          description: DEPRECATED. DB connection string
+          x-deprecated: true
         License:
           $ref: '#/components/schemas/TenantLicenseDto'
         OrganizationName:
@@ -36172,7 +36740,8 @@ components:
           description: 'Specifies whether this user is allowed to have an Unattended Robot attached (default: false)'
         BypassBasicAuthRestriction:
           type: boolean
-          description: 'Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: false)'
+          description: 'DEPRECATED. Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: null)'
+          x-deprecated: true
         MayHavePersonalWorkspace:
           type: boolean
           description: Specifies whether this user is allowed to have a Personal Workspace
@@ -36225,46 +36794,6 @@ components:
           x-ms-enum:
             name: SimpleUserEntityDtoType
             modelAsString: false
-        Id:
-          type: integer
-          format: int64
-    UserLoginAttemptDto:
-      type: object
-      properties:
-        CreationTime:
-          type: string
-          description: The date and time when the action was performed.
-          format: date-time
-        ClientIpAddress:
-          type: string
-          description: Client IP Address
-        ClientName:
-          type: string
-          description: Client name
-        BrowserInfo:
-          type: string
-          description: Browser Information
-        Result:
-          type: string
-          description: The login's attempt result
-          enum:
-            - Success
-            - InvalidUserNameOrEmailAddress
-            - InvalidPassword
-            - UserIsNotActive
-            - InvalidTenancyName
-            - TenantIsNotActive
-            - UserEmailIsNotConfirmed
-            - UnknownExternalLogin
-            - LockedOut
-            - UserPhoneNumberIsNotConfirmed
-          x-ms-enum:
-            name: UserLoginAttemptDtoResult
-            modelAsString: false
-        UserId:
-          type: integer
-          description: The user that authenticated
-          format: int64
         Id:
           type: integer
           format: int64
@@ -36905,6 +37434,11 @@ components:
             - AutomationOpsPipelines
             - Apps
             - SAP
+            - HttpTrigger
+            - HttpTriggerCallback
+            - RobotAPI
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: WrappedJobDtoSourceType
             modelAsString: false
@@ -37274,6 +37808,12 @@ components:
             - AutomationOpsPipelines
             - Apps
             - SAP
+            - HttpTrigger
+            - HttpTriggerWithCallback
+            - RobotAPI
+            - Assistant
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: WrappedStartProcessDtoSource
             modelAsString: false
@@ -37492,3 +38032,4 @@ components:
             OrchestratorApiUserAccess: Orchestrator API Scope
             ConnectionService: Connection Service Scope
             OMS: Organization Management Scope
+x-original-swagger-version: "2.0"
