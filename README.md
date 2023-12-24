@@ -119,6 +119,8 @@ The CLI supports multiple ways to authorize with the UiPath services:
 
 - **OAuth Login**: Login to UiPath using your browser and SSO of choice. This is the preferred flow when you are using the CLI interactively. No need to manage any credentials.
 
+- **Personal Access Token**: Generate a PAT and configure the CLI to use the access token.
+
 ### Client Credentials
 
 In order to use client credentials, you need to set up an [External Application (Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) and generate an [application secret](https://docs.uipath.com/automation-suite/docs/managing-external-applications#generating-a-new-app-secret):
@@ -219,6 +221,40 @@ Successfully configured uipath CLI
 ```bash
 uipath orchestrator users get
 ```
+
+### Personal Access Token
+
+You need to generate a personal access token (PAT) and configure the CLI to use it:
+
+1. Go to [https://cloud.uipath.com/\<*your-org*\>/portal_/personalAccessToken](https://cloud.uipath.com)
+
+2. Click **+ Generate new token**
+
+3. Fill out the fields:
+* **Name**: *\<token-name\>*
+* **Expiration Date**: Set an expiry date for the token
+* **+ Add Scopes**: Add the permissions you want to grant the PAT
+
+5. Click **Save** and make sure you copy the generated token.
+
+4. Run the interactive CLI configuration:
+
+```bash
+uipath config --auth pat
+```
+
+The CLI will ask you to enter the main config settings like
+- `organization` and `tenant` used by UiPath services which are account-scoped or tenant-scoped
+- `pat` your personal access token
+
+```
+Enter organization [not set]: uipatcleitzc
+Enter tenant [not set]: DefaultTenant
+Enter personal access token [*******26-1]: rt_B637A751...
+Successfully configured uipath CLI
+```
+
+After that the CLI should be ready and you can validate that it is working by invoking one of the services.
 
 ### Configuration File
 
