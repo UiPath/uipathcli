@@ -1056,12 +1056,51 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
       responses:
         "200":
           description: Success
@@ -1182,12 +1221,51 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.ClassificationRequestBody'
+            examples:
+              Specialized Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts: null
+              Generative Classification:
+                value:
+                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
       responses:
         "202":
           description: Accepted
@@ -1391,12 +1469,57 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
       responses:
         "200":
           description: Success
@@ -1529,12 +1652,57 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
+            examples:
+              Specialized Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts: null
+              Generative Extraction:
+                value:
+                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
       responses:
         "202":
           description: Accepted
@@ -1738,12 +1906,237 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+            examples:
+              Specialized Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 1
+                        TextStartIndex: 0
+                        TextLength: 1
+                      ClassifierName: ML Classification
+                  prompts: null
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: Invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      ClassifierName: Generative Classifier
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+            examples:
+              Specialized Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 1
+                        TextStartIndex: 0
+                        TextLength: 1
+                      ClassifierName: ML Classification
+                  prompts: null
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: Invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      ClassifierName: Generative Classifier
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartClassificationValidationTaskRequest'
+            examples:
+              Specialized Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 1
+                        TextStartIndex: 0
+                        TextLength: 1
+                      ClassifierName: ML Classification
+                  prompts: null
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Classification Validation:
+                value:
+                  classificationResults:
+                    - DocumentTypeId: Invoice
+                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      Confidence: 0.0
+                      OcrConfidence: 0.0
+                      Reference:
+                        TextStartIndex: 0
+                        TextLength: 0
+                        Tokens:
+                          - TextStartIndex: 0
+                            TextLength: 0
+                            Page: 0
+                            PageWidth: 0.0
+                            PageHeight: 0.0
+                            Boxes:
+                              - - 0.0
+                                - 0.0
+                                - 0.0
+                                - 0.0
+                      DocumentBounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      ClassifierName: Generative Classifier
+                  prompts:
+                    - name: Invoice
+                      description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
+                    - name: Receipt
+                      description: A written acknowledgment of having received a specified amount of money, goods, or services.
+                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
       responses:
         "202":
           description: Accepted
@@ -1983,12 +2376,1095 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+            examples:
+              Specialized Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts: null
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+            examples:
+              Specialized Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts: null
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest'
+            examples:
+              Specialized Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts: null
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
+              Generative Extraction Validation:
+                value:
+                  extractionResult:
+                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    ResultsVersion: 0
+                    ResultsDocument:
+                      Bounds:
+                        StartPage: 0
+                        PageCount: 0
+                        TextStartIndex: 0
+                        TextLength: 0
+                      Language: string
+                      DocumentGroup: string
+                      DocumentCategory: string
+                      DocumentTypeId: string
+                      DocumentTypeName: string
+                      DocumentTypeDataVersion: 0
+                      DataVersion: 0
+                      DocumentTypeSource: Automatic
+                      DocumentTypeField:
+                        Components:
+                          - FieldId: string
+                            FieldName: string
+                            FieldType: Text
+                            IsMissing: true
+                            DataSource: Automatic
+                            Values: []
+                            DataVersion: 0
+                            OperatorConfirmed: false
+                        Value: string
+                        UnformattedValue: string
+                        Reference:
+                          TextStartIndex: 0
+                          TextLength: 0
+                          Tokens:
+                            - TextStartIndex: 0
+                              TextLength: 0
+                              Page: 0
+                              PageWidth: 0.0
+                              PageHeight: 0.0
+                              Boxes:
+                                - - 0.0
+                                  - 0.0
+                                  - 0.0
+                                  - 0.0
+                        DerivedFields:
+                          - FieldId: string
+                            Value: string
+                        Confidence: 0.0
+                        OperatorConfirmed: true
+                        OcrConfidence: 0.0
+                        TextType: Unknown
+                      Fields:
+                        - FieldId: string
+                          FieldName: string
+                          FieldType: Text
+                          IsMissing: false
+                          DataSource: Automatic
+                          Values:
+                            - Components: []
+                              Value: string
+                              UnformattedValue: ""
+                              Reference: null
+                              DerivedFields: []
+                              Confidence: 0.0
+                              OperatorConfirmed: false
+                              OcrConfidence: 0.0
+                              TextType: Unknown
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                      Tables:
+                        - FieldId: string
+                          FieldName: string
+                          IsMissing: false
+                          DataSource: Automatic
+                          DataVersion: 0
+                          OperatorConfirmed: true
+                          Values:
+                            - OperatorConfirmed: true
+                              Confidence: 0.0
+                              OcrConfidence: 0.0
+                              Cells:
+                                - RowIndex: 0
+                                  ColumnIndex: 0
+                                  IsHeader: true
+                                  IsMissing: false
+                                  OperatorConfirmed: true
+                                  DataSource: Automatic
+                                  DataVersion: 0
+                                  Values:
+                                    - Components:
+                                        - FieldId: string
+                                          FieldName: string
+                                          FieldType: Text
+                                          IsMissing: false
+                                          DataSource: Automatic
+                                          Values:
+                                            - Components: []
+                                              Value: string
+                                              UnformattedValue: ""
+                                              Reference: null
+                                              DerivedFields: []
+                                              Confidence: 0.0
+                                              OperatorConfirmed: false
+                                              OcrConfidence: 0.0
+                                              TextType: Unknown
+                                          DataVersion: 0
+                                          OperatorConfirmed: false
+                                      Value: string
+                                      UnformattedValue: string
+                                      Reference:
+                                        TextStartIndex: 0
+                                        TextLength: 0
+                                        Tokens:
+                                          - TextStartIndex: 0
+                                            TextLength: 0
+                                            Page: 0
+                                            PageWidth: 0.0
+                                            PageHeight: 0.0
+                                            Boxes:
+                                              - - 0.0
+                                                - 0.0
+                                                - 0.0
+                                                - 0.0
+                                      DerivedFields:
+                                        - FieldId: string
+                                          Value: string
+                                      Confidence: 0.0
+                                      OperatorConfirmed: true
+                                      OcrConfidence: 0.0
+                                      TextType: Unknown
+                              ColumnInfo:
+                                - FieldId: string
+                                  FieldName: string
+                                  FieldType: Text
+                              NumberOfRows: 1
+                    ExtractorPayloads:
+                      - Id: string
+                        Payload: string
+                        SavedPayloadId: string
+                    BusinessRulesResults:
+                      - FieldId: string
+                        FieldType: Text
+                        Criticality: Must
+                        IsValid: true
+                        Results:
+                          - Value:
+                              Value: string
+                            IsValid: true
+                            Rules:
+                              - Rule:
+                                  Name: string
+                                  Type: Mandatory
+                                  LogicalOperator: AND
+                                  ComparisonOperator: Equals
+                                  Expression: string
+                                  SetValues:
+                                    - string
+                                IsValid: false
+                        BrokenRules:
+                          - Name: string
+                            Type: Mandatory
+                            LogicalOperator: AND
+                            ComparisonOperator: Equals
+                            Expression: string
+                            SetValues:
+                              - string
+                        RowIndex: 0
+                        TableFieldId: string
+                  prompts:
+                    - id: Invoice Number
+                      question: Extract the invoice number from the provided document.
+                    - id: Date
+                      question: What is the invoice date mentioned in the document?
+                    - id: Total
+                      question: Extract the total amount from the invoice.
+                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  actionTitle: Title of the action in action center
+                  actionPriority: Low
+                  actionCatalog: default_du_actions
+                  actionFolder: Shared
+                  storageBucketName: du_storage_bucket
+                  storageBucketDirectoryPath: du_storage_bucket
       responses:
         "202":
           description: Accepted
@@ -2686,13 +4162,13 @@ components:
         - Expression
         - TableExpression
       type: string
-    UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus:
+    UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus:
       enum:
         - Unassigned
         - Pending
         - Completed
       type: string
-    UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority:
+    UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.CreateTaskPriority:
       enum:
         - Low
         - Medium
@@ -2707,6 +4183,11 @@ components:
           description: Id of the document obtained from the Digitization operation.
           format: uuid
           example: ID of the document obtained from the Digitization operation.
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ClassificationPrompt'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Classification.StartClassificationResponse:
       type: object
@@ -3133,6 +4614,11 @@ components:
           description: Id of the document obtained from the Digitization operation.
           format: uuid
           example: ID of the document obtained from the Digitization operation.
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ExtractionPrompt'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult:
       type: object
@@ -3193,7 +4679,7 @@ components:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel'
         validatedClassificationResults:
@@ -3207,7 +4693,7 @@ components:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.ActionStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentExtractionActionDataModel'
         validatedExtractionResults:
@@ -3282,7 +4768,7 @@ components:
           nullable: true
           example: Title of the action in action center
         actionPriority:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.CreateTaskPriority'
         actionCatalog:
           type: string
           description: The name of the catalog in which the action is created.
@@ -3309,6 +4795,11 @@ components:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
           description: The Classification Result that requires validation
           nullable: true
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ClassificationPrompt'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartExtractionValidationTaskRequest:
       type: object
@@ -3325,7 +4816,7 @@ components:
           nullable: true
           example: Title of the action in action center
         actionPriority:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.OrchestratorClient.Model.CreateTaskPriority'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.CreateTaskPriority'
         actionCatalog:
           type: string
           description: The name of the catalog in which the action is created.
@@ -3348,6 +4839,11 @@ components:
           example: du_storage_bucket
         extractionResult:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+        prompts:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ExtractionPrompt'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.StartValidationTaskResponse:
       type: object
@@ -3410,6 +4906,16 @@ components:
           type: string
           nullable: true
         description:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ExtractionPrompt:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        question:
           type: string
           nullable: true
       additionalProperties: false
