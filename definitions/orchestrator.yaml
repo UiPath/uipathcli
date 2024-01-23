@@ -1851,24 +1851,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfAlertDto'
       security:
         - OAuth2: []
-  /odata/Alerts/UiPath.Server.Configuration.OData.ExpandCurrentUserGroupAlerts:
-    post:
-      tags:
-        - Alerts
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.
-
-        Required permissions: Alerts.View.
-      operationId: Alerts_ExpandCurrentUserGroupAlerts
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "204":
-          description: No Content
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Alerts/UiPath.Server.Configuration.OData.GetUnreadCount:
     get:
       tags:
@@ -3064,90 +3046,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfAuditLogEntityDto'
-      security:
-        - OAuth2: []
-  /odata/AuditLogs/UiPath.Server.Configuration.OData.Reports:
-    get:
-      tags:
-        - AuditLogs
-      summary: Returns a CSV containing the filtered audit.
-      description: "OAuth required scopes: OR.Audit or OR.Audit.Read.\n\nRequired permissions: Audit.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
-      operationId: AuditLogs_Reports
-      parameters:
-        - name: x-UIPATH-AuditedService
-          in: header
-          schema:
-            type: string
-            default: Orchestrator
-            enum:
-              - Orchestrator
-              - TestAutomation
-            x-ms-enum:
-              name: AuditedService
-              modelAsString: false
-          x-ms-enum:
-            name: AuditedService
-            modelAsString: false
-        - name: x-UIPATH-AuditedService
-          in: query
-          schema:
-            type: string
-            default: Orchestrator
-            enum:
-              - Orchestrator
-              - TestAutomation
-            x-ms-enum:
-              name: AuditedService
-              modelAsString: false
-          x-ms-enum:
-            name: AuditedService
-            modelAsString: false
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: Success
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      deprecated: true
       security:
         - OAuth2: []
   /odata/Buckets:
@@ -8832,8 +8730,8 @@ paths:
               - StudioX
               - CitizenDeveloper
               - Headless
-              - RpaDeveloperPro
               - StudioPro
+              - RpaDeveloperPro
               - TestAutomation
               - AutomationCloud
               - Serverless
@@ -8990,8 +8888,8 @@ paths:
               - StudioX
               - CitizenDeveloper
               - Headless
-              - RpaDeveloperPro
               - StudioPro
+              - RpaDeveloperPro
               - TestAutomation
               - AutomationCloud
               - Serverless
@@ -11621,77 +11519,6 @@ paths:
               schema:
                 type: string
                 format: binary
-      security:
-        - OAuth2: []
-  /odata/QueueDefinitions({key})/UiPathODataSvc.Reports:
-    get:
-      tags:
-        - QueueDefinitions
-      summary: Returns an Excel file containing all the items in the given queue.
-      description: "OAuth required scopes: OR.Queues or OR.Queues.Read.\n\nRequired permissions: Queues.View and Transactions.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
-      operationId: QueueDefinitions_ReportsById
-      parameters:
-        - name: key
-          in: path
-          description: Given queue's Id.
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-        - name: X-UIPATH-OrganizationUnitId
-          in: header
-          description: Folder/OrganizationUnit Id
-          schema:
-            type: integer
-            format: int64
-          x-name: folder-id
-          required: true
-      responses:
-        "200":
-          description: Success
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      deprecated: true
       security:
         - OAuth2: []
   /odata/QueueDefinitions/UiPath.Server.Configuration.OData.GetFoldersForQueue(id={id}):
@@ -15115,74 +14942,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfInt64'
       security:
         - OAuth2: []
-  /odata/RobotLogs/UiPath.Server.Configuration.OData.Reports:
-    get:
-      tags:
-        - RobotLogs
-      summary: Reports.
-      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.\n\nRequired permissions: Logs.View.\nDEPRECATED: \nPlease user other means to retrieve such reports: https://docs.uipath.com/orchestrator/automation-cloud/latest/release-notes/release-notes-june-2023#deprecation-of-reports-endpoints. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
-      operationId: RobotLogs_Reports
-      parameters:
-        - name: fileNameSubject
-          in: query
-          schema:
-            type: string
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-        - name: X-UIPATH-OrganizationUnitId
-          in: header
-          description: Folder/OrganizationUnit Id
-          schema:
-            type: integer
-            format: int64
-          x-name: folder-id
-          required: true
-      responses:
-        "200":
-          description: Success
-          content:
-            application/octet-stream:
-              schema:
-                type: string
-                format: binary
-      deprecated: true
-      security:
-        - OAuth2: []
   /odata/Robots:
     get:
       tags:
@@ -16957,8 +16716,8 @@ paths:
               - StudioX
               - CitizenDeveloper
               - Headless
-              - RpaDeveloperPro
               - StudioPro
+              - RpaDeveloperPro
               - TestAutomation
               - AutomationCloud
               - Serverless
@@ -17054,8 +16813,8 @@ paths:
               - StudioX
               - CitizenDeveloper
               - Headless
-              - RpaDeveloperPro
               - StudioPro
+              - RpaDeveloperPro
               - TestAutomation
               - AutomationCloud
               - Serverless
@@ -19152,6 +18911,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TaskDefinitionDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+    delete:
+      tags:
+        - TaskDefinitions
+      summary: Deletes Task Defintion/Version.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Write.
+
+        Required permissions: ActionDesign.Delete.
+      operationId: TaskDefinitions_DeleteById
+      parameters:
+        - name: key
+          in: path
+          description: Id of the task definition to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: taskDefinitionVersion
+          in: query
+          description: Version of task definition to be deleted
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Deletion Successful.
+          content: {}
+        "409":
+          description: Task Defintion has associated Apps/Actions
+          content: {}
         "404":
           description: Not Found
           content: {}
@@ -24643,6 +24437,8 @@ components:
         assetName:
           minLength: 1
           type: string
+        supportsCredentialsProxyDisconnected:
+          type: boolean
     AssetsSetRobotAssetsByKeyRequest:
       required:
         - robotAsset
@@ -24684,8 +24480,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -24804,7 +24600,6 @@ components:
             - Folders
             - DirectoryService
             - Buckets
-            - DataRetentionPolicies
             - TenantMove
             - Secrets
             - PersonalWorkspaces
@@ -25142,6 +24937,8 @@ components:
             format: uuid
         enableCoverage:
           type: boolean
+        maskBuildVersion:
+          type: boolean
     BulkAddQueueItemsRequest:
       required:
         - commitType
@@ -25220,6 +25017,7 @@ components:
             - ExpectationFailed
             - MisdirectedRequest
             - UnprocessableEntity
+            - UnprocessableContent
             - Locked
             - FailedDependency
             - UpgradeRequired
@@ -25546,6 +25344,15 @@ components:
           type: integer
           format: int64
       description: Defines the resources such as assets, robots or bucket for a Credential Store.
+    CredentialsConnectionData:
+      type: object
+      properties:
+        url:
+          type: string
+        body:
+          type: string
+        bearerToken:
+          type: string
     CredentialsProxyResourceDto:
       required:
         - CredentialStoreId
@@ -26160,8 +25967,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -26295,7 +26102,6 @@ components:
             - SharedAccessSignatureFailure
             - ProviderNotSupported
             - EmailAlreadyUsed
-            - MaxSiblingsLimitReached
             - InvalidAuditRelationship
             - InvalidOrganizationUnit
             - RequiredOrganizationUnit
@@ -26618,6 +26424,9 @@ components:
             - AppTaskDataItemViolatesContentJsonSchema
             - TaskDefinitionSchemaNotAnObject
             - TaskDefinitionNameIsAlreadyUsed
+            - TaskDefintionVersionHaveActiveTasks
+            - TaskDefintionVersionHaveActiveApps
+            - FailedToRetrieveAssociatedApps
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -26708,6 +26517,7 @@ components:
             - TestCaseDefinitionDuplicateIds
             - TestCaseDefinitionInUse
             - TestSetScheduleInvalidScheduleKey
+            - TestSetExecutionTriggerFailed
             - InvalidTenantMoveStatus
             - TenantMoveIdConflict
             - TenantMoveMigrationConflict
@@ -26781,6 +26591,8 @@ components:
             - CredentialsProxyRequestFailedUnhandledError
             - CredentialsProxyRequestFailedBadRequest
             - CredentialsProxyTypeCannotBeCreated
+            - CredentialsProxyGetAssetFromDisconnectedProxyNotEnabled
+            - CredentialsProxyGetAssetFromDisconnectedProxyNotAllowedForThisActivityVersion
             - ServerlessCreateMachineTemplateErrorCode
             - ServerlessUpdateMachineTemplateErrorCode
             - ServerlessDeleteMachineTemplateErrorCode
@@ -26809,6 +26621,8 @@ components:
             - SolutionPackageUrlIsInvalid
             - SolutionInstallationFolderNotFound
             - SolutionPackageNotInScope
+            - SolutionLibraryUrlIsInvalid
+            - TenantLibraryFeedNotEnabled
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
@@ -27440,8 +27254,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28303,8 +28117,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28343,8 +28157,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28457,8 +28271,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28510,6 +28324,44 @@ components:
           items:
             type: integer
             format: int64
+    MachineCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - Standard
+            - Template
+          x-ms-enum:
+            name: MachineCreatedEventType
+            modelAsString: false
+        scope:
+          type: string
+          enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-ms-enum:
+            name: MachineCreatedEventScope
+            modelAsString: false
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     MachineDeleteBulkRequest:
       type: object
       properties:
@@ -28518,6 +28370,40 @@ components:
           items:
             type: integer
             format: int64
+    MachineDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - Standard
+            - Template
+          x-ms-enum:
+            name: MachineDeletedEventType
+            modelAsString: false
+        scope:
+          type: string
+          enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-ms-enum:
+            name: MachineDeletedEventScope
+            modelAsString: false
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     MachineDto:
       required:
         - Name
@@ -28709,8 +28595,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28874,8 +28760,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -28948,6 +28834,44 @@ components:
         TriggersCount:
           type: integer
           format: int32
+    MachineUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum:
+            - Standard
+            - Template
+          x-ms-enum:
+            name: MachineUpdatedEventType
+            modelAsString: false
+        scope:
+          type: string
+          enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-ms-enum:
+            name: MachineUpdatedEventScope
+            modelAsString: false
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     MachineVpnSettingsDto:
       type: object
       properties:
@@ -29645,6 +29569,46 @@ components:
           type: integer
           format: int64
       description: "Stores information about an organization unit in Orchestrator.\r\n<para /> An orchestrator unit can be understood as a company department and it is used to group different entities."
+    PackageCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        feedId:
+          type: string
+          format: uuid
+        version:
+          type: string
+        type:
+          type: string
+          enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-ms-enum:
+            name: PackageCreatedEventType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     PackageDeletedEvent:
       type: object
       properties:
@@ -29658,6 +29622,46 @@ components:
         feedId:
           type: string
           format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    PackageUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        feedId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-ms-enum:
+            name: PackageUpdatedEventType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
         eventTime:
           type: string
           format: date-time
@@ -29847,6 +29851,64 @@ components:
         Id:
           type: string
           format: uuid
+    ProcessCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        processVersion:
+          type: string
+        processType:
+          type: string
+          enum:
+            - Undefined
+            - Process
+            - TestAutomationProcess
+          x-ms-enum:
+            name: ProcessCreatedEventProcessType
+            modelAsString: false
+        entryPointId:
+          type: string
+          format: uuid
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    ProcessDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     ProcessDto:
       type: object
       properties:
@@ -29941,6 +30003,104 @@ components:
         Id:
           type: string
       description: A process is a project defined in UiPath Studio and published in Orchestrator from UiPath Studio or manually.
+    ProcessScheduleCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        runtimeType:
+          type: string
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: ProcessScheduleCreatedEventRuntimeType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        dependencies:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    ProcessScheduleDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        runtimeType:
+          type: string
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: ProcessScheduleDeletedEventRuntimeType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        dependencies:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     ProcessScheduleDto:
       required:
         - Name
@@ -30007,8 +30167,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -30204,6 +30364,57 @@ components:
           type: integer
           format: int64
       x-webhook-event: schedule.failed
+    ProcessScheduleUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        runtimeType:
+          type: string
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-ms-enum:
+            name: ProcessScheduleUpdatedEventRuntimeType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        dependencies:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     ProcessSetEnabledRequest:
       type: object
       properties:
@@ -30234,6 +30445,44 @@ components:
           type: boolean
         AlwaysRunning:
           type: boolean
+    ProcessUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        processVersion:
+          type: string
+        processType:
+          type: string
+          enum:
+            - Undefined
+            - Process
+            - TestAutomationProcess
+          x-ms-enum:
+            name: ProcessUpdatedEventProcessType
+            modelAsString: false
+        entryPointId:
+          type: string
+          format: uuid
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     ProcessesSetArgumentsRequest:
       required:
         - arguments
@@ -31656,8 +31905,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -32202,6 +32451,8 @@ components:
           description: A collection of key value pairs when the type is KeyValueList. Empty when the value type is not KeyValueList.
           items:
             $ref: '#/components/schemas/CustomKeyValuePair'
+        ConnectionData:
+          $ref: '#/components/schemas/CredentialsConnectionData'
         Id:
           type: integer
           format: int64
@@ -32362,8 +32613,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -32605,8 +32856,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -32776,8 +33027,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -33332,8 +33583,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -33639,8 +33890,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -33755,8 +34006,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -33802,12 +34053,12 @@ components:
       type: object
       properties:
         Name:
-          maxLength: 64
+          maxLength: 1024
           minLength: 0
           type: string
           description: The name of the person for which the user is created.
         Surname:
-          maxLength: 64
+          maxLength: 1024
           minLength: 0
           type: string
           description: The surname of the person for which the user is created.
@@ -33919,8 +34170,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -34158,8 +34409,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -34618,6 +34869,40 @@ components:
           description: List of tags associated to the task.
           items:
             $ref: '#/components/schemas/TagDto'
+    TaskCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskCreatedEventType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     TaskCreatedEventDto:
       required:
         - EventId
@@ -34921,6 +35206,36 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskDefintionAssociatedVersionsDto'
+    TaskDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskDeletedEventType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     TaskDeletedEventDto:
       required:
         - EventId
@@ -35436,6 +35751,40 @@ components:
           description: Tags collection
           items:
             $ref: '#/components/schemas/TagDto'
+    TaskUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: TaskUpdatedEventType
+            modelAsString: false
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     TasksAssignRequest:
       required:
         - taskAssignments
@@ -35776,8 +36125,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -36204,8 +36553,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -36590,12 +36939,12 @@ components:
       type: object
       properties:
         Name:
-          maxLength: 64
+          maxLength: 1024
           minLength: 0
           type: string
           description: The name of the person for which the user is created.
         Surname:
-          maxLength: 64
+          maxLength: 1024
           minLength: 0
           type: string
           description: The surname of the person for which the user is created.
@@ -36707,8 +37056,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -36816,24 +37165,44 @@ components:
       properties:
         Queues:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Robots:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Jobs:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Schedules:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Tasks:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         QueueItems:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Insights:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         CloudRobots:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Serverless:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Export:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
     UserOrganizationUnitDto:
       type: object
       properties:
@@ -37050,6 +37419,40 @@ components:
         MaxDurationSeconds:
           type: integer
           format: int32
+    WebhookCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    WebhookDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     WebhookDto:
       required:
         - AllowInsecureSsl
@@ -37358,6 +37761,23 @@ components:
           format: int64
           readOnly: true
       description: This class defines DTO for Tasks Collection for webhook event Task.Created
+    WebhookUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     WrappedEnvironmentDto:
       type: object
       properties:
@@ -37503,8 +37923,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless
@@ -37730,8 +38150,8 @@ components:
             - StudioX
             - CitizenDeveloper
             - Headless
-            - RpaDeveloperPro
             - StudioPro
+            - RpaDeveloperPro
             - TestAutomation
             - AutomationCloud
             - Serverless

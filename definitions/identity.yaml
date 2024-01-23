@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: 3.0.3
-  x-uipath-version: 3.0.3
+  version: 3.0.10
+  x-uipath-version: 3.0.10
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
@@ -301,9 +301,9 @@ paths:
             type: string
         - name: top
           in: query
-          description: The number of records to return. Default is 10.
+          description: The number of records to return. Default is 10. Range is 0 to 1000.
           schema:
-            maximum: 2147483647
+            maximum: 1000
             minimum: 0
             type: integer
             format: int32
@@ -447,229 +447,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDto'
-  /scim/groups:
-    post:
-      tags:
-        - ScimGroups
-      summary: Creates a new scim group.
-      operationId: ScimGroups_CreateGroups
-      requestBody:
-        description: The data used to create a new group.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateGroupCommandSCIM'
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMGroupDTO'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMGroupDTO'
-    get:
-      tags:
-        - ScimGroups
-      summary: SCIM Get By Filter for Groups
-      operationId: ScimGroups_Get
-      parameters:
-        - name: excludedAttributes
-          in: query
-          schema:
-            type: string
-        - name: filter
-          in: query
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMGroupFilteredResponse'
-  /scim/groups/{groupId}:
-    get:
-      tags:
-        - ScimGroups
-      summary: SCIM Groups GET API.
-      operationId: ScimGroups_GetGroups
-      parameters:
-        - name: groupId
-          in: path
-          description: The data used to create a new user.
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMGroupDTO'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMGroupDTO'
-    delete:
-      tags:
-        - ScimGroups
-      summary: Deletes a group.
-      operationId: ScimGroups_DeleteGroup
-      parameters:
-        - name: groupId
-          in: path
-          description: The data used to create a new group.
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-    patch:
-      tags:
-        - ScimGroups
-      summary: SCIM API for updating a group.
-      operationId: ScimGroups_UpdateGroup
-      parameters:
-        - name: groupId
-          in: path
-          description: The groupId of the group to be updated.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: The data used to update a group.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserCommandSCIM'
-      responses:
-        "200":
-          description: Success
-  /scim/users/{userId}:
-    get:
-      tags:
-        - ScimUsers
-      summary: SCIM API for getting a user.
-      operationId: ScimUsers_GetUsers
-      parameters:
-        - name: userId
-          in: path
-          description: userId of the user.
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
-    patch:
-      tags:
-        - ScimUsers
-      summary: SCIM API for updating a user.
-      operationId: ScimUsers_UpdateUsers
-      parameters:
-        - name: userId
-          in: path
-          description: The userId of the user to be updated.
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: The update payload used to perform the updates.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserCommandSCIM'
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
-    delete:
-      tags:
-        - ScimUsers
-      summary: SCIM API for deleting a user.
-      operationId: ScimUsers_DeleteUsers
-      parameters:
-        - name: userId
-          in: path
-          description: userID of the user to be deleted.
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-  /scim/users:
-    get:
-      tags:
-        - ScimUsers
-      summary: SCIM API for getting a user given filters.
-      operationId: ScimUsers_Get
-      parameters:
-        - name: filter
-          in: query
-          description: filter for users.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserFilteredResponse'
-    post:
-      tags:
-        - ScimUsers
-      summary: SCIM API for creating a new user.
-      operationId: ScimUsers_CreateUsers
-      requestBody:
-        description: The data used to create a new user.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateUserCommandSCIM'
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
-        "400":
-          description: Bad Request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SCIMUserDTO'
   /api/Setting:
     get:
       tags:
@@ -858,9 +635,9 @@ paths:
             type: string
         - name: top
           in: query
-          description: The number of records to return. Default is 10.
+          description: The number of records to return. Default is 10. Range is 0 to 1000.
           schema:
-            maximum: 2147483647
+            maximum: 1000
             minimum: 0
             type: integer
             format: int32
@@ -971,9 +748,9 @@ paths:
             type: string
         - name: top
           in: query
-          description: The number of records to return. Default is 10.
+          description: The number of records to return. Default is 10. Range is 0 to 1000.
           schema:
-            maximum: 2147483647
+            maximum: 1000
             minimum: 0
             type: integer
             format: int32
@@ -1141,22 +918,6 @@ components:
           description: IDs of the users to be added as members of the group.
           nullable: true
       description: Command used to create a new local group.
-    CreateGroupCommandSCIM:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        externalId:
-          type: string
-          nullable: true
-        displayName:
-          type: string
-          nullable: true
-        meta:
-          $ref: '#/components/schemas/MetaGroup'
     CreateOrUpdateSettingCommand:
       required:
         - key
@@ -1302,34 +1063,6 @@ components:
         invitationAccepted:
           type: boolean
           description: Flag indicating whether the user has accepted invitation or not.
-    CreateUserCommandSCIM:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        id:
-          type: string
-          nullable: true
-        externalId:
-          type: string
-          nullable: true
-        meta:
-          $ref: '#/components/schemas/Meta'
-        userName:
-          type: string
-          nullable: true
-        name:
-          $ref: '#/components/schemas/Name'
-        active:
-          type: boolean
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/Email'
-          nullable: true
     CreateUserLoginCommand:
       type: object
       properties:
@@ -1437,17 +1170,6 @@ components:
         externalId:
           type: string
           nullable: true
-    Email:
-      type: object
-      properties:
-        value:
-          type: string
-          nullable: true
-        type:
-          type: string
-          nullable: true
-        primary:
-          type: boolean
     GroupDto:
       type: object
       properties:
@@ -1542,36 +1264,6 @@ components:
         value:
           type: string
           nullable: true
-    Meta:
-      type: object
-      properties:
-        resourceType:
-          type: string
-          nullable: true
-        created:
-          type: string
-          nullable: true
-        lastModified:
-          type: string
-          nullable: true
-    MetaGroup:
-      type: object
-      properties:
-        resourceType:
-          type: string
-          nullable: true
-    Name:
-      type: object
-      properties:
-        formatted:
-          type: string
-          nullable: true
-        familyName:
-          type: string
-          nullable: true
-        givenName:
-          type: string
-          nullable: true
     RobotAccountDto:
       type: object
       properties:
@@ -1616,113 +1308,6 @@ components:
           items:
             $ref: '#/components/schemas/RobotAccountDto'
           description: The results from the current page.
-          nullable: true
-    SCIMGroupDTO:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        id:
-          type: string
-          nullable: true
-        externalId:
-          type: string
-          nullable: true
-        meta:
-          $ref: '#/components/schemas/Meta'
-        displayName:
-          type: string
-          nullable: true
-        members:
-          type: array
-          items:
-            type: string
-          nullable: true
-    SCIMGroupFilteredResponse:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        totalResults:
-          type: integer
-          format: int32
-        resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SCIMGroupDTO'
-          nullable: true
-        startIndex:
-          type: integer
-          format: int32
-        itemsPerPage:
-          type: integer
-          format: int32
-    SCIMUserDTO:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        id:
-          type: string
-          nullable: true
-        externalId:
-          type: string
-          nullable: true
-        meta:
-          $ref: '#/components/schemas/Meta'
-        userName:
-          type: string
-          nullable: true
-        name:
-          $ref: '#/components/schemas/Name'
-        active:
-          type: boolean
-        emails:
-          type: array
-          items:
-            $ref: '#/components/schemas/Email'
-          nullable: true
-    SCIMUserFilteredResponse:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        totalResults:
-          type: integer
-          format: int32
-        resources:
-          type: array
-          items:
-            $ref: '#/components/schemas/SCIMUserDTO'
-          nullable: true
-        startIndex:
-          type: integer
-          format: int32
-        itemsPerPage:
-          type: integer
-          format: int32
-    ScimOperation:
-      type: object
-      properties:
-        op:
-          type: string
-          nullable: true
-        path:
-          type: string
-          nullable: true
-        value:
           nullable: true
     SettingDto:
       type: object
@@ -1889,19 +1474,6 @@ components:
           description: Extension user attributes this user should be removed from.
           nullable: true
       description: Command used to update the user.
-    UpdateUserCommandSCIM:
-      type: object
-      properties:
-        schemas:
-          type: array
-          items:
-            type: string
-          nullable: true
-        operations:
-          type: array
-          items:
-            $ref: '#/components/schemas/ScimOperation'
-          nullable: true
     UserDto:
       type: object
       properties:
