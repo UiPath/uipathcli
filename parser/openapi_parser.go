@@ -10,15 +10,15 @@ import (
 
 const DefaultServerBaseUrl = "https://cloud.uipath.com"
 const RawBodyParameterName = "$file"
-const CustomParameterNameExtension = "x-name"
+const CustomNameExtension = "x-uipathcli-name"
 
 // The OpenApiParser parses OpenAPI (2.x and 3.x) specifications.
 // It creates the Definition structure with all the information about the available
 // operations and their parameters for the given service specification.
 type OpenApiParser struct{}
 
-func (p OpenApiParser) customParameterName(extensions map[string]interface{}) string {
-	name := extensions[CustomParameterNameExtension]
+func (p OpenApiParser) getCustomName(extensions map[string]interface{}) string {
+	name := extensions[CustomNameExtension]
 	switch v := name.(type) {
 	case string:
 		return v
@@ -62,8 +62,12 @@ func (p OpenApiParser) formatName(name string) string {
 	return strings.ToLower(name)
 }
 
-func (p OpenApiParser) getName(method string, route string, category *OperationCategory, operation openapi3.Operation) string {
+func (p OpenApiParser) getOperationName(method string, route string, category *OperationCategory, operation openapi3.Operation) string {
 	name := method + route
+	customName := p.getCustomName(operation.Extensions)
+	if customName != "" {
+		return customName
+	}
 	if operation.OperationID != "" {
 		name = operation.OperationID
 	}
@@ -130,7 +134,7 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	var defaultValue interface{}
 	var allowedValues []interface{}
 	if schemaRef != nil {
-		customName := p.customParameterName(schemaRef.Value.Extensions)
+		customName := p.getCustomName(schemaRef.Value.Extensions)
 		if customName != "" {
 			name = customName
 		}
@@ -243,7 +247,7 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	fieldName := param.Name
 	name := p.formatName(fieldName)
-	customName := p.customParameterName(param.Extensions)
+	customName := p.getCustomName(param.Extensions)
 	if customName != "" {
 		name = customName
 	}
@@ -294,7 +298,7 @@ func (p OpenApiParser) getCategory(operation openapi3.Operation, document openap
 
 func (p OpenApiParser) parseOperation(method string, baseUri url.URL, route string, operation openapi3.Operation, routeParameters openapi3.Parameters, document openapi3.T) Operation {
 	category := p.getCategory(operation, document)
-	name := p.getName(method, route, category, operation)
+	name := p.getOperationName(method, route, category, operation)
 	contentType, parameters := p.parseOperationParameters(operation, routeParameters)
 	return *NewOperation(name, operation.Summary, operation.Description, method, baseUri, route, contentType, parameters, nil, false, category)
 }

@@ -1059,11 +1059,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1075,11 +1075,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1091,11 +1091,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 9b2485ba-1d00-4622-b27e-d89badcb4330
+                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1224,11 +1224,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1240,11 +1240,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1256,11 +1256,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: db31f981-0233-438e-9f49-7a6a6744ff3a
+                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1472,11 +1472,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1490,11 +1490,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1508,11 +1508,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 71b67f25-0eca-4a07-82dd-b4609be32d8e
+                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1655,11 +1655,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1673,11 +1673,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1691,11 +1691,11 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts: null
               Generative Extraction:
                 value:
-                  documentId: 950180c6-9c3b-4e39-a540-319da61832aa
+                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -1911,7 +1911,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -1935,7 +1935,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -1946,7 +1946,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -1974,7 +1974,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -1989,7 +1989,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2013,7 +2013,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2024,7 +2024,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2052,7 +2052,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2067,7 +2067,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2091,7 +2091,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2102,7 +2102,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2130,7 +2130,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d8258623-7d0a-479c-8437-eb8b6cd68ca3
+                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2380,7 +2380,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2547,7 +2547,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2557,7 +2557,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2730,7 +2730,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2744,7 +2744,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2911,7 +2911,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2921,7 +2921,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3094,7 +3094,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3108,7 +3108,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3275,7 +3275,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3285,7 +3285,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3458,7 +3458,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 9a02e6bc-da67-4da3-92b9-c0ea9ca49ccd
+                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions

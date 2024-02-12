@@ -379,6 +379,27 @@ paths:
 	}
 }
 
+func TestOperationWithCustomName(t *testing.T) {
+	definition := `
+paths:
+  /resource:
+    post:
+      operationId: other
+      x-uipathcli-name: create-event
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "--help"}, context)
+
+	expected := "create-event"
+	if !strings.Contains(result.StdOut, expected) {
+		t.Errorf("Stdout did not contain custom operation name, expected: %v, got: %v", expected, result.StdOut)
+	}
+}
+
 func TestParameterWithCustomName(t *testing.T) {
 	definition := `
 paths:
@@ -392,7 +413,7 @@ paths:
         description: The filter 
         schema:
           type: string
-        x-name: my-custom-parameter-name
+        x-uipathcli-name: my-custom-parameter-name
 `
 
 	context := NewContextBuilder().
@@ -509,7 +530,7 @@ paths:
                 myparameter:
                   type: string
                   description: This is my parameter
-                  x-name: my-custom-parameter-name
+                  x-uipathcli-name: my-custom-parameter-name
 `
 
 	context := NewContextBuilder().
@@ -523,6 +544,7 @@ paths:
 		t.Errorf("Stdout did not contain custom parameter name, expected: %v, got: %v", expected, result.StdOut)
 	}
 }
+
 func TestHelpShowsParameterIsRequired(t *testing.T) {
 	definition := `
 paths:

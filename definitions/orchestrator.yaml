@@ -793,7 +793,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "202":
@@ -821,7 +821,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "202":
@@ -843,7 +843,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -882,7 +882,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -960,7 +960,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -993,7 +993,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -1019,7 +1019,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -1059,7 +1059,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -1085,7 +1085,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -1119,7 +1119,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: A list of test case executions with corresponding input arguments and optional RobotId and MachineSessionId fields
@@ -1180,7 +1180,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -1216,7 +1216,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Provides options to set the BatchExecutionKey and TriggerType and override the input parameters for specific test cases
@@ -1250,7 +1250,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: 'QueueName: the test data queue name; Content: the item content'
@@ -1283,7 +1283,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: 'QueueName: the test data queue name; Items: an array of item content'
@@ -1322,7 +1322,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "202":
@@ -1344,7 +1344,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The Ids of the test data queue items
@@ -1378,7 +1378,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: 'QueueName:the test data queue name; SetConsumed: Whether to set the item''s IsConsumed flag as true or false'
@@ -1414,7 +1414,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: 'QueueName: the name of the test data queue; IsConsumed: the value to be set on the items IsConsumed flag'
@@ -1444,7 +1444,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: 'ItemIds: the list of item ids for which to set the IsConsumed flag; IsConsumed: the value to be set on the items IsConsumed flag'
@@ -1497,7 +1497,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: BulkTasksCompletionRequest
@@ -1541,7 +1541,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: BulkTasksDataUpdateRequest
@@ -1585,7 +1585,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskCompletionRequest
@@ -1618,7 +1618,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The form task to be created.
@@ -1660,7 +1660,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -1702,7 +1702,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -1733,7 +1733,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskSaveAndReassignmentRequest
@@ -1772,7 +1772,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskDataSaveRequest
@@ -2071,7 +2071,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2099,7 +2099,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -2189,7 +2189,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2222,7 +2222,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -2298,7 +2298,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -2365,7 +2365,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2430,7 +2430,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2474,7 +2474,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2521,7 +2521,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2566,7 +2566,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -2669,7 +2669,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -2703,7 +2703,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -2780,7 +2780,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Object containing the ids of the assets, the ids of the folders where they should be shared and the ids of the folders from which they should be removed.
@@ -3102,7 +3102,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3129,7 +3129,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -3219,7 +3219,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3252,7 +3252,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -3331,7 +3331,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -3368,7 +3368,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -3447,7 +3447,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3497,7 +3497,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3585,7 +3585,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3642,7 +3642,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3704,7 +3704,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3774,7 +3774,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3818,7 +3818,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -3846,7 +3846,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Object containing the ids of the buckets and the ids of the folders where they should be shared.
@@ -4864,7 +4864,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -4891,7 +4891,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -4981,7 +4981,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -5014,7 +5014,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -5090,7 +5090,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -5122,7 +5122,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: RobotId - The associated robot Id.
@@ -5201,7 +5201,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: RobotId - The dissociated robot Id.
@@ -5280,7 +5280,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />addedRobotIds - The id of the robots to be associated with the environment.\r\n            <para />removedRobotIds - The id of the robots to be dissociated from the environment."
@@ -5384,7 +5384,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -5456,7 +5456,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -5520,7 +5520,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -5564,7 +5564,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -5592,7 +5592,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -5669,7 +5669,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -7611,7 +7611,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -7655,7 +7655,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -7690,7 +7690,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Strategy - States whether a job should be soft stopped or killed immediately.
@@ -7778,7 +7778,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -7843,7 +7843,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -7881,7 +7881,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The specified job id.
@@ -7966,7 +7966,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The specified job key.
@@ -8066,7 +8066,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: StartInfo - The information required to register the new jobs.
@@ -8141,7 +8141,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "JobIds - The ids for the jobs to be canceled or terminated;\r\n            Strategy - States whether a job should be soft stopped or killed immediately."
@@ -8223,7 +8223,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: StartInfo - The same input which would be used to start a new job.
@@ -8335,7 +8335,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -8406,7 +8406,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -10580,7 +10580,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -10607,7 +10607,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -10697,7 +10697,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -10733,7 +10733,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -10809,7 +10809,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -10840,7 +10840,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -10903,7 +10903,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -10941,7 +10941,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />Enabled - If true the schedules will be enabled, if false the schedules will be disabled.\r\n            <para />ScheduleIds - The collection of ids of the affected schedules."
@@ -11046,7 +11046,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -11175,7 +11175,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11202,7 +11202,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -11292,7 +11292,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11325,7 +11325,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -11401,7 +11401,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -11469,7 +11469,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11509,7 +11509,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11554,7 +11554,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11624,7 +11624,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11652,7 +11652,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Object containing the ids of the queue definitions and the ids of the folders where they should be shared.
@@ -11764,7 +11764,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11793,7 +11793,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -11883,7 +11883,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -11916,7 +11916,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -11992,7 +11992,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -12061,7 +12061,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12126,7 +12126,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12170,7 +12170,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12242,7 +12242,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12325,7 +12325,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12369,7 +12369,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12404,7 +12404,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -12486,7 +12486,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -12554,7 +12554,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12628,7 +12628,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12662,7 +12662,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />QueueItemId - The item's id.\r\n            <para />Progress - The value for the Progress field."
@@ -12771,7 +12771,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -12809,7 +12809,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: QueueItems - The collection of ids of queue items to delete.
@@ -12894,7 +12894,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />UserId - The ID of the user to be set as the reviewer. If not set, the reviewer is cleared.\r\n            <para />QueueItems - The collection of ids of queue items for which the reviewer is set."
@@ -12979,7 +12979,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />QueueItems - The collection of ids of queue items for which the state is set.\r\n            <para />Status - The new value for the review status."
@@ -13064,7 +13064,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: <para />QueueItems - The collection of ids of queue items for which the reviewer is unset.
@@ -13178,7 +13178,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13243,7 +13243,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13307,7 +13307,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13350,7 +13350,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13382,7 +13382,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -13457,7 +13457,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -13488,7 +13488,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -13572,7 +13572,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -13656,7 +13656,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -13740,7 +13740,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -13853,7 +13853,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13896,7 +13896,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -13928,7 +13928,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14003,7 +14003,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -14083,7 +14083,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14110,7 +14110,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14203,7 +14203,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14236,7 +14236,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14315,7 +14315,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -14345,7 +14345,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14437,7 +14437,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14487,7 +14487,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14531,7 +14531,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: PackageVersion - The new package version.
@@ -14606,7 +14606,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14690,7 +14690,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -14801,7 +14801,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14866,7 +14866,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14931,7 +14931,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -14996,7 +14996,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15023,7 +15023,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -15113,7 +15113,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15146,7 +15146,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -15222,7 +15222,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -15252,7 +15252,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -15323,7 +15323,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -15400,7 +15400,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -15511,7 +15511,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15576,7 +15576,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15653,7 +15653,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15706,7 +15706,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15777,7 +15777,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15853,7 +15853,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15918,7 +15918,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -15946,7 +15946,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para /> disabled - If true the robots will be enabled, if false the robots will be disabled.\r\n            <para /> robotIds - The collection of ids of the affected robots."
@@ -16489,7 +16489,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18239,7 +18239,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18304,7 +18304,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18349,7 +18349,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18386,7 +18386,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -18424,7 +18424,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskCatalog to be updated
@@ -18509,7 +18509,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The task catalog to be created.
@@ -18600,7 +18600,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18645,7 +18645,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18733,7 +18733,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -18761,7 +18761,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Object containing the ids of the task catalogs and the ids of the folders where it should be shared.
@@ -19169,7 +19169,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The note to be created.
@@ -19288,7 +19288,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19353,7 +19353,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19398,7 +19398,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19454,7 +19454,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The json containing task and user Ids for assignment.
@@ -19554,7 +19554,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The json containing list of task ids for deletion.
@@ -19629,7 +19629,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -19728,7 +19728,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19806,7 +19806,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19884,7 +19884,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -19956,7 +19956,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20009,7 +20009,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The json containing task and user Ids for reassignment.
@@ -20109,7 +20109,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The json containing list of task ids for un-assignments.
@@ -20587,7 +20587,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20628,7 +20628,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20690,7 +20690,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20731,7 +20731,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20793,7 +20793,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20817,7 +20817,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -20904,7 +20904,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -20935,7 +20935,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Update information
@@ -21013,7 +21013,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -21090,7 +21090,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21131,7 +21131,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21209,7 +21209,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21233,7 +21233,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -21320,7 +21320,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21351,7 +21351,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Update information
@@ -21429,7 +21429,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -21488,7 +21488,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21512,7 +21512,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         content:
@@ -21599,7 +21599,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -21630,7 +21630,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: Update information
@@ -21708,7 +21708,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "204":
@@ -21743,7 +21743,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: "<para />enabled: if true the test set schedules will be enabled, if false they will be disabled.\r\n            <para />scheduleIds: the ids of the test set schedules to be enabled or disabled."
@@ -23167,7 +23167,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskCompletionRequest
@@ -23206,7 +23206,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The app task to be created.
@@ -23251,7 +23251,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -23282,7 +23282,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskSaveAndReassignmentRequest
@@ -23321,7 +23321,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskDataSaveRequest
@@ -23360,7 +23360,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskCompletionRequest
@@ -23399,7 +23399,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: The task to be created.
@@ -23441,7 +23441,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       responses:
         "200":
@@ -23472,7 +23472,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskSaveAndReassignmentRequest
@@ -23511,7 +23511,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskDataSaveRequest
@@ -23550,7 +23550,7 @@ paths:
           schema:
             type: integer
             format: int64
-          x-name: folder-id
+          x-uipathcli-name: folder-id
           required: true
       requestBody:
         description: TaskTagsSaveRequest
@@ -37365,6 +37365,7 @@ components:
               - RobotNoCredentials
               - RobotBusy
               - RobotConcurrencyLimit
+              - RobotNoMatchingUsernames
               - TemplateNoRuntime
               - TemplateNoHostsAvailable
               - TemplateNoLicense
@@ -38036,6 +38037,12 @@ components:
           readOnly: true
           items:
             $ref: '#/components/schemas/SimpleRobotEventDto'
+        MachineRobots:
+          type: array
+          description: The machine robots. This collection must be empty if there are no explicit machine mappings
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/MachineRobotSessionDto'
         InputArguments:
           type: object
           properties: {}
