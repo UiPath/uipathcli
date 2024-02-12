@@ -314,7 +314,7 @@ func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, err
 		return nil, fmt.Errorf("Error parsing server URL: %w", err)
 	}
 	operations := []Operation{}
-	for path := range document.Paths {
+	for path := range document.Paths.Map() {
 		pathItem := document.Paths.Find(path)
 		operations = append(operations, p.parsePath(*uri, path, *pathItem, document)...)
 	}
