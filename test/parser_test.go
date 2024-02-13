@@ -1430,3 +1430,103 @@ paths:
 		t.Errorf("Should not parse versioned service operation, but got: %v", result.StdOut)
 	}
 }
+
+func TestShowsExampleOutputForObjects(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRequest'
+components:
+  schemas:
+    CreateDeploymentRequest:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/DeploymentConfigModel'
+    DeploymentConfigModel:
+      type: object
+      properties:
+        cpu:
+          type: integer
+          format: int32
+        memory:
+          type: number
+          format: double
+        gpu:
+          type: boolean
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "Example:") {
+		t.Errorf("Could not find example output, but got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "cpu=integer; gpu=boolean; memory=float") {
+		t.Errorf("Could not find example command, but got: %v", result.StdOut)
+	}
+}
+
+func TestShowsExampleOutputForNestedObjects(t *testing.T) {
+	definition := `
+paths:
+  /create:
+    post:
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDeploymentRequest'
+components:
+  schemas:
+    CreateDeploymentRequest:
+      type: object
+      properties:
+        instances:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeploymentInstance'
+    DeploymentInstance:
+      type: object
+      properties:
+        config:
+          $ref: '#/components/schemas/DeploymentConfigModel'
+    DeploymentConfigModel:
+      type: object
+      properties:
+        cpu:
+          type: integer
+          format: int32
+        memory:
+          type: number
+          format: double
+        gpu:
+          type: boolean
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice", "create", "--help"}, context)
+
+	if !strings.Contains(result.StdOut, "Example:") {
+		t.Errorf("Could not find example output, but got: %v", result.StdOut)
+	}
+	if !strings.Contains(result.StdOut, "config.cpu=integer; config.gpu=boolean; config.memory=float") {
+		t.Errorf("Could not find example command, but got: %v", result.StdOut)
+	}
+	if strings.Contains(result.StdOut, "config=object") {
+		t.Errorf("Should not contain the object itself in the example, but got: %v", result.StdOut)
+	}
+}

@@ -2,6 +2,7 @@ package commandline
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/UiPath/uipathcli/parser"
@@ -66,28 +67,31 @@ func (f parameterFormatter) descriptionFields(parameter parser.Parameter) []inte
 }
 
 func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
-	parameters := map[string]string{}
-	f.collectUsageParameters(parameter, "", parameters)
+	parameters := f.collectUsageParameters(parameter, "")
+	slices.Sort(parameters)
 
 	builder := strings.Builder{}
-	for key, value := range parameters {
+	for _, value := range parameters {
 		f.writeSeparator(&builder, "; ")
-		builder.WriteString(fmt.Sprintf("%s=%s", key, value))
+		builder.WriteString(value)
 	}
 	return builder.String()
 }
 
-func (f parameterFormatter) collectUsageParameters(parameter parser.Parameter, prefix string, result map[string]string) {
+func (f parameterFormatter) collectUsageParameters(parameter parser.Parameter, prefix string) []string {
+	result := []string{}
 	for _, p := range parameter.Parameters {
 		if p.Type == parser.ParameterTypeObjectArray {
-			f.collectUsageParameters(p, prefix+p.FieldName+"[0].", result)
-			continue
+			result = append(result, f.collectUsageParameters(p, prefix+p.FieldName+"[0].")...)
+		} else if p.Type == parser.ParameterTypeObject {
+			result = append(result, f.collectUsageParameters(p, prefix+p.FieldName+".")...)
+		} else {
+			field := prefix + p.FieldName
+			fieldType := f.humanReadableType(p.Type)
+			result = append(result, fmt.Sprintf("%s=%s", field, fieldType))
 		}
-		if p.Type == parser.ParameterTypeObject {
-			f.collectUsageParameters(p, prefix+p.FieldName+".", result)
-		}
-		result[prefix+p.FieldName] = f.humanReadableType(p.Type)
 	}
+	return result
 }
 
 func (f parameterFormatter) commaSeparatedValues(values []interface{}) string {
