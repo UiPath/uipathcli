@@ -12,10 +12,11 @@ export class Template {
             </ul>
             <h2>Configuration</h2>
             <div class="configuration">
-                The CLI supports multiple ways to authorize with the UiPath services:
+                The CLI supports multiple ways to authenticate and authorize with the UiPath services:
                 <ul>
                     <li><b>Client Credentials</b>: Generate secret and configure the CLI to use these long-term credentials. Client credentials should be used in case you want to use the CLI from a script in an automated way.</li>
                     <li><b>OAuth Login</b>: Login to UiPath using your browser and SSO of choice. This is the preferred flow when you are using the CLI interactively. No need to manage any credentials.</li>
+                    <li><b>Personal Access Token</b>: Generate a PAT and configure the CLI to use the access token.</li>
                 </ul>
             </div>
             <h2>Client Credentials</h2>
@@ -32,13 +33,11 @@ export class Template {
                         <li>clientId and clientSecret to retrieve the JWT bearer token for authentication</li>
                     </ul>
                 </p>
-                <p>After that the CLI should be ready and you can validate that it is working by invoking one of the services (requires OR.Users.Read scope):</p>
-                <code>uipath orchestrator users get</code>
             </div>
             <h2>OAuth Login</h2>
             <div class="configuration">
                 <p>
-                    In order to use oauth login, you need to set up an <a href="https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/managing-external-applications">External Application (Non-Confidential)</a> with a redirect url which points to your local CLI:
+                    In order to use oauth login, you need to set up an <a href="https://docs.uipath.com/automation-cloud/automation-cloud/latest/admin-guide/managing-external-applications">External Application (Non-Confidential)</a> with a redirect url which points to your local CLI.
                 </p>
                 <p>Run the interactive CLI configuration:</p>
                 <code>uipath config --auth login</code>
@@ -49,7 +48,25 @@ export class Template {
                         <li>clientId, redirectUri and scopes which are needed to initiate the OAuth flow</li>
                     </ul>
                 </p>
-                <p>After that the CLI should be ready and you can validate that it is working by invoking one of the services:</p>
+            </div>
+            <h2>Personal Access Token</h2>
+            <div class="configuration">
+                <p>
+                    You need to <a href="https://docs.uipath.com/automation-cloud/automation-cloud/latest/api-guide/personal-access-tokens">generate a personal access token (PAT)</a> and configure the CLI to use it.
+                </p>
+                <p>Run the interactive CLI configuration:</p>
+                <code>uipath config --auth pat</code>
+                <p>
+                    The CLI will ask you to enter the main config settings like
+                    <ul>
+                        <li>organization and tenant used by UiPath services which are account-scoped or tenant-scoped</li>
+                        <li>personal access token which was generated in the previous step</li>
+                    </ul>
+                </p>
+            </div>
+            <h2>Getting Started</h2>
+            <div class="configuration">
+                <p>After you configured one of the available authentication mechanisms, the CLI should be ready and you can validate that it is working by invoking one of the services:</p>
                 <code>uipath orchestrator users get</code>
             </div>
             <h2>Global Parameters</h2>
