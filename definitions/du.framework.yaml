@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
   title: Document Understanding Cloud APIs
-  description: Consume Document Understanding capabilities via APIs, hosted in the cloud. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/api-overview">here.</A>
+  description: Consume Document Understanding capabilities via APIs, hosted in the cloud. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/api-guide/api-overview">here.</A>
   version: "1.0"
 paths:
   /projects:
@@ -10,7 +10,7 @@ paths:
         - Discovery
       summary: ""
       description: "Retrieve all available projects from Document Understanding.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: Projects
+      operationId: GetProjects
       parameters:
         - name: api-version
           in: query
@@ -81,13 +81,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: projects
   /projects/{projectId}:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve details about a specific project from Document Understanding.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: ProjectById
+      operationId: GetProjectById
       parameters:
         - name: api-version
           in: query
@@ -165,13 +166,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: project-by-id
   /projects/{projectId}/document-types:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve all document types from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: DocumentTypes
+      operationId: GetDocumentTypes
       parameters:
         - name: api-version
           in: query
@@ -261,13 +263,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: document-types
   /projects/{projectId}/document-types/{documentTypeId}:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve details about a specific document type from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: DocumentTypeById
+      operationId: GetDocumentTypeById
       parameters:
         - name: api-version
           in: query
@@ -364,13 +367,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: document-type-by-id
   /projects/{projectId}/classifiers:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve all classifiers from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: Classifiers
+      operationId: GetClassifiers
       parameters:
         - name: api-version
           in: query
@@ -460,13 +464,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: classifiers
   /projects/{projectId}/classifiers/{classifierId}:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve details about a specific classifier from a project.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: ClassifierById
+      operationId: GetClassifierById
       parameters:
         - name: api-version
           in: query
@@ -563,6 +568,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: classifier-by-id
   /projects/{projectId}/extractors:
     get:
       tags:
@@ -659,13 +665,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: extractors
   /projects/{projectId}/extractors/{extractorId}:
     get:
       tags:
         - Discovery
       summary: ""
       description: "Retrieve details about a specific extractor from a project. It can be either a Forms AI or a deep-learning extraction skill.\r\n<br>Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
-      operationId: ExtractorById
+      operationId: GetExtractorById
       parameters:
         - name: api-version
           in: query
@@ -774,13 +781,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: extractor-by-id
   /projects/{projectId}/digitization/start:
     post:
       tags:
         - Digitization
       summary: ""
       description: "Digitize a document using the OCR settings of the associated Document Understanding project.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
-      operationId: Start
+      operationId: StartDigitization
       parameters:
         - name: api-version
           in: query
@@ -909,13 +917,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: start
   /projects/{projectId}/digitization/result/{documentId}:
     get:
       tags:
         - Digitization
       summary: ""
       description: "Get the digitization result of a document.\r\n<br>Required scopes: <b>Du.Digitization.Api</b></br>"
-      operationId: Get
+      operationId: GetDigitizationResult
       parameters:
         - name: api-version
           in: query
@@ -1021,6 +1030,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: get
   /projects/{projectId}/classifiers/{classifierId}/classification:
     post:
       tags:
@@ -1059,11 +1069,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1075,11 +1085,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1091,11 +1101,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1a232df6-563c-4ff1-955c-881dc7f9b265
+                  documentId: 49fd166c-e57c-4afa-9c01-66e8e8174963
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1186,13 +1196,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: Classify
   /projects/{projectId}/classifiers/{classifierId}/classification/start:
     post:
       tags:
         - Classification
       summary: ""
       description: "Start classification operation. To monitor the status and retrieve the classification result, use the \"Get Classification Result\" route.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
-      operationId: Start
+      operationId: StartClassification
       parameters:
         - name: api-version
           in: query
@@ -1224,11 +1235,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1240,11 +1251,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1256,11 +1267,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 22d98855-5e22-42ea-ac52-081ddd404c94
+                  documentId: f52bcef5-f09a-450d-97ef-214693ba92ad
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1327,13 +1338,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: start
   /projects/{projectId}/classifiers/{classifierId}/classification/result/{operationId}:
     get:
       tags:
         - Classification
       summary: ""
       description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n<br>Required scopes: <b>Du.Classification.Api</b></br>"
-      operationId: Get
+      operationId: GetClassificationResult
       parameters:
         - name: api-version
           in: query
@@ -1434,6 +1446,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: get
   /projects/{projectId}/extractors/{extractorId}/extraction:
     post:
       tags:
@@ -1471,55 +1484,25 @@ paths:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts: null
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts: null
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts: null
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: a4e74153-b4a4-46d4-8bca-e00f4f4037a5
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"47c826a7-8dd2-469e-a0b8-8442caad04fd","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
       responses:
         "200":
           description: Success
@@ -1617,13 +1600,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: extract
   /projects/{projectId}/extractors/{extractorId}/extraction/start:
     post:
       tags:
         - Extraction
       summary: ""
       description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
-      operationId: Start
+      operationId: StartExtraction
       parameters:
         - name: api-version
           in: query
@@ -1654,55 +1638,25 @@ paths:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts: null
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
           text/json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts: null
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
           application/*+json:
             schema:
               $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBody'
             examples:
               Specialized Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts: null
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":null}'
               Generative Extraction:
-                value:
-                  documentId: c89630ee-266f-44d9-9e91-2abfa54143f4
-                  prompts:
-                    - id: Invoice Number
-                      question: Extract the invoice number from the provided document.
-                    - id: Date
-                      question: What is the invoice date mentioned in the document?
-                    - id: Total
-                      question: Extract the total amount from the invoice.
+                value: '{"documentId":"56469f43-f9c8-4598-ad9f-c550c0ffde7d","prompts":[{"id":"Invoice Number","question":"Extract the invoice number from the provided document."},{"id":"Date","question":"What is the invoice date mentioned in the document?"},{"id":"Total","question":"Extract the total amount from the invoice."}]}'
       responses:
         "202":
           description: Accepted
@@ -1764,13 +1718,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: start
   /projects/{projectId}/extractors/{extractorId}/extraction/result/{operationId}:
     get:
       tags:
         - Extraction
       summary: ""
       description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n<br>Required scopes: <b>Du.Extraction.Api</b></br>"
-      operationId: Get
+      operationId: GetExtractionResult
       parameters:
         - name: api-version
           in: query
@@ -1871,6 +1826,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: get
   /projects/{projectId}/classifiers/{classifierId}/validation/start:
     post:
       tags:
@@ -1911,7 +1867,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -1935,7 +1891,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -1946,7 +1902,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -1974,7 +1930,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -1989,7 +1945,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2013,7 +1969,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2024,7 +1980,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2052,7 +2008,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2067,7 +2023,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2091,7 +2047,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2102,7 +2058,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                      DocumentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2130,7 +2086,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 4b47966a-8e6e-4688-a125-f87e39e75078
+                  documentId: 87773eee-68b7-43ca-9e04-43f6da9c6cf5
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2222,13 +2178,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: start-classification-validation
   /projects/{projectId}/classifiers/{classifierId}/validation/result/{operationId}:
     get:
       tags:
         - Validation
       summary: ""
       description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
-      operationId: GetClassificationValidation
+      operationId: GetClassificationValidationResult
       parameters:
         - name: api-version
           in: query
@@ -2341,6 +2298,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: get-classification-validation
   /projects/{projectId}/extractors/{extractorId}/validation/start:
     post:
       tags:
@@ -2380,7 +2338,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2547,7 +2505,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2557,7 +2515,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2730,7 +2688,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2744,7 +2702,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -2911,7 +2869,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2921,7 +2879,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3094,7 +3052,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3108,7 +3066,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3275,7 +3233,7 @@ paths:
                         RowIndex: 0
                         TableFieldId: string
                   prompts: null
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3285,7 +3243,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                    DocumentId: 0be44160-750e-4b23-ad59-23e25689960a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3458,7 +3416,7 @@ paths:
                       question: What is the invoice date mentioned in the document?
                     - id: Total
                       question: Extract the total amount from the invoice.
-                  documentId: 94f851e0-c640-490f-8f2f-39609b51f48b
+                  documentId: 0be44160-750e-4b23-ad59-23e25689960a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3550,13 +3508,14 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: start-extraction-validation
   /projects/{projectId}/extractors/{extractorId}/validation/result/{operationId}:
     get:
       tags:
         - Validation
       summary: ""
       description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n<br>Required scopes: <b>Du.Validation.Api</b></br>"
-      operationId: GetExtractionValidation
+      operationId: GetExtractionValidationResult
       parameters:
         - name: api-version
           in: query
@@ -3669,6 +3628,7 @@ paths:
             text/json:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
+      x-uipathcli-name: get-extraction-validation
 components:
   schemas:
     UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority:
@@ -5042,7 +5002,7 @@ components:
   securitySchemes:
     oauth2:
       type: oauth2
-      description: In order to enable access to the Cloud APIs you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/user-guide/authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
+      description: In order to enable access to the Cloud APIs you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/api-guide/api-authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
           tokenUrl: https://cloud.uipath.com/identity_/connect/token

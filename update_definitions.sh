@@ -138,7 +138,7 @@ download_definition "https://cloud.uipath.com/$organization/$tenant/du_/api/fram
 | save_definition "du.framework"
 
 echo "Updating orchestrator definition..."
-download_definition "https://cloud.uipath.com/$organization/$tenant/orchestrator_/swagger/v17.0/swagger.json" "v2" \
+download_definition "https://cloud.uipath.com/$organization/$tenant/orchestrator_/swagger/v18.0/swagger.json" "v2" \
 | update_server_url "https://cloud.uipath.com/{organization}/{tenant}/orchestrator_" \
 | set_parameter_property "X-UIPATH-OrganizationUnitId" "x-uipathcli-name" "\"folder-id\"" \
 | set_parameter_property "X-UIPATH-OrganizationUnitId" "required" "true" \

@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
-  title: UiPath.WebApi 17.0
+  title: UiPath.WebApi 18.0
   description: Orchestrator API
-  version: "17.0"
+  version: "18.0"
 servers:
   - url: https://cloud.uipath.com/{organization}/{tenant}/orchestrator_
     description: The production url
@@ -112,9 +112,21 @@ paths:
             x-ms-enum:
               name: SearchContext
               modelAsString: false
+            x-enum-varnames:
+              - All
+              - Users
+              - Groups
+              - Robots
+              - ExternalApplications
           x-ms-enum:
             name: SearchContext
             modelAsString: false
+          x-enum-varnames:
+            - All
+            - Users
+            - Groups
+            - Robots
+            - ExternalApplications
         - name: domain
           in: query
           schema:
@@ -238,9 +250,21 @@ paths:
             x-ms-enum:
               name: DirectoryObjectType
               modelAsString: false
+            x-enum-varnames:
+              - User
+              - Group
+              - Machine
+              - Robot
+              - ExternalApplication
           x-ms-enum:
             name: DirectoryObjectType
             modelAsString: false
+          x-enum-varnames:
+            - User
+            - Group
+            - Machine
+            - Robot
+            - ExternalApplication
         - name: skip
           in: query
           schema:
@@ -337,6 +361,11 @@ paths:
                 - Personal
                 - Virtual
                 - Solution
+              x-enum-varnames:
+                - Standard
+                - Personal
+                - Virtual
+                - Solution
               x-ms-enum:
                 name: FolderType
                 modelAsString: false
@@ -346,7 +375,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PageResultDtoOfFolderDto'
+                $ref: '#/components/schemas/PageResultDtoOfPathAwareFolderDto'
       security:
         - OAuth2: []
   /api/Licensing/Acquire:
@@ -546,9 +575,17 @@ paths:
             x-ms-enum:
               name: MaintenanceState
               modelAsString: false
+            x-enum-varnames:
+              - None
+              - Draining
+              - Suspended
           x-ms-enum:
             name: MaintenanceState
             modelAsString: false
+          x-enum-varnames:
+            - None
+            - Draining
+            - Suspended
         - name: force
           in: query
           description: Whether to ignore errors during transition
@@ -1171,9 +1208,17 @@ paths:
             x-ms-enum:
               name: ExecutionTriggerType
               modelAsString: false
+            x-enum-varnames:
+              - Manual
+              - Scheduled
+              - ExternalTool
           x-ms-enum:
             name: ExecutionTriggerType
             modelAsString: false
+          x-enum-varnames:
+            - Manual
+            - Scheduled
+            - ExternalTool
         - name: X-UIPATH-OrganizationUnitId
           in: header
           description: Folder/OrganizationUnit Id
@@ -1799,10 +1844,7 @@ paths:
       tags:
         - Alerts
       summary: Gets alerts.
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.
-
-        Required permissions: Alerts.View.
+      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.\n\nRequired permissions: Alerts.View.\nDEPRECATED: \nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: Alerts_Get
       parameters:
         - name: $expand
@@ -1849,6 +1891,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfAlertDto'
+      deprecated: true
       security:
         - OAuth2: []
   /odata/Alerts/UiPath.Server.Configuration.OData.GetUnreadCount:
@@ -1856,10 +1899,7 @@ paths:
       tags:
         - Alerts
       summary: Returns the total number of alerts, per tenant, that haven't been read by the current user.
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.
-
-        Required permissions: Alerts.View.
+      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Read.\n\nRequired permissions: Alerts.View.\nDEPRECATED: \nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: Alerts_GetUnreadCount
       parameters:
         - name: $expand
@@ -1879,6 +1919,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfInt64'
+      deprecated: true
       security:
         - OAuth2: []
   /odata/Alerts/UiPath.Server.Configuration.OData.MarkAsRead:
@@ -1886,10 +1927,7 @@ paths:
       tags:
         - Alerts
       summary: Marks alerts as read and returns the remaining number of unread notifications.
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.
-
-        Required permissions: Alerts.View.
+      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.\n\nRequired permissions: Alerts.View.\nDEPRECATED: \nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: Alerts_MarkAsRead
       parameters:
         - name: $expand
@@ -1955,6 +1993,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ODataValueOfInt64'
+      deprecated: true
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -1963,10 +2002,7 @@ paths:
       tags:
         - Alerts
       summary: Creates a Process Alert
-      description: |-
-        OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.
-
-        Required permissions: Alerts.Create.
+      description: "OAuth required scopes: OR.Monitoring or OR.Monitoring.Write.\n\nRequired permissions: Alerts.Create.\nDEPRECATED: \nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: Alerts_RaiseProcessAlert
       requestBody:
         content:
@@ -2017,6 +2053,7 @@ paths:
         "200":
           description: Success
           content: {}
+      deprecated: true
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -2863,9 +2900,15 @@ paths:
             x-ms-enum:
               name: AuditedService
               modelAsString: false
+            x-enum-varnames:
+              - Orchestrator
+              - TestAutomation
           x-ms-enum:
             name: AuditedService
             modelAsString: false
+          x-enum-varnames:
+            - Orchestrator
+            - TestAutomation
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -2934,9 +2977,15 @@ paths:
             x-ms-enum:
               name: AuditedService
               modelAsString: false
+            x-enum-varnames:
+              - Orchestrator
+              - TestAutomation
           x-ms-enum:
             name: AuditedService
             modelAsString: false
+          x-enum-varnames:
+            - Orchestrator
+            - TestAutomation
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -3011,9 +3060,15 @@ paths:
             x-ms-enum:
               name: AuditedService
               modelAsString: false
+            x-enum-varnames:
+              - Orchestrator
+              - TestAutomation
           x-ms-enum:
             name: AuditedService
             modelAsString: false
+          x-enum-varnames:
+            - Orchestrator
+            - TestAutomation
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4627,9 +4682,19 @@ paths:
             x-ms-enum:
               name: CredentialStoreResourceType
               modelAsString: false
+            x-enum-varnames:
+              - AssetCredential
+              - RobotCredential
+              - BucketCredential
+              - Secrets
           x-ms-enum:
             name: CredentialStoreResourceType
             modelAsString: false
+          x-enum-varnames:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4681,9 +4746,21 @@ paths:
             x-ms-enum:
               name: CredentialsProxyResourceType
               modelAsString: false
+            x-enum-varnames:
+              - AssetCredential
+              - RobotCredential
+              - BucketCredential
+              - Secrets
+              - CredentialStore
           x-ms-enum:
             name: CredentialsProxyResourceType
             modelAsString: false
+          x-enum-varnames:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
+            - CredentialStore
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4761,9 +4838,19 @@ paths:
             x-ms-enum:
               name: CredentialStoreResourceType
               modelAsString: false
+            x-enum-varnames:
+              - AssetCredential
+              - RobotCredential
+              - BucketCredential
+              - Secrets
           x-ms-enum:
             name: CredentialStoreResourceType
             modelAsString: false
+          x-enum-varnames:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -6394,9 +6481,21 @@ paths:
             x-ms-enum:
               name: DirectoryObjectType
               modelAsString: false
+            x-enum-varnames:
+              - User
+              - Group
+              - Machine
+              - Robot
+              - ExternalApplication
           x-ms-enum:
             name: DirectoryObjectType
             modelAsString: false
+          x-enum-varnames:
+            - User
+            - Group
+            - Machine
+            - Robot
+            - ExternalApplication
         - name: searchText
           in: query
           schema:
@@ -8742,9 +8841,47 @@ paths:
             x-ms-enum:
               name: RobotType
               modelAsString: false
+            x-enum-varnames:
+              - NonProduction
+              - Attended
+              - Unattended
+              - Development
+              - Studio
+              - RpaDeveloper
+              - StudioX
+              - CitizenDeveloper
+              - Headless
+              - StudioPro
+              - RpaDeveloperPro
+              - TestAutomation
+              - AutomationCloud
+              - Serverless
+              - AutomationKit
+              - ServerlessTestAutomation
+              - AutomationCloudTestAutomation
+              - AttendedStudioWeb
           x-ms-enum:
             name: RobotType
             modelAsString: false
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -8900,9 +9037,47 @@ paths:
             x-ms-enum:
               name: RobotType
               modelAsString: false
+            x-enum-varnames:
+              - NonProduction
+              - Attended
+              - Unattended
+              - Development
+              - Studio
+              - RpaDeveloper
+              - StudioX
+              - CitizenDeveloper
+              - Headless
+              - StudioPro
+              - RpaDeveloperPro
+              - TestAutomation
+              - AutomationCloud
+              - Serverless
+              - AutomationKit
+              - ServerlessTestAutomation
+              - AutomationCloudTestAutomation
+              - AttendedStudioWeb
           x-ms-enum:
             name: RobotType
             modelAsString: false
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -19299,6 +19474,229 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfTaskNoteDto'
       security:
         - OAuth2: []
+  /odata/TaskRetention:
+    get:
+      tags:
+        - TaskRetention
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Read.
+
+        Required permissions: TaskCatalogs.View.
+      operationId: TaskRetention_Get
+      parameters:
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataValueOfIEnumerableOfTaskRetentionSettingDto'
+      security:
+        - OAuth2: []
+  /odata/TaskRetention({key}):
+    get:
+      tags:
+        - TaskRetention
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Read.
+
+        Required permissions: TaskCatalogs.View.
+      operationId: TaskRetention_GetById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskRetentionSettingDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+    put:
+      tags:
+        - TaskRetention
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Write.
+
+        Required permissions: TaskCatalogs.Edit.
+      operationId: TaskRetention_PutById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      requestBody:
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/TaskRetentionSettingDto'
+        required: false
+      responses:
+        "200":
+          description: Success
+          content: {}
+        "400":
+          description: Bad Request
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+    delete:
+      tags:
+        - TaskRetention
+      description: |-
+        OAuth required scopes: OR.Execution or OR.Execution.Write.
+
+        Required permissions: TaskCatalogs.Delete.
+      operationId: TaskRetention_DeleteById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "204":
+          description: No Content
+          content: {}
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
   /odata/Tasks:
     get:
       tags:
@@ -23646,6 +24044,22 @@ components:
             - ConnectedTriggers
             - Serverless
             - Export
+          x-enum-varnames:
+            - Robots
+            - Transactions
+            - Schedules
+            - Jobs
+            - Process
+            - Tasks
+            - Queues
+            - Folders
+            - PersonalWorkspaces
+            - TestAutomation
+            - Insights
+            - CloudRobots
+            - ConnectedTriggers
+            - Serverless
+            - Export
           x-ms-enum:
             name: AlertDtoComponent
             modelAsString: false
@@ -23653,6 +24067,12 @@ components:
           type: string
           description: The severity level of the alert.
           enum:
+            - Info
+            - Success
+            - Warn
+            - Error
+            - Fatal
+          x-enum-varnames:
             - Info
             - Success
             - Warn
@@ -23669,6 +24089,9 @@ components:
           type: string
           description: "Defines if a specified notification has been read or not.\r\n<para />Members: Unread (0) - the specified notification has not been marked as read; Read (1) - the specified notification has been marked as read."
           enum:
+            - Unread
+            - Read
+          x-enum-varnames:
             - Unread
             - Read
           x-ms-enum:
@@ -23824,6 +24247,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskCreateRequestType
             modelAsString: false
@@ -23836,6 +24266,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -23859,6 +24294,11 @@ components:
           description: List of tags associated to the task.
           items:
             $ref: '#/components/schemas/TagDto'
+        parentOperationId:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Operation id which created the task.
       description: Class with only attributes needed for Creating Task (TaskType = TaskType.AppTask)
     AppTasksDataDto:
       type: object
@@ -23872,6 +24312,10 @@ components:
           type: string
           description: Task status
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -23923,6 +24367,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -23930,6 +24381,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -23964,6 +24420,9 @@ components:
           type: string
           description: Datetime when task was completed.
           format: date-time
+        parentOperationId:
+          type: string
+          description: Operation id which created the task.
         isDeleted:
           type: boolean
         deleterUserId:
@@ -24036,6 +24495,15 @@ components:
             - Credential
             - WindowsCredential
             - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
           x-ms-enum:
             name: AssetCreatedEventAssetType
             modelAsString: false
@@ -24043,6 +24511,9 @@ components:
           type: string
           description: Defines the visibility level of an asset.
           enum:
+            - Global
+            - PerRobot
+          x-enum-varnames:
             - Global
             - PerRobot
           x-ms-enum:
@@ -24082,6 +24553,15 @@ components:
             - Credential
             - WindowsCredential
             - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
           x-ms-enum:
             name: AssetDeletedEventAssetType
             modelAsString: false
@@ -24089,6 +24569,9 @@ components:
           type: string
           description: Defines the visibility level of an asset.
           enum:
+            - Global
+            - PerRobot
+          x-enum-varnames:
             - Global
             - PerRobot
           x-ms-enum:
@@ -24128,6 +24611,9 @@ components:
           enum:
             - Global
             - PerRobot
+          x-enum-varnames:
+            - Global
+            - PerRobot
           x-ms-enum:
             name: AssetDtoValueScope
             modelAsString: false
@@ -24135,6 +24621,15 @@ components:
           type: string
           description: Defines the type of value stored by the asset.
           enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
             - DBConnectionString
             - HttpConnectionString
             - Text
@@ -24266,6 +24761,15 @@ components:
             - Credential
             - WindowsCredential
             - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
           x-ms-enum:
             name: AssetRobotValueDtoValueType
             modelAsString: false
@@ -24329,6 +24833,15 @@ components:
             - Credential
             - WindowsCredential
             - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
           x-ms-enum:
             name: AssetUpdatedEventAssetType
             modelAsString: false
@@ -24336,6 +24849,9 @@ components:
           type: string
           description: Defines the visibility level of an asset.
           enum:
+            - Global
+            - PerRobot
+          x-enum-varnames:
             - Global
             - PerRobot
           x-ms-enum:
@@ -24376,6 +24892,15 @@ components:
           type: string
           description: Defines the type of value stored by the asset.
           enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
             - DBConnectionString
             - HttpConnectionString
             - Text
@@ -24489,6 +25014,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: AttendedRobotDtoRobotType
             modelAsString: false
@@ -24564,6 +25108,59 @@ components:
             - InstallState
             - FinishInstall
             - FinishUninstall
+          x-enum-varnames:
+            - Unknown
+            - Create
+            - Update
+            - Delete
+            - StartJob
+            - StopJob
+            - Associate
+            - Upload
+            - ChangeStatus
+            - Import
+            - ChangePassword
+            - Register
+            - Toggle
+            - ResetPassword
+            - PasswordResetAttempt
+            - Download
+            - Acknowledge
+            - Activate
+            - Assign
+            - BulkUpload
+            - UpdateFeature
+            - ResumeJob
+            - Start
+            - End
+            - Skip
+            - Unassign
+            - Deactivate
+            - CreateBlobFileSas
+            - DeleteBlobFile
+            - Move
+            - Set
+            - StartDelete
+            - ExploreStart
+            - ExploreEnd
+            - Save
+            - Convert
+            - Forward
+            - BulkComplete
+            - BulkSave
+            - ForceStopJob
+            - MigrateFolder
+            - EditTaskMetadata
+            - Archive
+            - StartMigrateFolders
+            - ToggleUserFolderSubscription
+            - StartUninstall
+            - StartInstall
+            - VideoAccess
+            - AutomaticallyExploreEnd
+            - InstallState
+            - FinishInstall
+            - FinishUninstall
           x-ms-enum:
             name: AuditLogDtoAction
             modelAsString: false
@@ -24571,6 +25168,53 @@ components:
           type: string
           description: The component for which the action was performed
           enum:
+            - Unknown
+            - Assets
+            - Environments
+            - Processes
+            - Queues
+            - Robots
+            - Roles
+            - Schedules
+            - Users
+            - Comments
+            - Units
+            - Jobs
+            - Settings
+            - Packages
+            - License
+            - Tenant
+            - Machines
+            - Libraries
+            - Webhooks
+            - ExecutionMedia
+            - Monitoring
+            - CredentialStores
+            - DefaultCredentialStores
+            - TaskCatalogs
+            - Tasks
+            - Maintenance
+            - Folders
+            - DirectoryService
+            - Buckets
+            - TenantMove
+            - Secrets
+            - PersonalWorkspaces
+            - CloudSubscriptions
+            - CloudSnapshots
+            - Sessions
+            - CredentialsProxies
+            - StudioWeb
+            - AutomationSolutions
+            - RemoteControl
+            - TaskSolutions
+            - TaskDefinitions
+            - HttpTriggers
+            - TestSets
+            - TestSetSchedules
+            - TestDataQueues
+            - TestDataQueueItems
+          x-enum-varnames:
             - Unknown
             - Assets
             - Environments
@@ -24737,6 +25381,59 @@ components:
             - InstallState
             - FinishInstall
             - FinishUninstall
+          x-enum-varnames:
+            - Unknown
+            - Create
+            - Update
+            - Delete
+            - StartJob
+            - StopJob
+            - Associate
+            - Upload
+            - ChangeStatus
+            - Import
+            - ChangePassword
+            - Register
+            - Toggle
+            - ResetPassword
+            - PasswordResetAttempt
+            - Download
+            - Acknowledge
+            - Activate
+            - Assign
+            - BulkUpload
+            - UpdateFeature
+            - ResumeJob
+            - Start
+            - End
+            - Skip
+            - Unassign
+            - Deactivate
+            - CreateBlobFileSas
+            - DeleteBlobFile
+            - Move
+            - Set
+            - StartDelete
+            - ExploreStart
+            - ExploreEnd
+            - Save
+            - Convert
+            - Forward
+            - BulkComplete
+            - BulkSave
+            - ForceStopJob
+            - MigrateFolder
+            - EditTaskMetadata
+            - Archive
+            - StartMigrateFolders
+            - ToggleUserFolderSubscription
+            - StartUninstall
+            - StartInstall
+            - VideoAccess
+            - AutomaticallyExploreEnd
+            - InstallState
+            - FinishInstall
+            - FinishUninstall
           x-ms-enum:
             name: AuditLogEntityDtoAction
             modelAsString: false
@@ -24850,6 +25547,11 @@ components:
             - ReadOnly
             - AuditReadAccess
             - AccessDataThroughOrchestrator
+          x-enum-varnames:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
           x-ms-enum:
             name: BucketDtoOptions
             modelAsString: false
@@ -24954,6 +25656,10 @@ components:
             - AllOrNothing
             - StopOnFirstFailure
             - ProcessAllIndependently
+          x-enum-varnames:
+            - AllOrNothing
+            - StopOnFirstFailure
+            - ProcessAllIndependently
           x-ms-enum:
             name: BulkAddQueueItemsRequestCommitType
             modelAsString: false
@@ -24969,6 +25675,74 @@ components:
         Status:
           type: string
           enum:
+            - Continue
+            - SwitchingProtocols
+            - Processing
+            - EarlyHints
+            - OK
+            - Created
+            - Accepted
+            - NonAuthoritativeInformation
+            - NoContent
+            - ResetContent
+            - PartialContent
+            - MultiStatus
+            - AlreadyReported
+            - IMUsed
+            - MultipleChoices
+            - Ambiguous
+            - MovedPermanently
+            - Moved
+            - Found
+            - Redirect
+            - SeeOther
+            - RedirectMethod
+            - NotModified
+            - UseProxy
+            - Unused
+            - TemporaryRedirect
+            - RedirectKeepVerb
+            - PermanentRedirect
+            - BadRequest
+            - Unauthorized
+            - PaymentRequired
+            - Forbidden
+            - NotFound
+            - MethodNotAllowed
+            - NotAcceptable
+            - ProxyAuthenticationRequired
+            - RequestTimeout
+            - Conflict
+            - Gone
+            - LengthRequired
+            - PreconditionFailed
+            - RequestEntityTooLarge
+            - RequestUriTooLong
+            - UnsupportedMediaType
+            - RequestedRangeNotSatisfiable
+            - ExpectationFailed
+            - MisdirectedRequest
+            - UnprocessableEntity
+            - UnprocessableContent
+            - Locked
+            - FailedDependency
+            - UpgradeRequired
+            - PreconditionRequired
+            - TooManyRequests
+            - RequestHeaderFieldsTooLarge
+            - UnavailableForLegalReasons
+            - InternalServerError
+            - NotImplemented
+            - BadGateway
+            - ServiceUnavailable
+            - GatewayTimeout
+            - HttpVersionNotSupported
+            - VariantAlsoNegotiates
+            - InsufficientStorage
+            - LoopDetected
+            - NotExtended
+            - NetworkAuthenticationRequired
+          x-enum-varnames:
             - Continue
             - SwitchingProtocols
             - Processing
@@ -25219,6 +25993,14 @@ components:
             - Section
             - Secret
             - SecretFile
+          x-enum-varnames:
+            - String
+            - Number
+            - Choice
+            - Boolean
+            - Section
+            - Secret
+            - SecretFile
           x-ms-enum:
             name: ConfigurationEntryValueType
             modelAsString: false
@@ -25267,6 +26049,11 @@ components:
           type: string
           description: "This enum describes the type of resources that can be stored in the Credential Store. When\r\na new resource type is added, the default needs to be initialized in 3 places:\r\n1. Existing tenants: At migration time.\r\n2. Default tenant: At seed time in DefaultTenantCreator.cs.\r\n3. New tenants: In TenantService.cs."
           enum:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
+          x-enum-varnames:
             - AssetCredential
             - RobotCredential
             - BucketCredential
@@ -25337,6 +26124,11 @@ components:
             - RobotCredential
             - BucketCredential
             - Secrets
+          x-enum-varnames:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
           x-ms-enum:
             name: CredentialStoreResourceDtoType
             modelAsString: false
@@ -25368,6 +26160,12 @@ components:
           type: string
           description: This enum describes the type of resources that can be affiliated to a Credentials Proxy.
           enum:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
+            - CredentialStore
+          x-enum-varnames:
             - AssetCredential
             - RobotCredential
             - BucketCredential
@@ -25460,6 +26258,11 @@ components:
             - RobotCredential
             - BucketCredential
             - Secrets
+          x-enum-varnames:
+            - AssetCredential
+            - RobotCredential
+            - BucketCredential
+            - Secrets
           x-ms-enum:
             name: DefaultCredentialStoreDtoResourceType
             modelAsString: false
@@ -25486,6 +26289,12 @@ components:
             - Machine
             - Robot
             - ExternalApplication
+          x-enum-varnames:
+            - User
+            - Group
+            - Machine
+            - Robot
+            - ExternalApplication
           x-ms-enum:
             name: DirectoryObjectDtoType
             modelAsString: false
@@ -25499,7 +26308,6 @@ components:
           type: string
         displayName:
           type: string
-          readOnly: true
     DirectoryPermissionDto:
       type: object
       properties:
@@ -25532,6 +26340,13 @@ components:
         UserType:
           type: string
           enum:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
+          x-enum-varnames:
             - User
             - Robot
             - DirectoryUser
@@ -25589,6 +26404,8 @@ components:
           type: string
           enum:
             - Json
+          x-enum-varnames:
+            - Json
           x-ms-enum:
             name: EntryPointDataVariationDtoContentType
             modelAsString: false
@@ -25636,6 +26453,10 @@ components:
           type: string
           description: "DEPRECATED. The environment type specifies how it should be used.\r\nThis property is deprecated and should no longer be used."
           enum:
+            - Dev
+            - Test
+            - Prod
+          x-enum-varnames:
             - Dev
             - Test
             - Prod
@@ -25753,6 +26574,9 @@ components:
           enum:
             - Global
             - Robot
+          x-enum-varnames:
+            - Global
+            - Robot
           x-ms-enum:
             name: ExecutionSettingsConfigurationScope
             modelAsString: false
@@ -25776,12 +26600,23 @@ components:
             - Queues
             - Logs
             - Jobs
+          x-enum-varnames:
+            - OrchestratorAudit
+            - TestAutomationAudit
+            - Queues
+            - Logs
+            - Jobs
           x-ms-enum:
             name: ExportModelType
             modelAsString: false
         Status:
           type: string
           enum:
+            - New
+            - InProgress
+            - Completed
+            - Failed
+          x-enum-varnames:
             - New
             - InProgress
             - Completed
@@ -25857,6 +26692,11 @@ components:
             - Personal
             - Virtual
             - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
           x-ms-enum:
             name: FolderDtoFolderType
             modelAsString: false
@@ -25894,6 +26734,12 @@ components:
           type: string
           description: Folder feed type
           enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-enum-varnames:
             - Undefined
             - Processes
             - Libraries
@@ -25976,6 +26822,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -25985,6 +26850,9 @@ components:
           enum:
             - Standard
             - Floating
+          x-enum-varnames:
+            - Standard
+            - Floating
           x-ms-enum:
             name: RobotDtoHostingType
             modelAsString: false
@@ -25992,6 +26860,9 @@ components:
           type: string
           description: The Robot provision type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -26326,6 +27197,9 @@ components:
             - AutomationCloudLicenseLimitExceeded
             - AutomationExpressNotSupported
             - StudioWebLocalRobotNotSupported
+            - UserLicenseDisabled
+            - LicenseReleaseFailure
+            - LicenseRetrieveFailure
             - ArgumentMetadataExtract
             - ArgumentMetadataValidation
             - ArgumentDefinitionExtract
@@ -26593,6 +27467,7 @@ components:
             - CredentialsProxyTypeCannotBeCreated
             - CredentialsProxyGetAssetFromDisconnectedProxyNotEnabled
             - CredentialsProxyGetAssetFromDisconnectedProxyNotAllowedForThisActivityVersion
+            - CredentialsProxyRequestFailedWithTimeout
             - ServerlessCreateMachineTemplateErrorCode
             - ServerlessUpdateMachineTemplateErrorCode
             - ServerlessDeleteMachineTemplateErrorCode
@@ -26623,6 +27498,7 @@ components:
             - SolutionPackageNotInScope
             - SolutionLibraryUrlIsInvalid
             - TenantLibraryFeedNotEnabled
+            - SolutionsCannotInstallInPWFolder
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
@@ -26634,6 +27510,579 @@ components:
             - CallbackNotEnabledForTrigger
             - CallbackIsRequired
             - CalendarNotFound
+            - EntitlementConsumationFailure
+            - ContentLengthTooLarge
+          x-enum-varnames:
+            - Unknown
+            - MultipleErrors
+            - InvalidODataRequest
+            - InvalidRequest
+            - NameAlreadyUsed
+            - ItemNotFound
+            - StringProtectFailed
+            - ItemAlreadyExists
+            - ErrorDeleting
+            - ErrorInserting
+            - ErrorUpdating
+            - ErrorSendingEmail
+            - InvalidArgument
+            - SqlAcquireLockFailure
+            - LibrariesFeedInUse
+            - HasDependentItems
+            - ItemIsInUse
+            - ParameterMissing
+            - ParameterInvalid
+            - DuplicateReference
+            - ForbiddenOperation
+            - InvalidUser
+            - FeatureDisabled
+            - OptimisticConcurrency
+            - EncryptionException
+            - CannotCreateOrMigrateTenantDb
+            - TenantIsRequired
+            - FieldNotEditable
+            - ServiceUnavailable
+            - SharedAccessSignatureFailure
+            - ProviderNotSupported
+            - EmailAlreadyUsed
+            - InvalidAuditRelationship
+            - InvalidOrganizationUnit
+            - RequiredOrganizationUnit
+            - OrganizationUnitNotEditable
+            - NoOrganizationUnitWithPermissions
+            - MultipleOrganizationUnitsOnSession
+            - InvalidPermissionInCrossFolderRequest
+            - CannotCreateClassicEntities
+            - CannotEditClassicEntities
+            - RequiredPermissions
+            - CannotEditDuringMigration
+            - MachineAlreadyPairedWithDifferentLicenseKey
+            - NoAvailableLicenses
+            - HasAttachedRobots
+            - InvalidMachineKey
+            - MachineNameRequired
+            - UserNameRequired
+            - CannotDeleteBusyRobot
+            - MachineNameCannotChange
+            - MachineLicenseCannotChange
+            - CannotUpdateBusyRobot
+            - MachineTypeCannotChange
+            - UserNameInvalid
+            - SessionAlreadyActive
+            - CannotAssignMachineToFloatingRobot
+            - CannotUpdateRobotHostingType
+            - CannotAssignMachineTemplateToStandardRobot
+            - CannotUpdateActiveSession
+            - MachineTemplateUniqueLicenseKey
+            - InvalidMachineId
+            - InvalidNonProductionMachineSlots
+            - InvalidUnattendedMachineSlots
+            - DisconnectedRobot
+            - UnresponsiveRobot
+            - UnsupportedFloatingSessionRobotType
+            - UnsupportedStandardSessionRobotType
+            - RobotNotFoundUseInteractive
+            - MachineScopeProtected
+            - MachineKeyCannotChange
+            - TenantIdMismatch
+            - UserDoesNotHaveRobot
+            - RobotDisabled
+            - UnattendedRobotNotFound
+            - CannotPropagateMachineToSubfolders
+            - MachineRuntimeProtected
+            - IncompatibleOS
+            - IncompatibleRobotVersion
+            - MachineMaintenanceWindowDuration
+            - MachineMaintenanceTimeZoneId
+            - ClassicRobotNotFound
+            - ClassicRobotToUserMappingUsernameMissmatch
+            - UserMappedToRobotWithDifferentUsername
+            - RobotOnDifferentMachineMappedToSameUser
+            - ClassicRobotMappedToInvalidUser
+            - SameRobotUsernameMappedToDiferentUser
+            - ClassicCannotCleanNotFailedMigrations
+            - InvalidSlots
+            - RobotNotFoundByKey
+            - InvalidJobKey
+            - MachineSessionNotFound
+            - EnvironmentDeploymentConflict
+            - UnattendedRobotCredentialsNotFound
+            - ServerConflict
+            - ActionAlreadyPerformed
+            - UnavailableResources
+            - UserIsDeleted
+            - UserIsLockedOut
+            - ChangePassword
+            - PasswordExpired
+            - InvalidPassword
+            - CannotDeleteStaticRole
+            - UserNotEditable
+            - DomainUnreachable
+            - PasswordResetFailed
+            - ConfirmEmailFailed
+            - CannotUsePreviousPassword
+            - RoleIsNotEditable
+            - UserNotFoundInDomain
+            - CannotUpdateUsername
+            - InvalidLoginMethod
+            - InvalidUsernameOrPassword
+            - MultipleMatchingUsers
+            - CannotCallFromHost
+            - CreateNotAllowed
+            - ProvisionError
+            - EmptyDirectoryParam
+            - NotDirectoryUserOrGroup
+            - NoUsersFound
+            - CannotChangeRoleType
+            - InvalidTenantRole
+            - InvalidFolderRole
+            - HostTenantKeyNotFound
+            - CannotAssignFolderRolesToUser
+            - CannotAssignTenantRolesToFolder
+            - InvalidAuthenticationToken
+            - CannotDeleteLastAdmin
+            - CannotUnassignLastAdmin
+            - CannotInactivateLastAdmin
+            - UserNotInRole
+            - UserAlreadyInRole
+            - AdditionalPermissionsNotAllowed
+            - CredentialAssetEmptyPasswordForNewUser
+            - CredentialAssetEmptyForNewRobot
+            - AssetTypeNonUpdatable
+            - AssetNotAvailableForRobot
+            - AssetNotFound
+            - InvalidCron
+            - ScheduleWillNeverRun
+            - ScheduleMisfired
+            - InvalidScheduleKey
+            - ScheduleIsNotEnabled
+            - ScheduleNotAssociatedWithAQueue
+            - ScheduleCannotBeAssociatedWithAQueue
+            - UserIsAssignedToTriggers
+            - InvalidCronRecurrence
+            - DisabledDueToConsecutiveFailures
+            - MachineRobotHasAttachedTriggers
+            - UserHasAttachedTriggers
+            - MachineHasAttachedTriggers
+            - InvalidTimeZoneId
+            - DisabledDueToConsecutiveJobFailures
+            - ScheduleJobsNotCreated
+            - DownloadUnavailable
+            - CannotConnectToPackagesRepository
+            - NotSupportedByExternalFeeds
+            - ErrorDownloading
+            - InvalidPackageDetails
+            - TenantFeedInUse
+            - InvalidProcessKey
+            - JobTypeCannotBeStopped
+            - JobCannotBeCancelled
+            - JobCannotBeTerminated
+            - VersionNotFound
+            - ProcessNotFound
+            - HasAttachedProcesses
+            - InvalidExtension
+            - InvalidPackageCount
+            - PreviousVersionNotFound
+            - HasRunningJobs
+            - TenantNotFound
+            - PendingJobsAlreadyExist
+            - InvalidStartJobRobotIds
+            - UnregisteredCannotStartJobs
+            - LicenseExpiredCannotStartJobs
+            - InvalidReleaseKey
+            - InvalidPackageVersion
+            - TenantIsDisabled
+            - PackageNotFound
+            - NoRobotsAvailable
+            - PathTooLong
+            - JobExecutionFaulted
+            - InvalidJobIdOrRobotKey
+            - InvalidJobStateForSuspend
+            - JobNotFoundByPersistenceId
+            - SuspendJobStateNotFound
+            - ErrorPackagePublish
+            - ErrorSavingPackageDefinition
+            - MaxNumberJobsAlreadyExist
+            - HasSlaEnabedQueuesAssociated
+            - VersionsManagedAutomatically
+            - InaccessibleFeed
+            - TestAutomationJobExecutionNotSupported
+            - TestAutomationProcessAlreadyExists
+            - CannotRestartUnfinishedJob
+            - CyberArkEditPasswordNotAllowed
+            - LogMessageNotFound
+            - LogRobotNameNotFound
+            - InvalidElasticQuery
+            - EncryptionKeyNotFound
+            - EncryptionKeyIncorrectFormat
+            - AzureKeyVaultRetrieveIssue
+            - AzureKeyVaultStoreIssue
+            - EncryptionKeyUnavailable
+            - TransactionReferenceRequired
+            - InvalidTransactionProgressStatus
+            - TransactionNotStarted
+            - ReviewerNotAvailable
+            - QueueDefinitionParametersCannotChange
+            - QueueProcessingApplicationException
+            - QueueItemSchemaViolationException
+            - InvalidQueueSchemaDefinition
+            - InvalidQueueSchemaDefinitionChange
+            - InvalidQueueSchemaType
+            - QueueSchemaDefinitionNotFound
+            - SlaEnableQueueDefinitionFailure
+            - QueueSlaAtPredictedRisk
+            - QueueSlaPredictedBreach
+            - QueueItemContentSizeExceeded
+            - QueueItemInvalidTransitionFromFinalStatus
+            - QueueItemInvalidStatusForRetry
+            - QueueItemOutputDataSizeExceeded
+            - QueueItemAnalyticsDataSizeExceeded
+            - QueueProcessingExceptionFieldSizeExceeded
+            - LicenseNotFound
+            - LicenseExpired
+            - LicenseAlreadyInUse
+            - InvalidLicenseFormat
+            - LicenseLimitExceeded
+            - UnattendedLicenseLimitExceeded
+            - NonProductionLicenseLimitExceeded
+            - AttendedLicenseLimitExceeded
+            - DevelopmentLicenseLimitExceeded
+            - RobotFailedToAcquireLicense
+            - NonProductionSlotsLimitExceeded
+            - UnattendedSlotsLimitExceeded
+            - LicenseUnregistered
+            - LicenseNotAvailable
+            - NotEnoughAvailableSlots
+            - NotEnoughRuntimeLicenses
+            - SlotsExceedLicenseLimit
+            - NotEnoughAvailableLicenses
+            - HostLicenseLimitExceeded
+            - NoHostLicense
+            - LicenseNewInvalidArguments
+            - LicenseMachineDisabled
+            - CannotDisableBusyMachine
+            - HeadlessSlotsLimitExceeded
+            - HeadlessLicenseLimitExceeded
+            - TestAutomationSlotsLimitExceeded
+            - TestAutomationLicenseLimitExceeded
+            - LicenseNotCompatible
+            - AutomationCloudLicenseLimitExceeded
+            - AutomationExpressNotSupported
+            - StudioWebLocalRobotNotSupported
+            - UserLicenseDisabled
+            - LicenseReleaseFailure
+            - LicenseRetrieveFailure
+            - ArgumentMetadataExtract
+            - ArgumentMetadataValidation
+            - ArgumentDefinitionExtract
+            - ArgumentValueExtract
+            - ArgumentValidation
+            - PackageMetadataExtract
+            - PackageMetadataValidation
+            - ProjectTypeChangedOnUpload
+            - EntryPointUniqueIdsAlreadyUsed
+            - EntryPointNotValidForRelease
+            - EntryPointNotAllowedForTestAutomationRelease
+            - UnknownWebhookEventType
+            - WebhookQuotaReached
+            - WebhookDuplicateName
+            - ExecutionMediaStorageUnavailable
+            - ExecutionMediaNotAvailableForJob
+            - ExecutionMediaContentNotAvailable
+            - JobNotAssignedToRobot
+            - JobAssignedToDifferentRobot
+            - JobNotCompleted
+            - JobVideoRecordingNotEnabled
+            - QueueItemVideoRecordingNotEnabled
+            - CannotDeleteDefaultCredentialStore
+            - CredentialStoreNotFound
+            - UnknownCredentialStoreType
+            - InvalidCredentialStoreConfiguration
+            - FailedToReadFromCredentialStore
+            - FailedToWriteToCredentialStore
+            - CannotDeleteNonEmptyCredentialStore
+            - FailedToDeleteFromCredentialStore
+            - InvalidCredentialStoreType
+            - NotAllowedByLicensePlanToRetriveCredentialsFromDisconnectedOCP
+            - TaskAssignmentError
+            - TaskCompletionError
+            - TaskAssigneeMismatchError
+            - TaskFormInvalidFormLayout
+            - TaskFormInvalidFormPayload
+            - TaskFormMultipleActions
+            - TaskFormNoAction
+            - TaskFormInvalidAction
+            - TasksNotAllowedInModernFolder
+            - NoFolderExistAsTaskAdmin
+            - NoFolderExistAsTaskUser
+            - TaskAlreadyCompletedBySameUser
+            - TaskTypeMistmatch
+            - TaskNotAlreadyAssigned
+            - TaskAssigneeNotPermitted
+            - TaskAssignerNotPermitted
+            - DuplicateTaskAssignment
+            - TaskAlreadyAssignedToSameUser
+            - TaskAlreadyAssignedToAnotherUser
+            - TaskAlreadyCompletedByAnotherUser
+            - TaskSaveError
+            - TaskFormNoData
+            - TaskForwardError
+            - TaskFormSubmitButtonMissing
+            - TaskDeletionGenericError
+            - TaskAlreadyDeletedBySameUser
+            - TaskAlreadyDeletedByAnotherUser
+            - TaskDeleterNotPermitted
+            - DuplicateTaskDelete
+            - NoFolderExistsWithTaskCatalogView
+            - TaskCatalogMultipleDistinctColumn
+            - TaskCatalogDistinctColumnInvalid
+            - TaskFormLayoutAndIdMissing
+            - TaskFormDuplicateFormLayoutGuid
+            - TaskFormFormLayoutGuidNotFound
+            - TaskFormLayoutOrGuidMissing
+            - TaskFormLayoutAndIdBothNotSupported
+            - TaskFormLayoutIdNotFound
+            - TaskFormLayoutOutOfSize
+            - TaskCatalogHaveActiveTasks
+            - TasksBulkFormLayoutIdsNotSameOrNull
+            - EmptyTasksBulkOperationRequest
+            - TaskMaximumBulkOperationLimitExceeded
+            - TasksBulkOperationError
+            - TasksBulkOperationInvalidCatalog
+            - TasksBulkUpdateWithTaskCatalogAndUnsetIsInvalid
+            - EditTaskNotFound
+            - TasksEditMetadataWithTaskCatalogAndUnsetIsInvalid
+            - TasksEditMetadataOperationInvalidCatalog
+            - TasksEditMetadataCatalogInEncryptedTaskIsInvalid
+            - TaskCatalogNotFound
+            - TaskCatalogEncrypted
+            - TasksSummaryDateDiffOutOfRange
+            - TasksSummaryEndDateShouldBeGreater
+            - TaskDefinitionPropertiesRequired
+            - TaskDefinitionNotFound
+            - TaskDefinitionVersionNotFound
+            - AppTaskNoAction
+            - AppTaskInvalidPayload
+            - AppTaskNoData
+            - TaskProviderInvalidModifiedDate
+            - TaskProviderInvalidTaskUrn
+            - TaskDefinitionAllowedActionsRequired
+            - AppTaskDataItemViolatesContentJsonSchema
+            - TaskDefinitionSchemaNotAnObject
+            - TaskDefinitionNameIsAlreadyUsed
+            - TaskDefintionVersionHaveActiveTasks
+            - TaskDefintionVersionHaveActiveApps
+            - FailedToRetrieveAssociatedApps
+            - InvalidSecureStoreContext
+            - MailSmtpSettingsError
+            - CannotDeleteCalendarWhenUsedBySchedule
+            - InvalidExternalUrl
+            - HostMailSmtpSettingsError
+            - MandatoryPropertiesForRootFolderNotSpecified
+            - IncompatibleFolderProperties
+            - NoHierarchyAllowedForClassicFolders
+            - MaximumFolderHierarchyDepthReached
+            - CannotChangeRobotProvisionType
+            - CannotChangeFolderPermissionModel
+            - CannotEditFolderParent
+            - EntitiesRequiredForAssignmentNotFound
+            - CannotAssignRolesToNonFineGrainedFolders
+            - InvalidFolderDisplayName
+            - AssociationAlreadyExists
+            - UserDoesNotHaveAccessToFolder
+            - CannotChangeRobotUserFolderAssignments
+            - CannotAssignMachineToClassicFolder
+            - StrategyNotAvailableInModernFolder
+            - StrategyNotAvailableInClassicFolder
+            - ValidModernFolderIdRequired
+            - NoMachineAssociatedWithFolder
+            - ClassicFoldersCannotBeInvolvedInMoveOperation
+            - CannotMoveToDescendantFolder
+            - CannotDisableTriggersInHierarchy
+            - CannotKillJobsInHierarchy
+            - CannotDeleteEntitiesInHierarchy
+            - NotInFinalStateJobsExist
+            - ModernFoldersCannotInheritRolesFromTenant
+            - CannotChangeFolderFeedType
+            - CannotCreatePersonalWorkspace
+            - CannotSetMachineRobots
+            - FolderNotFound
+            - CannotUnassignFromFolder
+            - MachineAssociatedWithFolderConflict
+            - CannotAssignMachineToFolder
+            - CannotAssignPersonalWorkspaceMachines
+            - CannotMoveFolder
+            - CannotMigrateClassicRelatedObjects
+            - NotSuccessfulEntityMigration
+            - FolderTypeMismatch
+            - ActionNotAllowedInClassicFolder
+            - CannotRenameSolutionFolder
+            - MaintenanceActive
+            - TenantMaintenanceActive
+            - TenantMaintenanceNotActive
+            - AnalyticsNotAuthorized
+            - AnalyticsTenantNotProvisioned
+            - AnalyticsUserIsHostUser
+            - AnalyticsUserHasNoEmail
+            - AnalyticsUserNotFound
+            - AnalyticsAdminEmailProhibited
+            - AnalyticsDbQueryFailure
+            - InvalidStorageProvider
+            - BucketIsReadOnly
+            - InvalidBlobFilePath
+            - UnavailableStorageProvider
+            - BucketDoesNotExists
+            - BucketSecretNotFoundInCredentialStore
+            - TestSetNotNewOnCreate
+            - TestAutomationKeyMismatch
+            - TestSetNewOnUpdate
+            - TestSetEmpty
+            - TestSetDuplicatePackages
+            - TestSetVersionMaskInvalid
+            - TestSetDefinitionNotFound
+            - TestSetTestCaseInvalid
+            - TestSetTestCaseVersionInvalid
+            - TestAutomationVersionInvalid
+            - TestSetExecutionEmptyTestSet
+            - TestSetExecutionCreateFailed
+            - TestSetExecutionDuplicateUniqueIds
+            - TestCaseAssertionScreenshotMimeTypeMissing
+            - TestCaseAssertionScreenshotMissing
+            - TestSetExecutionBatchExecutionKeyAlreadyExists
+            - TestDataQueueContentJsonSchemaInvalid
+            - TestDataQueueNameChangeNotAllowed
+            - TestDataQueueItemViolatesContentJsonSchema
+            - TestDataQueueItemsFromMultipleQueues
+            - TestDataQueueItemsBulkAddMixed
+            - TestDataQueueBulkOperationInProgress
+            - TestSetDuplicateInputArgument
+            - TestSetExecutionInvalidExecutionTarget
+            - AttachmentInvalid
+            - TestCasesReexecuteFailed
+            - TestSetTestCaseMissingReleaseVersion
+            - TestCaseDefinitionDuplicateIds
+            - TestCaseDefinitionInUse
+            - TestSetScheduleInvalidScheduleKey
+            - TestSetExecutionTriggerFailed
+            - InvalidTenantMoveStatus
+            - TenantMoveIdConflict
+            - TenantMoveMigrationConflict
+            - MediaFileNotFound
+            - MediaFileNotFoundForKey
+            - InvalidMediaFilesUpload
+            - MediaFileTypeNotSupported
+            - CannotBeExploredByOwner
+            - AlreadyExploredByCurrentUser
+            - NotExploredCurrentUser
+            - CannotRemoveMachineFromPersonalWorkspace
+            - CannotToggleDebugMode
+            - CannotStartRemoteControl
+            - CannotStopRemoteControl
+            - CheckForUpdatesWithProductDuplicates
+            - AccountIdMissing
+            - AccountIdPartitionKeyMismatch
+            - IdentityKeyMissing
+            - InvalidDownloadUri
+            - InstallationIdMissing
+            - UpdateRequestRetryFailed
+            - InvalidProductVersion
+            - ProductVersionUpdateNotAllowed
+            - HostRetentionPolicyInvalidLicenseType
+            - TenantRetentionPolicyLicenseTypeNotSupported
+            - SWRobotCreationFailed
+            - SWRobotCreationNotEnabled
+            - SWPersonalWorkspaceCreationFailed
+            - SWPersonalWorkspacesNotEnabled
+            - SWMachineTemplateCreationFailed
+            - SWMachineTemplateAssignmentFailed
+            - SWMachineTemplateAssignmentMissingVirtualFolder
+            - SWRobotCreationNoLicense
+            - SWUserDoesNotHaveAnAttendedRobotOrProvisionNotEnabled
+            - SWUserInactive
+            - SWUserLicensingEnabledNoRobots
+            - SWUserLicensingEnabledRobotProvisionFailed
+            - SWUserLicensingEnabledAttendedLicense
+            - SWUserLicensingDisabledNoRobots
+            - SWUserLicensingDisabledRobotProvisionFailed
+            - SWUserLicensingDisabledAttendedLicense
+            - ConnectionsAvailableOnlyInPW
+            - ResourceOverwriteNotSupported
+            - ResourceNotOverwritable
+            - ResourceOverwriteNotSupportedInStandardFolders
+            - MultipleOverwritesForSameResourceKeyNotSupported
+            - PackageResourceNotFound
+            - InvalidConnectionId
+            - ConnectionNotFound
+            - InvalidConnectionType
+            - ConnectedEventTriggerNoConnection
+            - ConnectedEventTriggerCreateFailed
+            - ConnectedEventTriggerDeleteFailed
+            - MissingEventTriggerBinding
+            - VirtualTriggerCanNotHaveUser
+            - EventTriggerCreateFailedConnectionNotAvailable
+            - UserHasNoRobotToFireUserEventTrigger
+            - CredentialsProxyNotFound
+            - CannotDeleteCredentialsProxyInUse
+            - CredentialsProxyUrlMustBeHttps
+            - CredentialsProxyHostUrlUpdateRequiresSecretResubmission
+            - CredentialsProxyBadSecretFormat
+            - CredentialsProxyAuthHealthRequestFailed
+            - CredentialsProxyHealthRequestFailed
+            - CredentialsProxyRequestFailedInvalidCredentials
+            - CredentialsProxyConnectionRefused
+            - CredentialsProxyTypeCannotBeUpdated
+            - CredentialsProxyRequestFailedForbidden
+            - CredentialsProxyRequestFailedNotFound
+            - CredentialsProxyRequestFailedInternalServerError
+            - CredentialsProxyRequestFailedUnhandledError
+            - CredentialsProxyRequestFailedBadRequest
+            - CredentialsProxyTypeCannotBeCreated
+            - CredentialsProxyGetAssetFromDisconnectedProxyNotEnabled
+            - CredentialsProxyGetAssetFromDisconnectedProxyNotAllowedForThisActivityVersion
+            - CredentialsProxyRequestFailedWithTimeout
+            - ServerlessCreateMachineTemplateErrorCode
+            - ServerlessUpdateMachineTemplateErrorCode
+            - ServerlessDeleteMachineTemplateErrorCode
+            - ServerlessUnkownActionMachineTemplateErrorCode
+            - ServerlessVpnInvalidCidr
+            - ServerlessVpnInvalidState
+            - ServerlessVpnNotFound
+            - ServerlessUnknownError
+            - ServerlessNoMachineTemplate
+            - ServerlessGenericWorkloadsNotEnabled
+            - ServerlessRobotJobTypeInvalid
+            - ServerlessServiceIsDisabledInTenant
+            - InvalidSolutionArchive
+            - CompatibilityCheckFail
+            - RollbackNotSupported
+            - SolutionsResourceNotFound
+            - SolutionsResourceNotSupported
+            - SolutionsResourcesNotFound
+            - FolderKeyRequired
+            - SolutionsCannotInstallInClassicFolder
+            - SolutionsCannotInstallInSolutionFolder
+            - SolutionIsNotInstalledAtPath
+            - SolutionFolderNotFound
+            - SolutionFolderHasJobsNotInFinalState
+            - SolutionFileNotFound
+            - SolutionPackageUrlIsInvalid
+            - SolutionInstallationFolderNotFound
+            - SolutionPackageNotInScope
+            - SolutionLibraryUrlIsInvalid
+            - TenantLibraryFeedNotEnabled
+            - SolutionsCannotInstallInPWFolder
+            - ExportTimeout
+            - InvalidMessageReceived
+            - IntegrationServiceApiFailure
+            - JobFaulted
+            - JobStopped
+            - JobUnknownFinalStatus
+            - TriggerBadRequest
+            - MaxTriggersLimitReached
+            - CallbackNotEnabledForTrigger
+            - CallbackIsRequired
+            - CalendarNotFound
+            - EntitlementConsumationFailure
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -26698,6 +28147,11 @@ components:
             - Personal
             - Virtual
             - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
           x-ms-enum:
             name: FolderCreatedEventType
             modelAsString: false
@@ -26746,6 +28200,11 @@ components:
             - Personal
             - Virtual
             - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
           x-ms-enum:
             name: FolderDtoFolderType
             modelAsString: false
@@ -26783,6 +28242,12 @@ components:
           type: string
           description: Folder feed type
           enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-enum-varnames:
             - Undefined
             - Processes
             - Libraries
@@ -26881,6 +28346,11 @@ components:
             - Personal
             - Virtual
             - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
           x-ms-enum:
             name: FolderUpdatedEventType
             modelAsString: false
@@ -26918,6 +28388,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseTaskCreateRequestPriority
             modelAsString: false
@@ -26937,6 +28412,11 @@ components:
           description: List of tags associated to the task.
           items:
             $ref: '#/components/schemas/TagDto'
+        parentOperationId:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Operation id which created the task.
       description: Class with only attributes needed for Creating Task (TaskType = TaskType.FormTask)
     HostAvailabilityDto:
       type: object
@@ -27129,6 +28609,16 @@ components:
             - Stopped
             - Suspended
             - Resumed
+          x-enum-varnames:
+            - Pending
+            - Running
+            - Stopping
+            - Terminating
+            - Faulted
+            - Successful
+            - Stopped
+            - Suspended
+            - Resumed
           x-ms-enum:
             name: JobDtoState
             modelAsString: false
@@ -27177,6 +28667,22 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+          x-enum-varnames:
+            - Manual
+            - Schedule
+            - Agent
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+            - HttpTrigger
+            - HttpTriggerCallback
+            - RobotAPI
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -27202,6 +28708,10 @@ components:
           type: string
           description: The type of the job, Attended if started via the robot, Unattended otherwise
           enum:
+            - Unattended
+            - Attended
+            - ServerlessGeneric
+          x-enum-varnames:
             - Unattended
             - Attended
             - ServerlessGeneric
@@ -27291,6 +28801,10 @@ components:
             - Undefined
             - Process
             - TestAutomationProcess
+          x-enum-varnames:
+            - Undefined
+            - Process
+            - TestAutomationProcess
           x-ms-enum:
             name: JobDtoProcessType
             modelAsString: false
@@ -27311,6 +28825,10 @@ components:
         RemoteControlAccess:
           type: string
           enum:
+            - None
+            - ReadOnly
+            - Full
+          x-enum-varnames:
             - None
             - ReadOnly
             - Full
@@ -27591,6 +29109,13 @@ components:
             - Task
             - Timer
             - Integration
+          x-enum-varnames:
+            - None
+            - QueueItem
+            - Job
+            - Task
+            - Timer
+            - Integration
           x-ms-enum:
             name: JobTriggerDtoTriggerType
             modelAsString: false
@@ -27598,6 +29123,10 @@ components:
           type: string
           description: Job trigger status (new, ready, fired etc)
           enum:
+            - New
+            - Ready
+            - Fired
+          x-enum-varnames:
             - New
             - Ready
             - Fired
@@ -27640,6 +29169,13 @@ components:
             - Task
             - Timer
             - Integration
+          x-enum-varnames:
+            - None
+            - QueueItem
+            - Job
+            - Task
+            - Timer
+            - Integration
           x-ms-enum:
             name: JobTriggerWaitEventModelTriggerType
             modelAsString: false
@@ -27647,6 +29183,10 @@ components:
           type: string
           description: Job trigger status (new, ready, fired etc)
           enum:
+            - New
+            - Ready
+            - Fired
+          x-enum-varnames:
             - New
             - Ready
             - Fired
@@ -27851,6 +29391,13 @@ components:
           type: string
           description: Package project type.
           enum:
+            - Undefined
+            - Process
+            - ProcessLibrary
+            - BusinessProcess
+            - BusinessProcessLibrary
+            - TestAutomationProcess
+          x-enum-varnames:
             - Undefined
             - Process
             - ProcessLibrary
@@ -28065,6 +29612,9 @@ components:
           enum:
             - Standard
             - Template
+          x-enum-varnames:
+            - Standard
+            - Template
           x-ms-enum:
             name: LicenseRuntimeDtoMachineType
             modelAsString: false
@@ -28098,6 +29648,12 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+          x-enum-varnames:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
           x-ms-enum:
             name: LicenseRuntimeDtoMachineScope
             modelAsString: false
@@ -28108,6 +29664,25 @@ components:
         robotType:
           type: string
           enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-enum-varnames:
             - NonProduction
             - Attended
             - Unattended
@@ -28148,6 +29723,25 @@ components:
         robotType:
           type: string
           enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+          x-enum-varnames:
             - NonProduction
             - Attended
             - Unattended
@@ -28215,6 +29809,13 @@ components:
           type: string
           description: Defines the log severity.
           enum:
+            - Trace
+            - Debug
+            - Info
+            - Warn
+            - Error
+            - Fatal
+          x-enum-varnames:
             - Trace
             - Debug
             - Info
@@ -28339,12 +29940,21 @@ components:
           enum:
             - Standard
             - Template
+          x-enum-varnames:
+            - Standard
+            - Template
           x-ms-enum:
             name: MachineCreatedEventType
             modelAsString: false
         scope:
           type: string
           enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
@@ -28380,15 +29990,18 @@ components:
           type: string
         description:
           type: string
-        type:
+        machineType:
           type: string
           enum:
             - Standard
             - Template
+          x-enum-varnames:
+            - Standard
+            - Template
           x-ms-enum:
-            name: MachineDeletedEventType
+            name: MachineDeletedEventMachineType
             modelAsString: false
-        scope:
+        machineScope:
           type: string
           enum:
             - Default
@@ -28396,8 +30009,14 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+          x-enum-varnames:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
           x-ms-enum:
-            name: MachineDeletedEventScope
+            name: MachineDeletedEventMachineScope
             modelAsString: false
         eventTime:
           type: string
@@ -28429,6 +30048,9 @@ components:
           enum:
             - Standard
             - Template
+          x-enum-varnames:
+            - Standard
+            - Template
           x-ms-enum:
             name: MachineDtoType
             modelAsString: false
@@ -28436,6 +30058,12 @@ components:
           type: string
           description: The scope of the Machine (Default / Shared / PW / Cloud / Serverless).
           enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
@@ -28479,6 +30107,10 @@ components:
             - NotAvailable
             - Mixed
             - Enabled
+          x-enum-varnames:
+            - NotAvailable
+            - Mixed
+            - Enabled
           x-ms-enum:
             name: MachineDtoEndpointDetectionStatus
             modelAsString: false
@@ -28499,6 +30131,10 @@ components:
             - Any
             - Foreground
             - Background
+          x-enum-varnames:
+            - Any
+            - Foreground
+            - Background
           x-ms-enum:
             name: MachineDtoAutomationType
             modelAsString: false
@@ -28506,6 +30142,10 @@ components:
           type: string
           description: The target frameworks the machine supports.
           enum:
+            - Any
+            - Windows
+            - Portable
+          x-enum-varnames:
             - Any
             - Windows
             - Portable
@@ -28604,6 +30244,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: MachineRuntimeDtoType
             modelAsString: false
@@ -28637,6 +30296,11 @@ components:
           type: string
           description: The value of the last reported status.
           enum:
+            - Available
+            - Busy
+            - Disconnected
+            - Unknown
+          x-enum-varnames:
             - Available
             - Busy
             - Disconnected
@@ -28690,6 +30354,9 @@ components:
           enum:
             - LongLived
             - Ephemeral
+          x-enum-varnames:
+            - LongLived
+            - Ephemeral
           x-ms-enum:
             name: SessionDtoRobotSessionType
             modelAsString: false
@@ -28719,6 +30386,11 @@ components:
             - Windows
             - Linux
             - OSX
+          x-enum-varnames:
+            - Unknown
+            - Windows
+            - Linux
+            - OSX
           x-ms-enum:
             name: SessionDtoPlatform
             modelAsString: false
@@ -28741,6 +30413,9 @@ components:
         MaintenanceMode:
           type: string
           enum:
+            - Default
+            - Enabled
+          x-enum-varnames:
             - Default
             - Enabled
           x-ms-enum:
@@ -28769,12 +30444,34 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: MachineSessionRuntimeDtoRuntimeType
             modelAsString: false
         MachineType:
           type: string
           enum:
+            - Standard
+            - Template
+          x-enum-varnames:
             - Standard
             - Template
           x-ms-enum:
@@ -28788,12 +30485,23 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+          x-enum-varnames:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
           x-ms-enum:
             name: MachineSessionRuntimeDtoMachineScope
             modelAsString: false
         Status:
           type: string
           enum:
+            - Available
+            - Busy
+            - Disconnected
+            - Unknown
+          x-enum-varnames:
             - Available
             - Busy
             - Disconnected
@@ -28826,6 +30534,11 @@ components:
             - Windows
             - Linux
             - OSX
+          x-enum-varnames:
+            - Unknown
+            - Windows
+            - Linux
+            - OSX
           x-ms-enum:
             name: MachineSessionRuntimeDtoPlatform
             modelAsString: false
@@ -28849,12 +30562,21 @@ components:
           enum:
             - Standard
             - Template
+          x-enum-varnames:
+            - Standard
+            - Template
           x-ms-enum:
             name: MachineUpdatedEventType
             modelAsString: false
         scope:
           type: string
           enum:
+            - Default
+            - Shared
+            - PersonalWorkspace
+            - Cloud
+            - Serverless
+          x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
@@ -28916,6 +30638,10 @@ components:
             - None
             - Draining
             - Suspended
+          x-enum-varnames:
+            - None
+            - Draining
+            - Suspended
           x-ms-enum:
             name: MaintenanceSettingState
             modelAsString: false
@@ -28945,6 +30671,10 @@ components:
             - None
             - Draining
             - Suspended
+          x-enum-varnames:
+            - None
+            - Draining
+            - Suspended
           x-ms-enum:
             name: MaintenanceStateLogState
             modelAsString: false
@@ -28961,6 +30691,9 @@ components:
           type: string
           description: The strategy for stopping jobs when the window begins
           enum:
+            - None
+            - Kill
+          x-enum-varnames:
             - None
             - Kill
           x-ms-enum:
@@ -28998,12 +30731,26 @@ components:
             - Inherited
             - EroAcrError
             - ServerlessError
+          x-enum-varnames:
+            - Unknown
+            - NotAssigned
+            - Assigned
+            - Inherited
+            - EroAcrError
+            - ServerlessError
           x-ms-enum:
             name: MoveFolderMachineChangeOldMachineFolderState
             modelAsString: false
         NewMachineFolderState:
           type: string
           enum:
+            - Unknown
+            - NotAssigned
+            - Assigned
+            - Inherited
+            - EroAcrError
+            - ServerlessError
+          x-enum-varnames:
             - Unknown
             - NotAssigned
             - Assigned
@@ -29453,6 +31200,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskOperationErrorResponse'
+    ODataValueOfIEnumerableOfTaskRetentionSettingDto:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskRetentionSettingDto'
     ODataValueOfIEnumerableOfTenantDto:
       type: object
       properties:
@@ -29569,46 +31323,6 @@ components:
           type: integer
           format: int64
       description: "Stores information about an organization unit in Orchestrator.\r\n<para /> An orchestrator unit can be understood as a company department and it is used to group different entities."
-    PackageCreatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        feedId:
-          type: string
-          format: uuid
-        version:
-          type: string
-        type:
-          type: string
-          enum:
-            - Undefined
-            - Processes
-            - Libraries
-            - PersonalWorkspace
-            - FolderHierarchy
-          x-ms-enum:
-            name: PackageCreatedEventType
-            modelAsString: false
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     PackageDeletedEvent:
       type: object
       properties:
@@ -29619,49 +31333,21 @@ components:
           type: string
         version:
           type: string
-        feedId:
-          type: string
-          format: uuid
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
-    PackageUpdatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        version:
-          type: string
-        feedId:
-          type: string
-          format: uuid
-        type:
+        projectType:
           type: string
           enum:
             - Undefined
-            - Processes
-            - Libraries
-            - PersonalWorkspace
-            - FolderHierarchy
+            - Process
+            - ProcessLibrary
+            - BusinessProcess
+            - BusinessProcessLibrary
+            - TestAutomationProcess
           x-ms-enum:
-            name: PackageUpdatedEventType
+            name: PackageDeletedEventProjectType
             modelAsString: false
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
+        feedId:
+          type: string
+          format: uuid
         eventTime:
           type: string
           format: date-time
@@ -29688,11 +31374,33 @@ components:
             - Libraries
             - PersonalWorkspace
             - FolderHierarchy
+          x-enum-varnames:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
           x-ms-enum:
             name: PackageUploadedEventType
             modelAsString: false
+        projectType:
+          type: string
+          enum:
+            - Undefined
+            - Process
+            - ProcessLibrary
+            - BusinessProcess
+            - BusinessProcessLibrary
+            - TestAutomationProcess
+          x-ms-enum:
+            name: PackageUploadedEventProjectType
+            modelAsString: false
         description:
           type: string
+        testCasesJsonCompressed:
+          pattern: ^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$
+          type: string
+          format: byte
         folderKey:
           type: string
           format: uuid
@@ -29705,16 +31413,107 @@ components:
           format: date-time
         eventSource:
           type: object
-    PageResultDtoOfFolderDto:
+    PageResultDtoOfPathAwareFolderDto:
       type: object
       properties:
         PageItems:
           type: array
           items:
-            $ref: '#/components/schemas/FolderDto'
+            $ref: '#/components/schemas/PathAwareFolderDto'
         Count:
           type: integer
           format: int32
+    PathAwareFolderDto:
+      required:
+        - DisplayName
+      type: object
+      properties:
+        FolderPath:
+          type: string
+          readOnly: true
+        Key:
+          type: string
+          description: Unique key for the folder
+          format: uuid
+        DisplayName:
+          maxLength: 115
+          minLength: 1
+          type: string
+          description: Display name for the folder.
+        FullyQualifiedName:
+          type: string
+          description: Name of folder prepended by the names of its ancestors.
+        Description:
+          maxLength: 500
+          type: string
+          description: Description of folder
+        FolderType:
+          type: string
+          description: Folder type
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: FolderDtoFolderType
+            modelAsString: false
+        IsPersonal:
+          type: boolean
+          description: True if Personal
+          readOnly: true
+        ProvisionType:
+          type: string
+          description: Robot provisioning type
+          enum:
+            - Manual
+            - Automatic
+          x-ms-enum:
+            name: FolderDtoProvisionType
+            modelAsString: false
+        PermissionModel:
+          type: string
+          description: Folder permissions model
+          enum:
+            - InheritFromTenant
+            - FineGrained
+          x-ms-enum:
+            name: FolderDtoPermissionModel
+            modelAsString: false
+        ParentId:
+          type: integer
+          description: Id of parent folder in the folders hierarchy
+          format: int64
+        ParentKey:
+          type: string
+          description: Unique key for the parent folder
+          format: uuid
+        FeedType:
+          type: string
+          description: Folder feed type
+          enum:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-enum-varnames:
+            - Undefined
+            - Processes
+            - Libraries
+            - PersonalWorkspace
+            - FolderHierarchy
+          x-ms-enum:
+            name: FolderDtoFeedType
+            modelAsString: false
+        Id:
+          type: integer
+          format: int64
     PermissionDto:
       type: object
       properties:
@@ -29732,6 +31531,10 @@ components:
           type: string
           description: The application scope in which the permission will be applied
           enum:
+            - Global
+            - Folder
+            - GlobalOrFolder
+          x-enum-varnames:
             - Global
             - Folder
             - GlobalOrFolder
@@ -29837,6 +31640,12 @@ components:
             - Warn
             - Error
             - Fatal
+          x-enum-varnames:
+            - Info
+            - Success
+            - Warn
+            - Error
+            - Fatal
           x-ms-enum:
             name: ProcessAlertDtoSeverity
             modelAsString: false
@@ -29851,64 +31660,6 @@ components:
         Id:
           type: string
           format: uuid
-    ProcessCreatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        processVersion:
-          type: string
-        processType:
-          type: string
-          enum:
-            - Undefined
-            - Process
-            - TestAutomationProcess
-          x-ms-enum:
-            name: ProcessCreatedEventProcessType
-            modelAsString: false
-        entryPointId:
-          type: string
-          format: uuid
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
-    ProcessDeletedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     ProcessDto:
       type: object
       properties:
@@ -29931,6 +31682,10 @@ components:
         TargetFramework:
           type: string
           enum:
+            - Legacy
+            - Windows
+            - Portable
+          x-enum-varnames:
             - Legacy
             - Windows
             - Portable
@@ -29974,6 +31729,13 @@ components:
           type: string
           description: Package project type.
           enum:
+            - Undefined
+            - Process
+            - ProcessLibrary
+            - BusinessProcess
+            - BusinessProcessLibrary
+            - TestAutomationProcess
+          x-enum-varnames:
             - Undefined
             - Process
             - ProcessLibrary
@@ -30035,6 +31797,8 @@ components:
           x-ms-enum:
             name: ProcessScheduleCreatedEventRuntimeType
             modelAsString: false
+        triggerType:
+          type: string
         folderKeys:
           type: array
           items:
@@ -30396,6 +32160,8 @@ components:
           x-ms-enum:
             name: ProcessScheduleUpdatedEventRuntimeType
             modelAsString: false
+        triggerType:
+          type: string
         folderKeys:
           type: array
           items:
@@ -30445,44 +32211,6 @@ components:
           type: boolean
         AlwaysRunning:
           type: boolean
-    ProcessUpdatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        processVersion:
-          type: string
-        processType:
-          type: string
-          enum:
-            - Undefined
-            - Process
-            - TestAutomationProcess
-          x-ms-enum:
-            name: ProcessUpdatedEventProcessType
-            modelAsString: false
-        entryPointId:
-          type: string
-          format: uuid
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     ProcessesSetArgumentsRequest:
       required:
         - arguments
@@ -30507,6 +32235,9 @@ components:
           type: string
           description: The processing exception type, if any.
           enum:
+            - ApplicationException
+            - BusinessException
+          x-enum-varnames:
             - ApplicationException
             - BusinessException
           x-ms-enum:
@@ -30936,6 +32667,10 @@ components:
             - High
             - Normal
             - Low
+          x-enum-varnames:
+            - High
+            - Normal
+            - Low
           x-ms-enum:
             name: QueueItemDataDtoPriority
             modelAsString: false
@@ -30970,6 +32705,11 @@ components:
           pattern: Manual|Apps
           type: string
           description: The Source type of the item.
+        ParentOperationId:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Operation id which started the job.
       description: Defines the work item content.
     QueueItemDeleteBulkRequest:
       type: object
@@ -31024,6 +32764,14 @@ components:
             - Abandoned
             - Retried
             - Deleted
+          x-enum-varnames:
+            - New
+            - InProgress
+            - Failed
+            - Successful
+            - Abandoned
+            - Retried
+            - Deleted
           x-ms-enum:
             name: QueueItemDtoStatus
             modelAsString: false
@@ -31031,6 +32779,11 @@ components:
           type: string
           description: The review state of the item - applicable only for failed items.
           enum:
+            - None
+            - InReview
+            - Verified
+            - Retried
+          x-enum-varnames:
             - None
             - InReview
             - Verified
@@ -31077,11 +32830,18 @@ components:
             - High
             - Normal
             - Low
+          x-enum-varnames:
+            - High
+            - Normal
+            - Low
           x-ms-enum:
             name: QueueItemDtoPriority
             modelAsString: false
         Robot:
           $ref: '#/components/schemas/SimpleRobotDto'
+        RobotId:
+          type: integer
+          format: int64
         DeferDate:
           type: string
           description: The earliest date and time at which the item is available for processing. If empty the item can be processed as soon as possible.
@@ -31145,6 +32905,12 @@ components:
           type: string
           description: Identifier used for optimistic concurrency, so Orchestrator can figure whether data is out of date or not.
           format: byte
+        ParentOperationId:
+          type: string
+          description: Operation id which added the queue item
+        OperationId:
+          type: string
+          description: Operation id which processed the queue item
         OrganizationUnitId:
           type: integer
           description: 'DEPRECATED. '
@@ -31178,6 +32944,12 @@ components:
             - Delete
             - Status
             - Retry
+          x-enum-varnames:
+            - Create
+            - Edit
+            - Delete
+            - Status
+            - Retry
           x-ms-enum:
             name: QueueItemEventDtoAction
             modelAsString: false
@@ -31202,6 +32974,14 @@ components:
             - Abandoned
             - Retried
             - Deleted
+          x-enum-varnames:
+            - New
+            - InProgress
+            - Failed
+            - Successful
+            - Abandoned
+            - Retried
+            - Deleted
           x-ms-enum:
             name: QueueItemEventDtoStatus
             modelAsString: false
@@ -31209,6 +32989,11 @@ components:
           type: string
           description: Review Status when event snapshot was taken.
           enum:
+            - None
+            - InReview
+            - Verified
+            - Retried
+          x-enum-varnames:
             - None
             - InReview
             - Verified
@@ -31304,6 +33089,14 @@ components:
             - Abandoned
             - Retried
             - Deleted
+          x-enum-varnames:
+            - New
+            - InProgress
+            - Failed
+            - Successful
+            - Abandoned
+            - Retried
+            - Deleted
           x-ms-enum:
             name: QueueItemSimpleEventDtoStatus
             modelAsString: false
@@ -31312,6 +33105,11 @@ components:
           description: The review state of the item - applicable only for failed items.
           readOnly: true
           enum:
+            - None
+            - InReview
+            - Verified
+            - Retried
+          x-enum-varnames:
             - None
             - InReview
             - Verified
@@ -31331,6 +33129,10 @@ components:
           description: Sets the processing importance for a given item.
           readOnly: true
           enum:
+            - High
+            - Normal
+            - Low
+          x-enum-varnames:
             - High
             - Normal
             - Low
@@ -31456,6 +33258,14 @@ components:
           type: string
           description: Where the queue item was created
           readOnly: true
+        ParentOperationId:
+          type: string
+          description: Operation id which added the queue item
+          readOnly: true
+        OperationId:
+          type: string
+          description: Operation id which processed the queue item
+          readOnly: true
     QueueItemStartedEventDto:
       required:
         - EventId
@@ -31562,6 +33372,11 @@ components:
             - Minute
             - Hour
             - Day
+          x-enum-varnames:
+            - Minute
+            - Hour
+            - Day
+            - All
           x-ms-enum:
             name: QueueProcessingRecordDtoReportType
             modelAsString: false
@@ -31729,6 +33544,10 @@ components:
           type: string
           description: Action cannot be None for Cloud.
           enum:
+            - Delete
+            - Archive
+            - None
+          x-enum-varnames:
             - Delete
             - Archive
             - None
@@ -32068,6 +33887,10 @@ components:
             - Undefined
             - Process
             - TestAutomationProcess
+          x-enum-varnames:
+            - Undefined
+            - Process
+            - TestAutomationProcess
           x-ms-enum:
             name: ReleaseDtoProcessType
             modelAsString: false
@@ -32130,6 +33953,10 @@ components:
             - Legacy
             - Windows
             - Portable
+          x-enum-varnames:
+            - Legacy
+            - Windows
+            - Portable
           x-ms-enum:
             name: ReleaseDtoTargetFramework
             modelAsString: false
@@ -32150,6 +33977,10 @@ components:
         RemoteControlAccess:
           type: string
           enum:
+            - None
+            - ReadOnly
+            - Full
+          x-enum-varnames:
             - None
             - ReadOnly
             - Full
@@ -32181,6 +34012,10 @@ components:
           type: string
           description: Action cannot be None for Cloud.
           enum:
+            - Delete
+            - Archive
+            - None
+          x-enum-varnames:
             - Delete
             - Archive
             - None
@@ -32345,6 +34180,20 @@ components:
             - QueueTrigger
             - AppsTrigger
             - Property
+          x-enum-varnames:
+            - Unknown
+            - Queue
+            - Asset
+            - Bucket
+            - Process
+            - TaskCatalog
+            - Entity
+            - Connection
+            - TimeTrigger
+            - EventTrigger
+            - QueueTrigger
+            - AppsTrigger
+            - Property
           x-ms-enum:
             name: ResourceOverwriteDto`1ResourceType
             modelAsString: false
@@ -32409,6 +34258,15 @@ components:
           type: string
           description: Defines the type of value stored by the asset.
           enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
             - DBConnectionString
             - HttpConnectionString
             - Text
@@ -32622,6 +34480,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -32631,6 +34508,9 @@ components:
           enum:
             - Standard
             - Floating
+          x-enum-varnames:
+            - Standard
+            - Floating
           x-ms-enum:
             name: RobotDtoHostingType
             modelAsString: false
@@ -32638,6 +34518,9 @@ components:
           type: string
           description: The Robot provision type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -32865,6 +34748,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -32874,6 +34776,9 @@ components:
           enum:
             - Standard
             - Floating
+          x-enum-varnames:
+            - Standard
+            - Floating
           x-ms-enum:
             name: RobotDtoHostingType
             modelAsString: false
@@ -32881,6 +34786,9 @@ components:
           type: string
           description: The Robot provision type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -32973,6 +34881,13 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: RobotsFromFolderModelUserType
             modelAsString: false
@@ -33036,6 +34951,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -33045,6 +34979,9 @@ components:
           enum:
             - Standard
             - Floating
+          x-enum-varnames:
+            - Standard
+            - Floating
           x-ms-enum:
             name: RobotDtoHostingType
             modelAsString: false
@@ -33052,6 +34989,9 @@ components:
           type: string
           description: The Robot provision type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -33206,6 +35146,11 @@ components:
             - Busy
             - Disconnected
             - Unknown
+          x-enum-varnames:
+            - Available
+            - Busy
+            - Disconnected
+            - Unknown
           x-ms-enum:
             name: SessionDtoState
             modelAsString: false
@@ -33255,6 +35200,9 @@ components:
           enum:
             - LongLived
             - Ephemeral
+          x-enum-varnames:
+            - LongLived
+            - Ephemeral
           x-ms-enum:
             name: SessionDtoRobotSessionType
             modelAsString: false
@@ -33280,6 +35228,11 @@ components:
         Platform:
           type: string
           enum:
+            - Unknown
+            - Windows
+            - Linux
+            - OSX
+          x-enum-varnames:
             - Unknown
             - Windows
             - Linux
@@ -33326,6 +35279,11 @@ components:
             - Busy
             - Disconnected
             - Unknown
+          x-enum-varnames:
+            - Available
+            - Busy
+            - Disconnected
+            - Unknown
           x-ms-enum:
             name: SessionEventDataState
             modelAsString: false
@@ -33365,6 +35323,9 @@ components:
         maintenanceMode:
           type: string
           enum:
+            - Default
+            - Enabled
+          x-enum-varnames:
             - Default
             - Enabled
           x-ms-enum:
@@ -33545,6 +35506,16 @@ components:
             - Stopped
             - Suspended
             - Resumed
+          x-enum-varnames:
+            - Pending
+            - Running
+            - Stopping
+            - Terminating
+            - Faulted
+            - Successful
+            - Stopped
+            - Suspended
+            - Resumed
           x-ms-enum:
             name: SimpleJobEventDtoState
             modelAsString: false
@@ -33716,6 +35687,10 @@ components:
             - Undefined
             - Process
             - TestAutomationProcess
+          x-enum-varnames:
+            - Undefined
+            - Process
+            - TestAutomationProcess
           x-ms-enum:
             name: ReleaseDtoProcessType
             modelAsString: false
@@ -33778,6 +35753,10 @@ components:
             - Legacy
             - Windows
             - Portable
+          x-enum-varnames:
+            - Legacy
+            - Windows
+            - Portable
           x-ms-enum:
             name: ReleaseDtoTargetFramework
             modelAsString: false
@@ -33798,6 +35777,10 @@ components:
         RemoteControlAccess:
           type: string
           enum:
+            - None
+            - ReadOnly
+            - Full
+          x-enum-varnames:
             - None
             - ReadOnly
             - Full
@@ -33899,6 +35882,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -33908,6 +35910,9 @@ components:
           enum:
             - Standard
             - Floating
+          x-enum-varnames:
+            - Standard
+            - Floating
           x-ms-enum:
             name: RobotDtoHostingType
             modelAsString: false
@@ -33915,6 +35920,9 @@ components:
           type: string
           description: The Robot provision type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -34028,6 +36036,9 @@ components:
         Origin:
           type: string
           enum:
+            - Assigned
+            - Inherited
+          x-enum-varnames:
             - Assigned
             - Inherited
           x-ms-enum:
@@ -34145,6 +36156,13 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: UserDtoType
             modelAsString: false
@@ -34152,6 +36170,9 @@ components:
           type: string
           description: The user type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -34201,13 +36222,12 @@ components:
         MayHaveUnattendedSession:
           type: boolean
           description: 'Specifies whether this user is allowed to have an Unattended Robot attached (default: false)'
-        BypassBasicAuthRestriction:
-          type: boolean
-          description: 'DEPRECATED. Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: null)'
-          x-deprecated: true
         MayHavePersonalWorkspace:
           type: boolean
           description: Specifies whether this user is allowed to have a Personal Workspace
+        RestrictToPersonalWorkspace:
+          type: boolean
+          description: Restrict to personal workspace view
         UpdatePolicy:
           $ref: '#/components/schemas/UpdatePolicyDto'
         AccountId:
@@ -34250,8 +36270,28 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: SimpleUserEntityDtoType
+            modelAsString: false
+        Source:
+          type: string
+          enum:
+            - Orchestrator
+            - Portal
+            - All
+          x-enum-varnames:
+            - Orchestrator
+            - Portal
+            - All
+          x-ms-enum:
+            name: SimpleUserEntityDtoSource
             modelAsString: false
         Id:
           type: integer
@@ -34335,6 +36375,12 @@ components:
             - RobotCount
             - JobsCount
             - ModernJobsCount
+          x-enum-varnames:
+            - All
+            - Specific
+            - RobotCount
+            - JobsCount
+            - ModernJobsCount
           x-ms-enum:
             name: StartProcessDtoStrategy
             modelAsString: false
@@ -34363,6 +36409,22 @@ components:
           type: string
           description: The Source of the job starting the current process.
           enum:
+            - Manual
+            - Schedule
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+            - HttpTrigger
+            - HttpTriggerWithCallback
+            - RobotAPI
+            - Assistant
+            - CommandLine
+            - RobotNetAPI
+          x-enum-varnames:
             - Manual
             - Schedule
             - Queue
@@ -34483,9 +36545,11 @@ components:
           type: string
         RunAsMe:
           type: boolean
-        TransactionId:
+        ParentOperationId:
+          maxLength: 128
+          minLength: 0
           type: string
-          format: uuid
+          description: Operation id which started the job.
       description: The Start Process transfers information from client to the server during JobsController.StartJobs custom action.
     StopJobRequest:
       required:
@@ -34495,6 +36559,9 @@ components:
         strategy:
           type: string
           enum:
+            - SoftStop
+            - Kill
+          x-enum-varnames:
             - SoftStop
             - Kill
           x-ms-enum:
@@ -34509,6 +36576,9 @@ components:
         strategy:
           type: string
           enum:
+            - SoftStop
+            - Kill
+          x-enum-varnames:
             - SoftStop
             - Kill
           x-ms-enum:
@@ -34571,6 +36641,19 @@ components:
           type: string
           description: Gets or sets the activity type performed on Task.
           enum:
+            - Created
+            - Assigned
+            - Reassigned
+            - Unassigned
+            - Saved
+            - Forwarded
+            - Completed
+            - Commented
+            - Deleted
+            - BulkSaved
+            - BulkCompleted
+            - FirstOpened
+          x-enum-varnames:
             - Created
             - Assigned
             - Reassigned
@@ -34701,6 +36784,27 @@ components:
           description: List of tags associated to the task.
           items:
             $ref: '#/components/schemas/TagDto'
+        RetentionAction:
+          type: string
+          description: Action to take at retention limit
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: TaskCatalogDtoRetentionAction
+            modelAsString: false
+        RetentionPeriod:
+          type: integer
+          description: Retention period
+          format: int32
+        RetentionBucketId:
+          type: integer
+          description: Retention bucket Id
+          format: int64
+        RetentionBucketName:
+          type: string
+          description: Retention bucket name
         Id:
           type: integer
           format: int64
@@ -34757,6 +36861,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TagDto'
+        RetentionAction:
+          type: string
+          description: Action to take at retention limit
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: TaskCatalogRequestRetentionAction
+            modelAsString: false
+        RetentionPeriod:
+          type: integer
+          description: Retention period
+          format: int32
+        RetentionBucketId:
+          type: integer
+          description: Retention bucket Id
+          format: int64
       description: Task Catalog entity for Creating or Updating Task Catalog
     TaskCompletedEventDto:
       required:
@@ -34834,6 +36956,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskCreateRequestType
             modelAsString: false
@@ -34846,6 +36975,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -34869,6 +37003,11 @@ components:
           description: List of tags associated to the task.
           items:
             $ref: '#/components/schemas/TagDto'
+        parentOperationId:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Operation id which created the task.
     TaskCreatedEvent:
       type: object
       properties:
@@ -34880,6 +37019,13 @@ components:
         type:
           type: string
           enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-enum-varnames:
             - FormTask
             - ExternalTask
             - DocumentValidationTask
@@ -34959,6 +37105,10 @@ components:
             - Unassigned
             - Pending
             - Completed
+          x-enum-varnames:
+            - Unassigned
+            - Pending
+            - Completed
           x-ms-enum:
             name: TaskDataDtoStatus
             modelAsString: false
@@ -35007,6 +37157,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -35014,6 +37171,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -35048,6 +37210,9 @@ components:
           type: string
           description: Datetime when task was completed.
           format: date-time
+        parentOperationId:
+          type: string
+          description: Operation id which created the task.
         isDeleted:
           type: boolean
         deleterUserId:
@@ -35223,6 +37388,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskDeletedEventType
             modelAsString: false
@@ -35292,6 +37464,10 @@ components:
             - Unassigned
             - Pending
             - Completed
+          x-enum-varnames:
+            - Unassigned
+            - Pending
+            - Completed
           x-ms-enum:
             name: TaskDtoStatus
             modelAsString: false
@@ -35343,6 +37519,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -35350,6 +37533,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -35384,6 +37572,9 @@ components:
           type: string
           description: Datetime when task was completed.
           format: date-time
+        ParentOperationId:
+          type: string
+          description: Operation id which created the task.
         IsDeleted:
           type: boolean
         DeleterUserId:
@@ -35429,6 +37620,10 @@ components:
           type: string
           description: Task status
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -35480,6 +37675,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: TaskMetadataDtoType
             modelAsString: false
@@ -35487,6 +37689,11 @@ components:
           type: string
           description: Gets or sets priority of this task.
           enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
             - Low
             - Medium
             - High
@@ -35521,6 +37728,9 @@ components:
           type: string
           description: Datetime when task was completed.
           format: date-time
+        parentOperationId:
+          type: string
+          description: Operation id which created the task.
         isDeleted:
           type: boolean
         deleterUserId:
@@ -35664,6 +37874,32 @@ components:
           type: string
           description: Gets or sets the userNameOrEmail for this task operation
       description: Class to hold error details of an operation (assign/unassign/reassign/delete) on a task.
+    TaskRetentionSettingDto:
+      type: object
+      properties:
+        TaskCatalogId:
+          type: integer
+          format: int64
+        Action:
+          type: string
+          description: Action cannot be None for Cloud.
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-enum-varnames:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: BaseRetentionSettingDtoAction
+            modelAsString: false
+        Period:
+          type: integer
+          format: int32
+        BucketId:
+          type: integer
+          format: int64
     TaskSaveAndReassignmentRequest:
       type: object
       properties:
@@ -35762,6 +37998,13 @@ components:
         type:
           type: string
           enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-enum-varnames:
             - FormTask
             - ExternalTask
             - DocumentValidationTask
@@ -36092,6 +38335,13 @@ components:
             - Passed
             - Failed
             - Cancelled
+          x-enum-varnames:
+            - Pending
+            - Running
+            - Cancelling
+            - Passed
+            - Failed
+            - Cancelled
           x-ms-enum:
             name: TestCaseExecutionDtoStatus
             modelAsString: false
@@ -36147,6 +38397,9 @@ components:
         TestCaseType:
           type: string
           enum:
+            - TestCase
+            - TestDataSetup
+          x-enum-varnames:
             - TestCase
             - TestDataSetup
           x-ms-enum:
@@ -36352,6 +38605,10 @@ components:
             - User
             - ExternalTool
             - Transient
+          x-enum-varnames:
+            - User
+            - ExternalTool
+            - Transient
           x-ms-enum:
             name: TestSetDtoSourceType
             modelAsString: false
@@ -36467,12 +38724,23 @@ components:
             - Passed
             - Failed
             - Cancelled
+          x-enum-varnames:
+            - Pending
+            - Running
+            - Cancelling
+            - Passed
+            - Failed
+            - Cancelled
           x-ms-enum:
             name: TestSetExecutionDtoStatus
             modelAsString: false
         TriggerType:
           type: string
           enum:
+            - Manual
+            - Scheduled
+            - ExternalTool
+          x-enum-varnames:
             - Manual
             - Scheduled
             - ExternalTool
@@ -36488,6 +38756,11 @@ components:
         CoverageStatus:
           type: string
           enum:
+            - Disabled
+            - Pending
+            - Processing
+            - Completed
+          x-enum-varnames:
             - Disabled
             - Pending
             - Processing
@@ -36526,6 +38799,10 @@ components:
         triggerType:
           type: string
           enum:
+            - Manual
+            - Scheduled
+            - ExternalTool
+          x-enum-varnames:
             - Manual
             - Scheduled
             - ExternalTool
@@ -36736,9 +39013,17 @@ components:
           enum:
             - Equals
             - StartsWith
+          x-enum-varnames:
+            - Equals
+            - StartsWith
           x-ms-enum:
             name: TransactionDataDtoReferenceFilterOption
             modelAsString: false
+        ParentOperationId:
+          maxLength: 128
+          minLength: 0
+          type: string
+          description: Operation id which created the queue item.
       description: Stores data sent when processing of an existing or a new item starts.
     TransactionResultDto:
       type: object
@@ -36769,6 +39054,10 @@ components:
         Progress:
           type: string
           description: String field which is used to keep track of the business flow progress.
+        OperationId:
+          maxLength: 128
+          type: string
+          description: The operation id which finished the queue item. Will be saved only if queue item is in final state
       description: Stores data sent when processing an item ended.
     UnattendedRobotDto:
       type: object
@@ -36834,6 +39123,15 @@ components:
             - NotApplicable
             - Scheduled
             - FailedRescheduled
+          x-enum-varnames:
+            - None
+            - InProgress
+            - Failed
+            - NonCompliant
+            - Compliant
+            - NotApplicable
+            - Scheduled
+            - FailedRescheduled
           x-ms-enum:
             name: UpdateInfoDtoUpdateStatus
             modelAsString: false
@@ -36874,6 +39172,11 @@ components:
             - SpecificVersion
             - LatestVersion
             - LatestPatch
+          x-enum-varnames:
+            - None
+            - SpecificVersion
+            - LatestVersion
+            - LatestPatch
           x-ms-enum:
             name: UpdatePolicyDtoType
             modelAsString: false
@@ -36889,6 +39192,8 @@ components:
         UpdateServerSource:
           type: string
           enum:
+            - Orchestrator
+          x-enum-varnames:
             - Orchestrator
           x-ms-enum:
             name: UpdateSettingsDtoUpdateServerSource
@@ -37031,6 +39336,13 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: UserDtoType
             modelAsString: false
@@ -37038,6 +39350,9 @@ components:
           type: string
           description: The user type.
           enum:
+            - Manual
+            - Automatic
+          x-enum-varnames:
             - Manual
             - Automatic
           x-ms-enum:
@@ -37087,13 +39402,12 @@ components:
         MayHaveUnattendedSession:
           type: boolean
           description: 'Specifies whether this user is allowed to have an Unattended Robot attached (default: false)'
-        BypassBasicAuthRestriction:
-          type: boolean
-          description: 'DEPRECATED. Specifies whether this user bypasses the "Auth.RestrictBasicAuthentication" application setting (default: null)'
-          x-deprecated: true
         MayHavePersonalWorkspace:
           type: boolean
           description: Specifies whether this user is allowed to have a Personal Workspace
+        RestrictToPersonalWorkspace:
+          type: boolean
+          description: Restrict to personal workspace view
         UpdatePolicy:
           $ref: '#/components/schemas/UpdatePolicyDto'
         AccountId:
@@ -37140,8 +39454,28 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: SimpleUserEntityDtoType
+            modelAsString: false
+        Source:
+          type: string
+          enum:
+            - Orchestrator
+            - Portal
+            - All
+          x-enum-varnames:
+            - Orchestrator
+            - Portal
+            - All
+          x-ms-enum:
+            name: SimpleUserEntityDtoSource
             modelAsString: false
         Id:
           type: integer
@@ -37381,6 +39715,28 @@ components:
               - DynamicJobConnectedMachinesUserCredentialsInvalid
               - DynamicJobConnectedMachinesCrossPlatformRobotVersionInvalid
               - DynamicJobConnectedMachinesWindowsRobotVersionInvalid
+            x-enum-varnames:
+              - RobotNotAssignedToFolder
+              - RobotNotFound
+              - RobotNoCredentials
+              - RobotBusy
+              - RobotConcurrencyLimit
+              - RobotNoMatchingUsernames
+              - TemplateNoRuntime
+              - TemplateNoHostsAvailable
+              - TemplateNoLicense
+              - TemplateFullCapacity
+              - TemplateNotAssignedToFolder
+              - TemplateMaintenanceMode
+              - DynamicJobAccountCredentialsInvalid
+              - DynamicJobForegroundAutomationTypeInvalid
+              - DynamicJobBackgroundAutomationTypeInvalid
+              - DynamicJobWindowsTargetFrameworkInvalid
+              - DynamicJobCrossPlatformTargetFrameworkInvalid
+              - DynamicJobConnectedMachinesInvalid
+              - DynamicJobConnectedMachinesUserCredentialsInvalid
+              - DynamicJobConnectedMachinesCrossPlatformRobotVersionInvalid
+              - DynamicJobConnectedMachinesWindowsRobotVersionInvalid
             x-ms-enum:
               name: JobPendingReasons
               modelAsString: false
@@ -37404,6 +39760,10 @@ components:
             - None
             - Failed
             - All
+          x-enum-varnames:
+            - None
+            - Failed
+            - All
           x-ms-enum:
             name: VideoRecordingSettingsDtoVideoRecordingType
             modelAsString: false
@@ -37411,6 +39771,10 @@ components:
           type: string
           default: None
           enum:
+            - None
+            - Failed
+            - All
+          x-enum-varnames:
             - None
             - Failed
             - All
@@ -37552,6 +39916,13 @@ components:
             - DirectoryGroup
             - DirectoryRobot
             - DirectoryExternalApplication
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
           x-ms-enum:
             name: WebhookSimpleUserDtoType
             modelAsString: false
@@ -37589,6 +39960,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -37600,6 +39978,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -37607,6 +39990,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -37654,6 +40041,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -37665,6 +40059,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -37672,6 +40071,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -37705,6 +40108,10 @@ components:
     WebhookTaskCreatedDto:
       type: object
       properties:
+        ParentOperationId:
+          type: string
+          description: The operation id which created the Task
+          readOnly: true
         Title:
           type: string
           readOnly: true
@@ -37712,6 +40119,13 @@ components:
           type: string
           readOnly: true
           enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-enum-varnames:
             - FormTask
             - ExternalTask
             - DocumentValidationTask
@@ -37729,6 +40143,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -37736,6 +40155,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -37833,6 +40256,16 @@ components:
             - Stopped
             - Suspended
             - Resumed
+          x-enum-varnames:
+            - Pending
+            - Running
+            - Stopping
+            - Terminating
+            - Faulted
+            - Successful
+            - Stopped
+            - Suspended
+            - Resumed
           x-ms-enum:
             name: WrappedJobDtoState
             modelAsString: false
@@ -37845,6 +40278,22 @@ components:
           description: The Source type of the job.
           readOnly: true
           enum:
+            - Manual
+            - Schedule
+            - Agent
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+            - HttpTrigger
+            - HttpTriggerCallback
+            - RobotAPI
+            - CommandLine
+            - RobotNetAPI
+          x-enum-varnames:
             - Manual
             - Schedule
             - Agent
@@ -37886,6 +40335,10 @@ components:
           description: The type of the job, Attended if started via the robot, Unattended otherwise
           readOnly: true
           enum:
+            - Unattended
+            - Attended
+            - ServerlessGeneric
+          x-enum-varnames:
             - Unattended
             - Attended
             - ServerlessGeneric
@@ -37944,6 +40397,10 @@ components:
             - Undefined
             - Process
             - TestAutomationProcess
+          x-enum-varnames:
+            - Undefined
+            - Process
+            - TestAutomationProcess
           x-ms-enum:
             name: WrappedJobDtoProcessType
             modelAsString: false
@@ -37951,6 +40408,14 @@ components:
           type: integer
           description: The priority for a job
           format: int32
+          readOnly: true
+        ProjectKey:
+          type: string
+          description: The project key which the job is part of
+          readOnly: true
+        ParentOperationId:
+          type: string
+          description: The operation id which created the job
           readOnly: true
     WrappedProcessScheduleDto:
       type: object
@@ -37984,6 +40449,12 @@ components:
           description: States which robots from the environment are being run by the schedule.
           readOnly: true
           enum:
+            - All
+            - Specific
+            - RobotCount
+            - JobsCount
+            - ModernJobsCount
+          x-enum-varnames:
             - All
             - Specific
             - RobotCount
@@ -38066,6 +40537,9 @@ components:
           enum:
             - ApplicationException
             - BusinessException
+          x-enum-varnames:
+            - ApplicationException
+            - BusinessException
           x-ms-enum:
             name: WrappedProcessingExceptionDtoType
             modelAsString: false
@@ -38094,6 +40568,24 @@ components:
         ProcessVersion:
           type: string
           readOnly: true
+        ProcessType:
+          type: string
+          readOnly: true
+          enum:
+            - Undefined
+            - Process
+            - TestAutomationProcess
+          x-enum-varnames:
+            - Undefined
+            - Process
+            - TestAutomationProcess
+          x-ms-enum:
+            name: WrappedReleaseDtoProcessType
+            modelAsString: false
+        EntryPointId:
+          type: string
+          format: uuid
+          readOnly: true
         Name:
           type: string
           readOnly: true
@@ -38103,6 +40595,11 @@ components:
         IsLatestVersion:
           type: boolean
           readOnly: true
+        Tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         EnvironmentId:
           type: integer
           format: int64
@@ -38166,6 +40663,25 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+          x-enum-varnames:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
           x-ms-enum:
             name: WrappedRobotDtoType
             modelAsString: false
@@ -38173,6 +40689,9 @@ components:
           type: string
           readOnly: true
           enum:
+            - Standard
+            - Floating
+          x-enum-varnames:
             - Standard
             - Floating
           x-ms-enum:
@@ -38201,6 +40720,12 @@ components:
           description: States which robots from the environment are being run by the process.
           readOnly: true
           enum:
+            - All
+            - Specific
+            - RobotCount
+            - JobsCount
+            - ModernJobsCount
+          x-enum-varnames:
             - All
             - Specific
             - RobotCount
@@ -38241,6 +40766,22 @@ components:
             - Assistant
             - CommandLine
             - RobotNetAPI
+          x-enum-varnames:
+            - Manual
+            - Schedule
+            - Queue
+            - StudioWeb
+            - IntegrationTrigger
+            - StudioDesktop
+            - AutomationOpsPipelines
+            - Apps
+            - SAP
+            - HttpTrigger
+            - HttpTriggerWithCallback
+            - RobotAPI
+            - Assistant
+            - CommandLine
+            - RobotNetAPI
           x-ms-enum:
             name: WrappedStartProcessDtoSource
             modelAsString: false
@@ -38260,6 +40801,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -38271,6 +40819,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -38278,6 +40831,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -38334,6 +40891,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -38345,6 +40909,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -38352,6 +40921,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
@@ -38399,6 +40972,13 @@ components:
             - DocumentClassificationTask
             - DataLabelingTask
             - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
           x-ms-enum:
             name: BaseWebhookTaskDtoType
             modelAsString: false
@@ -38410,6 +40990,11 @@ components:
             - Medium
             - High
             - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
           x-ms-enum:
             name: BaseWebhookTaskDtoPriority
             modelAsString: false
@@ -38417,6 +41002,10 @@ components:
           type: string
           readOnly: true
           enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
             - Unassigned
             - Pending
             - Completed
