@@ -79,30 +79,30 @@ func (p OpenApiParser) getOperationName(method string, route string, category *O
 }
 
 func (p OpenApiParser) getSchemaType(schema openapi3.Schema) string {
-	if schema.Type == openapi3.TypeArray {
+	if schema.Type.Is(openapi3.TypeArray) {
 		itemType := schema.Items.Value.Type
-		switch itemType {
-		case openapi3.TypeBoolean:
+		switch {
+		case itemType.Is(openapi3.TypeBoolean):
 			return ParameterTypeBooleanArray
-		case openapi3.TypeInteger:
+		case itemType.Is(openapi3.TypeInteger):
 			return ParameterTypeIntegerArray
-		case openapi3.TypeNumber:
+		case itemType.Is(openapi3.TypeNumber):
 			return ParameterTypeNumberArray
-		case openapi3.TypeObject:
+		case itemType.Is(openapi3.TypeObject):
 			return ParameterTypeObjectArray
 		default:
 			return ParameterTypeStringArray
 		}
 	}
 
-	switch schema.Type {
-	case openapi3.TypeBoolean:
+	switch {
+	case schema.Type.Is(openapi3.TypeBoolean):
 		return ParameterTypeBoolean
-	case openapi3.TypeInteger:
+	case schema.Type.Is(openapi3.TypeInteger):
 		return ParameterTypeInteger
-	case openapi3.TypeNumber:
+	case schema.Type.Is(openapi3.TypeNumber):
 		return ParameterTypeNumber
-	case openapi3.TypeObject:
+	case schema.Type.Is(openapi3.TypeObject):
 		return ParameterTypeObject
 	default:
 		if schema.Format == "binary" {
