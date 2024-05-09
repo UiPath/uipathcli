@@ -22,6 +22,7 @@ type ExecutionContext struct {
 	AuthConfig   config.AuthConfig
 	Insecure     bool
 	Debug        bool
+	IdentityUri  url.URL
 	Plugin       plugin.CommandPlugin
 }
 
@@ -37,6 +38,7 @@ func NewExecutionContext(
 	authConfig config.AuthConfig,
 	insecure bool,
 	debug bool,
+	identityUri url.URL,
 	plugin plugin.CommandPlugin) *ExecutionContext {
-	return &ExecutionContext{organization, tenant, method, uri, route, contentType, input, parameters, authConfig, insecure, debug, plugin}
+	return &ExecutionContext{organization, tenant, method, uri, route, contentType, input, parameters, authConfig, insecure, debug, identityUri, plugin}
 }

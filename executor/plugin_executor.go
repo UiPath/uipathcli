@@ -19,9 +19,9 @@ type PluginExecutor struct {
 	authenticators []auth.Authenticator
 }
 
-func (e PluginExecutor) executeAuthenticators(baseUri url.URL, authConfig config.AuthConfig, debug bool, insecure bool) (*auth.AuthenticatorResult, error) {
+func (e PluginExecutor) executeAuthenticators(baseUri url.URL, authConfig config.AuthConfig, identityUri url.URL, debug bool, insecure bool) (*auth.AuthenticatorResult, error) {
 	authRequest := *auth.NewAuthenticatorRequest(baseUri.String(), map[string]string{})
-	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
+	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, identityUri, debug, insecure, authRequest)
 	for _, authProvider := range e.authenticators {
 		result := authProvider.Auth(ctx)
 		if result.Error != "" {
@@ -51,7 +51,7 @@ func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthRe
 }
 
 func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	auth, err := e.executeAuthenticators(context.BaseUri, context.AuthConfig, context.Debug, context.Insecure)
+	auth, err := e.executeAuthenticators(context.BaseUri, context.AuthConfig, context.IdentityUri, context.Debug, context.Insecure)
 	if err != nil {
 		return err
 	}

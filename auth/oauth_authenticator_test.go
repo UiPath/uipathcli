@@ -23,7 +23,7 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 		"scopes":   "OR.Users",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
@@ -44,7 +44,7 @@ func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
 		"my-header": "my-value",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", headers)
-	context := NewAuthenticatorContext("login", config, false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
@@ -56,38 +56,6 @@ func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
 	}
 }
 
-func TestOAuthAuthenticatorInvalidRequestUrl(t *testing.T) {
-	config := map[string]interface{}{
-		"clientId":    "my-client-id",
-		"redirectUri": "http://localhost:0",
-		"scopes":      "OR.Users",
-	}
-	request := NewAuthenticatorRequest("://invalid", map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
-
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
-	result := authenticator.Auth(*context)
-	if result.Error != `Invalid request url '://invalid': parse "://invalid": missing protocol scheme` {
-		t.Errorf("Expected error with invalid request url, but got: %v", result.Error)
-	}
-}
-
-func TestOAuthAuthenticatorInvalidIdentityUrl(t *testing.T) {
-	config := map[string]interface{}{
-		"clientId":    "my-client-id",
-		"redirectUri": "http://localhost:0",
-		"scopes":      "OR.Users",
-	}
-	request := NewAuthenticatorRequest("INVALID-URL", map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
-
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
-	result := authenticator.Auth(*context)
-	if result.Error != `Invalid identity url 'INVALID-URL': parse ":///identity_": missing protocol scheme` {
-		t.Errorf("Expected error with invalid request url, but got: %v", result.Error)
-	}
-}
-
 func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 	config := map[string]interface{}{
 		"clientId":    1,
@@ -95,7 +63,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 		"scopes":      "OR.Users",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
 	result := authenticator.Auth(*context)
@@ -109,9 +77,9 @@ func TestOAuthFlowIdentityFails(t *testing.T) {
 		ResponseStatus: 400,
 		ResponseBody:   "Invalid token request",
 	}
-	identityUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t)
 
-	context := createAuthContext(identityUrl)
+	context := createAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	performLogin(loginUrl, t)
 
@@ -126,38 +94,10 @@ func TestOAuthFlowSuccessful(t *testing.T) {
 		ResponseStatus: 200,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t)
 
-	context := createAuthContext(identityUrl)
+	context := createAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
-	performLogin(loginUrl, t)
-
-	result := <-resultChannel
-	if result.Error != "" {
-		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
-	}
-	authorizationHeader := result.RequestHeader["Authorization"]
-	if authorizationHeader != "Bearer my-access-token" {
-		t.Errorf("Expected JWT bearer token in authorization header, but got: %v", authorizationHeader)
-	}
-}
-
-func TestOAuthFlowWithCustomIdentityUri(t *testing.T) {
-	identityServerFake := identityServerFake{
-		ResponseStatus: 200,
-		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
-	}
-	identityUrl := identityServerFake.Start(t)
-	config := map[string]interface{}{
-		"clientId":    newClientId(),
-		"redirectUri": "http://localhost:0",
-		"scopes":      "OR.Users",
-		"uri":         identityUrl.String() + "/identity_",
-	}
-	request := NewAuthenticatorRequest("no-url", map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
-
-	loginUrl, resultChannel := callAuthenticator(*context)
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel
@@ -175,9 +115,9 @@ func TestOAuthFlowIsCached(t *testing.T) {
 		ResponseStatus: 200,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t)
 
-	context := createAuthContext(identityUrl)
+	context := createAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	performLogin(loginUrl, t)
 	<-resultChannel
@@ -217,9 +157,9 @@ func TestShowsSuccessfullyLoggedInPage(t *testing.T) {
 		ResponseStatus: 200,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t)
 
-	context := createAuthContext(identityUrl)
+	context := createAuthContext(identityBaseUrl)
 	loginUrl, _ := callAuthenticator(context)
 	responseBody := performLogin(loginUrl, t)
 
@@ -283,15 +223,24 @@ func callAuthenticator(context AuthenticatorContext) (url.URL, chan Authenticato
 	return *url, resultChannel
 }
 
-func createAuthContext(identityUrl url.URL) AuthenticatorContext {
+func createAuthContext(baseUrl url.URL) AuthenticatorContext {
 	config := map[string]interface{}{
 		"clientId":    newClientId(),
 		"redirectUri": "http://localhost:0",
 		"scopes":      "OR.Users",
 	}
-	request := NewAuthenticatorRequest(fmt.Sprintf("%s://%s", identityUrl.Scheme, identityUrl.Host), map[string]string{})
-	context := NewAuthenticatorContext("login", config, false, false, *request)
+	identityUrl := createIdentityUrl(baseUrl.Host)
+	request := NewAuthenticatorRequest(fmt.Sprintf("%s://%s", baseUrl.Scheme, baseUrl.Host), map[string]string{})
+	context := NewAuthenticatorContext("login", config, identityUrl, false, false, *request)
 	return *context
+}
+
+func createIdentityUrl(hostName string) url.URL {
+	if hostName == "" {
+		hostName = "localhost"
+	}
+	identityUrl, _ := url.Parse(fmt.Sprintf("http://%s/identity_", hostName))
+	return *identityUrl
 }
 
 func performLogin(loginUrl url.URL, t *testing.T) string {

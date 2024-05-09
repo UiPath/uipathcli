@@ -35,18 +35,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %w", err))
 	}
-	identityBaseUri := config.IdentityUri
-	if identityBaseUri == nil {
-		requestUrl, err := url.Parse(ctx.Request.URL)
-		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %w", ctx.Request.URL, err))
-		}
-		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
-		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %w", ctx.Request.URL, err))
-		}
-	}
-	token, err := a.retrieveToken(*identityBaseUri, *config, ctx.Insecure)
+	token, err := a.retrieveToken(config.IdentityUri, *config, ctx.Insecure)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
@@ -176,15 +165,7 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthentic
 	if err != nil {
 		return nil, err
 	}
-	var uri *url.URL
-	uriString, err := a.parseRequiredString(ctx.Config, "uri")
-	if err == nil {
-		uri, err = url.Parse(uriString)
-		if err != nil {
-			return nil, fmt.Errorf("Error parsing identity uri: %w", err)
-		}
-	}
-	return newOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, uri), nil
+	return newOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, ctx.IdentityUri), nil
 }
 
 func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {

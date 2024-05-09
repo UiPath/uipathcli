@@ -122,6 +122,35 @@ paths:
 	}
 }
 
+func TestBearerAuthWithInvalidIdentityUriParameter(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		Build()
+
+	result := RunCli([]string{"myservice", "ping", "--identity-uri", ":invalid"}, context)
+
+	if !strings.Contains(result.Error.Error(), "Error parsing identity-uri argument") {
+		t.Errorf("Expected identity uri parsing error, but got: %v", result.Error)
+	}
+}
+
 func TestBearerAuthTokenIsCached(t *testing.T) {
 	config := `
 profiles:

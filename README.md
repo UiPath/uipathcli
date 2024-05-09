@@ -569,6 +569,7 @@ You can either pass global arguments as CLI parameters, set an env variable or s
 | `--uri` | `UIPATH_URI` | `uri` | `https://cloud.uipath.com` | URL override |
 | `--organization` | `UIPATH_ORGANIZATION` | `string` | | Organization name |
 | `--tenant` | `UIPATH_TENANT` | `string` | | Tenant name |
+| `--identity-uri` | `UIPATH_IDENTITY_URI` | `uri` | `https://cloud.uipath.com/identity_` | URL override for identity calls |
 | | `UIPATH_CLIENT_ID` | `string` | | Client Id |
 | | `UIPATH_CLIENT_SECRET` | `string` | | Client Secret |
 | | `UIPATH_PAT` | `string` | | Personal Access Token |

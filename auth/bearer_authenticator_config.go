@@ -8,7 +8,7 @@ type bearerAuthenticatorConfig struct {
 	ClientId     string
 	ClientSecret string
 	Properties   map[string]string
-	IdentityUri  *url.URL
+	IdentityUri  url.URL
 }
 
 func newBearerAuthenticatorConfig(
@@ -17,6 +17,6 @@ func newBearerAuthenticatorConfig(
 	clientId string,
 	clientSecret string,
 	properties map[string]string,
-	identityUri *url.URL) *bearerAuthenticatorConfig {
+	identityUri url.URL) *bearerAuthenticatorConfig {
 	return &bearerAuthenticatorConfig{grantType, scopes, clientId, clientSecret, properties, identityUri}
 }

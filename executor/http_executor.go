@@ -144,9 +144,9 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 	return e.validateUri(formatter.Uri())
 }
 
-func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
+func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, identityUri url.URL, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
 	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
-	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, debug, insecure, authRequest)
+	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, identityUri, debug, insecure, authRequest)
 	for _, authProvider := range e.authenticators {
 		result := authProvider.Auth(ctx)
 		if result.Error != "" {
@@ -318,7 +318,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 		request.Header.Add("Content-Type", contentType)
 	}
 	e.addHeaders(request, context.Parameters.Header())
-	auth, err := e.executeAuthenticators(context.AuthConfig, context.Debug, context.Insecure, request)
+	auth, err := e.executeAuthenticators(context.AuthConfig, context.IdentityUri, context.Debug, context.Insecure, request)
 	if err != nil {
 		return err
 	}

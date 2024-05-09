@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 
 	"github.com/UiPath/uipathcli/cache"
@@ -10,7 +9,6 @@ import (
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
 const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint // This is not a secret but just the env variable name
-const IdentityUriEnvVarName = "UIPATH_IDENTITY_URI"
 
 // The BearerAuthenticator calls the identity token-endpoint to retrieve a JWT bearer token.
 // It requires clientId and clientSecret.
@@ -26,21 +24,9 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %w", err))
 	}
-	identityBaseUri := config.IdentityUri
-	if identityBaseUri == nil {
-		requestUrl, err := url.Parse(ctx.Request.URL)
-		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid request url '%s': %w", ctx.Request.URL, err))
-		}
-		identityBaseUri, err = url.Parse(fmt.Sprintf("%s://%s/identity_", requestUrl.Scheme, requestUrl.Host))
-		if err != nil {
-			return *AuthenticatorError(fmt.Errorf("Invalid identity url '%s': %w", ctx.Request.URL, err))
-		}
-	}
-
 	identityClient := newIdentityClient(a.cache)
 	tokenRequest := newTokenRequest(
-		*identityBaseUri,
+		config.IdentityUri,
 		config.GrantType,
 		config.Scopes,
 		config.ClientId,
@@ -85,15 +71,7 @@ func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*bearerAuthent
 	if err != nil {
 		return nil, err
 	}
-	var uri *url.URL
-	uriString, err := a.parseRequiredString(ctx.Config, "uri", os.Getenv(IdentityUriEnvVarName))
-	if err == nil {
-		uri, err = url.Parse(uriString)
-		if err != nil {
-			return nil, fmt.Errorf("Error parsing identity uri: %w", err)
-		}
-	}
-	return newBearerAuthenticatorConfig(grantType, scopes, clientId, clientSecret, properties, uri), nil
+	return newBearerAuthenticatorConfig(grantType, scopes, clientId, clientSecret, properties, ctx.IdentityUri), nil
 }
 
 func (a BearerAuthenticator) parseProperties(config map[string]interface{}) (map[string]string, error) {
