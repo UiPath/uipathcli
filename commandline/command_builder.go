@@ -26,6 +26,7 @@ const insecureFlagName = "insecure"
 const debugFlagName = "debug"
 const profileFlagName = "profile"
 const uriFlagName = "uri"
+const identityUriFlagName = "identity-uri"
 const organizationFlagName = "organization"
 const tenantFlagName = "tenant"
 const helpFlagName = "help"
@@ -41,6 +42,7 @@ var predefinedFlags = []string{
 	debugFlagName,
 	profileFlagName,
 	uriFlagName,
+	identityUriFlagName,
 	organizationFlagName,
 	tenantFlagName,
 	helpFlagName,
@@ -220,6 +222,32 @@ func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.
 	return builder.Uri(), nil
 }
 
+func (b CommandBuilder) createIdentityUri(context *cli.Context, config config.Config, baseUri url.URL) (*url.URL, error) {
+	uri := context.String(identityUriFlagName)
+	if uri != "" {
+		identityUri, err := url.Parse(uri)
+		if err != nil {
+			return nil, fmt.Errorf("Error parsing %s argument: %w", identityUriFlagName, err)
+		}
+		return identityUri, nil
+	}
+
+	value := config.Auth.Config["uri"]
+	uri, valid := value.(string)
+	if valid && uri != "" {
+		identityUri, err := url.Parse(uri)
+		if err != nil {
+			return nil, fmt.Errorf("Error parsing identity uri config: %w", err)
+		}
+		return identityUri, nil
+	}
+	identityUri, err := url.Parse(fmt.Sprintf("%s://%s/identity_", baseUri.Scheme, baseUri.Host))
+	if err != nil {
+		return nil, fmt.Errorf("Error parsing identity uri: %w", err)
+	}
+	return identityUri, nil
+}
+
 func (b CommandBuilder) parseUriArgument(context *cli.Context) (*url.URL, error) {
 	uriFlag := context.String(uriFlagName)
 	if uriFlag == "" {
@@ -363,6 +391,11 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 			}
 			insecure := context.Bool(insecureFlagName) || config.Insecure
 			debug := context.Bool(debugFlagName) || config.Debug
+			identityUri, err := b.createIdentityUri(context, *config, baseUri)
+			if err != nil {
+				return err
+			}
+
 			executionContext := executor.NewExecutionContext(
 				organization,
 				tenant,
@@ -375,6 +408,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				config.Auth,
 				insecure,
 				debug,
+				*identityUri,
 				operation.Plugin)
 
 			if wait != "" {
@@ -874,6 +908,12 @@ func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
 			Usage:  "Provide input from file (use - for stdin)",
 			Value:  "",
 			Hidden: hidden,
+		},
+		&cli.StringFlag{
+			Name:    identityUriFlagName,
+			Usage:   "Identity Server URI",
+			EnvVars: []string{"UIPATH_IDENTITY_URI"},
+			Hidden:  hidden,
 		},
 		b.VersionFlag(hidden),
 	}

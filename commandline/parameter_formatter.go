@@ -2,7 +2,7 @@ package commandline
 
 import (
 	"fmt"
-	"slices"
+	"sort"
 	"strings"
 
 	"github.com/UiPath/uipathcli/parser"
@@ -68,7 +68,7 @@ func (f parameterFormatter) descriptionFields(parameter parser.Parameter) []inte
 
 func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
 	parameters := f.collectUsageParameters(parameter, "")
-	slices.Sort(parameters)
+	sort.Strings(parameters)
 
 	builder := strings.Builder{}
 	for _, value := range parameters {

@@ -6,13 +6,13 @@ type oauthAuthenticatorConfig struct {
 	ClientId    string
 	RedirectUrl url.URL
 	Scopes      string
-	IdentityUri *url.URL
+	IdentityUri url.URL
 }
 
 func newOAuthAuthenticatorConfig(
 	clientId string,
 	redirectUrl url.URL,
 	scopes string,
-	identityUri *url.URL) *oauthAuthenticatorConfig {
+	identityUri url.URL) *oauthAuthenticatorConfig {
 	return &oauthAuthenticatorConfig{clientId, redirectUrl, scopes, identityUri}
 }
