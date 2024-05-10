@@ -183,6 +183,21 @@ func TestNegativeIndexIsIgnored(t *testing.T) {
 	}
 }
 
+func TestConvertStringAvoidEscapeEqualSign(t *testing.T) {
+	converter := newTypeConverter()
+
+	parameter := newParameter("tag", parser.ParameterTypeObject,
+		[]parser.Parameter{
+			newParameter("name", parser.ParameterTypeString, []parser.Parameter{}),
+		})
+	result, _ := converter.Convert("name=hello=", parameter)
+
+	name := getValue(result, "name")
+	if name != "hello=" {
+		t.Errorf("Result should contain equal sign, but got: %v", name)
+	}
+}
+
 func getValue(result interface{}, key string) interface{} {
 	return result.(map[string]interface{})[key]
 }
