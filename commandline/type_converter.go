@@ -182,7 +182,7 @@ func (c typeConverter) convertToObject(value string, parameter parser.Parameter)
 	obj := map[string]interface{}{}
 	assigns := c.splitEscaped(value, ';')
 	for _, assign := range assigns {
-		keyValue := c.splitEscaped(assign, '=')
+		keyValue := c.splitEscapedMaxCount(assign, '=', 2)
 		if len(keyValue) < 2 {
 			keyValue = append(keyValue, "")
 		}
@@ -243,6 +243,10 @@ func (c typeConverter) convertValueToBooleanArray(value string, parameter parser
 }
 
 func (c typeConverter) splitEscaped(str string, separator byte) []string {
+	return c.splitEscapedMaxCount(str, separator, -1)
+}
+
+func (c typeConverter) splitEscapedMaxCount(str string, separator byte, maxCount int) []string {
 	result := []string{}
 	item := []byte{}
 	escaping := false
@@ -256,6 +260,14 @@ func (c typeConverter) splitEscaped(str string, separator byte) []string {
 		} else if char == separator && !escaping {
 			result = append(result, string(item))
 			item = []byte{}
+			if len(result) == maxCount-1 {
+				if i+1 < len(str) {
+					item = []byte(str[i+1:])
+					result = append(result, string(item))
+				}
+				break
+			}
+
 		} else {
 			escaping = false
 			item = append(item, char)
