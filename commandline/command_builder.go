@@ -716,7 +716,7 @@ func (b CommandBuilder) createConfigSetCommand() *cli.Command {
 }
 
 func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser.Definition, error) {
-	if len(args) <= 1 || strings.HasPrefix(args[1], "--") {
+	if len(args) <= 1 || strings.HasPrefix(args[1], "-") {
 		return b.DefinitionProvider.Index(version)
 	}
 	if len(args) > 1 && args[1] == "commands" {
