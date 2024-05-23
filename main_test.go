@@ -31,6 +31,24 @@ func TestMainReadsDefinitions(t *testing.T) {
 	}
 }
 
+func TestHelpReadsDefinitions(t *testing.T) {
+	config := createFile(t, ".uipath", "config")
+	definition := createFile(t, "definitions", "service-a.yaml")
+
+	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
+	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
+
+	os.Args = []string{"uipath", "-h"}
+	output := captureOutput(t, func() {
+		main()
+	})
+
+	expected := `service-a`
+	if !strings.Contains(output, expected) {
+		t.Errorf("Expected %s in output, but got: %v", expected, output)
+	}
+}
+
 func TestMainParsesDefinition(t *testing.T) {
 	config := createFile(t, ".uipath", "config")
 	definition := createFile(t, "definitions", "service-a.yaml")
