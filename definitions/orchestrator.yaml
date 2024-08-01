@@ -88,6 +88,77 @@ paths:
                   $ref: '#/components/schemas/DomainDto'
       security:
         - OAuth2: []
+  /api/DirectoryService/GetDomainUserId:
+    get:
+      tags:
+        - DirectoryService
+      summary: Gets an orchestrator user Id by searching for the domain user information.
+      description: |-
+        OAuth required scopes: OR.Users or OR.Users.Read.
+
+        Required permissions: (Users.View or Units.Edit or SubFolders.Edit).
+      operationId: DirectoryService_GetDomainUserId
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+        - name: directoryIdentifier
+          in: query
+          schema:
+            type: string
+        - name: userName
+          in: query
+          schema:
+            type: string
+        - name: userType
+          in: query
+          schema:
+            type: string
+            enum:
+              - User
+              - Robot
+              - DirectoryUser
+              - DirectoryGroup
+              - DirectoryRobot
+              - DirectoryExternalApplication
+            x-ms-enum:
+              name: UserType
+              modelAsString: false
+            x-enum-varnames:
+              - User
+              - Robot
+              - DirectoryUser
+              - DirectoryGroup
+              - DirectoryRobot
+              - DirectoryExternalApplication
+          x-ms-enum:
+            name: UserType
+            modelAsString: false
+          x-enum-varnames:
+            - User
+            - Robot
+            - DirectoryUser
+            - DirectoryGroup
+            - DirectoryRobot
+            - DirectoryExternalApplication
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: integer
+                format: int64
+      security:
+        - OAuth2: []
   /api/DirectoryService/SearchForUsersAndGroups:
     get:
       tags:
@@ -378,6 +449,79 @@ paths:
                 $ref: '#/components/schemas/PageResultDtoOfPathAwareFolderDto'
       security:
         - OAuth2: []
+  /api/JobTriggers/DeliverPayload/{inboxId}:
+    post:
+      tags:
+        - JobTriggers
+      summary: Deliver payload for trigger inboxId.
+      description: |-
+        OAuth required scopes: OR.Jobs or OR.Jobs.Write.
+
+        Required permissions: Jobs.Edit.
+      operationId: JobTriggers_DeliverPayloadByInboxid
+      parameters:
+        - name: inboxId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              maxLength: 4000
+              type: object
+        required: false
+      responses:
+        "202":
+          description: Accepted
+          content: {}
+        "208":
+          description: Success
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /api/JobTriggers/GetPayload/{inboxId}:
+    get:
+      tags:
+        - JobTriggers
+      summary: Get payload for trigger inboxId.
+      operationId: JobTriggers_GetPayloadByInboxid
+      parameters:
+        - name: inboxId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+        "404":
+          description: Not Found
+          content: {}
   /api/Licensing/Acquire:
     post:
       tags:
@@ -6244,6 +6388,76 @@ paths:
           application/*+json:
             schema:
               $ref: '#/components/schemas/RemoveUserFromFolderRequest'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /odata/Folders({key})/UiPath.Server.Configuration.OData.RemoveUserFromFolderByKey:
+    post:
+      tags:
+        - Folders
+      summary: Remove user assignment from a folder.
+      description: |-
+        OAuth required scopes: OR.Folders or OR.Folders.Write.
+
+        Required permissions: (Units.Edit or SubFolders.Edit - Remove user from any folder or only if caller has SubFolders.Edit permission on provided folder).
+      operationId: Folders_RemoveUserFromFolderByKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        description: userId - The Id of the user to remove from the folder
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/RemoveUserByKeyFromFolderRequest'
         required: false
       responses:
         "204":
@@ -13042,6 +13256,80 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
+  /odata/QueueItems/UiPathODataSvc.GetItemLastRetryByKey(key={key}):
+    get:
+      tags:
+        - QueueItems
+      summary: Returns the last retry of a queue item by key.
+      description: |-
+        OAuth required scopes: OR.Queues or OR.Queues.Read.
+
+        Required permissions: Queues.View and Transactions.View.
+      operationId: QueueItems_GetItemLastRetryByKey
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueueItemDto'
+        "404":
+          description: Not Found
+          content: {}
+      security:
+        - OAuth2: []
   /odata/QueueItems/UiPathODataSvc.SetItemReviewer:
     post:
       tags:
@@ -20084,6 +20372,81 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
+  /odata/Tasks/UiPath.Server.Configuration.OData.GetByKey(identifier={identifier}):
+    get:
+      tags:
+        - Tasks
+      summary: Gets a Task with the given guid.
+      description: |-
+        OAuth required scopes: OR.Tasks or OR.Tasks.Read.
+
+        Requires authentication.
+      operationId: Tasks_GetByKeyByIdentifier
+      parameters:
+        - name: identifier
+          in: path
+          description: The guid of the Task to be retrieved.
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Ok result of Task object.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskDto'
+        "404":
+          description: Not found result.
+          content: {}
+      security:
+        - OAuth2: []
   /odata/Tasks/UiPath.Server.Configuration.OData.GetTaskPermissions:
     get:
       tags:
@@ -23982,6 +24345,102 @@ components:
         TotalFoldersCount:
           type: integer
           format: int32
+    ActionableMessageAction:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier of the field
+        name:
+          type: string
+          description: Name of the command
+        title:
+          type: string
+          description: Title of the command
+        type:
+          type: string
+          description: Type of the field (e.g. Input.Text)
+        isPrimary:
+          type: boolean
+          description: Indicates if the action is primary or secondary
+      description: Type definition for Actionable Message Command.
+    ActionableMessageActionSet:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier of the field
+        type:
+          type: string
+          description: Action Set Type
+          readOnly: true
+        actions:
+          maxItems: 5
+          type: array
+          description: Set of Actions
+          items:
+            $ref: '#/components/schemas/ActionableMessageAction'
+      description: Set of Commands for Actionable Message
+    ActionableMessageField:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier of the field
+        name:
+          type: string
+          description: Name of the field
+        title:
+          type: string
+          description: Name of the field
+        type:
+          type: string
+          description: Type of the field (e.g. Input.Text)
+        placeHolderText:
+          type: string
+          description: Placeholder text for the field
+        value:
+          type: string
+          description: Value of the field
+        isHeader:
+          type: boolean
+          description: Is the field header
+        isRequired:
+          type: boolean
+          description: Is the field Required
+        sequence:
+          type: integer
+          description: Sequence of the field
+          format: int32
+        horizontalAlignment:
+          type: string
+          description: Defines horizontal alignment of the field
+      description: Type definition for Actionable Message Field.
+    ActionableMessageFieldSet:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique Identifier of the field
+        type:
+          type: string
+          description: Action Set Type
+          readOnly: true
+        fields:
+          maxItems: 10
+          type: array
+          description: Set of fields
+          items:
+            $ref: '#/components/schemas/ActionableMessageField'
+      description: Set of Fields for Actionable Message
+    ActionableMessageMetaData:
+      type: object
+      properties:
+        fieldSet:
+          $ref: '#/components/schemas/ActionableMessageFieldSet'
+        actionSet:
+          $ref: '#/components/schemas/ActionableMessageActionSet'
+      description: Type definition for Actionable Message Schema.
     ActivitySettingsDto:
       type: object
       properties:
@@ -24044,6 +24503,7 @@ components:
             - ConnectedTriggers
             - Serverless
             - Export
+            - RateLimits
           x-enum-varnames:
             - Robots
             - Transactions
@@ -24060,6 +24520,7 @@ components:
             - ConnectedTriggers
             - Serverless
             - Export
+            - RateLimits
           x-ms-enum:
             name: AlertDtoComponent
             modelAsString: false
@@ -24138,6 +24599,8 @@ components:
         Timestamp:
           type: string
           format: date-time
+        IsEmailDisabled:
+          type: boolean
         UserKey:
           type: string
           format: uuid
@@ -24216,7 +24679,6 @@ components:
       required:
         - appId
         - appVersion
-        - taskDefinitionId
         - title
       type: object
       properties:
@@ -24237,6 +24699,11 @@ components:
           type: integer
           description: Version of App for AppTask
           format: int32
+        isActionableMessageEnabled:
+          type: boolean
+          description: Is Acionable Message enabled
+        actionableMessageMetaData:
+          $ref: '#/components/schemas/ActionableMessageMetaData'
         type:
           type: string
           description: Gets or sets type of this task, allowed type is 'ExternalTask'.
@@ -24303,6 +24770,10 @@ components:
     AppTasksDataDto:
       type: object
       properties:
+        taskDefinitionPropertiesId:
+          type: integer
+          description: Task Definition Properties for App Task
+          format: int64
         appTasksMetadata:
           $ref: '#/components/schemas/AppTasksMetadataDto'
         actionLabel:
@@ -24354,6 +24825,11 @@ components:
             $ref: '#/components/schemas/TagDto'
         assignedToUser:
           $ref: '#/components/schemas/UserLoginInfoDto'
+        taskSlaDetails:
+          type: array
+          description: Gets or sets the expiry time of Actionable Task Schedule
+          items:
+            $ref: '#/components/schemas/TaskSlaDetailDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -24423,6 +24899,10 @@ components:
         parentOperationId:
           type: string
           description: Operation id which created the task.
+        key:
+          type: string
+          description: The unique Task identifier.
+          format: uuid
         isDeleted:
           type: boolean
         deleterUserId:
@@ -24476,40 +24956,20 @@ components:
     AssetCreatedEvent:
       type: object
       properties:
-        name:
-          type: string
-        description:
-          type: string
         key:
           type: string
           format: uuid
-        assetType:
+          readOnly: true
+        name:
           type: string
-          description: Defines what type of value is stored by an asset.
-          enum:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-enum-varnames:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-ms-enum:
-            name: AssetCreatedEventAssetType
-            modelAsString: false
-        assetScope:
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        valueScope:
           type: string
           description: Defines the visibility level of an asset.
+          readOnly: true
           enum:
             - Global
             - PerRobot
@@ -24517,10 +24977,36 @@ components:
             - Global
             - PerRobot
           x-ms-enum:
-            name: AssetCreatedEventAssetScope
+            name: AssetCreatedEventValueScope
+            modelAsString: false
+        valueType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          readOnly: true
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetCreatedEventValueType
             modelAsString: false
         tags:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/TagDto'
         folderKeys:
@@ -24539,35 +25025,17 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
-        assetType:
+          readOnly: true
+        description:
           type: string
-          description: Defines what type of value is stored by an asset.
-          enum:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-enum-varnames:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-ms-enum:
-            name: AssetDeletedEventAssetType
-            modelAsString: false
-        assetScope:
+          readOnly: true
+        valueScope:
           type: string
           description: Defines the visibility level of an asset.
+          readOnly: true
           enum:
             - Global
             - PerRobot
@@ -24575,7 +25043,32 @@ components:
             - Global
             - PerRobot
           x-ms-enum:
-            name: AssetDeletedEventAssetScope
+            name: AssetDeletedEventValueScope
+            modelAsString: false
+        valueType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          readOnly: true
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetDeletedEventValueType
             modelAsString: false
         folderKeys:
           type: array
@@ -24814,40 +25307,20 @@ components:
     AssetUpdatedEvent:
       type: object
       properties:
-        name:
-          type: string
-        description:
-          type: string
         key:
           type: string
           format: uuid
-        assetType:
+          readOnly: true
+        name:
           type: string
-          description: Defines what type of value is stored by an asset.
-          enum:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-enum-varnames:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-ms-enum:
-            name: AssetUpdatedEventAssetType
-            modelAsString: false
-        assetScope:
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        valueScope:
           type: string
           description: Defines the visibility level of an asset.
+          readOnly: true
           enum:
             - Global
             - PerRobot
@@ -24855,10 +25328,36 @@ components:
             - Global
             - PerRobot
           x-ms-enum:
-            name: AssetUpdatedEventAssetScope
+            name: AssetUpdatedEventValueScope
+            modelAsString: false
+        valueType:
+          type: string
+          description: Defines what type of value is stored by an asset.
+          readOnly: true
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: AssetUpdatedEventValueType
             modelAsString: false
         tags:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/TagDto'
         folderKeys:
@@ -25197,7 +25696,6 @@ components:
             - Folders
             - DirectoryService
             - Buckets
-            - TenantMove
             - Secrets
             - PersonalWorkspaces
             - CloudSubscriptions
@@ -25244,7 +25742,6 @@ components:
             - Folders
             - DirectoryService
             - Buckets
-            - TenantMove
             - Secrets
             - PersonalWorkspaces
             - CloudSubscriptions
@@ -25472,19 +25969,51 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
+          readOnly: true
+        storageProvider:
+          type: string
+          readOnly: true
+        storageParameters:
+          type: string
+          readOnly: true
+        storageContainer:
+          type: string
+          readOnly: true
+        options:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-enum-varnames:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-ms-enum:
+            name: BucketCreatedEventOptions
+            modelAsString: false
+        externalName:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         folderKeys:
           type: array
           items:
             type: string
             format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
         eventTime:
           type: string
           format: date-time
@@ -25496,10 +26025,46 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
+          readOnly: true
+        storageProvider:
+          type: string
+          readOnly: true
+        storageParameters:
+          type: string
+          readOnly: true
+        storageContainer:
+          type: string
+          readOnly: true
+        options:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-enum-varnames:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-ms-enum:
+            name: BucketDeletedEventOptions
+            modelAsString: false
+        externalName:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         folderKeys:
           type: array
           items:
@@ -25602,12 +26167,44 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
+          readOnly: true
+        storageProvider:
+          type: string
+          readOnly: true
+        storageParameters:
+          type: string
+          readOnly: true
+        storageContainer:
+          type: string
+          readOnly: true
+        options:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-enum-varnames:
+            - None
+            - ReadOnly
+            - AuditReadAccess
+            - AccessDataThroughOrchestrator
+          x-ms-enum:
+            name: BucketUpdatedEventOptions
+            modelAsString: false
+        externalName:
+          type: string
+          readOnly: true
         tags:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/TagDto'
         folderKeys:
@@ -26277,6 +26874,50 @@ components:
           items:
             type: integer
             format: int64
+    DeploymentSettingUpdatedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        TenantKey:
+          type: string
+        AccountKey:
+          type: string
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: deploymentsetting.updated
     DirectoryObjectDto:
       type: object
       properties:
@@ -26600,12 +27241,18 @@ components:
             - Queues
             - Logs
             - Jobs
+            - Privileges
+            - RateLimitsReportQueueItems
+            - RateLimitsReportJobs
           x-enum-varnames:
             - OrchestratorAudit
             - TestAutomationAudit
             - Queues
             - Logs
             - Jobs
+            - Privileges
+            - RateLimitsReportQueueItems
+            - RateLimitsReportJobs
           x-ms-enum:
             name: ExportModelType
             modelAsString: false
@@ -27166,6 +27813,7 @@ components:
             - QueueItemOutputDataSizeExceeded
             - QueueItemAnalyticsDataSizeExceeded
             - QueueProcessingExceptionFieldSizeExceeded
+            - QueueItemProgressDataSizeExceeded
             - LicenseNotFound
             - LicenseExpired
             - LicenseAlreadyInUse
@@ -27272,6 +27920,7 @@ components:
             - TaskFormLayoutIdNotFound
             - TaskFormLayoutOutOfSize
             - TaskCatalogHaveActiveTasks
+            - TaskMetadataSaveError
             - TasksBulkFormLayoutIdsNotSameOrNull
             - EmptyTasksBulkOperationRequest
             - TaskMaximumBulkOperationLimitExceeded
@@ -27301,6 +27950,11 @@ components:
             - TaskDefintionVersionHaveActiveTasks
             - TaskDefintionVersionHaveActiveApps
             - FailedToRetrieveAssociatedApps
+            - TaskSlaNotEnabled
+            - AppTaskDataViolatesAppsActionSchema
+            - FailedToRetrieveActiondApps
+            - AppTaskDataViolatesExpectedJsonParsing
+            - ActionDefinitionReplacedbyActionApps
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -27392,9 +28046,6 @@ components:
             - TestCaseDefinitionInUse
             - TestSetScheduleInvalidScheduleKey
             - TestSetExecutionTriggerFailed
-            - InvalidTenantMoveStatus
-            - TenantMoveIdConflict
-            - TenantMoveMigrationConflict
             - MediaFileNotFound
             - MediaFileNotFoundForKey
             - InvalidMediaFilesUpload
@@ -27449,6 +28100,7 @@ components:
             - VirtualTriggerCanNotHaveUser
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
+            - ConnectedEventTriggerStatePatchFail
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
             - CredentialsProxyUrlMustBeHttps
@@ -27465,7 +28117,6 @@ components:
             - CredentialsProxyRequestFailedUnhandledError
             - CredentialsProxyRequestFailedBadRequest
             - CredentialsProxyTypeCannotBeCreated
-            - CredentialsProxyGetAssetFromDisconnectedProxyNotEnabled
             - CredentialsProxyGetAssetFromDisconnectedProxyNotAllowedForThisActivityVersion
             - CredentialsProxyRequestFailedWithTimeout
             - ServerlessCreateMachineTemplateErrorCode
@@ -27499,6 +28150,8 @@ components:
             - SolutionLibraryUrlIsInvalid
             - TenantLibraryFeedNotEnabled
             - SolutionsCannotInstallInPWFolder
+            - InvalidMerge
+            - SolutionConnectionInfoInvalid
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
@@ -27511,6 +28164,8 @@ components:
             - CallbackIsRequired
             - CalendarNotFound
             - EntitlementConsumationFailure
+            - LimitExceeded
+            - ReportsLimitsExceeded
             - ContentLengthTooLarge
           x-enum-varnames:
             - Unknown
@@ -27738,6 +28393,7 @@ components:
             - QueueItemOutputDataSizeExceeded
             - QueueItemAnalyticsDataSizeExceeded
             - QueueProcessingExceptionFieldSizeExceeded
+            - QueueItemProgressDataSizeExceeded
             - LicenseNotFound
             - LicenseExpired
             - LicenseAlreadyInUse
@@ -27844,6 +28500,7 @@ components:
             - TaskFormLayoutIdNotFound
             - TaskFormLayoutOutOfSize
             - TaskCatalogHaveActiveTasks
+            - TaskMetadataSaveError
             - TasksBulkFormLayoutIdsNotSameOrNull
             - EmptyTasksBulkOperationRequest
             - TaskMaximumBulkOperationLimitExceeded
@@ -27873,6 +28530,11 @@ components:
             - TaskDefintionVersionHaveActiveTasks
             - TaskDefintionVersionHaveActiveApps
             - FailedToRetrieveAssociatedApps
+            - TaskSlaNotEnabled
+            - AppTaskDataViolatesAppsActionSchema
+            - FailedToRetrieveActiondApps
+            - AppTaskDataViolatesExpectedJsonParsing
+            - ActionDefinitionReplacedbyActionApps
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -27964,9 +28626,6 @@ components:
             - TestCaseDefinitionInUse
             - TestSetScheduleInvalidScheduleKey
             - TestSetExecutionTriggerFailed
-            - InvalidTenantMoveStatus
-            - TenantMoveIdConflict
-            - TenantMoveMigrationConflict
             - MediaFileNotFound
             - MediaFileNotFoundForKey
             - InvalidMediaFilesUpload
@@ -28021,6 +28680,7 @@ components:
             - VirtualTriggerCanNotHaveUser
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
+            - ConnectedEventTriggerStatePatchFail
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
             - CredentialsProxyUrlMustBeHttps
@@ -28037,7 +28697,6 @@ components:
             - CredentialsProxyRequestFailedUnhandledError
             - CredentialsProxyRequestFailedBadRequest
             - CredentialsProxyTypeCannotBeCreated
-            - CredentialsProxyGetAssetFromDisconnectedProxyNotEnabled
             - CredentialsProxyGetAssetFromDisconnectedProxyNotAllowedForThisActivityVersion
             - CredentialsProxyRequestFailedWithTimeout
             - ServerlessCreateMachineTemplateErrorCode
@@ -28071,6 +28730,8 @@ components:
             - SolutionLibraryUrlIsInvalid
             - TenantLibraryFeedNotEnabled
             - SolutionsCannotInstallInPWFolder
+            - InvalidMerge
+            - SolutionConnectionInfoInvalid
             - ExportTimeout
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
@@ -28083,6 +28744,8 @@ components:
             - CallbackIsRequired
             - CalendarNotFound
             - EntitlementConsumationFailure
+            - LimitExceeded
+            - ReportsLimitsExceeded
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -28849,6 +29512,7 @@ components:
           enum:
             - RobotJob
             - StudioWebDesigner
+            - PublishStudioProject
           x-ms-enum:
             name: JobDtoServerlessJobType
             modelAsString: false
@@ -29108,14 +29772,14 @@ components:
             - Job
             - Task
             - Timer
-            - Integration
+            - Inbox
           x-enum-varnames:
             - None
             - QueueItem
             - Job
             - Task
             - Timer
-            - Integration
+            - Inbox
           x-ms-enum:
             name: JobTriggerDtoTriggerType
             modelAsString: false
@@ -29133,6 +29797,10 @@ components:
           x-ms-enum:
             name: JobTriggerDtoStatus
             modelAsString: false
+        ItemKey:
+          type: string
+          description: item Key (queue item key, task key, job key etc)
+          format: uuid
         ItemId:
           type: integer
           description: item Id (queue item id, task id, job id etc)
@@ -29168,14 +29836,14 @@ components:
             - Job
             - Task
             - Timer
-            - Integration
+            - Inbox
           x-enum-varnames:
             - None
             - QueueItem
             - Job
             - Task
             - Timer
-            - Integration
+            - Inbox
           x-ms-enum:
             name: JobTriggerWaitEventModelTriggerType
             modelAsString: false
@@ -29193,6 +29861,10 @@ components:
           x-ms-enum:
             name: JobTriggerWaitEventModelStatus
             modelAsString: false
+        ItemKey:
+          type: string
+          description: The resume item Key (queue item, task, job)
+          format: uuid
         ItemId:
           type: integer
           description: item Id (queue item id, task id, job id etc)
@@ -29648,12 +30320,16 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: LicenseRuntimeDtoMachineScope
             modelAsString: false
@@ -29798,7 +30474,7 @@ components:
     ListResultDtoOfNameValueDto:
       type: object
       properties:
-        items:
+        Items:
           type: array
           items:
             $ref: '#/components/schemas/NameValueDto'
@@ -29928,15 +30604,26 @@ components:
     MachineCreatedEvent:
       type: object
       properties:
-        key:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        tenantId:
+          type: integer
+          format: int32
+        entityKey:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
+          readOnly: true
         type:
           type: string
+          readOnly: true
           enum:
             - Standard
             - Template
@@ -29948,23 +30635,94 @@ components:
             modelAsString: false
         scope:
           type: string
+          readOnly: true
           enum:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: MachineCreatedEventScope
             modelAsString: false
+        nonProductionSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        unattendedSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        headlessSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        testAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        developmentSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudTestAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationType:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Foreground
+            - Background
+          x-enum-varnames:
+            - Any
+            - Foreground
+            - Background
+          x-ms-enum:
+            name: MachineCreatedEventAutomationType
+            modelAsString: false
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Windows
+            - Portable
+          x-enum-varnames:
+            - Any
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: MachineCreatedEventTargetFramework
+            modelAsString: false
+        serverlessLicensingModel:
+          type: string
+          readOnly: true
+          enum:
+            - RobotUnits
+            - LicenseSlots
+          x-ms-enum:
+            name: MachineCreatedEventServerlessLicensingModel
+            modelAsString: false
         tags:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/TagDto'
         eventTime:
@@ -29983,15 +30741,26 @@ components:
     MachineDeletedEvent:
       type: object
       properties:
-        key:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        tenantId:
+          type: integer
+          format: int32
+        entityKey:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
-        machineType:
+          readOnly: true
+        type:
           type: string
+          readOnly: true
           enum:
             - Standard
             - Template
@@ -29999,25 +30768,100 @@ components:
             - Standard
             - Template
           x-ms-enum:
-            name: MachineDeletedEventMachineType
+            name: MachineDeletedEventType
             modelAsString: false
-        machineScope:
+        scope:
           type: string
+          readOnly: true
           enum:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
-            name: MachineDeletedEventMachineScope
+            name: MachineDeletedEventScope
             modelAsString: false
+        nonProductionSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        unattendedSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        headlessSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        testAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        developmentSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudTestAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationType:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Foreground
+            - Background
+          x-enum-varnames:
+            - Any
+            - Foreground
+            - Background
+          x-ms-enum:
+            name: MachineDeletedEventAutomationType
+            modelAsString: false
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Windows
+            - Portable
+          x-enum-varnames:
+            - Any
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: MachineDeletedEventTargetFramework
+            modelAsString: false
+        serverlessLicensingModel:
+          type: string
+          readOnly: true
+          enum:
+            - RobotUnits
+            - LicenseSlots
+          x-ms-enum:
+            name: MachineDeletedEventServerlessLicensingModel
+            modelAsString: false
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         eventTime:
           type: string
           format: date-time
@@ -30063,12 +30907,16 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: MachineDtoScope
             modelAsString: false
@@ -30151,6 +30999,16 @@ components:
             - Portable
           x-ms-enum:
             name: MachineDtoTargetFramework
+            modelAsString: false
+        ServerlessLicensingModel:
+          type: string
+          description: The type of serverless licensing model
+          readOnly: true
+          enum:
+            - RobotUnits
+            - LicenseSlots
+          x-ms-enum:
+            name: MachineDtoServerlessLicensingModel
             modelAsString: false
         UpdatePolicy:
           $ref: '#/components/schemas/UpdatePolicyDto'
@@ -30485,12 +31343,16 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: MachineSessionRuntimeDtoMachineScope
             modelAsString: false
@@ -30550,15 +31412,26 @@ components:
     MachineUpdatedEvent:
       type: object
       properties:
-        key:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+        tenantId:
+          type: integer
+          format: int32
+        entityKey:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
         description:
           type: string
+          readOnly: true
         type:
           type: string
+          readOnly: true
           enum:
             - Standard
             - Template
@@ -30570,23 +31443,94 @@ components:
             modelAsString: false
         scope:
           type: string
+          readOnly: true
           enum:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-enum-varnames:
             - Default
             - Shared
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: MachineUpdatedEventScope
             modelAsString: false
+        nonProductionSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        unattendedSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        headlessSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        testAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        developmentSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationCloudTestAutomationSlots:
+          type: integer
+          format: int32
+          readOnly: true
+        automationType:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Foreground
+            - Background
+          x-enum-varnames:
+            - Any
+            - Foreground
+            - Background
+          x-ms-enum:
+            name: MachineUpdatedEventAutomationType
+            modelAsString: false
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Any
+            - Windows
+            - Portable
+          x-enum-varnames:
+            - Any
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: MachineUpdatedEventTargetFramework
+            modelAsString: false
+        serverlessLicensingModel:
+          type: string
+          readOnly: true
+          enum:
+            - RobotUnits
+            - LicenseSlots
+          x-ms-enum:
+            name: MachineUpdatedEventServerlessLicensingModel
+            modelAsString: false
         tags:
           type: array
+          readOnly: true
           items:
             $ref: '#/components/schemas/TagDto'
         eventTime:
@@ -31555,9 +32499,14 @@ components:
           type: string
         IsActive:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         OwnerId:
           type: integer
           format: int64
+        OwnerKey:
+          type: string
+          format: uuid
         OwnerName:
           type: string
         LastLogin:
@@ -31771,10 +32720,32 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseName:
+          type: string
+          readOnly: true
+        packageName:
+          type: string
+          readOnly: true
+        environmentName:
+          type: string
+          readOnly: true
+        specificPriorityValue:
+          type: integer
+          format: int32
+          readOnly: true
         runtimeType:
           type: string
+          readOnly: true
           enum:
             - NonProduction
             - Attended
@@ -31797,22 +32768,88 @@ components:
           x-ms-enum:
             name: ProcessScheduleCreatedEventRuntimeType
             modelAsString: false
-        triggerType:
+        stopProcessExpression:
           type: string
+          readOnly: true
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: ProcessScheduleCreatedEventStopStrategy
+            modelAsString: false
+        killProcessExpression:
+          type: string
+          readOnly: true
+        timeZoneId:
+          type: string
+          readOnly: true
+        stopProcessDate:
+          type: string
+          format: date-time
+          readOnly: true
+        inputArguments:
+          type: string
+          readOnly: true
+        queueDefinitionName:
+          type: string
+          readOnly: true
+        activateOnJobComplete:
+          type: boolean
+          readOnly: true
+        itemsActivationThreshold:
+          type: integer
+          format: int64
+          readOnly: true
+        itemsPerJobActivationTarget:
+          type: integer
+          format: int64
+          readOnly: true
+        maxJobsForActivation:
+          type: integer
+          format: int64
+          readOnly: true
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        alertPendingExpression:
+          type: string
+          readOnly: true
+        alertRunningExpression:
+          type: string
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        isConnected:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+        queueDefinitionKey:
+          type: string
+          format: uuid
         folderKeys:
           type: array
           items:
             type: string
             format: uuid
-        dependencies:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
         eventTime:
           type: string
           format: date-time
@@ -31824,10 +32861,32 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseName:
+          type: string
+          readOnly: true
+        packageName:
+          type: string
+          readOnly: true
+        environmentName:
+          type: string
+          readOnly: true
+        specificPriorityValue:
+          type: integer
+          format: int32
+          readOnly: true
         runtimeType:
           type: string
+          readOnly: true
           enum:
             - NonProduction
             - Attended
@@ -31850,12 +32909,84 @@ components:
           x-ms-enum:
             name: ProcessScheduleDeletedEventRuntimeType
             modelAsString: false
-        folderKeys:
+        stopProcessExpression:
+          type: string
+          readOnly: true
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: ProcessScheduleDeletedEventStopStrategy
+            modelAsString: false
+        killProcessExpression:
+          type: string
+          readOnly: true
+        timeZoneId:
+          type: string
+          readOnly: true
+        stopProcessDate:
+          type: string
+          format: date-time
+          readOnly: true
+        inputArguments:
+          type: string
+          readOnly: true
+        queueDefinitionName:
+          type: string
+          readOnly: true
+        activateOnJobComplete:
+          type: boolean
+          readOnly: true
+        itemsActivationThreshold:
+          type: integer
+          format: int64
+          readOnly: true
+        itemsPerJobActivationTarget:
+          type: integer
+          format: int64
+          readOnly: true
+        maxJobsForActivation:
+          type: integer
+          format: int64
+          readOnly: true
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        tags:
           type: array
+          readOnly: true
           items:
-            type: string
-            format: uuid
-        dependencies:
+            $ref: '#/components/schemas/TagDto'
+        alertPendingExpression:
+          type: string
+          readOnly: true
+        alertRunningExpression:
+          type: string
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        isConnected:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+        queueDefinitionKey:
+          type: string
+          format: uuid
+        folderKeys:
           type: array
           items:
             type: string
@@ -32134,10 +33265,32 @@ components:
         key:
           type: string
           format: uuid
+          readOnly: true
         name:
           type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseName:
+          type: string
+          readOnly: true
+        packageName:
+          type: string
+          readOnly: true
+        environmentName:
+          type: string
+          readOnly: true
+        specificPriorityValue:
+          type: integer
+          format: int32
+          readOnly: true
         runtimeType:
           type: string
+          readOnly: true
           enum:
             - NonProduction
             - Attended
@@ -32160,22 +33313,88 @@ components:
           x-ms-enum:
             name: ProcessScheduleUpdatedEventRuntimeType
             modelAsString: false
-        triggerType:
+        stopProcessExpression:
           type: string
+          readOnly: true
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: ProcessScheduleUpdatedEventStopStrategy
+            modelAsString: false
+        killProcessExpression:
+          type: string
+          readOnly: true
+        timeZoneId:
+          type: string
+          readOnly: true
+        stopProcessDate:
+          type: string
+          format: date-time
+          readOnly: true
+        inputArguments:
+          type: string
+          readOnly: true
+        queueDefinitionName:
+          type: string
+          readOnly: true
+        activateOnJobComplete:
+          type: boolean
+          readOnly: true
+        itemsActivationThreshold:
+          type: integer
+          format: int64
+          readOnly: true
+        itemsPerJobActivationTarget:
+          type: integer
+          format: int64
+          readOnly: true
+        maxJobsForActivation:
+          type: integer
+          format: int64
+          readOnly: true
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        alertPendingExpression:
+          type: string
+          readOnly: true
+        alertRunningExpression:
+          type: string
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        isConnected:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+        queueDefinitionKey:
+          type: string
+          format: uuid
         folderKeys:
           type: array
           items:
             type: string
             format: uuid
-        dependencies:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
         eventTime:
           type: string
           format: date-time
@@ -32210,6 +33429,8 @@ components:
         AutoStartProcess:
           type: boolean
         AlwaysRunning:
+          type: boolean
+        EnableAutopilotHealing:
           type: boolean
     ProcessesSetArgumentsRequest:
       required:
@@ -32251,30 +33472,6 @@ components:
           description: Time when the exception occurred
           format: date-time
       description: Stores information about exceptions thrown while processing failed queue items.
-    QueueCreatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     QueueCreatedEventDto:
       required:
         - EventId
@@ -32349,6 +33546,9 @@ components:
         AcceptAutomaticallyRetry:
           type: boolean
           description: States whether a robot should retry to process an item if, after processing, it failed with application exception.
+        RetryAbandonedItems:
+          type: boolean
+          description: States whether a robot should retry to process an abandoned item
         EnforceUniqueReference:
           type: boolean
           description: States whether Item Reference field should be unique per Queue. Deleted and retried items are not checked against this rule.
@@ -32440,6 +33640,10 @@ components:
           type: boolean
           description: States whether a robot should retry to process an item if, after processing, it failed with application exception.
           readOnly: true
+        RetryAbandonedItems:
+          type: boolean
+          description: States whether a robot should retry to process an abandoned item
+          readOnly: true
         EnforceUniqueReference:
           type: boolean
           description: States whether Item Reference field should be unique per Queue. Deleted and retried items are not checked against this rule.
@@ -32455,26 +33659,6 @@ components:
           format: int32
           readOnly: true
       description: The definition of a work queue. A work queue contains work items that are processed by robots.
-    QueueDeletedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     QueueDeletedEventDto:
       required:
         - EventId
@@ -32842,6 +34026,14 @@ components:
         RobotId:
           type: integer
           format: int64
+        CreatorJobKey:
+          type: string
+          description: The unique identifier for the job that created the queue item
+          format: uuid
+        ExecutorJobKey:
+          type: string
+          description: The unique identifier for the job that processed the queue item
+          format: uuid
         DeferDate:
           type: string
           description: The earliest date and time at which the item is available for processing. If empty the item can be processed as soon as possible.
@@ -33456,6 +34648,9 @@ components:
         QueueDefinitionAcceptAutomaticallyRetry:
           type: boolean
           description: States whether the queue accepts automatic item retry or not.
+        QueueDefinitionRetryAbandonedItems:
+          type: boolean
+          description: States whether the queue accepts automatic abandoned item retry or not.
         QueueDefinitionMaxNumberOfRetries:
           type: integer
           description: The maximum number of retries allowed for any item of the queue.
@@ -33607,33 +34802,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/LongVersionedEntity'
-    QueueUpdatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        description:
-          type: string
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        retentionBucketId:
-          type: integer
-          format: int64
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     QueueUpdatedEventDto:
       required:
         - EventId
@@ -34144,6 +35312,14 @@ components:
           items:
             type: integer
             format: int64
+    RemoveUserByKeyFromFolderRequest:
+      required:
+        - userKey
+      type: object
+      properties:
+        userKey:
+          type: string
+          format: uuid
     RemoveUserFromFolderRequest:
       required:
         - userId
@@ -34236,6 +35412,8 @@ components:
         jobId:
           type: integer
           format: int64
+        enableAutopilotHealing:
+          type: boolean
     ResumeJobRequest:
       required:
         - jobKey
@@ -35542,6 +36720,10 @@ components:
           type: integer
           format: int32
           readOnly: true
+        ProjectKey:
+          type: string
+          format: uuid
+          readOnly: true
         RuntimeType:
           type: string
           enum:
@@ -35598,6 +36780,16 @@ components:
           $ref: '#/components/schemas/SimpleMachineDto'
         Release:
           $ref: '#/components/schemas/SimpleReleaseEventDto'
+        ServerlessJobType:
+          type: string
+          readOnly: true
+          enum:
+            - RobotJob
+            - StudioWebDesigner
+            - PublishStudioProject
+          x-ms-enum:
+            name: SimpleJobEventDtoServerlessJobType
+            modelAsString: false
     SimpleMachineDto:
       type: object
       properties:
@@ -35627,6 +36819,8 @@ components:
             - PersonalWorkspace
             - Cloud
             - Serverless
+            - AutomationCloudRobot
+            - ElasticRobot
           x-ms-enum:
             name: SimpleMachineDtoScope
             modelAsString: false
@@ -36093,7 +37287,8 @@ components:
           format: email
         IsEmailConfirmed:
           type: boolean
-          description: States if the email address is valid or not.
+          description: DEPRECATED. States if the email address is valid or not.
+          x-deprecated: true
         LastLoginTime:
           type: string
           description: The date and time when the user last logged in, or null if the user never logged in.
@@ -36232,6 +37427,8 @@ components:
           $ref: '#/components/schemas/UpdatePolicyDto'
         AccountId:
           type: string
+        HasOnlyInheritedPrivileges:
+          type: boolean
         LastModificationTime:
           type: string
           format: date-time
@@ -36550,6 +37747,8 @@ components:
           minLength: 0
           type: string
           description: Operation id which started the job.
+        EnableAutopilotHealing:
+          type: boolean
       description: The Start Process transfers information from client to the server during JobsController.StartJobs custom action.
     StopJobRequest:
       required:
@@ -36637,6 +37836,10 @@ components:
           type: integer
           description: Gets or sets the Id of Task to which this Note belongs to.
           format: int64
+        TaskKey:
+          type: string
+          description: The Key of a the Task that the current item belongs to
+          format: uuid
         ActivityType:
           type: string
           description: Gets or sets the activity type performed on Task.
@@ -37008,47 +38211,6 @@ components:
           minLength: 0
           type: string
           description: Operation id which created the task.
-    TaskCreatedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        type:
-          type: string
-          enum:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-enum-varnames:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-ms-enum:
-            name: TaskCreatedEventType
-            modelAsString: false
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     TaskCreatedEventDto:
       required:
         - EventId
@@ -37144,6 +38306,11 @@ components:
             $ref: '#/components/schemas/TagDto'
         assignedToUser:
           $ref: '#/components/schemas/UserLoginInfoDto'
+        taskSlaDetails:
+          type: array
+          description: Gets or sets the expiry time of Actionable Task Schedule
+          items:
+            $ref: '#/components/schemas/TaskSlaDetailDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -37213,6 +38380,10 @@ components:
         parentOperationId:
           type: string
           description: Operation id which created the task.
+        key:
+          type: string
+          description: The unique Task identifier.
+          format: uuid
         isDeleted:
           type: boolean
         deleterUserId:
@@ -37371,43 +38542,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/TaskDefintionAssociatedVersionsDto'
-    TaskDeletedEvent:
-      type: object
-      properties:
-        key:
-          type: string
-          format: uuid
-        name:
-          type: string
-        type:
-          type: string
-          enum:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-enum-varnames:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-ms-enum:
-            name: TaskDeletedEventType
-            modelAsString: false
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        eventTime:
-          type: string
-          format: date-time
-        eventSource:
-          type: object
     TaskDeletedEventDto:
       required:
         - EventId
@@ -37506,6 +38640,8 @@ components:
           description: Gets the associated task activities for the task
           items:
             $ref: '#/components/schemas/TaskActivityDto'
+        TaskSlaDetail:
+          $ref: '#/components/schemas/TaskSlaDetailDto'
         Title:
           type: string
           description: Gets or sets title of this task.
@@ -37575,6 +38711,10 @@ components:
         ParentOperationId:
           type: string
           description: Operation id which created the task.
+        Key:
+          type: string
+          description: The unique Task identifier.
+          format: uuid
         IsDeleted:
           type: boolean
         DeleterUserId:
@@ -37662,6 +38802,11 @@ components:
             $ref: '#/components/schemas/TagDto'
         assignedToUser:
           $ref: '#/components/schemas/UserLoginInfoDto'
+        taskSlaDetails:
+          type: array
+          description: Gets or sets the expiry time of Actionable Task Schedule
+          items:
+            $ref: '#/components/schemas/TaskSlaDetailDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -37731,6 +38876,10 @@ components:
         parentOperationId:
           type: string
           description: Operation id which created the task.
+        key:
+          type: string
+          description: The unique Task identifier.
+          format: uuid
         isDeleted:
           type: boolean
         deleterUserId:
@@ -37973,6 +39122,165 @@ components:
           format: int64
       description: Dto for UiPath.Orchestrator.LedgerEvents.TaskSaved. Gets raised when task is Saved
       x-webhook-event: task.saved
+    TaskSlaDetailDto:
+      type: object
+      properties:
+        expiryTime:
+          type: string
+          format: date-time
+        startCriteria:
+          type: string
+          enum:
+            - TaskCreated
+            - TaskAssigned
+            - TaskCompleted
+          x-enum-varnames:
+            - TaskCreated
+            - TaskAssigned
+            - TaskCompleted
+          x-ms-enum:
+            name: TaskSlaDetailDtoStartCriteria
+            modelAsString: false
+        endCriteria:
+          type: string
+          enum:
+            - TaskCreated
+            - TaskAssigned
+            - TaskCompleted
+          x-enum-varnames:
+            - TaskCreated
+            - TaskAssigned
+            - TaskCompleted
+          x-ms-enum:
+            name: TaskSlaDetailDtoEndCriteria
+            modelAsString: false
+        status:
+          type: string
+          enum:
+            - OverdueLater
+            - OverdueSoon
+            - Overdue
+            - CompletedInTime
+          x-enum-varnames:
+            - OverdueLater
+            - OverdueSoon
+            - Overdue
+            - CompletedInTime
+          x-ms-enum:
+            name: TaskSlaDetailDtoStatus
+            modelAsString: false
+    TaskSlaEvaluateEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        TaskId:
+          type: integer
+          format: int64
+        TaskSlaConfigId:
+          type: integer
+          format: int64
+        IsActionable:
+          type: boolean
+        ExpiryTime:
+          type: string
+          format: date-time
+        LedgerId:
+          type: integer
+          format: int64
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      description: Dto for UiPath.Orchestrator.LedgerEvents.TaskSlaEvaluate. Gets raised when sla schedule is expired
+      x-webhook-event: task.sla.evaluate
+    TaskSlaUpdateEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        TaskIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        TaskStatus:
+          type: string
+          enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-ms-enum:
+            name: TaskSlaUpdateEventDtoTaskStatus
+            modelAsString: false
+        IsDeleted:
+          type: boolean
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      description: Dto for UiPath.Orchestrator.LedgerEvents.TaskSlaUpdate. Gets raised when tasks with sla configs are deleted
+      x-webhook-event: task.sla.update
     TaskTagsSaveRequest:
       required:
         - taskId
@@ -37987,47 +39295,51 @@ components:
           description: Tags collection
           items:
             $ref: '#/components/schemas/TagDto'
-    TaskUpdatedEvent:
+    TaskUpdatedEventDto:
+      required:
+        - EventId
+        - Timestamp
+        - Type
       type: object
       properties:
-        key:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
           type: string
           format: uuid
-        name:
-          type: string
-        type:
-          type: string
-          enum:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-enum-varnames:
-            - FormTask
-            - ExternalTask
-            - DocumentValidationTask
-            - DocumentClassificationTask
-            - DataLabelingTask
-            - AppTask
-          x-ms-enum:
-            name: TaskUpdatedEventType
-            modelAsString: false
-        folderKeys:
-          type: array
-          items:
-            type: string
-            format: uuid
-        tags:
-          type: array
-          items:
-            $ref: '#/components/schemas/TagDto'
-        eventTime:
+        Timestamp:
           type: string
           format: date-time
-        eventSource:
-          type: object
+        Tasks:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/WrappedTaskUpdatedDto'
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: task.updated
     TasksAssignRequest:
       required:
         - taskAssignments
@@ -38095,16 +39407,6 @@ components:
         IsActive:
           type: boolean
           description: Specifies if the tenant is active or not.
-        AcceptedDomainsList:
-          type: array
-          description: DEPRECATED. Accepted DNS list.
-          items:
-            type: string
-          x-deprecated: true
-        HasConnectionString:
-          type: boolean
-          description: DEPRECATED. Specifies if the the tenant has a connection string defined
-          x-deprecated: true
         ConnectionString:
           maxLength: 1024
           minLength: 0
@@ -39273,7 +40575,8 @@ components:
           format: email
         IsEmailConfirmed:
           type: boolean
-          description: States if the email address is valid or not.
+          description: DEPRECATED. States if the email address is valid or not.
+          x-deprecated: true
         LastLoginTime:
           type: string
           description: The date and time when the user last logged in, or null if the user never logged in.
@@ -39412,6 +40715,8 @@ components:
           $ref: '#/components/schemas/UpdatePolicyDto'
         AccountId:
           type: string
+        HasOnlyInheritedPrivileges:
+          type: boolean
         LastModificationTime:
           type: string
           format: date-time
@@ -39534,6 +40839,14 @@ components:
           description: 'DEPRECATED. '
           x-deprecated: true
         Export:
+          type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
+        RateLimitsDaily:
+          type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
+        RateLimitsRealTime:
           type: boolean
           description: 'DEPRECATED. '
           x-deprecated: true
@@ -40112,6 +41425,15 @@ components:
           type: string
           description: The operation id which created the Task
           readOnly: true
+        Key:
+          type: string
+          format: uuid
+          readOnly: true
+        Tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         Title:
           type: string
           readOnly: true
@@ -40413,6 +41735,17 @@ components:
           type: string
           description: The project key which the job is part of
           readOnly: true
+        ServerlessJobType:
+          type: string
+          description: The serverless job type for this job
+          readOnly: true
+          enum:
+            - RobotJob
+            - StudioWebDesigner
+            - PublishStudioProject
+          x-ms-enum:
+            name: WrappedJobDtoServerlessJobType
+            modelAsString: false
         ParentOperationId:
           type: string
           description: The operation id which created the job
@@ -40610,6 +41943,10 @@ components:
           type: object
           properties: {}
           readOnly: true
+        PackageDefinitionKey:
+          type: string
+          format: uuid
+          readOnly: true
     WrappedRobotDto:
       type: object
       properties:
@@ -40788,6 +42125,10 @@ components:
     WrappedTaskDeletedDto:
       type: object
       properties:
+        Key:
+          type: string
+          format: uuid
+          readOnly: true
         Title:
           type: string
           readOnly: true
@@ -41032,6 +42373,90 @@ components:
           format: int64
           readOnly: true
       description: This class defines DTO for Tasks Collection for webhook event Task.Saved
+    WrappedTaskUpdatedDto:
+      type: object
+      properties:
+        Key:
+          type: string
+          format: uuid
+          readOnly: true
+        Tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        Title:
+          type: string
+          readOnly: true
+        Type:
+          type: string
+          readOnly: true
+          enum:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-enum-varnames:
+            - FormTask
+            - ExternalTask
+            - DocumentValidationTask
+            - DocumentClassificationTask
+            - DataLabelingTask
+            - AppTask
+          x-ms-enum:
+            name: BaseWebhookTaskDtoType
+            modelAsString: false
+        Priority:
+          type: string
+          readOnly: true
+          enum:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-enum-varnames:
+            - Low
+            - Medium
+            - High
+            - Critical
+          x-ms-enum:
+            name: BaseWebhookTaskDtoPriority
+            modelAsString: false
+        Status:
+          type: string
+          readOnly: true
+          enum:
+            - Unassigned
+            - Pending
+            - Completed
+          x-enum-varnames:
+            - Unassigned
+            - Pending
+            - Completed
+          x-ms-enum:
+            name: BaseWebhookTaskDtoStatus
+            modelAsString: false
+        CreationTime:
+          type: string
+          format: date-time
+          readOnly: true
+        TaskCatalogName:
+          type: string
+          readOnly: true
+        Id:
+          type: integer
+          format: int64
+          readOnly: true
+        OrganizationUnitId:
+          type: integer
+          format: int64
+          readOnly: true
+        AssignedToUserId:
+          type: integer
+          format: int64
+          readOnly: true
   securitySchemes:
     OAuth2:
       type: oauth2

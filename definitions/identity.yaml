@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: 3.0.23
-  x-uipath-version: 3.0.23
+  version: 3.1.10
+  x-uipath-version: 3.1.10
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
@@ -1114,19 +1114,19 @@ components:
       properties:
         objectType:
           type: string
+        source:
+          type: string
+          nullable: true
         identifier:
           type: string
           nullable: true
         name:
           type: string
           nullable: true
-        displayName:
-          type: string
-          nullable: true
-        source:
-          type: string
-          nullable: true
         email:
+          type: string
+          nullable: true
+        displayName:
           type: string
           nullable: true
       discriminator:
