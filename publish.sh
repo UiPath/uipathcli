@@ -30,8 +30,10 @@ declare -a RELEASE_FILES=(
 ############################################################
 function get_latest_version()
 {
+    local version_filter="$1"
+
     git fetch --all --tags --quiet
-    git tag | sort -V | tail -1
+    git tag | sort -V | grep "^$version_filter.*" | tail -1 || echo "$version_filter"
 }
 
 ############################################################
@@ -49,7 +51,11 @@ function increment_patch_version()
 
     local array
     local IFS='.'; read -r -a array <<< "$version"
-    array[2]=$((array[2]+1))
+    if [ -z "${array[2]}" ]; then
+        array[2]="0"
+    else
+        array[2]=$((array[2]+1))
+    fi
     echo "$(local IFS='.'; echo "${array[*]}")"
 }
 
@@ -121,10 +127,11 @@ function upload_release_file()
 ############################################################
 function main()
 {
+    local base_version="$1"
     local latest_version
     local new_version
 
-    latest_version=$(get_latest_version)
+    latest_version=$(get_latest_version "$base_version")
     new_version=$(increment_patch_version "$latest_version")
     echo "=================================="
     echo "Releasing new version of uipathcli"
@@ -146,4 +153,4 @@ function main()
 
     echo "Successfully created release '$new_version'"
 }
-main
+main "$1"
