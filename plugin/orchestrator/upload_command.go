@@ -24,8 +24,8 @@ type UploadCommand struct{}
 
 func (c UploadCommand) Command() plugin.Command {
 	return *plugin.NewCommand("orchestrator").
-		WithCategory("buckets", "Orchestrator Buckets").
-		WithOperation("upload", "Uploads the provided file to the bucket").
+		WithCategory("buckets", "Orchestrator Buckets", "Buckets provide a per-folder storage solution for RPA developers to leverage in creating automation projects.").
+		WithOperation("upload", "Upload file", "Uploads the provided file to the bucket").
 		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", true).
 		WithParameter("key", plugin.ParameterTypeInteger, "The Bucket Id", true).
 		WithParameter("path", plugin.ParameterTypeString, "The BlobFile full path", true).

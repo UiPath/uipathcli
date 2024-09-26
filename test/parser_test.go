@@ -56,6 +56,48 @@ info:
 	}
 }
 
+func TestOverridePredefinedServiceDescription(t *testing.T) {
+	context := NewContextBuilder().
+		WithDefinition("orchestrator", "").
+		Build()
+
+	result := RunCli([]string{"orchestrator", "--help"}, context)
+
+	expectedSummary := "UiPath Orchestrator"
+	if !strings.Contains(result.StdOut, expectedSummary) {
+		t.Errorf("stdout does not contain service summary, expected: %v, got: %v", expectedSummary, result.StdOut)
+	}
+	expectedDescription := "Orchestrator gives you the power you need to provision, deploy, trigger, monitor, measure, and track the work of attended and unattended robots."
+	if !strings.Contains(result.StdOut, expectedDescription) {
+		t.Errorf("stdout does not contain service description, expected: %v, got: %v", expectedDescription, result.StdOut)
+	}
+}
+
+func TestOverridePredefinedCategoryDescription(t *testing.T) {
+	definition := `
+paths:
+  /digitize:
+    get:
+      tags:
+        - Digitization
+      summary: digitize
+`
+	context := NewContextBuilder().
+		WithDefinition("du", definition).
+		Build()
+
+	result := RunCli([]string{"du", "digitization", "--help"}, context)
+
+	expectedSummary := "Extracting Document Object Model (DOM) and text"
+	if !strings.Contains(result.StdOut, expectedSummary) {
+		t.Errorf("stdout does not contain service summary, expected: %v, got: %v", expectedSummary, result.StdOut)
+	}
+	expectedDescription := "Digitization is the process of obtaining machine readable text from a given incoming file, so that a robot can then understand its contents and act upon them."
+	if !strings.Contains(result.StdOut, expectedDescription) {
+		t.Errorf("stdout does not contain service description, expected: %v, got: %v", expectedDescription, result.StdOut)
+	}
+}
+
 func TestMultipleOperationsSortedByName(t *testing.T) {
 	definition := `
 paths:

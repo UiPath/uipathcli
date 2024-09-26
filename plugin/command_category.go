@@ -6,9 +6,10 @@ package plugin
 // uipath service category operation --parameter my-value
 type CommandCategory struct {
 	Name        string
+	Summary     string
 	Description string
 }
 
-func NewCommandCategory(name string, description string) *CommandCategory {
-	return &CommandCategory{name, description}
+func NewCommandCategory(name string, summary string, description string) *CommandCategory {
+	return &CommandCategory{name, summary, description}
 }

@@ -171,7 +171,7 @@ func (c CreateCommand) Execute(context plugin.ExecutionContext, writer output.Ou
 ```go
 func (c CreateCommand) Command() plugin.Command {
   return *plugin.NewCommand("myservice").
-      WithOperation("create-product", "Creates a product").
+      WithOperation("create-product", "Create product", "Creates a new product in the store").
       WithParameter("id", plugin.ParameterTypeInteger, "The product id", true).
       WithParameter("name", plugin.ParameterTypeString, "The product name", true).
       WithParameter("description", plugin.ParameterTypeString, "The product description", false)

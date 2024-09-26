@@ -14,29 +14,6 @@ servers:
         description: The tenant name (or id)
         default: my-tenant
 paths:
-  /api/Account/Authenticate:
-    post:
-      tags:
-        - Account
-      summary: Authenticates the user based on user name and password
-      description: "Authenticates the user based on user name and password.\nDEPRECATED: \nPlease user other means to authenticate in your application. This endpoint will be removed in future releases.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
-      operationId: Account_Authenticate
-      requestBody:
-        description: The login parameters.
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginModel'
-        required: false
-      responses:
-        "200":
-          description: Successful authentication
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AjaxResponse'
-      deprecated: true
-      x-codegen-request-body-name: body
   /api/DirectoryService/GetDirectoryPermissions:
     get:
       tags:
@@ -237,6 +214,36 @@ paths:
         "204":
           description: Deleted
           content: {}
+      security:
+        - OAuth2: []
+  /api/Folders/GetAllForCurrentUser:
+    get:
+      tags:
+        - Folders
+      summary: "Returns a subset (paginated) of the folders the current user has access to.\r\nThe response will be a list of folders;"
+      description: |-
+        OAuth required scopes: OR.Folders or OR.Folders.Read.
+
+        Requires authentication.
+      operationId: Folders_GetAllForCurrentUser
+      parameters:
+        - name: take
+          in: query
+          schema:
+            type: integer
+            format: int32
+        - name: skip
+          in: query
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageResultDtoOfCurrentUserFolderDto'
       security:
         - OAuth2: []
   /api/Folders/PatchNameDescription:
@@ -2710,7 +2717,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RobotAssetDto'
+                $ref: '#/components/schemas/UserAssetDto'
         "400":
           description: Invalid parameters
           content: {}
@@ -2800,7 +2807,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RobotAssetDto'
+                $ref: '#/components/schemas/UserAssetDto'
         "400":
           description: Invalid parameters
           content: {}
@@ -2858,7 +2865,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RobotAssetDto'
+                $ref: '#/components/schemas/UserAssetDto'
         "400":
           description: Invalid parameters
           content: {}
@@ -4099,6 +4106,631 @@ paths:
           content: {}
         "404":
           description: One of the specified entities does not exist.
+          content: {}
+      security:
+        - OAuth2: []
+      x-codegen-request-body-name: body
+  /odata/BusinessRules:
+    get:
+      tags:
+        - BusinessRules
+      summary: Get Filtered Business Rules
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Required permissions: (BusinessRules.View).
+      operationId: BusinessRules_Get
+      parameters:
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataValueOfIEnumerableOfBusinessRuleDto'
+      security:
+        - OAuth2: []
+    post:
+      tags:
+        - BusinessRules
+      summary: Create Business Rule
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Write.
+
+        Required permissions: (BusinessRules.Create).
+      operationId: BusinessRules_Post
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - businessRule
+                - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                businessRule:
+                  type: string
+                  description: The BusinessRuleDto object
+        required: true
+      responses:
+        "201":
+          description: Successfully created the business rule
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessRuleDto'
+      security:
+        - OAuth2: []
+  /odata/BusinessRules({key}):
+    get:
+      tags:
+        - BusinessRules
+      summary: Get Business Rule by id
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Required permissions: (BusinessRules.View).
+      operationId: BusinessRules_GetById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessRuleDto'
+        "404":
+          description: Business Rule not found
+          content: {}
+      security:
+        - OAuth2: []
+    put:
+      tags:
+        - BusinessRules
+      summary: Update Business Rule
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Write.
+
+        Required permissions: (BusinessRules.Edit).
+      operationId: BusinessRules_PutById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+                - businessRule
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                businessRule:
+                  type: string
+                  description: The BusinessRuleDto object
+        required: true
+      responses:
+        "200":
+          description: Successfully updated the business rule
+          content: {}
+        "404":
+          description: Business Rule not found
+          content: {}
+      security:
+        - OAuth2: []
+    delete:
+      tags:
+        - BusinessRules
+      summary: Delete business rule
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Write.
+
+        Required permissions: (BusinessRules.Delete).
+      operationId: BusinessRules_DeleteById
+      parameters:
+        - name: key
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "204":
+          description: No Content
+          content: {}
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetBusinessRulesAcrossFolders:
+    get:
+      tags:
+        - BusinessRules
+      summary: Get the business rules from all the folders in which the current user has the BusinessRules.View permission, except the one specified.
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Requires authentication.
+      operationId: BusinessRules_GetBusinessRulesAcrossFolders
+      parameters:
+        - name: excludeFolderId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataValueOfIEnumerableOfBusinessRuleDto'
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetByKey(identifier={identifier}):
+    get:
+      tags:
+        - BusinessRules
+      summary: Get Business Rule by key
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Required permissions: (BusinessRules.View).
+      operationId: BusinessRules_GetByKeyByIdentifier
+      parameters:
+        - name: identifier
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessRuleDto'
+        "404":
+          description: Business Rule not found
+          content: {}
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetFoldersForBusinessRule(id={id}):
+    get:
+      tags:
+        - BusinessRules
+      summary: Get all accesible folders where the business rule is shared, and the total count of folders where it is shared (including unaccessible folders).
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Requires authentication.
+      operationId: BusinessRules_GetFoldersForBusinessRuleById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessibleFoldersDto'
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetReadUri(name='{name}'):
+    get:
+      tags:
+        - BusinessRules
+      summary: Get Read URI by Name
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Required permissions: (BusinessRules.View).
+      operationId: BusinessRules_GetReadUriByName
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: versionNumber
+          in: query
+          schema:
+            type: string
+        - name: expiryInMinutes
+          in: query
+          schema:
+            type: integer
+            format: int32
+            default: 30
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BusinessRuleVersionDownloadResponse'
+        "404":
+          description: Business Rule not found
+          content: {}
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetVersionList(name='{name}'):
+    get:
+      tags:
+        - BusinessRules
+      summary: Get Versions of Business Rule
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
+
+        Required permissions: (BusinessRules.View).
+      operationId: BusinessRules_GetVersionListByName
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: $expand
+          in: query
+          description: Indicates the related entities to be represented inline. The maximum depth is 2.
+          schema:
+            type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
+        - name: $select
+          in: query
+          description: Limits the properties returned in the result.
+          schema:
+            type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $top
+          in: query
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          schema:
+            type: integer
+            format: int32
+        - name: $skip
+          in: query
+          description: Excludes the specified number of items of the queried collection from the result.
+          schema:
+            type: integer
+            format: int32
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ODataValueOfIEnumerableOfBusinessRuleVersionDto'
+        "404":
+          description: Business Rule not found
+          content: {}
+      security:
+        - OAuth2: []
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.ShareToFolders:
+    post:
+      tags:
+        - BusinessRules
+      summary: Makes the business rule visible in the specified folders.
+      description: |-
+        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Write.
+
+        Requires authentication.
+      operationId: BusinessRules_ShareToFolders
+      parameters:
+        - name: X-UIPATH-OrganizationUnitId
+          in: header
+          description: Folder/OrganizationUnit Id
+          schema:
+            type: integer
+            format: int64
+          x-uipathcli-name: folder-id
+          required: true
+      requestBody:
+        description: Object containing the ids of the business rules and the ids of the folders where they should be shared.
+        content:
+          application/json;odata.metadata=minimal;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=minimal;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=minimal:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=full;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=full;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=full:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=none;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=none;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.metadata=none:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.streaming=true:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json;odata.streaming=false:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/json-patch+json:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+          application/*+json:
+            schema:
+              $ref: '#/components/schemas/BusinessRuleFolderShareRequest'
+        required: false
+      responses:
+        "204":
+          description: No Content
+          content: {}
+        "404":
+          description: A business rule or one of the folders specified does not exist.
           content: {}
       security:
         - OAuth2: []
@@ -7182,676 +7814,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/HostLicenses:
-    get:
-      tags:
-        - HostLicenses
-      summary: Gets host licenses.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Read.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_Get
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfIEnumerableOfHostLicenseDto'
-      security:
-        - OAuth2: []
-  /odata/HostLicenses({key}):
-    get:
-      tags:
-        - HostLicenses
-      summary: Gets a single host license based on its key.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Read.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_GetById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostLicenseDto'
-        "404":
-          description: Not Found
-          content: {}
-      security:
-        - OAuth2: []
-    delete:
-      tags:
-        - HostLicenses
-      summary: Deletes a host license based on its key.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_DeleteById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        "204":
-          description: No Content
-          content: {}
-        "404":
-          description: Not Found
-          content: {}
-      security:
-        - OAuth2: []
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.ActivateLicenseOffline:
-    post:
-      tags:
-        - HostLicenses
-      summary: "Uploads a new offline license activation.\r\nThe content of the license is sent as a file embedded in the HTTP request."
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_ActivateLicenseOffline
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              required:
-                - file
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Bad Request
-          content: {}
-      security:
-        - OAuth2: []
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.ActivateLicenseOnline:
-    post:
-      tags:
-        - HostLicenses
-      summary: Activate the license for the host
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_ActivateLicenseOnline
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.DeactivateLicenseOnline:
-    post:
-      tags:
-        - HostLicenses
-      summary: Deactivate the license for the host
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_DeactivateLicenseOnline
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.DeleteTenantLicense:
-    post:
-      tags:
-        - HostLicenses
-      summary: Deletes a tenant license based on its key.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_DeleteTenantLicense
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/HostDeleteTenantLicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.GetDeactivateLicenseOffline:
-    post:
-      tags:
-        - HostLicenses
-      summary: Deactivate the license offline for the host
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_GetDeactivateLicenseOffline
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/DeactivateLicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfString'
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.GetLicenseOffline:
-    post:
-      tags:
-        - HostLicenses
-      summary: Create the offline activation request for the host
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_GetLicenseOffline
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfString'
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.GetTenantLicense(tenantId={tenantId}):
-    get:
-      tags:
-        - HostLicenses
-      summary: Gets a single tenant license based on its id.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Read.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_GetTenantLicenseByTenantid
-      parameters:
-        - name: tenantId
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LicenseDto'
-      security:
-        - OAuth2: []
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.SetTenantLicense:
-    post:
-      tags:
-        - HostLicenses
-      summary: Sets the license for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_SetTenantLicense
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/HostSetTenantLicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.UpdateLicenseOnline:
-    post:
-      tags:
-        - HostLicenses
-      summary: Update the license for the host
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_UpdateLicenseOnline
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-  /odata/HostLicenses/UiPath.Server.Configuration.OData.UploadLicense:
-    post:
-      tags:
-        - HostLicenses
-      summary: "Uploads a new host license file that was previously generated with Regutil.\r\nThe content of the license is sent as a file embedded in the HTTP request."
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: HostLicenses_UploadLicense
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              required:
-                - file
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/HostLicenseDto'
-        "400":
-          description: Bad Request
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Jobs:
     get:
       tags:
@@ -13260,7 +13222,7 @@ paths:
     get:
       tags:
         - QueueItems
-      summary: Returns the last retry of a queue item by key.
+      summary: Returns the last retry of a queue item by uniqueKey.
       description: |-
         OAuth required scopes: OR.Queues or OR.Queues.Read.
 
@@ -13797,6 +13759,19 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: retentionType
+          in: query
+          schema:
+            type: string
+            enum:
+              - Final
+              - Stale
+            x-ms-enum:
+              name: RetentionType
+              modelAsString: false
+          x-ms-enum:
+            name: RetentionType
+            modelAsString: false
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -14343,6 +14318,19 @@ paths:
           schema:
             type: integer
             format: int64
+        - name: retentionType
+          in: query
+          schema:
+            type: string
+            enum:
+              - Final
+              - Stale
+            x-ms-enum:
+              name: RetentionType
+              modelAsString: false
+          x-ms-enum:
+            name: RetentionType
+            modelAsString: false
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -24457,22 +24445,6 @@ components:
       properties:
         itemData:
           $ref: '#/components/schemas/QueueItemDataDto'
-    AjaxResponse:
-      type: object
-      properties:
-        result:
-          type: object
-        targetUrl:
-          type: string
-        success:
-          type: boolean
-        error:
-          $ref: '#/components/schemas/ErrorInfo'
-        unAuthorizedRequest:
-          type: boolean
-        __abp:
-          type: boolean
-          readOnly: true
     AlertDto:
       required:
         - Severity
@@ -24504,6 +24476,7 @@ components:
             - Serverless
             - Export
             - RateLimits
+            - AutopilotForRobots
           x-enum-varnames:
             - Robots
             - Transactions
@@ -24521,6 +24494,7 @@ components:
             - Serverless
             - Export
             - RateLimits
+            - AutopilotForRobots
           x-ms-enum:
             name: AlertDtoComponent
             modelAsString: false
@@ -25473,7 +25447,7 @@ components:
           minLength: 1
           type: string
         robotAsset:
-          $ref: '#/components/schemas/RobotAssetDto'
+          $ref: '#/components/schemas/UserAssetDto'
     AttendedRobotDto:
       type: object
       properties:
@@ -25708,6 +25682,8 @@ components:
             - TaskSolutions
             - TaskDefinitions
             - HttpTriggers
+            - AutopilotForRobotsData
+            - BusinessRules
             - TestSets
             - TestSetSchedules
             - TestDataQueues
@@ -25754,6 +25730,8 @@ components:
             - TaskSolutions
             - TaskDefinitions
             - HttpTriggers
+            - AutopilotForRobotsData
+            - BusinessRules
             - TestSets
             - TestSetSchedules
             - TestDataQueues
@@ -25938,6 +25916,13 @@ components:
           type: integer
           format: int64
       description: Stores audit information about any action performed in Orchestrator.
+    AutopilotForRobotsSettingsDto:
+      type: object
+      properties:
+        Enabled:
+          type: boolean
+        HealingEnabled:
+          type: boolean
     BlobFileAccessDto:
       type: object
       properties:
@@ -26536,6 +26521,94 @@ components:
           maxLength: 512
           type: string
           description: Comment to be added while doing the bulk operation
+    BusinessRuleDto:
+      required:
+        - Name
+      type: object
+      properties:
+        Key:
+          type: string
+          format: uuid
+        Name:
+          maxLength: 100
+          type: string
+        Description:
+          maxLength: 250
+          type: string
+        CurrentVersion:
+          $ref: '#/components/schemas/BusinessRuleVersionDto'
+        FoldersCount:
+          type: integer
+          description: Number of folders where the businessRule is shared.
+          format: int32
+        Tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/TagDto'
+        LastModificationTime:
+          type: string
+          format: date-time
+        LastModifierUserId:
+          type: integer
+          format: int64
+        CreationTime:
+          type: string
+          format: date-time
+        CreatorUserId:
+          type: integer
+          format: int64
+        Id:
+          type: integer
+          format: int64
+    BusinessRuleFolderShareRequest:
+      type: object
+      properties:
+        BusinessRuleIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        ToAddFolderIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+        ToRemoveFolderIds:
+          type: array
+          items:
+            type: integer
+            format: int64
+    BusinessRuleVersionDownloadResponse:
+      type: object
+      properties:
+        VersionNumber:
+          type: string
+        BusinessRuleName:
+          type: string
+        DownloadUri:
+          $ref: '#/components/schemas/UiBlobFileAccessUri'
+    BusinessRuleVersionDto:
+      type: object
+      properties:
+        BusinessRuleId:
+          type: integer
+          format: int64
+        Key:
+          type: string
+          format: uuid
+        VersionNumber:
+          type: string
+        CreatorUserId:
+          type: integer
+          format: int64
+        IsActive:
+          type: boolean
+        CreationTime:
+          type: string
+          format: date-time
+        Id:
+          type: integer
+          format: int64
     CalendarDto:
       type: object
       properties:
@@ -26781,6 +26854,49 @@ components:
           type: integer
           format: int64
       description: Defines the resources such as credential stores, assets, robots or bucket for a Credentials Proxy.
+    CurrentUserFolderDto:
+      type: object
+      properties:
+        Key:
+          type: string
+          description: Unique key for the folder
+          format: uuid
+        DisplayName:
+          type: string
+          description: Display name for the folder.
+        FullyQualifiedName:
+          type: string
+          description: Name of folder prepended by the names of its ancestors.
+        Description:
+          type: string
+          description: Description of folder
+        FolderType:
+          type: string
+          description: Folder type
+          enum:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-enum-varnames:
+            - Standard
+            - Personal
+            - Virtual
+            - Solution
+          x-ms-enum:
+            name: CurrentUserFolderDtoFolderType
+            modelAsString: false
+        ParentId:
+          type: integer
+          description: Parent folder Id in the folder hierarchy
+          format: int64
+        ParentKey:
+          type: string
+          description: Unique key for the parent folder
+          format: uuid
+        Id:
+          type: integer
+          format: int64
     CustomEventDto:
       required:
         - EventId
@@ -26836,12 +26952,6 @@ components:
           type: string
           description: A piece of text representing the value.
       description: Stores a custom pair of key and value for assets with type KeyValueList.
-    DeactivateLicenseRequest:
-      type: object
-      properties:
-        tenantId:
-          type: integer
-          format: int32
     DefaultCredentialStoreDto:
       required:
         - ResourceType
@@ -27133,20 +27243,6 @@ components:
           items:
             type: integer
             format: int64
-    ErrorInfo:
-      type: object
-      properties:
-        code:
-          type: integer
-          format: int32
-        message:
-          type: string
-        details:
-          type: string
-        validationErrors:
-          type: array
-          items:
-            $ref: '#/components/schemas/ValidationErrorInfo'
     ErrorResult:
       type: object
       properties:
@@ -27244,6 +27340,7 @@ components:
             - Privileges
             - RateLimitsReportQueueItems
             - RateLimitsReportJobs
+            - AutopilotForRobotsData
           x-enum-varnames:
             - OrchestratorAudit
             - TestAutomationAudit
@@ -27253,6 +27350,7 @@ components:
             - Privileges
             - RateLimitsReportQueueItems
             - RateLimitsReportJobs
+            - AutopilotForRobotsData
           x-ms-enum:
             name: ExportModelType
             modelAsString: false
@@ -27760,6 +27858,7 @@ components:
             - PreviousVersionNotFound
             - HasRunningJobs
             - TenantNotFound
+            - BusinessRuleNotFound
             - PendingJobsAlreadyExist
             - InvalidStartJobRobotIds
             - UnregisteredCannotStartJobs
@@ -27775,6 +27874,7 @@ components:
             - InvalidJobStateForSuspend
             - JobNotFoundByPersistenceId
             - SuspendJobStateNotFound
+            - InvalidPackageJsonVersion
             - ErrorPackagePublish
             - ErrorSavingPackageDefinition
             - MaxNumberJobsAlreadyExist
@@ -28101,6 +28201,7 @@ components:
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
             - ConnectedEventTriggerStatePatchFail
+            - ConnectedEventTriggerOnShellConnectionError
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
             - CredentialsProxyUrlMustBeHttps
@@ -28153,6 +28254,7 @@ components:
             - InvalidMerge
             - SolutionConnectionInfoInvalid
             - ExportTimeout
+            - ExportTenantDailyLimitReached
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
             - JobFaulted
@@ -28340,6 +28442,7 @@ components:
             - PreviousVersionNotFound
             - HasRunningJobs
             - TenantNotFound
+            - BusinessRuleNotFound
             - PendingJobsAlreadyExist
             - InvalidStartJobRobotIds
             - UnregisteredCannotStartJobs
@@ -28355,6 +28458,7 @@ components:
             - InvalidJobStateForSuspend
             - JobNotFoundByPersistenceId
             - SuspendJobStateNotFound
+            - InvalidPackageJsonVersion
             - ErrorPackagePublish
             - ErrorSavingPackageDefinition
             - MaxNumberJobsAlreadyExist
@@ -28681,6 +28785,7 @@ components:
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
             - ConnectedEventTriggerStatePatchFail
+            - ConnectedEventTriggerOnShellConnectionError
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
             - CredentialsProxyUrlMustBeHttps
@@ -28733,6 +28838,7 @@ components:
             - InvalidMerge
             - SolutionConnectionInfoInvalid
             - ExportTimeout
+            - ExportTenantDailyLimitReached
             - InvalidMessageReceived
             - IntegrationServiceApiFailure
             - JobFaulted
@@ -29093,118 +29199,6 @@ components:
         connectionError:
           type: string
           description: "An error code that further describes the type of connection error.\r\nDoes not include TLS/SSL errors"
-    HostDeleteTenantLicenseRequest:
-      required:
-        - tenantId
-      type: object
-      properties:
-        tenantId:
-          type: integer
-          format: int32
-    HostLicenseDto:
-      type: object
-      properties:
-        TenantsCount:
-          type: integer
-          description: The number of tenants licensed from this license file
-          format: int32
-        Id:
-          type: integer
-          description: License Id
-          format: int64
-        ExpireDate:
-          type: integer
-          description: License expiration date in Epoch format
-          format: int64
-        GracePeriodEndDate:
-          type: integer
-          description: License grace period end date in Epoch format
-          format: int64
-        GracePeriod:
-          type: integer
-          description: Number of grace period days
-          format: int64
-        VersionControl:
-          type: string
-          description: The product version which can use this license
-        Allowed:
-          type: object
-          additionalProperties:
-            type: integer
-            format: int64
-          description: Contains the number of allowed licenses for each type
-        Used:
-          type: object
-          additionalProperties:
-            type: integer
-            format: int64
-          description: Contains the number of used licenses for each type
-        AttendedConcurrent:
-          type: boolean
-          description: States whether the license is Attended Concurrent
-        DevelopmentConcurrent:
-          type: boolean
-          description: States whether the license is Development Concurrent
-        StudioXConcurrent:
-          type: boolean
-          description: States whether the license is Studio Business Concurrent
-        StudioProConcurrent:
-          type: boolean
-          description: States whether the license is Studio Pro Concurrent
-        LicensedFeatures:
-          type: array
-          description: What features are licensed (valid for individually-licensed features, like Analytics)
-          items:
-            type: string
-        IsRegistered:
-          type: boolean
-          description: True if the current tenant is registered with a license. False otherwise.
-        IsCommunity:
-          type: boolean
-          description: True if the current tenant is registered with a community license.
-        IsProOrEnterprise:
-          type: boolean
-          description: True if the current tenant is registered with a pro license.
-        SubscriptionCode:
-          type: string
-          description: The license subscription code
-        SubscriptionPlan:
-          type: string
-          description: The license subscription plan
-        IsExpired:
-          type: boolean
-          description: States whether the license is still valid or not.
-        CreationTime:
-          type: string
-          description: The date when the license was uploaded.
-          format: date-time
-        Code:
-          type: string
-          description: The license code.
-        UserLicensingEnabled:
-          type: boolean
-          description: Whether user licensing is enabled or not.
-      description: Stores information about the host license used to activate one or more tenants.
-    HostLicensePerTenantDto:
-      type: object
-      properties:
-        TenantId:
-          type: integer
-          description: The tenant's Id
-          format: int32
-        HostLicenseId:
-          type: integer
-          description: The host license's Id
-          format: int64
-      additionalProperties:
-        type: object
-    HostSetTenantLicenseRequest:
-      required:
-        - license
-      type: object
-      properties:
-        license:
-          $ref: '#/components/schemas/HostLicensePerTenantDto'
     JobCompletedEventDto:
       required:
         - EventId
@@ -29330,6 +29324,7 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-enum-varnames:
             - Manual
             - Schedule
@@ -29346,6 +29341,7 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -29522,6 +29518,12 @@ components:
         LastModificationTime:
           type: string
           format: date-time
+        AutopilotForRobots:
+          $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
+        EnableAutopilotHealing:
+          type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
         Id:
           type: integer
           format: int64
@@ -29803,8 +29805,9 @@ components:
           format: uuid
         ItemId:
           type: integer
-          description: item Id (queue item id, task id, job id etc)
+          description: DEPRECATED. item Id (queue item id, task id, job id etc)
           format: int64
+          x-deprecated: true
         Timer:
           type: string
           description: Resume timer (for time trigger)
@@ -29867,8 +29870,9 @@ components:
           format: uuid
         ItemId:
           type: integer
-          description: item Id (queue item id, task id, job id etc)
+          description: DEPRECATED. item Id (queue item id, task id, job id etc)
           format: int64
+          x-deprecated: true
         Timer:
           type: string
           description: Resume timer (for time trigger)
@@ -30103,7 +30107,9 @@ components:
       properties:
         HostLicenseId:
           type: integer
+          description: 'DEPRECATED. '
           format: int64
+          x-deprecated: true
         Id:
           type: integer
           description: License Id
@@ -30564,20 +30570,6 @@ components:
           type: integer
           format: int64
       description: "Logs generated by Robots and execution reports. Can be stored in ElasticSearch and/or to a local SQL database.\r\n<para />Note: The endpoint for this type is /odata/RobotLogs URL."
-    LoginModel:
-      required:
-        - password
-        - usernameOrEmailAddress
-      type: object
-      properties:
-        tenancyName:
-          type: string
-        usernameOrEmailAddress:
-          minLength: 1
-          type: string
-        password:
-          minLength: 1
-          type: string
     LongVersionedEntity:
       type: object
       properties:
@@ -31772,6 +31764,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BulkItemDtoOfString'
+    ODataValueOfIEnumerableOfBusinessRuleDto:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessRuleDto'
+    ODataValueOfIEnumerableOfBusinessRuleVersionDto:
+      type: object
+      properties:
+        value:
+          type: array
+          items:
+            $ref: '#/components/schemas/BusinessRuleVersionDto'
     ODataValueOfIEnumerableOfConfigurationEntry:
       type: object
       properties:
@@ -31842,13 +31848,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FolderDto'
-    ODataValueOfIEnumerableOfHostLicenseDto:
-      type: object
-      properties:
-        value:
-          type: array
-          items:
-            $ref: '#/components/schemas/HostLicenseDto'
     ODataValueOfIEnumerableOfInt64:
       type: object
       properties:
@@ -32357,6 +32356,16 @@ components:
           format: date-time
         eventSource:
           type: object
+    PageResultDtoOfCurrentUserFolderDto:
+      type: object
+      properties:
+        PageItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CurrentUserFolderDto'
+        Count:
+          type: integer
+          format: int32
     PageResultDtoOfPathAwareFolderDto:
       type: object
       properties:
@@ -33430,8 +33439,12 @@ components:
           type: boolean
         AlwaysRunning:
           type: boolean
+        AutopilotForRobots:
+          $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
         EnableAutopilotHealing:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
     ProcessesSetArgumentsRequest:
       required:
         - arguments
@@ -33497,6 +33510,12 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        FolderKeys:
+          type: array
+          description: The list of keys of the folders in which the queue is shared
+          items:
+            type: string
+            format: uuid
         EventTime:
           type: string
           format: date-time
@@ -33658,6 +33677,27 @@ components:
           description: An integer value representing the Queue RiskSla in minutes.
           format: int32
           readOnly: true
+        Tags:
+          type: array
+          description: Tags associated with the queue
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        ReleaseKey:
+          type: string
+          description: Key of the release associated with the queue
+          format: uuid
+          readOnly: true
+        RetentionBucketKey:
+          type: string
+          description: Key of the retention bucket if retentionSettings are set for the queue
+          format: uuid
+          readOnly: true
+        StaleRetentionBucketKey:
+          type: string
+          description: Key of the retention bucket if retentionSettings are set for the queue
+          format: uuid
+          readOnly: true
       description: The definition of a work queue. A work queue contains work items that are processed by robots.
     QueueDeletedEventDto:
       required:
@@ -33684,6 +33724,12 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        FolderKeys:
+          type: array
+          description: The list of keys of the folders in which the queue is shared
+          items:
+            type: string
+            format: uuid
         EventTime:
           type: string
           format: date-time
@@ -34755,6 +34801,14 @@ components:
         BucketId:
           type: integer
           format: int64
+        Type:
+          type: string
+          enum:
+            - Final
+            - Stale
+          x-ms-enum:
+            name: BaseRetentionSettingDtoType
+            modelAsString: false
     QueueSetItemReviewStatusRequest:
       required:
         - queueItems
@@ -34827,6 +34881,12 @@ components:
           description: The queue that triggered the event
           items:
             $ref: '#/components/schemas/QueueDefinitionEventDto'
+        FolderKeys:
+          type: array
+          description: The list of keys of the folders in which the queue is shared
+          items:
+            type: string
+            format: uuid
         EventTime:
           type: string
           format: date-time
@@ -35196,6 +35256,14 @@ components:
         BucketId:
           type: integer
           format: int64
+        Type:
+          type: string
+          enum:
+            - Final
+            - Stale
+          x-ms-enum:
+            name: BaseRetentionSettingDtoType
+            modelAsString: false
     ReleaseUpdatedEventDto:
       required:
         - EventId
@@ -35414,6 +35482,8 @@ components:
           format: int64
         enableAutopilotHealing:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
     ResumeJobRequest:
       required:
         - jobKey
@@ -35422,77 +35492,6 @@ components:
         jobKey:
           type: string
           format: uuid
-    RobotAssetDto:
-      required:
-        - Name
-      type: object
-      properties:
-        Name:
-          maxLength: 128
-          minLength: 1
-          type: string
-          description: The asset name.
-        ValueType:
-          type: string
-          description: Defines the type of value stored by the asset.
-          enum:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-enum-varnames:
-            - DBConnectionString
-            - HttpConnectionString
-            - Text
-            - Bool
-            - Integer
-            - Credential
-            - WindowsCredential
-            - KeyValueList
-          x-ms-enum:
-            name: RobotAssetDtoValueType
-            modelAsString: false
-        StringValue:
-          maxLength: 1000000
-          type: string
-          description: The value of the asset when the value type is Text. Empty when the value type is not Text.
-        BoolValue:
-          type: boolean
-          description: The value of the asset when the value type is Bool. False when the value type is not Bool.
-        IntValue:
-          type: integer
-          description: The value of the asset when the value type is Integer. 0 when the value type is not Integer.
-          format: int32
-        CredentialUsername:
-          type: string
-          description: The user name when the value type is Credential. Empty when the value type is not Credential.
-        CredentialPassword:
-          type: string
-          description: The password when the value type is Credential. Empty when the value type is not Credential.
-        ExternalName:
-          maxLength: 450
-          minLength: 0
-          type: string
-          description: Contains the value of the key in the external store used to store the credentials.
-        CredentialStoreId:
-          type: integer
-          description: The Credential Store used to store the credentials.
-          format: int64
-        KeyValueList:
-          type: array
-          description: A collection of key value pairs when the type is KeyValueList. Empty when the value type is not KeyValueList.
-          items:
-            $ref: '#/components/schemas/CustomKeyValuePair'
-        ConnectionData:
-          $ref: '#/components/schemas/CredentialsConnectionData'
-        Id:
-          type: integer
-          format: int64
-      description: A robot asset stores the information of a per robot asset for a specific robot, without specifying the robot.
     RobotCreatedEventDto:
       required:
         - EventId
@@ -36767,6 +36766,7 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-ms-enum:
             name: SimpleJobEventDtoSourceType
             modelAsString: false
@@ -37621,6 +37621,7 @@ components:
             - Assistant
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-enum-varnames:
             - Manual
             - Schedule
@@ -37637,6 +37638,7 @@ components:
             - Assistant
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-ms-enum:
             name: StartProcessDtoSource
             modelAsString: false
@@ -37747,8 +37749,16 @@ components:
           minLength: 0
           type: string
           description: Operation id which started the job.
+        AutopilotForRobots:
+          $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
         EnableAutopilotHealing:
           type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
+        ProfilingOptions:
+          maxLength: 4000
+          minLength: 0
+          type: string
       description: The Start Process transfers information from client to the server during JobsController.StartJobs custom action.
     StopJobRequest:
       required:
@@ -37954,6 +37964,110 @@ components:
           type: string
           description: Gets or sets the UserName or Email for this task assignment. If UserId is provided, this property is ignored.
       description: Class to hold assignment request details of a task.
+    TaskCatalogCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        foldersCount:
+          type: integer
+          format: int32
+          readOnly: true
+        encrypted:
+          type: boolean
+          readOnly: true
+        retentionAction:
+          type: string
+          readOnly: true
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: TaskCatalogCreatedEventRetentionAction
+            modelAsString: false
+        retentionPeriod:
+          type: integer
+          format: int32
+          readOnly: true
+        retentionBucketName:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    TaskCatalogDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        foldersCount:
+          type: integer
+          format: int32
+          readOnly: true
+        encrypted:
+          type: boolean
+          readOnly: true
+        retentionAction:
+          type: string
+          readOnly: true
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: TaskCatalogDeletedEventRetentionAction
+            modelAsString: false
+        retentionPeriod:
+          type: integer
+          format: int32
+          readOnly: true
+        retentionBucketName:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     TaskCatalogDto:
       type: object
       properties:
@@ -38083,6 +38197,58 @@ components:
           description: Retention bucket Id
           format: int64
       description: Task Catalog entity for Creating or Updating Task Catalog
+    TaskCatalogUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        foldersCount:
+          type: integer
+          format: int32
+          readOnly: true
+        encrypted:
+          type: boolean
+          readOnly: true
+        retentionAction:
+          type: string
+          readOnly: true
+          enum:
+            - Delete
+            - Archive
+            - None
+          x-ms-enum:
+            name: TaskCatalogUpdatedEventRetentionAction
+            modelAsString: false
+        retentionPeriod:
+          type: integer
+          format: int32
+          readOnly: true
+        retentionBucketName:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     TaskCompletedEventDto:
       required:
         - EventId
@@ -39049,6 +39215,14 @@ components:
         BucketId:
           type: integer
           format: int64
+        Type:
+          type: string
+          enum:
+            - Final
+            - Stale
+          x-ms-enum:
+            name: BaseRetentionSettingDtoType
+            modelAsString: false
     TaskSaveAndReassignmentRequest:
       type: object
       properties:
@@ -39426,8 +39600,9 @@ components:
       properties:
         HostLicenseId:
           type: integer
-          description: The host license Id.
+          description: DEPRECATED. The host license Id.
           format: int64
+          x-deprecated: true
         CreationTime:
           type: string
           description: The date it was uploaded.
@@ -40361,6 +40536,19 @@ components:
           type: string
           description: The operation id which finished the queue item. Will be saved only if queue item is in final state
       description: Stores data sent when processing an item ended.
+    UiBlobFileAccessUri:
+      type: object
+      properties:
+        uri:
+          type: string
+        verb:
+          type: string
+        requiresAuth:
+          type: boolean
+        headers:
+          type: object
+          additionalProperties:
+            type: string
     UnattendedRobotDto:
       type: object
       properties:
@@ -40512,6 +40700,76 @@ components:
       properties:
         setting:
           $ref: '#/components/schemas/SettingsDto'
+    UserAssetDto:
+      required:
+        - Name
+      type: object
+      properties:
+        Name:
+          maxLength: 128
+          minLength: 1
+          type: string
+          description: The asset name.
+        ValueType:
+          type: string
+          description: Defines the type of value stored by the asset.
+          enum:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-enum-varnames:
+            - DBConnectionString
+            - HttpConnectionString
+            - Text
+            - Bool
+            - Integer
+            - Credential
+            - WindowsCredential
+            - KeyValueList
+          x-ms-enum:
+            name: UserAssetDtoValueType
+            modelAsString: false
+        StringValue:
+          maxLength: 1000000
+          type: string
+          description: The value of the asset when the value type is Text. Empty when the value type is not Text.
+        BoolValue:
+          type: boolean
+          description: The value of the asset when the value type is Bool. False when the value type is not Bool.
+        IntValue:
+          type: integer
+          description: The value of the asset when the value type is Integer. 0 when the value type is not Integer.
+          format: int32
+        CredentialUsername:
+          type: string
+          description: The user name when the value type is Credential. Empty when the value type is not Credential.
+        CredentialPassword:
+          type: string
+          description: The password when the value type is Credential. Empty when the value type is not Credential.
+        ExternalName:
+          maxLength: 450
+          minLength: 0
+          type: string
+          description: Contains the value of the key in the external store used to store the credentials.
+        CredentialStoreId:
+          type: integer
+          description: The Credential Store used to store the credentials.
+          format: int64
+        KeyValueList:
+          type: array
+          description: A collection of key value pairs when the type is KeyValueList. Empty when the value type is not KeyValueList.
+          items:
+            $ref: '#/components/schemas/CustomKeyValuePair'
+        ConnectionData:
+          $ref: '#/components/schemas/CredentialsConnectionData'
+        Id:
+          type: integer
+          format: int64
     UserAssignRolesRequest:
       required:
         - roleIds
@@ -40850,6 +41108,10 @@ components:
           type: boolean
           description: 'DEPRECATED. '
           x-deprecated: true
+        AutopilotForRobotsDetectedIssues:
+          type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
     UserOrganizationUnitDto:
       type: object
       properties:
@@ -40982,15 +41244,6 @@ components:
       properties:
         processSchedule:
           $ref: '#/components/schemas/ProcessScheduleDto'
-    ValidationErrorInfo:
-      type: object
-      properties:
-        message:
-          type: string
-        members:
-          type: array
-          items:
-            type: string
     ValidationResultDto:
       type: object
       properties:
@@ -41615,6 +41868,7 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-enum-varnames:
             - Manual
             - Schedule
@@ -41631,6 +41885,7 @@ components:
             - RobotAPI
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-ms-enum:
             name: WrappedJobDtoSourceType
             modelAsString: false
@@ -42103,6 +42358,7 @@ components:
             - Assistant
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-enum-varnames:
             - Manual
             - Schedule
@@ -42119,6 +42375,7 @@ components:
             - Assistant
             - CommandLine
             - RobotNetAPI
+            - Autopilot
           x-ms-enum:
             name: WrappedStartProcessDtoSource
             modelAsString: false

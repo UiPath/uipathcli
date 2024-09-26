@@ -280,7 +280,7 @@ type SimplePluginCommand struct{}
 
 func (c SimplePluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
-		WithOperation("my-plugin-command", "This is a simple plugin command")
+		WithOperation("my-plugin-command", "Simple Command", "This is a simple plugin command")
 }
 
 func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -294,7 +294,7 @@ type ContextPluginCommand struct {
 
 func (c ContextPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
-		WithOperation("my-plugin-command", "This is a simple plugin command").
+		WithOperation("my-plugin-command", "Simple Command", "This is a simple plugin command").
 		WithParameter("filter", plugin.ParameterTypeString, "This is a filter", false)
 }
 
@@ -307,7 +307,7 @@ type ErrorPluginCommand struct{}
 
 func (c ErrorPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
-		WithOperation("my-failed-command", "This command always fails")
+		WithOperation("my-failed-command", "Command fails", "This command always fails")
 }
 
 func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -318,7 +318,7 @@ type HideOperationPluginCommand struct{}
 
 func (c HideOperationPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
-		WithOperation("my-hidden-command", "This command should not be shown").
+		WithOperation("my-hidden-command", "Hidden command", "This command should not be shown").
 		IsHidden()
 }
 
@@ -330,7 +330,7 @@ type ParametrizedPluginCommand struct{}
 
 func (c ParametrizedPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
-		WithOperation("my-parametrized-command", "This is a plugin command with parameters").
+		WithOperation("my-parametrized-command", "Parametrized Command", "This is a plugin command with parameters").
 		WithParameter("take", plugin.ParameterTypeInteger, "This is a take parameter", true)
 }
 

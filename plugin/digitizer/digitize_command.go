@@ -26,8 +26,8 @@ type DigitizeCommand struct{}
 
 func (c DigitizeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("du").
-		WithCategory("digitization", "Document Digitization").
-		WithOperation("digitize", "Digitize the given file").
+		WithCategory("digitization", "Document Digitization", "Digitizes a document, extracting its Document Object Model (DOM) and text.").
+		WithOperation("digitize", "Digitize file", "Digitize the given file").
 		WithParameter("project-id", plugin.ParameterTypeString, "The project id", true).
 		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true).
 		WithParameter("content-type", plugin.ParameterTypeString, "The content type", false)

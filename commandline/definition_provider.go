@@ -122,7 +122,7 @@ func (p DefinitionProvider) applyPluginCommand(plugin plugin.CommandPlugin, comm
 	parameters := p.convertToParameters(command.Parameters)
 	var category *parser.OperationCategory
 	if command.Category != nil {
-		category = parser.NewOperationCategory(command.Category.Name, command.Category.Description)
+		category = parser.NewOperationCategory(command.Category.Name, command.Category.Summary, command.Category.Description)
 	}
 	baseUri, _ := url.Parse(parser.DefaultServerBaseUrl)
 	operation := parser.NewOperation(command.Name, command.Description, "", "", *baseUri, "", "application/json", parameters, plugin, command.Hidden, category)
