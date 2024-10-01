@@ -5,7 +5,6 @@ import (
 	"sort"
 
 	"github.com/UiPath/uipathcli/parser"
-	"github.com/urfave/cli/v2"
 )
 
 // showCommandHandler prints all available uipathcli commands
@@ -29,7 +28,7 @@ type commandJson struct {
 	Subcommands []commandJson   `json:"subcommands"`
 }
 
-func (h showCommandHandler) Execute(definitions []parser.Definition, globalFlags []cli.Flag) (string, error) {
+func (h showCommandHandler) Execute(definitions []parser.Definition, globalFlags []*FlagDefinition) (string, error) {
 	result := commandJson{
 		Name:        "uipath",
 		Description: "Command line interface to simplify, script and automate API calls for UiPath services",
@@ -104,7 +103,7 @@ func (h showCommandHandler) convertOperationToCommand(operation parser.Operation
 	}
 }
 
-func (h showCommandHandler) convertFlagsToCommandParameters(flags []cli.Flag) []parameterJson {
+func (h showCommandHandler) convertFlagsToCommandParameters(flags []*FlagDefinition) []parameterJson {
 	result := []parameterJson{}
 	for _, f := range flags {
 		result = append(result, h.convertFlagToCommandParameter(f))
@@ -120,37 +119,14 @@ func (h showCommandHandler) convertParametersToCommandParameters(parameters []pa
 	return result
 }
 
-func (h showCommandHandler) convertFlagToCommandParameter(flag cli.Flag) parameterJson {
-	intFlag, ok := flag.(*cli.IntFlag)
-	if ok {
-		return parameterJson{
-			Name:          intFlag.Name,
-			Description:   intFlag.Usage,
-			Type:          "integer",
-			Required:      false,
-			AllowedValues: []interface{}{},
-			DefaultValue:  intFlag.Value,
-		}
-	}
-	boolFlag, ok := flag.(*cli.BoolFlag)
-	if ok {
-		return parameterJson{
-			Name:          boolFlag.Name,
-			Description:   boolFlag.Usage,
-			Type:          "boolean",
-			Required:      false,
-			AllowedValues: []interface{}{},
-			DefaultValue:  boolFlag.Value,
-		}
-	}
-	stringFlag := flag.(*cli.StringFlag)
+func (h showCommandHandler) convertFlagToCommandParameter(flag *FlagDefinition) parameterJson {
 	return parameterJson{
-		Name:          stringFlag.Name,
-		Description:   stringFlag.Usage,
-		Type:          "string",
+		Name:          flag.Name,
+		Description:   flag.Summary,
+		Type:          flag.Type.String(),
 		Required:      false,
 		AllowedValues: []interface{}{},
-		DefaultValue:  stringFlag.Value,
+		DefaultValue:  flag.DefaultValue,
 	}
 }
 
