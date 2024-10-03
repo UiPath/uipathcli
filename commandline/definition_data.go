@@ -2,11 +2,11 @@ package commandline
 
 // DefinitionData contains the name of the definition file and its data.
 type DefinitionData struct {
-	Name    string
-	Version string
-	Data    []byte
+	Name           string
+	ServiceVersion string
+	Data           []byte
 }
 
-func NewDefinitionData(name string, version string, data []byte) *DefinitionData {
-	return &DefinitionData{name, version, data}
+func NewDefinitionData(name string, serviceVersion string, data []byte) *DefinitionData {
+	return &DefinitionData{name, serviceVersion, data}
 }

@@ -431,7 +431,7 @@ func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outp
 func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *CommandDefinition {
 	flags := NewFlagBuilder().
 		AddHelpFlag().
-		AddVersionFlag(true).
+		AddServiceVersionFlag(true).
 		Build()
 
 	return NewCommand(operation.Category.Name, operation.Category.Summary, operation.Category.Description).
@@ -472,7 +472,7 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *Comm
 
 	flags := NewFlagBuilder().
 		AddHelpFlag().
-		AddVersionFlag(true).
+		AddServiceVersionFlag(true).
 		Build()
 
 	return NewCommand(definition.Name, definition.Summary, definition.Description).
@@ -507,7 +507,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *CommandDefinition {
 		})
 }
 
-func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *CommandDefinition {
+func (b CommandBuilder) createAutoCompleteCompleteCommand(serviceVersion string) *CommandDefinition {
 	const commandFlagName = "command"
 
 	flags := NewFlagBuilder().
@@ -525,7 +525,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *Comma
 				exclude = append(exclude, "--"+flagName)
 			}
 			args := strings.Split(commandText, " ")
-			definitions, err := b.loadAutocompleteDefinitions(args, version)
+			definitions, err := b.loadAutocompleteDefinitions(args, serviceVersion)
 			if err != nil {
 				return err
 			}
@@ -541,14 +541,14 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *Comma
 		})
 }
 
-func (b CommandBuilder) createAutoCompleteCommand(version string) *CommandDefinition {
+func (b CommandBuilder) createAutoCompleteCommand(serviceVersion string) *CommandDefinition {
 	flags := NewFlagBuilder().
 		AddHelpFlag().
 		Build()
 
 	subcommands := []*CommandDefinition{
 		b.createAutoCompleteEnableCommand(),
-		b.createAutoCompleteCompleteCommand(version),
+		b.createAutoCompleteCompleteCommand(serviceVersion),
 	}
 
 	return NewCommand("autocomplete", "Autocompletion", "Commands for autocompletion").
@@ -608,28 +608,28 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 		})
 }
 
-func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser.Definition, error) {
+func (b CommandBuilder) loadDefinitions(args []string, serviceVersion string) ([]parser.Definition, error) {
 	if len(args) <= 1 || strings.HasPrefix(args[1], "-") {
-		return b.DefinitionProvider.Index(version)
+		return b.DefinitionProvider.Index(serviceVersion)
 	}
 	if len(args) > 1 && args[1] == "commands" {
-		return b.loadAllDefinitions(version)
+		return b.loadAllDefinitions(serviceVersion)
 	}
-	definition, err := b.DefinitionProvider.Load(args[1], version)
+	definition, err := b.DefinitionProvider.Load(args[1], serviceVersion)
 	if definition == nil {
 		return nil, err
 	}
 	return []parser.Definition{*definition}, err
 }
 
-func (b CommandBuilder) loadAllDefinitions(version string) ([]parser.Definition, error) {
-	all, err := b.DefinitionProvider.Index(version)
+func (b CommandBuilder) loadAllDefinitions(serviceVersion string) ([]parser.Definition, error) {
+	all, err := b.DefinitionProvider.Index(serviceVersion)
 	if err != nil {
 		return nil, err
 	}
 	definitions := []parser.Definition{}
 	for _, d := range all {
-		definition, err := b.DefinitionProvider.Load(d.Name, version)
+		definition, err := b.DefinitionProvider.Load(d.Name, serviceVersion)
 		if err != nil {
 			return nil, err
 		}
@@ -640,11 +640,11 @@ func (b CommandBuilder) loadAllDefinitions(version string) ([]parser.Definition,
 	return definitions, nil
 }
 
-func (b CommandBuilder) loadAutocompleteDefinitions(args []string, version string) ([]parser.Definition, error) {
+func (b CommandBuilder) loadAutocompleteDefinitions(args []string, serviceVersion string) ([]parser.Definition, error) {
 	if len(args) <= 2 {
-		return b.DefinitionProvider.Index(version)
+		return b.DefinitionProvider.Index(serviceVersion)
 	}
-	return b.loadDefinitions(args, version)
+	return b.loadDefinitions(args, serviceVersion)
 }
 
 func (b CommandBuilder) createShowCommand(definitions []parser.Definition) *CommandDefinition {
@@ -706,26 +706,26 @@ func (b CommandBuilder) parseArgument(args []string, name string) string {
 	return ""
 }
 
-func (b CommandBuilder) versionFromProfile(profile string) string {
+func (b CommandBuilder) serviceVersionFromProfile(profile string) string {
 	config := b.ConfigProvider.Config(profile)
 	if config == nil {
 		return ""
 	}
-	return config.Version
+	return config.ServiceVersion
 }
 
 func (b CommandBuilder) Create(args []string) ([]*CommandDefinition, error) {
-	version := b.parseArgument(args, FlagNameVersion)
+	serviceVersion := b.parseArgument(args, FlagNameServiceVersion)
 	profile := b.parseArgument(args, FlagNameProfile)
-	if version == "" && profile != "" {
-		version = b.versionFromProfile(profile)
+	if serviceVersion == "" && profile != "" {
+		serviceVersion = b.serviceVersionFromProfile(profile)
 	}
-	definitions, err := b.loadDefinitions(args, version)
+	definitions, err := b.loadDefinitions(args, serviceVersion)
 	if err != nil {
 		return nil, err
 	}
 	servicesCommands := b.createServiceCommands(definitions)
-	autocompleteCommand := b.createAutoCompleteCommand(version)
+	autocompleteCommand := b.createAutoCompleteCommand(serviceVersion)
 	configCommand := b.createConfigCommand()
 	inspectCommand := b.createInspectCommand(definitions)
 	commands := append(servicesCommands, autocompleteCommand, configCommand, inspectCommand)

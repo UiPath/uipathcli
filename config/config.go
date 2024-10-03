@@ -9,16 +9,16 @@ import (
 
 // The Config structure holds the config data from the selected profile.
 type Config struct {
-	Uri          *url.URL
-	Organization string
-	Tenant       string
-	Parameter    map[string]string
-	Header       map[string]string
-	Auth         AuthConfig
-	Insecure     bool
-	Debug        bool
-	Output       string
-	Version      string
+	Uri            *url.URL
+	Organization   string
+	Tenant         string
+	Parameter      map[string]string
+	Header         map[string]string
+	Auth           AuthConfig
+	Insecure       bool
+	Debug          bool
+	Output         string
+	ServiceVersion string
 }
 
 // AuthConfig with metadata used for authenticating the caller.
@@ -169,6 +169,6 @@ func (c Config) SetAuthProperty(key string, value string) {
 	c.Auth.Config["properties"] = properties
 }
 
-func (c *Config) SetVersion(version string) {
-	c.Version = version
+func (c *Config) SetServiceVersion(serviceVersion string) {
+	c.ServiceVersion = serviceVersion
 }
