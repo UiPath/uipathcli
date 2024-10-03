@@ -43,6 +43,7 @@ func (c Cli) run(args []string, input utils.Stream) error {
 
 	flags := NewFlagBuilder().
 		AddDefaultFlags(false).
+		AddVersionFlag().
 		Build()
 
 	commands, err := CommandBuilder.Create(args)
@@ -62,6 +63,14 @@ func (c Cli) run(args []string, input utils.Stream) error {
 		HideVersion:               true,
 		HideHelpCommand:           true,
 		DisableSliceFlagSeparator: true,
+		Action: func(context *cli.Context) error {
+			if context.IsSet(FlagNameVersion) {
+				handler := newVersionCommandHandler(c.stdOut)
+				handler.Execute()
+				return nil
+			}
+			return cli.ShowAppHelp(context)
+		},
 	}
 	return app.Run(args)
 }
