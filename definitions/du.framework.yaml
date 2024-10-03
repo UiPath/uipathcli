@@ -8,7 +8,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve all projects
       description: "Retrieve all available projects from Document Understanding.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetProjects
       parameters:
@@ -86,7 +86,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve project details
       description: "Retrieve details about a specific project from Document Understanding.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetProjectById
       parameters:
@@ -174,7 +174,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve document types
       description: "Retrieve all document types from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetDocumentTypes
       parameters:
@@ -271,7 +271,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve document type details
       description: "Retrieve details about a specific document type from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetDocumentTypeById
       parameters:
@@ -378,7 +378,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve classifiers
       description: "Retrieve all classifiers from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetClassifiers
       parameters:
@@ -478,7 +478,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve classifier details
       description: "Retrieve details about a specific classifier from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetClassifierById
       parameters:
@@ -582,7 +582,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve extractors
       description: "Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: Extractors
       parameters:
@@ -682,7 +682,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve extractor details
       description: "Retrieve details about a specific extractor from a project. It can be either a Forms AI or a deep-learning extraction skill.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: GetExtractorById
       parameters:
@@ -798,7 +798,7 @@ paths:
     get:
       tags:
         - Discovery
-      summary: ""
+      summary: Retrieve tags
       description: "Retrieve all tags from a project. \r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: Tags
       parameters:
@@ -895,7 +895,7 @@ paths:
     post:
       tags:
         - Digitization
-      summary: ""
+      summary: Digitize document
       description: "Digitize a document using the OCR settings of the associated Document Understanding project.\r\n\nRequired scopes: <b>Du.Digitization.Api</b></br>"
       operationId: StartDigitization
       parameters:
@@ -1031,7 +1031,7 @@ paths:
     get:
       tags:
         - Digitization
-      summary: ""
+      summary: Get digitization result
       description: "Get the digitization result of a document.\r\n\nRequired scopes: <b>Du.Digitization.Api</b></br>"
       operationId: GetDigitizationResult
       parameters:
@@ -1144,7 +1144,7 @@ paths:
     post:
       tags:
         - Classification
-      summary: ""
+      summary: Classify document
       description: "Classify a document.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: Classify
       parameters:
@@ -1178,11 +1178,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1194,11 +1194,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1210,11 +1210,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: df258d93-3482-4d73-93ae-3825f502a2e9
+                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1310,7 +1310,7 @@ paths:
     post:
       tags:
         - Classification
-      summary: ""
+      summary: Classify document
       description: "Classify a document.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: ClassifyByTag
       parameters:
@@ -1341,11 +1341,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1357,11 +1357,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1373,11 +1373,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: f4587412-1535-4f3c-9da1-018584f63696
+                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1473,7 +1473,7 @@ paths:
     post:
       tags:
         - Classification
-      summary: ""
+      summary: Start classification
       description: "Start classification operation. To monitor the status and retrieve the classification result, use the \"Get Classification Result\" route.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: StartClassification
       parameters:
@@ -1507,11 +1507,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1523,11 +1523,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1539,11 +1539,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: ae22702d-6471-4442-9ed7-4dbecc9c4fab
+                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1615,7 +1615,7 @@ paths:
     post:
       tags:
         - Classification
-      summary: ""
+      summary: Start classification by tag
       description: "Start classification by tag operation. To monitor the status and retrieve the classification result, use the \"Get Tag Classification Result\" route.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: StartClassificationByTag
       parameters:
@@ -1646,11 +1646,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1662,11 +1662,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1678,11 +1678,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 2929a0d4-a86a-49d5-88d9-00f3a58b1eef
+                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1754,7 +1754,7 @@ paths:
     get:
       tags:
         - Classification
-      summary: ""
+      summary: Retrieve classification result
       description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: GetClassificationResult
       parameters:
@@ -1862,7 +1862,7 @@ paths:
     get:
       tags:
         - Classification
-      summary: ""
+      summary: Retrieve classification result
       description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
       operationId: GetClassificationResultByTag
       parameters:
@@ -1967,7 +1967,7 @@ paths:
     post:
       tags:
         - Extraction
-      summary: ""
+      summary: Extract document fields
       description: "Extract all fields from a document.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: Extract
       parameters:
@@ -2001,13 +2001,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2022,13 +2022,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2043,13 +2043,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: d1925eb0-1431-4521-96f9-5996818ff52e
+                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2160,7 +2160,7 @@ paths:
     post:
       tags:
         - Extraction
-      summary: ""
+      summary: Start extraction
       description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: StartExtraction
       parameters:
@@ -2194,13 +2194,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2215,13 +2215,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2236,13 +2236,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: b9b447b7-0042-44b6-b509-9d7634b33ce3
+                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2317,7 +2317,7 @@ paths:
     post:
       tags:
         - Extraction
-      summary: ""
+      summary: Start extraction
       description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: ExtractByDocumentType
       parameters:
@@ -2352,13 +2352,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2373,13 +2373,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2394,13 +2394,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a872f69-c09c-47ca-870c-d36851aadd61
+                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2511,7 +2511,7 @@ paths:
     post:
       tags:
         - Extraction
-      summary: ""
+      summary: Start extraction
       description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: StartByDocumentType
       parameters:
@@ -2546,13 +2546,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2567,13 +2567,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2588,13 +2588,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 3b02e6dc-98cd-4a68-a62f-673e36c8625c
+                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2669,7 +2669,7 @@ paths:
     get:
       tags:
         - Extraction
-      summary: ""
+      summary: Retrieve extraction result
       description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: GetExtractionResult
       parameters:
@@ -2777,7 +2777,7 @@ paths:
     get:
       tags:
         - Extraction
-      summary: ""
+      summary: Retrieve extraction result
       description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
       operationId: GetDocTypeExtractionResult
       parameters:
@@ -2886,7 +2886,7 @@ paths:
     post:
       tags:
         - Validation
-      summary: ""
+      summary: Start classification validation
       description: "Start classification validation operation. To monitor the status and retrieve the validation result, use the \"Get Classification Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: StartClassificationValidation
       parameters:
@@ -2922,7 +2922,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2946,7 +2946,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2957,7 +2957,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2985,7 +2985,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3000,7 +3000,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3024,7 +3024,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3035,7 +3035,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3063,7 +3063,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3078,7 +3078,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3102,7 +3102,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3113,7 +3113,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3141,7 +3141,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 663940ee-68ac-4290-bb12-b6fb5067f3f4
+                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3238,7 +3238,7 @@ paths:
     post:
       tags:
         - Validation
-      summary: ""
+      summary: Start classification validation
       description: "Start classification validation operation. To monitor the status and retrieve the validation result, use the \"Get Classification Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: StartClassificationValidation
       parameters:
@@ -3271,7 +3271,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3295,7 +3295,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3306,7 +3306,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3334,7 +3334,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3349,7 +3349,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3373,7 +3373,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3384,7 +3384,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3412,7 +3412,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3427,7 +3427,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3451,7 +3451,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3462,7 +3462,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3490,7 +3490,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: d720f613-e5cc-4a76-ae9d-e1378b240dc8
+                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3587,7 +3587,7 @@ paths:
     get:
       tags:
         - Validation
-      summary: ""
+      summary: Retrieve classification validation result
       description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: GetClassificationValidationResult
       parameters:
@@ -3707,7 +3707,7 @@ paths:
     get:
       tags:
         - Validation
-      summary: ""
+      summary: Retrieve classification validation result
       description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: GetClassificationValidationResultByTag
       parameters:
@@ -3824,7 +3824,7 @@ paths:
     post:
       tags:
         - Validation
-      summary: ""
+      summary: Start extraction validation
       description: "Start extraction validation operation. To monitor the status and retrieve the validation result, use the \"Get Extraction Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: StartExtractionValidation
       parameters:
@@ -3859,7 +3859,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4033,7 +4033,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4043,7 +4043,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4223,7 +4223,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4237,7 +4237,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4411,7 +4411,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4421,7 +4421,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4601,7 +4601,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4615,7 +4615,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4789,7 +4789,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4799,7 +4799,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4979,7 +4979,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: caa4f462-2d71-41ae-affb-8695cff1c79e
+                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5076,7 +5076,7 @@ paths:
     post:
       tags:
         - Validation
-      summary: ""
+      summary: Start extraction validation
       description: "Start extraction validation by document type operation. To monitor the status and retrieve the validation result, use the \"Get Document Type Extraction Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: StartDocTypeExtractionValidation
       parameters:
@@ -5112,7 +5112,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5286,7 +5286,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5296,7 +5296,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5476,7 +5476,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5490,7 +5490,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5664,7 +5664,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5674,7 +5674,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5854,7 +5854,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5868,7 +5868,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -6042,7 +6042,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6052,7 +6052,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -6232,7 +6232,7 @@ paths:
                       question: Extract the total amount from the invoice.
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 170f421c-efc3-42c0-b093-3453b0d3c71e
+                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6329,7 +6329,7 @@ paths:
     get:
       tags:
         - Validation
-      summary: ""
+      summary: Retrieve extraction validation result
       description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: GetExtractionValidationResult
       parameters:
@@ -6449,7 +6449,7 @@ paths:
     get:
       tags:
         - Validation
-      summary: ""
+      summary: Retrieve the extraction validation result
       description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
       operationId: GetDocTypeExtractionValidationResult
       parameters:
@@ -7450,6 +7450,10 @@ components:
         projectVersionName:
           type: string
           nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentType:
       type: object
@@ -7534,6 +7538,10 @@ components:
           nullable: true
         type:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Discovery.Model.ClassifierDocumentTypeType'
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifierDetailsResponse:
       type: object
@@ -7596,6 +7604,10 @@ components:
         numberOfPages:
           type: integer
           format: int32
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
           nullable: true
         classifiers:
           type: array
@@ -7683,6 +7695,8 @@ components:
         description:
           type: string
           nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType'
         documentTypes:
           type: array
           items:
@@ -7735,6 +7749,8 @@ components:
         name:
           type: string
           nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType'
         description:
           type: string
           nullable: true
@@ -7759,6 +7775,12 @@ components:
           format: uri
           nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType:
+      enum:
+        - Classic
+        - Modern
+        - IXP
+      type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus:
       enum:
         - Unknown
@@ -8291,7 +8313,7 @@ components:
       description: In order to enable access to the Cloud APIs you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/api-guide/api-authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
-          tokenUrl: https://cloud.uipath.com/identity_/connect/token
+          tokenUrl: https://alpha.uipath.com/identity_/connect/token
           scopes:
             Du.Digitization.Api: Digitization Api Scope
             Du.Classification.Api: Classification Api Scope

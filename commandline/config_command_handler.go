@@ -9,14 +9,14 @@ import (
 	"github.com/UiPath/uipathcli/config"
 )
 
-// The ConfigCommandHandler implements commands for configuring the CLI.
+// configCommandHandler implements commands for configuring the CLI.
 // The CLI can be configured interactively or by setting config values
 // programmatically.
 //
 // Example:
 // uipath config ==> interactive configuration of the CLI
 // uipath config set ==> stores a value in the configuration file
-type ConfigCommandHandler struct {
+type configCommandHandler struct {
 	StdIn          io.Reader
 	StdOut         io.Writer
 	ConfigProvider config.ConfigProvider
@@ -31,7 +31,7 @@ const CredentialsAuth = "credentials"
 const LoginAuth = "login"
 const PatAuth = "pat"
 
-func (h ConfigCommandHandler) Set(key string, value string, profileName string) error {
+func (h configCommandHandler) Set(key string, value string, profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	err := h.setConfigValue(&config, key, value)
 	if err != nil {
@@ -45,7 +45,7 @@ func (h ConfigCommandHandler) Set(key string, value string, profileName string) 
 	return nil
 }
 
-func (h ConfigCommandHandler) setConfigValue(config *config.Config, key string, value string) error {
+func (h configCommandHandler) setConfigValue(config *config.Config, key string, value string) error {
 	keyParts := strings.Split(key, ".")
 	if key == "version" {
 		config.SetVersion(value)
@@ -91,19 +91,19 @@ func (h ConfigCommandHandler) setConfigValue(config *config.Config, key string, 
 	return fmt.Errorf("Unknown config key '%s'", key)
 }
 
-func (h ConfigCommandHandler) isHeaderKey(keyParts []string) bool {
+func (h configCommandHandler) isHeaderKey(keyParts []string) bool {
 	return len(keyParts) == 2 && keyParts[0] == "header"
 }
 
-func (h ConfigCommandHandler) isParameterKey(keyParts []string) bool {
+func (h configCommandHandler) isParameterKey(keyParts []string) bool {
 	return len(keyParts) == 2 && keyParts[0] == "parameter"
 }
 
-func (h ConfigCommandHandler) isAuthPropertyKey(keyParts []string) bool {
+func (h configCommandHandler) isAuthPropertyKey(keyParts []string) bool {
 	return len(keyParts) == 3 && keyParts[0] == "auth" && keyParts[1] == "properties"
 }
 
-func (h ConfigCommandHandler) convertToBool(value string) (bool, error) {
+func (h configCommandHandler) convertToBool(value string) (bool, error) {
 	if strings.EqualFold(value, "true") {
 		return true, nil
 	}
@@ -113,7 +113,7 @@ func (h ConfigCommandHandler) convertToBool(value string) (bool, error) {
 	return false, fmt.Errorf("Invalid boolean value: %s", value)
 }
 
-func (h ConfigCommandHandler) Configure(auth string, profileName string) error {
+func (h configCommandHandler) Configure(auth string, profileName string) error {
 	switch auth {
 	case CredentialsAuth:
 		return h.configureCredentials(profileName)
@@ -127,7 +127,7 @@ func (h ConfigCommandHandler) Configure(auth string, profileName string) error {
 	return fmt.Errorf("Invalid auth, supported values: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth)
 }
 
-func (h ConfigCommandHandler) configure(profileName string) error {
+func (h configCommandHandler) configure(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
@@ -149,7 +149,7 @@ func (h ConfigCommandHandler) configure(profileName string) error {
 	return nil
 }
 
-func (h ConfigCommandHandler) readAuthInput(config config.Config, reader *bufio.Reader) bool {
+func (h configCommandHandler) readAuthInput(config config.Config, reader *bufio.Reader) bool {
 	authType := h.readAuthTypeInput(config, reader)
 	switch authType {
 	case CredentialsAuth:
@@ -175,7 +175,7 @@ func (h ConfigCommandHandler) readAuthInput(config config.Config, reader *bufio.
 	}
 }
 
-func (h ConfigCommandHandler) configureCredentials(profileName string) error {
+func (h configCommandHandler) configureCredentials(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
@@ -201,7 +201,7 @@ func (h ConfigCommandHandler) configureCredentials(profileName string) error {
 	return nil
 }
 
-func (h ConfigCommandHandler) configureLogin(profileName string) error {
+func (h configCommandHandler) configureLogin(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
@@ -227,7 +227,7 @@ func (h ConfigCommandHandler) configureLogin(profileName string) error {
 	return nil
 }
 
-func (h ConfigCommandHandler) configurePat(profileName string) error {
+func (h configCommandHandler) configurePat(profileName string) error {
 	config := h.getOrCreateProfile(profileName)
 	reader := bufio.NewReader(h.StdIn)
 
@@ -253,7 +253,7 @@ func (h ConfigCommandHandler) configurePat(profileName string) error {
 	return nil
 }
 
-func (h ConfigCommandHandler) getAuthType(config config.Config) string {
+func (h configCommandHandler) getAuthType(config config.Config) string {
 	if config.Pat() != "" {
 		return PatAuth
 	}
@@ -266,7 +266,7 @@ func (h ConfigCommandHandler) getAuthType(config config.Config) string {
 	return ""
 }
 
-func (h ConfigCommandHandler) getOrCreateProfile(profileName string) config.Config {
+func (h configCommandHandler) getOrCreateProfile(profileName string) config.Config {
 	config := h.ConfigProvider.Config(profileName)
 	if config == nil {
 		return h.ConfigProvider.New()
@@ -274,7 +274,7 @@ func (h ConfigCommandHandler) getOrCreateProfile(profileName string) config.Conf
 	return *config
 }
 
-func (h ConfigCommandHandler) getDisplayValue(value string, masked bool) string {
+func (h configCommandHandler) getDisplayValue(value string, masked bool) string {
 	if value == "" {
 		return notSetMessage
 	}
@@ -284,14 +284,14 @@ func (h ConfigCommandHandler) getDisplayValue(value string, masked bool) string 
 	return value
 }
 
-func (h ConfigCommandHandler) maskValue(value string) string {
+func (h configCommandHandler) maskValue(value string) string {
 	if len(value) < 10 {
 		return maskMessage
 	}
 	return maskMessage + value[len(value)-4:]
 }
 
-func (h ConfigCommandHandler) readUserInput(message string, reader *bufio.Reader) (string, error) {
+func (h configCommandHandler) readUserInput(message string, reader *bufio.Reader) (string, error) {
 	fmt.Fprint(h.StdOut, message+" ")
 	value, err := reader.ReadString('\n')
 	if err != nil {
@@ -300,7 +300,7 @@ func (h ConfigCommandHandler) readUserInput(message string, reader *bufio.Reader
 	return strings.Trim(value, " \r\n\t"), nil
 }
 
-func (h ConfigCommandHandler) readOrgTenantInput(config config.Config, reader *bufio.Reader) (string, string, error) {
+func (h configCommandHandler) readOrgTenantInput(config config.Config, reader *bufio.Reader) (string, string, error) {
 	message := fmt.Sprintf("Enter organization [%s]:", h.getDisplayValue(config.Organization, false))
 	organization, err := h.readUserInput(message, reader)
 	if err != nil {
@@ -316,7 +316,7 @@ func (h ConfigCommandHandler) readOrgTenantInput(config config.Config, reader *b
 	return organization, tenant, nil
 }
 
-func (h ConfigCommandHandler) readCredentialsInput(config config.Config, reader *bufio.Reader) (string, string, error) {
+func (h configCommandHandler) readCredentialsInput(config config.Config, reader *bufio.Reader) (string, string, error) {
 	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
 	clientId, err := h.readUserInput(message, reader)
 	if err != nil {
@@ -332,7 +332,7 @@ func (h ConfigCommandHandler) readCredentialsInput(config config.Config, reader 
 	return clientId, clientSecret, nil
 }
 
-func (h ConfigCommandHandler) readLoginInput(config config.Config, reader *bufio.Reader) (string, string, string, error) {
+func (h configCommandHandler) readLoginInput(config config.Config, reader *bufio.Reader) (string, string, string, error) {
 	message := fmt.Sprintf("Enter client id [%s]:", h.getDisplayValue(config.ClientId(), true))
 	clientId, err := h.readUserInput(message, reader)
 	if err != nil {
@@ -352,12 +352,12 @@ func (h ConfigCommandHandler) readLoginInput(config config.Config, reader *bufio
 	return clientId, redirectUri, scopes, nil
 }
 
-func (h ConfigCommandHandler) readPatInput(config config.Config, reader *bufio.Reader) (string, error) {
+func (h configCommandHandler) readPatInput(config config.Config, reader *bufio.Reader) (string, error) {
 	message := fmt.Sprintf("Enter personal access token [%s]:", h.getDisplayValue(config.Pat(), true))
 	return h.readUserInput(message, reader)
 }
 
-func (h ConfigCommandHandler) readAuthTypeInput(config config.Config, reader *bufio.Reader) string {
+func (h configCommandHandler) readAuthTypeInput(config config.Config, reader *bufio.Reader) string {
 	authType := h.getAuthType(config)
 	for {
 		message := fmt.Sprintf(`Authentication type [%s]:
@@ -379,5 +379,13 @@ Select:`, h.getDisplayValue(authType, false))
 		case "3":
 			return PatAuth
 		}
+	}
+}
+
+func newConfigCommandHandler(stdIn io.Reader, stdOut io.Writer, configProvider config.ConfigProvider) *configCommandHandler {
+	return &configCommandHandler{
+		StdIn:          stdIn,
+		StdOut:         stdOut,
+		ConfigProvider: configProvider,
 	}
 }

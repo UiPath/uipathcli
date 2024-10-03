@@ -17,6 +17,16 @@ const CustomNameExtension = "x-uipathcli-name"
 // operations and their parameters for the given service specification.
 type OpenApiParser struct{}
 
+func (p OpenApiParser) getSummary(extensions map[string]interface{}) string {
+	name := extensions["summary"]
+	switch v := name.(type) {
+	case string:
+		return v
+	default:
+		return ""
+	}
+}
+
 func (p OpenApiParser) getCustomName(extensions map[string]interface{}) string {
 	name := extensions[CustomNameExtension]
 	switch v := name.(type) {
@@ -36,14 +46,37 @@ func (p OpenApiParser) contains(strs []string, str string) bool {
 	return false
 }
 
-func (p OpenApiParser) getDescription(document openapi3.T) string {
+func (p OpenApiParser) getDocumentSummary(document openapi3.T) string {
 	if document.Info == nil {
 		return ""
 	}
-	if document.Info.Description != "" {
-		return document.Info.Description
-	}
 	return document.Info.Title
+}
+
+func (p OpenApiParser) getDocumentDescription(document openapi3.T) string {
+	if document.Info == nil {
+		return ""
+	}
+	return document.Info.Description
+}
+
+func (p OpenApiParser) getDocumentText(name string, document openapi3.T) (string, string) {
+	result := LookupDescription(name)
+	if result != nil {
+		return result.Summary, result.Description
+	}
+	return p.getDocumentSummary(document), p.getDocumentDescription(document)
+}
+
+func (p OpenApiParser) getCategoryText(definitionName string, name string, tag *openapi3.Tag) (string, string) {
+	result := LookupDescription(definitionName + " " + name)
+	if result != nil {
+		return result.Summary, result.Description
+	}
+	if tag != nil {
+		return p.getSummary(tag.Extensions), tag.Description
+	}
+	return "", ""
 }
 
 func (p OpenApiParser) getUri(document openapi3.T) (*url.URL, error) {
@@ -283,47 +316,46 @@ func (p OpenApiParser) parseOperationParameters(operation openapi3.Operation, ro
 	return contentType, append(parameters, p.parseParameters(operation.Parameters)...)
 }
 
-func (p OpenApiParser) getCategory(operation openapi3.Operation, document openapi3.T) *OperationCategory {
+func (p OpenApiParser) getCategory(definitionName string, document openapi3.T, operation openapi3.Operation) *OperationCategory {
 	if len(operation.Tags) > 0 {
 		name := operation.Tags[0]
-		description := ""
 		tag := document.Tags.Get(name)
-		if tag != nil {
-			description = tag.Description
-		}
-		return NewOperationCategory(p.formatName(name), description)
+		formattedName := p.formatName(name)
+		summary, description := p.getCategoryText(definitionName, formattedName, tag)
+		return NewOperationCategory(formattedName, summary, description)
 	}
 	return nil
 }
 
-func (p OpenApiParser) parseOperation(method string, baseUri url.URL, route string, operation openapi3.Operation, routeParameters openapi3.Parameters, document openapi3.T) Operation {
-	category := p.getCategory(operation, document)
+func (p OpenApiParser) parseOperation(definitionName string, document openapi3.T, method string, baseUri url.URL, route string, operation openapi3.Operation, routeParameters openapi3.Parameters) Operation {
+	category := p.getCategory(definitionName, document, operation)
 	name := p.getOperationName(method, route, category, operation)
 	contentType, parameters := p.parseOperationParameters(operation, routeParameters)
 	return *NewOperation(name, operation.Summary, operation.Description, method, baseUri, route, contentType, parameters, nil, false, category)
 }
 
-func (p OpenApiParser) parsePath(baseUri url.URL, route string, pathItem openapi3.PathItem, document openapi3.T) []Operation {
+func (p OpenApiParser) parsePath(definitionName string, document openapi3.T, baseUri url.URL, route string, pathItem openapi3.PathItem) []Operation {
 	operations := []Operation{}
 	for method := range pathItem.Operations() {
 		operation := pathItem.GetOperation(method)
-		operations = append(operations, p.parseOperation(method, baseUri, route, *operation, pathItem.Parameters, document))
+		operations = append(operations, p.parseOperation(definitionName, document, method, baseUri, route, *operation, pathItem.Parameters))
 	}
 	return operations
 }
 
-func (p OpenApiParser) parse(name string, document openapi3.T) (*Definition, error) {
+func (p OpenApiParser) parse(definitionName string, document openapi3.T) (*Definition, error) {
 	uri, err := p.getUri(document)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing server URL: %w", err)
 	}
+	formattedName := strings.Split(definitionName, ".")[0]
 	operations := []Operation{}
 	for path := range document.Paths.Map() {
 		pathItem := document.Paths.Find(path)
-		operations = append(operations, p.parsePath(*uri, path, *pathItem, document)...)
+		operations = append(operations, p.parsePath(formattedName, document, *uri, path, *pathItem)...)
 	}
-	description := p.getDescription(document)
-	return NewDefinition(name, description, operations), nil
+	summary, description := p.getDocumentText(formattedName, document)
+	return NewDefinition(definitionName, summary, description, operations), nil
 }
 
 func (p OpenApiParser) Parse(name string, data []byte) (*Definition, error) {

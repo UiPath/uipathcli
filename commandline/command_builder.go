@@ -498,6 +498,7 @@ func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outp
 func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.Command {
 	return &cli.Command{
 		Name:        operation.Category.Name,
+		Usage:       operation.Category.Summary,
 		Description: operation.Category.Description,
 		Flags: []cli.Flag{
 			b.HelpFlag(),
@@ -541,6 +542,7 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 
 	return &cli.Command{
 		Name:        definition.Name,
+		Usage:       definition.Summary,
 		Description: definition.Description,
 		Flags: []cli.Flag{
 			b.HelpFlag(),
@@ -559,6 +561,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 
 	return &cli.Command{
 		Name:        "enable",
+		Usage:       "Enable auto complete",
 		Description: "Enables auto complete in your shell",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -590,6 +593,7 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *cli.Command {
 	return &cli.Command{
 		Name:        "complete",
+		Usage:       "Autocomplete suggestions",
 		Description: "Returns the autocomplete suggestions",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
@@ -625,6 +629,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *cli.C
 func (b CommandBuilder) createAutoCompleteCommand(version string) *cli.Command {
 	return &cli.Command{
 		Name:        "autocomplete",
+		Usage:       "Autocompletion",
 		Description: "Commands for autocompletion",
 		Flags: []cli.Flag{
 			b.HelpFlag(),
@@ -655,6 +660,7 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 
 	return &cli.Command{
 		Name:        "config",
+		Usage:       "Interactive Configuration",
 		Description: "Interactive command to configure the CLI",
 		Flags:       flags,
 		Subcommands: []*cli.Command{
@@ -663,11 +669,7 @@ func (b CommandBuilder) createConfigCommand() *cli.Command {
 		Action: func(context *cli.Context) error {
 			auth := context.String(authFlagName)
 			profileName := context.String(profileFlagName)
-			handler := ConfigCommandHandler{
-				StdIn:          b.StdIn,
-				StdOut:         b.StdOut,
-				ConfigProvider: b.ConfigProvider,
-			}
+			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Configure(auth, profileName)
 		},
 		HideHelp: true,
@@ -698,17 +700,14 @@ func (b CommandBuilder) createConfigSetCommand() *cli.Command {
 	}
 	return &cli.Command{
 		Name:        "set",
+		Usage:       "Set config parameters",
 		Description: "Set config parameters",
 		Flags:       flags,
 		Action: func(context *cli.Context) error {
 			profileName := context.String(profileFlagName)
 			key := context.String(keyFlagName)
 			value := context.String(valueFlagName)
-			handler := ConfigCommandHandler{
-				StdIn:          b.StdIn,
-				StdOut:         b.StdOut,
-				ConfigProvider: b.ConfigProvider,
-			}
+			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
 		},
 		HideHelp: true,
@@ -754,9 +753,10 @@ func (b CommandBuilder) loadAutocompleteDefinitions(args []string, version strin
 	return b.loadDefinitions(args, version)
 }
 
-func (b CommandBuilder) createShowCommand(definitions []parser.Definition, commands []*cli.Command) *cli.Command {
+func (b CommandBuilder) createShowCommand(definitions []parser.Definition) *cli.Command {
 	return &cli.Command{
 		Name:        "commands",
+		Usage:       "Inspect available CLI operations",
 		Description: "Command to inspect available uipath CLI operations",
 		Flags: []cli.Flag{
 			b.HelpFlag(),
@@ -764,6 +764,7 @@ func (b CommandBuilder) createShowCommand(definitions []parser.Definition, comma
 		Subcommands: []*cli.Command{
 			{
 				Name:        "show",
+				Usage:       "Print CLI commands",
 				Description: "Print available uipath CLI commands",
 				Flags: []cli.Flag{
 					b.HelpFlag(),
@@ -832,7 +833,7 @@ func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
 	servicesCommands := b.createServiceCommands(definitions)
 	autocompleteCommand := b.createAutoCompleteCommand(version)
 	configCommand := b.createConfigCommand()
-	showCommand := b.createShowCommand(definitions, servicesCommands)
+	showCommand := b.createShowCommand(definitions)
 	commands := append(servicesCommands, autocompleteCommand, configCommand, showCommand)
 	return commands, nil
 }

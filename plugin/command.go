@@ -6,19 +6,21 @@ package plugin
 type Command struct {
 	Service     string
 	Name        string
+	Summary     string
 	Description string
 	Parameters  []CommandParameter
 	Hidden      bool
 	Category    *CommandCategory
 }
 
-func (c *Command) WithCategory(name string, description string) *Command {
-	c.Category = NewCommandCategory(name, description)
+func (c *Command) WithCategory(name string, summary string, description string) *Command {
+	c.Category = NewCommandCategory(name, summary, description)
 	return c
 }
 
-func (c *Command) WithOperation(name string, description string) *Command {
+func (c *Command) WithOperation(name string, summary string, description string) *Command {
 	c.Name = name
+	c.Summary = summary
 	c.Description = description
 	return c
 }
