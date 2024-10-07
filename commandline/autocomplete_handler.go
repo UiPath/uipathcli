@@ -6,15 +6,13 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/urfave/cli/v2"
 )
+
+const AutocompletePowershell = "powershell"
+const AutocompleteBash = "bash"
 
 const directoryPermissions = 0755
 const filePermissions = 0644
-
-const Powershell = "powershell"
-const Bash = "bash"
 
 const completeHandlerEnabledCheck = "uipath_auto_complete"
 
@@ -55,8 +53,8 @@ type autoCompleteHandler struct {
 }
 
 func (a autoCompleteHandler) EnableCompleter(shell string, filePath string) (string, error) {
-	if shell != Powershell && shell != Bash {
-		return "", fmt.Errorf("Invalid shell, supported values: %s, %s", Powershell, Bash)
+	if shell != AutocompletePowershell && shell != AutocompleteBash {
+		return "", fmt.Errorf("Invalid shell, supported values: %s, %s", AutocompletePowershell, AutocompleteBash)
 	}
 
 	profileFilePath, err := a.profileFilePath(shell, filePath)
@@ -71,14 +69,14 @@ func (a autoCompleteHandler) profileFilePath(shell string, filePath string) (str
 	if filePath != "" {
 		return filePath, nil
 	}
-	if shell == Powershell {
+	if shell == AutocompletePowershell {
 		return PowershellProfilePath()
 	}
 	return BashrcPath()
 }
 
 func (a autoCompleteHandler) completeHandler(shell string) string {
-	if shell == Powershell {
+	if shell == AutocompletePowershell {
 		return powershellCompleteHandler
 	}
 	return bashCompleteHandler
@@ -136,15 +134,10 @@ func (a autoCompleteHandler) writeCompleterHandler(filePath string, completerHan
 	return nil
 }
 
-func (a autoCompleteHandler) Find(commandText string, commands []*cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) Find(commandText string, command *CommandDefinition, exclude []string) []string {
 	words := strings.Split(commandText, " ")
 	if len(words) < 2 {
 		return []string{}
-	}
-
-	command := &cli.Command{
-		Name:        "uipath",
-		Subcommands: commands,
 	}
 
 	for _, word := range words[1 : len(words)-1] {
@@ -164,7 +157,7 @@ func (a autoCompleteHandler) Find(commandText string, commands []*cli.Command, e
 	return a.searchCommands(lastWord, command.Subcommands, exclude)
 }
 
-func (a autoCompleteHandler) findCommand(name string, commands []*cli.Command) *cli.Command {
+func (a autoCompleteHandler) findCommand(name string, commands []*CommandDefinition) *CommandDefinition {
 	for _, command := range commands {
 		if command.Name == name {
 			return command
@@ -173,7 +166,7 @@ func (a autoCompleteHandler) findCommand(name string, commands []*cli.Command) *
 	return nil
 }
 
-func (a autoCompleteHandler) searchCommands(word string, commands []*cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) searchCommands(word string, commands []*CommandDefinition, exclude []string) []string {
 	result := []string{}
 	for _, command := range commands {
 		if strings.HasPrefix(command.Name, word) {
@@ -188,22 +181,16 @@ func (a autoCompleteHandler) searchCommands(word string, commands []*cli.Command
 	return a.removeDuplicates(a.removeExcluded(result, exclude))
 }
 
-func (a autoCompleteHandler) searchFlags(word string, command *cli.Command, exclude []string) []string {
+func (a autoCompleteHandler) searchFlags(word string, command *CommandDefinition, exclude []string) []string {
 	result := []string{}
 	for _, flag := range command.Flags {
-		flagNames := flag.Names()
-		for _, flagName := range flagNames {
-			if strings.HasPrefix(flagName, word) {
-				result = append(result, "--"+flagName)
-			}
+		if strings.HasPrefix(flag.Name, word) {
+			result = append(result, "--"+flag.Name)
 		}
 	}
 	for _, flag := range command.Flags {
-		flagNames := flag.Names()
-		for _, flagName := range flagNames {
-			if strings.Contains(flagName, word) {
-				result = append(result, "--"+flagName)
-			}
+		if strings.Contains(flag.Name, word) {
+			result = append(result, "--"+flag.Name)
 		}
 	}
 	return a.removeDuplicates(a.removeExcluded(result, exclude))

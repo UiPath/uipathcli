@@ -17,63 +17,7 @@ import (
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/utils"
-	"github.com/urfave/cli/v2"
 )
-
-const FromStdIn = "-"
-
-const insecureFlagName = "insecure"
-const debugFlagName = "debug"
-const profileFlagName = "profile"
-const uriFlagName = "uri"
-const identityUriFlagName = "identity-uri"
-const organizationFlagName = "organization"
-const tenantFlagName = "tenant"
-const helpFlagName = "help"
-const outputFormatFlagName = "output"
-const queryFlagName = "query"
-const waitFlagName = "wait"
-const waitTimeoutFlagName = "wait-timeout"
-const versionFlagName = "version"
-const fileFlagName = "file"
-
-var predefinedFlags = []string{
-	insecureFlagName,
-	debugFlagName,
-	profileFlagName,
-	uriFlagName,
-	identityUriFlagName,
-	organizationFlagName,
-	tenantFlagName,
-	helpFlagName,
-	outputFormatFlagName,
-	queryFlagName,
-	waitFlagName,
-	waitTimeoutFlagName,
-	versionFlagName,
-	fileFlagName,
-}
-
-const outputFormatJson = "json"
-const outputFormatText = "text"
-
-const subcommandHelpTemplate = `NAME:
-   {{template "helpNameTemplate" .}}
-
-USAGE:
-   {{if .UsageText}}{{wrap .UsageText 3}}{{else}}{{.HelpName}}{{if .VisibleFlags}} [command options]{{end}}{{if .ArgsUsage}}{{.ArgsUsage}}{{else}} [arguments...]{{end}}{{end}}{{if .Description}}
-
-DESCRIPTION:
-   {{template "descriptionTemplate" .}}{{end}}{{if .VisibleCommands}}
-
-COMMANDS:{{template "visibleCommandTemplate" .}}{{end}}{{if .VisibleFlagCategories}}
-
-OPTIONS:{{template "visibleFlagCategoryTemplate" .}}{{else if .VisibleFlags}}
-
-OPTIONS:{{range $i, $e := .VisibleFlags}}
-   --{{$e.Name}} {{wrap $e.Usage 6}}
-{{end}}{{end}}
-`
 
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
@@ -87,29 +31,29 @@ type CommandBuilder struct {
 	DefinitionProvider DefinitionProvider
 }
 
-func (b CommandBuilder) sort(commands []*cli.Command) {
+func (b CommandBuilder) sort(commands []*CommandDefinition) {
 	sort.Slice(commands, func(i, j int) bool {
 		return commands[i].Name < commands[j].Name
 	})
 }
 
-func (b CommandBuilder) fileInput(context *cli.Context, parameters []parser.Parameter) utils.Stream {
-	value := context.String(fileFlagName)
+func (b CommandBuilder) fileInput(context *CommandExecContext, parameters []parser.Parameter) utils.Stream {
+	value := context.String(FlagNameFile)
 	if value == "" {
 		return nil
 	}
-	if value == FromStdIn {
+	if value == FlagValueFromStdIn {
 		return b.Input
 	}
 	for _, param := range parameters {
-		if strings.EqualFold(param.FieldName, fileFlagName) {
+		if strings.EqualFold(param.FieldName, FlagNameFile) {
 			return nil
 		}
 	}
 	return utils.NewFileStream(value)
 }
 
-func (b CommandBuilder) createExecutionParameters(context *cli.Context, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
+func (b CommandBuilder) createExecutionParameters(context *CommandExecContext, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
 	typeConverter := newTypeConverter()
 
 	parameters := []executor.ExecutionParameter{}
@@ -163,23 +107,16 @@ func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
 	return result
 }
 
-func (b CommandBuilder) createFlags(parameters []parser.Parameter) []cli.Flag {
-	flags := []cli.Flag{}
+func (b CommandBuilder) createFlags(parameters []parser.Parameter) []*FlagDefinition {
+	flags := []*FlagDefinition{}
 	for _, parameter := range parameters {
 		formatter := newParameterFormatter(parameter)
+		flagType := FlagTypeString
 		if parameter.IsArray() {
-			flag := cli.StringSliceFlag{
-				Name:  parameter.Name,
-				Usage: formatter.Description(),
-			}
-			flags = append(flags, &flag)
-		} else {
-			flag := cli.StringFlag{
-				Name:  parameter.Name,
-				Usage: formatter.Description(),
-			}
-			flags = append(flags, &flag)
+			flagType = FlagTypeStringArray
 		}
+		flag := NewFlag(parameter.Name, formatter.Description(), flagType)
+		flags = append(flags, flag)
 	}
 	return flags
 }
@@ -196,21 +133,21 @@ func (b CommandBuilder) sortParameters(parameters []parser.Parameter) {
 	})
 }
 
-func (b CommandBuilder) outputFormat(config config.Config, context *cli.Context) (string, error) {
-	outputFormat := context.String(outputFormatFlagName)
+func (b CommandBuilder) outputFormat(config config.Config, context *CommandExecContext) (string, error) {
+	outputFormat := context.String(FlagNameOutputFormat)
 	if outputFormat == "" {
 		outputFormat = config.Output
 	}
 	if outputFormat == "" {
-		outputFormat = outputFormatJson
+		outputFormat = FlagValueOutputFormatJson
 	}
-	if outputFormat != outputFormatJson && outputFormat != outputFormatText {
-		return "", fmt.Errorf("Invalid output format '%s', allowed values: %s, %s", outputFormat, outputFormatJson, outputFormatText)
+	if outputFormat != FlagValueOutputFormatJson && outputFormat != FlagValueOutputFormatText {
+		return "", fmt.Errorf("Invalid output format '%s', allowed values: %s, %s", outputFormat, FlagValueOutputFormatJson, FlagValueOutputFormatText)
 	}
 	return outputFormat, nil
 }
 
-func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.Config, context *cli.Context) (url.URL, error) {
+func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.Config, context *CommandExecContext) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
 		return operation.BaseUri, err
@@ -222,12 +159,12 @@ func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.
 	return builder.Uri(), nil
 }
 
-func (b CommandBuilder) createIdentityUri(context *cli.Context, config config.Config, baseUri url.URL) (*url.URL, error) {
-	uri := context.String(identityUriFlagName)
+func (b CommandBuilder) createIdentityUri(context *CommandExecContext, config config.Config, baseUri url.URL) (*url.URL, error) {
+	uri := context.String(FlagNameIdentityUri)
 	if uri != "" {
 		identityUri, err := url.Parse(uri)
 		if err != nil {
-			return nil, fmt.Errorf("Error parsing %s argument: %w", identityUriFlagName, err)
+			return nil, fmt.Errorf("Error parsing %s argument: %w", FlagNameIdentityUri, err)
 		}
 		return identityUri, nil
 	}
@@ -248,19 +185,19 @@ func (b CommandBuilder) createIdentityUri(context *cli.Context, config config.Co
 	return identityUri, nil
 }
 
-func (b CommandBuilder) parseUriArgument(context *cli.Context) (*url.URL, error) {
-	uriFlag := context.String(uriFlagName)
+func (b CommandBuilder) parseUriArgument(context *CommandExecContext) (*url.URL, error) {
+	uriFlag := context.String(FlagNameUri)
 	if uriFlag == "" {
 		return nil, nil
 	}
 	uriArgument, err := url.Parse(uriFlag)
 	if err != nil {
-		return nil, fmt.Errorf("Error parsing %s argument: %w", uriFlagName, err)
+		return nil, fmt.Errorf("Error parsing %s argument: %w", FlagNameUri, err)
 	}
 	return uriArgument, nil
 }
 
-func (b CommandBuilder) getValue(parameter parser.Parameter, context *cli.Context, config config.Config) string {
+func (b CommandBuilder) getValue(parameter parser.Parameter, context *CommandExecContext, config config.Config) string {
 	value := context.String(parameter.Name)
 	if value != "" {
 		return value
@@ -279,7 +216,7 @@ func (b CommandBuilder) getValue(parameter parser.Parameter, context *cli.Contex
 	return ""
 }
 
-func (b CommandBuilder) validateArguments(context *cli.Context, parameters []parser.Parameter, config config.Config) error {
+func (b CommandBuilder) validateArguments(context *CommandExecContext, parameters []parser.Parameter, config config.Config) error {
 	err := errors.New("Invalid arguments:")
 	result := true
 	for _, parameter := range parameters {
@@ -321,7 +258,7 @@ func (b CommandBuilder) outputWriter(writer io.Writer, format string, query stri
 	if query != "" {
 		transformer = output.NewJmesPathTransformer(query)
 	}
-	if format == outputFormatText {
+	if format == FlagValueOutputFormatText {
 		return output.NewTextOutputWriter(writer, transformer)
 	}
 	return output.NewJsonOutputWriter(writer, transformer)
@@ -334,23 +271,22 @@ func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer
 	return b.Executor.Call(context, writer, logger)
 }
 
-func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.Command {
+func (b CommandBuilder) createOperationCommand(operation parser.Operation) *CommandDefinition {
 	parameters := operation.Parameters
 	b.sortParameters(parameters)
 
-	flagBuilder := newFlagBuilder()
-	flagBuilder.AddFlags(b.createFlags(parameters))
-	flagBuilder.AddFlags(b.CreateDefaultFlags(true))
-	flagBuilder.AddFlag(b.HelpFlag())
+	flags := NewFlagBuilder().
+		AddFlags(b.createFlags(parameters)).
+		AddDefaultFlags(true).
+		AddHelpFlag().
+		Build()
 
-	return &cli.Command{
-		Name:               operation.Name,
-		Usage:              operation.Summary,
-		Description:        operation.Description,
-		Flags:              flagBuilder.ToList(),
-		CustomHelpTemplate: subcommandHelpTemplate,
-		Action: func(context *cli.Context) error {
-			profileName := context.String(profileFlagName)
+	return NewCommand(operation.Name, operation.Summary, operation.Description).
+		WithFlags(flags).
+		WithHelpTemplate(OperationCommandHelpTemplate).
+		WithHidden(operation.Hidden).
+		WithAction(func(context *CommandExecContext) error {
+			profileName := context.String(FlagNameProfile)
 			config := b.ConfigProvider.Config(profileName)
 			if config == nil {
 				return fmt.Errorf("Could not find profile '%s'", profileName)
@@ -359,9 +295,9 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 			if err != nil {
 				return err
 			}
-			query := context.String(queryFlagName)
-			wait := context.String(waitFlagName)
-			waitTimeout := context.Int(waitTimeoutFlagName)
+			query := context.String(FlagNameQuery)
+			wait := context.String(FlagNameWait)
+			waitTimeout := context.Int(FlagNameWaitTimeout)
 
 			baseUri, err := b.createBaseUri(operation, *config, context)
 			if err != nil {
@@ -381,16 +317,16 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return err
 			}
 
-			organization := context.String(organizationFlagName)
+			organization := context.String(FlagNameOrganization)
 			if organization == "" {
 				organization = config.Organization
 			}
-			tenant := context.String(tenantFlagName)
+			tenant := context.String(FlagNameTenant)
 			if tenant == "" {
 				tenant = config.Tenant
 			}
-			insecure := context.Bool(insecureFlagName) || config.Insecure
-			debug := context.Bool(debugFlagName) || config.Debug
+			insecure := context.Bool(FlagNameInsecure) || config.Insecure
+			debug := context.Bool(FlagNameDebug) || config.Debug
 			identityUri, err := b.createIdentityUri(context, *config, baseUri)
 			if err != nil {
 				return err
@@ -415,10 +351,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *cli.
 				return b.executeWait(*executionContext, outputFormat, query, wait, waitTimeout)
 			}
 			return b.execute(*executionContext, outputFormat, query, nil)
-		},
-		HideHelp: true,
-		Hidden:   operation.Hidden,
-	}
+		})
 }
 
 func (b CommandBuilder) executeWait(executionContext executor.ExecutionContext, outputFormat string, query string, wait string, waitTimeout int) error {
@@ -495,20 +428,17 @@ func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outp
 	return err
 }
 
-func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *cli.Command {
-	return &cli.Command{
-		Name:        operation.Category.Name,
-		Usage:       operation.Category.Summary,
-		Description: operation.Category.Description,
-		Flags: []cli.Flag{
-			b.HelpFlag(),
-			b.VersionFlag(true),
-		},
-		HideHelp: true,
-	}
+func (b CommandBuilder) createCategoryCommand(operation parser.Operation) *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		AddVersionFlag(true).
+		Build()
+
+	return NewCommand(operation.Category.Name, operation.Category.Summary, operation.Category.Description).
+		WithFlags(flags)
 }
 
-func (b CommandBuilder) createServiceCommandCategory(operation parser.Operation, categories map[string]*cli.Command) (bool, *cli.Command) {
+func (b CommandBuilder) createServiceCommandCategory(operation parser.Operation, categories map[string]*CommandDefinition) (bool, *CommandDefinition) {
 	isNewCategory := false
 	operationCommand := b.createOperationCommand(operation)
 	command, found := categories[operation.Category.Name]
@@ -521,9 +451,9 @@ func (b CommandBuilder) createServiceCommandCategory(operation parser.Operation,
 	return isNewCategory, command
 }
 
-func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.Command {
-	categories := map[string]*cli.Command{}
-	commands := []*cli.Command{}
+func (b CommandBuilder) createServiceCommand(definition parser.Definition) *CommandDefinition {
+	categories := map[string]*CommandDefinition{}
+	commands := []*CommandDefinition{}
 	for _, operation := range definition.Operations {
 		if operation.Category == nil {
 			command := b.createOperationCommand(operation)
@@ -540,42 +470,31 @@ func (b CommandBuilder) createServiceCommand(definition parser.Definition) *cli.
 		b.sort(command.Subcommands)
 	}
 
-	return &cli.Command{
-		Name:        definition.Name,
-		Usage:       definition.Summary,
-		Description: definition.Description,
-		Flags: []cli.Flag{
-			b.HelpFlag(),
-			b.VersionFlag(true),
-		},
-		Subcommands: commands,
-		HideHelp:    true,
-	}
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		AddVersionFlag(true).
+		Build()
+
+	return NewCommand(definition.Name, definition.Summary, definition.Description).
+		WithFlags(flags).
+		WithSubcommands(commands)
 }
 
-func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
+func (b CommandBuilder) createAutoCompleteEnableCommand() *CommandDefinition {
 	const shellFlagName = "shell"
-	const powershellFlagValue = "powershell"
-	const bashFlagValue = "bash"
 	const fileFlagName = "file"
 
-	return &cli.Command{
-		Name:        "enable",
-		Usage:       "Enable auto complete",
-		Description: "Enables auto complete in your shell",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     shellFlagName,
-				Usage:    fmt.Sprintf("%s, %s", powershellFlagValue, bashFlagValue),
-				Required: true,
-			},
-			&cli.StringFlag{
-				Name:   fileFlagName,
-				Hidden: true,
-			},
-			b.HelpFlag(),
-		},
-		Action: func(context *cli.Context) error {
+	flags := NewFlagBuilder().
+		AddFlag(NewFlag(shellFlagName, fmt.Sprintf("%s, %s", AutocompletePowershell, AutocompleteBash), FlagTypeString).
+			WithRequired(true)).
+		AddFlag(NewFlag(fileFlagName, "The profile file path", FlagTypeString).
+			WithHidden(true)).
+		AddHelpFlag().
+		Build()
+
+	return NewCommand("enable", "Enable auto complete", "Enables auto complete in your shell").
+		WithFlags(flags).
+		WithAction(func(context *CommandExecContext) error {
 			shell := context.String(shellFlagName)
 			filePath := context.String(fileFlagName)
 			handler := newAutoCompleteHandler()
@@ -585,28 +504,24 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *cli.Command {
 			}
 			fmt.Fprintln(b.StdOut, output)
 			return nil
-		},
-		HideHelp: true,
-	}
+		})
 }
 
-func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *cli.Command {
-	return &cli.Command{
-		Name:        "complete",
-		Usage:       "Autocomplete suggestions",
-		Description: "Returns the autocomplete suggestions",
-		Flags: []cli.Flag{
-			&cli.StringFlag{
-				Name:     "command",
-				Usage:    "The command to autocomplete",
-				Required: true,
-			},
-			b.HelpFlag(),
-		},
-		Action: func(context *cli.Context) error {
-			commandText := context.String("command")
+func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *CommandDefinition {
+	const commandFlagName = "command"
+
+	flags := NewFlagBuilder().
+		AddFlag(NewFlag(commandFlagName, "The command to autocomplete", FlagTypeString).
+			WithRequired(true)).
+		AddHelpFlag().
+		Build()
+
+	return NewCommand("complete", "Autocomplete suggestions", "Returns the autocomplete suggestions").
+		WithFlags(flags).
+		WithAction(func(context *CommandExecContext) error {
+			commandText := context.String(commandFlagName)
 			exclude := []string{}
-			for _, flagName := range predefinedFlags {
+			for _, flagName := range FlagNamesPredefined {
 				exclude = append(exclude, "--"+flagName)
 			}
 			args := strings.Split(commandText, " ")
@@ -615,103 +530,82 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(version string) *cli.C
 				return err
 			}
 			commands := b.createServiceCommands(definitions)
+			command := NewCommand("uipath", "", "").
+				WithSubcommands(commands)
 			handler := newAutoCompleteHandler()
-			words := handler.Find(commandText, commands, exclude)
+			words := handler.Find(commandText, command, exclude)
 			for _, word := range words {
 				fmt.Fprintln(b.StdOut, word)
 			}
 			return nil
-		},
-		HideHelp: true,
-	}
+		})
 }
 
-func (b CommandBuilder) createAutoCompleteCommand(version string) *cli.Command {
-	return &cli.Command{
-		Name:        "autocomplete",
-		Usage:       "Autocompletion",
-		Description: "Commands for autocompletion",
-		Flags: []cli.Flag{
-			b.HelpFlag(),
-		},
-		Subcommands: []*cli.Command{
-			b.createAutoCompleteEnableCommand(),
-			b.createAutoCompleteCompleteCommand(version),
-		},
-		HideHelp: true,
+func (b CommandBuilder) createAutoCompleteCommand(version string) *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
+
+	subcommands := []*CommandDefinition{
+		b.createAutoCompleteEnableCommand(),
+		b.createAutoCompleteCompleteCommand(version),
 	}
+
+	return NewCommand("autocomplete", "Autocompletion", "Commands for autocompletion").
+		WithFlags(flags).
+		WithSubcommands(subcommands)
 }
 
-func (b CommandBuilder) createConfigCommand() *cli.Command {
-	authFlagName := "auth"
-	flags := []cli.Flag{
-		&cli.StringFlag{
-			Name:  authFlagName,
-			Usage: fmt.Sprintf("Authorization type: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth),
-		},
-		&cli.StringFlag{
-			Name:    profileFlagName,
-			Usage:   "Profile to configure",
-			EnvVars: []string{"UIPATH_PROFILE"},
-			Value:   config.DefaultProfile,
-		},
-		b.HelpFlag(),
+func (b CommandBuilder) createConfigCommand() *CommandDefinition {
+	const flagNameAuth = "auth"
+
+	flags := NewFlagBuilder().
+		AddFlag(NewFlag(flagNameAuth, fmt.Sprintf("Authorization type: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth), FlagTypeString)).
+		AddFlag(NewFlag(FlagNameProfile, "Profile to configure", FlagTypeString).
+			WithEnvVarName("UIPATH_PROFILE").
+			WithDefaultValue(config.DefaultProfile)).
+		AddHelpFlag().
+		Build()
+
+	subcommands := []*CommandDefinition{
+		b.createConfigSetCommand(),
 	}
 
-	return &cli.Command{
-		Name:        "config",
-		Usage:       "Interactive Configuration",
-		Description: "Interactive command to configure the CLI",
-		Flags:       flags,
-		Subcommands: []*cli.Command{
-			b.createConfigSetCommand(),
-		},
-		Action: func(context *cli.Context) error {
-			auth := context.String(authFlagName)
-			profileName := context.String(profileFlagName)
+	return NewCommand("config", "Interactive Configuration", "Interactive command to configure the CLI").
+		WithFlags(flags).
+		WithSubcommands(subcommands).
+		WithAction(func(context *CommandExecContext) error {
+			auth := context.String(flagNameAuth)
+			profileName := context.String(FlagNameProfile)
 			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Configure(auth, profileName)
-		},
-		HideHelp: true,
-	}
+		})
 }
 
-func (b CommandBuilder) createConfigSetCommand() *cli.Command {
-	keyFlagName := "key"
-	valueFlagName := "value"
-	flags := []cli.Flag{
-		&cli.StringFlag{
-			Name:     keyFlagName,
-			Usage:    "The key",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:     valueFlagName,
-			Usage:    "The value to set",
-			Required: true,
-		},
-		&cli.StringFlag{
-			Name:    profileFlagName,
-			Usage:   "Profile to configure",
-			EnvVars: []string{"UIPATH_PROFILE"},
-			Value:   config.DefaultProfile,
-		},
-		b.HelpFlag(),
-	}
-	return &cli.Command{
-		Name:        "set",
-		Usage:       "Set config parameters",
-		Description: "Set config parameters",
-		Flags:       flags,
-		Action: func(context *cli.Context) error {
-			profileName := context.String(profileFlagName)
-			key := context.String(keyFlagName)
-			value := context.String(valueFlagName)
+func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
+	const flagNameKey = "key"
+	const flagNameValue = "value"
+
+	flags := NewFlagBuilder().
+		AddFlag(NewFlag(flagNameKey, "The key", FlagTypeString).
+			WithRequired(true)).
+		AddFlag(NewFlag(flagNameValue, "The value to set", FlagTypeString).
+			WithRequired(true)).
+		AddFlag(NewFlag(FlagNameProfile, "Profile to configure", FlagTypeString).
+			WithEnvVarName("UIPATH_PROFILE").
+			WithDefaultValue(config.DefaultProfile)).
+		AddHelpFlag().
+		Build()
+
+	return NewCommand("set", "Set config parameters", "Set config parameters").
+		WithFlags(flags).
+		WithAction(func(context *CommandExecContext) error {
+			profileName := context.String(FlagNameProfile)
+			key := context.String(flagNameKey)
+			value := context.String(flagNameValue)
 			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
-		},
-		HideHelp: true,
-	}
+		})
 }
 
 func (b CommandBuilder) loadDefinitions(args []string, version string) ([]parser.Definition, error) {
@@ -753,47 +647,47 @@ func (b CommandBuilder) loadAutocompleteDefinitions(args []string, version strin
 	return b.loadDefinitions(args, version)
 }
 
-func (b CommandBuilder) createShowCommand(definitions []parser.Definition) *cli.Command {
-	return &cli.Command{
-		Name:        "commands",
-		Usage:       "Inspect available CLI operations",
-		Description: "Command to inspect available uipath CLI operations",
-		Flags: []cli.Flag{
-			b.HelpFlag(),
-		},
-		Subcommands: []*cli.Command{
-			{
-				Name:        "show",
-				Usage:       "Print CLI commands",
-				Description: "Print available uipath CLI commands",
-				Flags: []cli.Flag{
-					b.HelpFlag(),
-				},
-				Action: func(context *cli.Context) error {
-					flagBuilder := newFlagBuilder()
-					flagBuilder.AddFlags(b.CreateDefaultFlags(false))
-					flagBuilder.AddFlag(b.HelpFlag())
-					flags := flagBuilder.ToList()
+func (b CommandBuilder) createShowCommand(definitions []parser.Definition) *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
 
-					handler := newShowCommandHandler()
-					output, err := handler.Execute(definitions, flags)
-					if err != nil {
-						return err
-					}
-					fmt.Fprintln(b.StdOut, output)
-					return nil
-				},
-				HideHelp: true,
-				Hidden:   true,
-			},
-		},
-		HideHelp: true,
-		Hidden:   true,
-	}
+	return NewCommand("show", "Print CLI commands", "Print available uipath CLI commands").
+		WithFlags(flags).
+		WithHidden(true).
+		WithAction(func(context *CommandExecContext) error {
+			defaultFlags := NewFlagBuilder().
+				AddDefaultFlags(false).
+				AddHelpFlag().
+				Build()
+
+			handler := newShowCommandHandler()
+			output, err := handler.Execute(definitions, defaultFlags)
+			if err != nil {
+				return err
+			}
+			fmt.Fprintln(b.StdOut, output)
+			return nil
+		})
 }
 
-func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) []*cli.Command {
-	commands := []*cli.Command{}
+func (b CommandBuilder) createInspectCommand(definitions []parser.Definition) *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
+
+	subcommands := []*CommandDefinition{
+		b.createShowCommand(definitions),
+	}
+
+	return NewCommand("commands", "Inspect available CLI operations", "Command to inspect available uipath CLI operations").
+		WithFlags(flags).
+		WithSubcommands(subcommands).
+		WithHidden(true)
+}
+
+func (b CommandBuilder) createServiceCommands(definitions []parser.Definition) []*CommandDefinition {
+	commands := []*CommandDefinition{}
 	for _, e := range definitions {
 		command := b.createServiceCommand(e)
 		commands = append(commands, command)
@@ -820,9 +714,9 @@ func (b CommandBuilder) versionFromProfile(profile string) string {
 	return config.Version
 }
 
-func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
-	version := b.parseArgument(args, versionFlagName)
-	profile := b.parseArgument(args, profileFlagName)
+func (b CommandBuilder) Create(args []string) ([]*CommandDefinition, error) {
+	version := b.parseArgument(args, FlagNameVersion)
+	profile := b.parseArgument(args, FlagNameProfile)
 	if version == "" && profile != "" {
 		version = b.versionFromProfile(profile)
 	}
@@ -833,108 +727,7 @@ func (b CommandBuilder) Create(args []string) ([]*cli.Command, error) {
 	servicesCommands := b.createServiceCommands(definitions)
 	autocompleteCommand := b.createAutoCompleteCommand(version)
 	configCommand := b.createConfigCommand()
-	showCommand := b.createShowCommand(definitions)
-	commands := append(servicesCommands, autocompleteCommand, configCommand, showCommand)
+	inspectCommand := b.createInspectCommand(definitions)
+	commands := append(servicesCommands, autocompleteCommand, configCommand, inspectCommand)
 	return commands, nil
-}
-
-func (b CommandBuilder) CreateDefaultFlags(hidden bool) []cli.Flag {
-	return []cli.Flag{
-		&cli.BoolFlag{
-			Name:    debugFlagName,
-			Usage:   "Enable debug output",
-			EnvVars: []string{"UIPATH_DEBUG"},
-			Value:   false,
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:    profileFlagName,
-			Usage:   "Config profile to use",
-			EnvVars: []string{"UIPATH_PROFILE"},
-			Value:   config.DefaultProfile,
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:    uriFlagName,
-			Usage:   "Server Base-URI",
-			EnvVars: []string{"UIPATH_URI"},
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:    organizationFlagName,
-			Usage:   "Organization name",
-			EnvVars: []string{"UIPATH_ORGANIZATION"},
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:    tenantFlagName,
-			Usage:   "Tenant name",
-			EnvVars: []string{"UIPATH_TENANT"},
-			Hidden:  hidden,
-		},
-		&cli.BoolFlag{
-			Name:    insecureFlagName,
-			Usage:   "Disable HTTPS certificate check",
-			EnvVars: []string{"UIPATH_INSECURE"},
-			Value:   false,
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:    outputFormatFlagName,
-			Usage:   fmt.Sprintf("Set output format: %s (default), %s", outputFormatJson, outputFormatText),
-			EnvVars: []string{"UIPATH_OUTPUT"},
-			Value:   "",
-			Hidden:  hidden,
-		},
-		&cli.StringFlag{
-			Name:   queryFlagName,
-			Usage:  "Perform JMESPath query on output",
-			Value:  "",
-			Hidden: hidden,
-		},
-		&cli.StringFlag{
-			Name:   waitFlagName,
-			Usage:  "Waits for the provided condition (JMESPath expression)",
-			Value:  "",
-			Hidden: hidden,
-		},
-		&cli.IntFlag{
-			Name:   waitTimeoutFlagName,
-			Usage:  "Time to wait in seconds for condition",
-			Value:  30,
-			Hidden: hidden,
-		},
-		&cli.StringFlag{
-			Name:   fileFlagName,
-			Usage:  "Provide input from file (use - for stdin)",
-			Value:  "",
-			Hidden: hidden,
-		},
-		&cli.StringFlag{
-			Name:    identityUriFlagName,
-			Usage:   "Identity Server URI",
-			EnvVars: []string{"UIPATH_IDENTITY_URI"},
-			Hidden:  hidden,
-		},
-		b.VersionFlag(hidden),
-	}
-}
-
-func (b CommandBuilder) VersionFlag(hidden bool) cli.Flag {
-	return &cli.StringFlag{
-		Name:    versionFlagName,
-		Usage:   "Specific service version",
-		EnvVars: []string{"UIPATH_VERSION"},
-		Value:   "",
-		Hidden:  hidden,
-	}
-}
-
-func (b CommandBuilder) HelpFlag() cli.Flag {
-	return &cli.BoolFlag{
-		Name:   helpFlagName,
-		Usage:  "Show help",
-		Value:  false,
-		Hidden: true,
-	}
 }
