@@ -1379,7 +1379,7 @@ paths:
 		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
 		Build()
 
-	result := RunCli([]string{"--version", "2.0", "--help"}, context)
+	result := RunCli([]string{"--service-version", "2.0", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "myversionedservice") {
 		t.Errorf("Could not find versioned service definition, but got: %v", result.StdOut)
@@ -1435,7 +1435,7 @@ paths:
 		WithDefinitionVersion("myversionedservice", "2.0", definition2_0).
 		Build()
 
-	result := RunCli([]string{"myversionedservice", "--version", "2.0", "--help"}, context)
+	result := RunCli([]string{"myversionedservice", "--service-version", "2.0", "--help"}, context)
 
 	if !strings.Contains(result.StdOut, "ping-v2") {
 		t.Errorf("Could not find versioned service operation, but got: %v", result.StdOut)

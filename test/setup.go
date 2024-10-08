@@ -41,8 +41,8 @@ func (b *ContextBuilder) WithDefinition(name string, data string) *ContextBuilde
 	return b
 }
 
-func (b *ContextBuilder) WithDefinitionVersion(name string, version string, data string) *ContextBuilder {
-	definitionData := commandline.NewDefinitionData(name, version, []byte(data))
+func (b *ContextBuilder) WithDefinitionVersion(name string, serviceVersion string, data string) *ContextBuilder {
+	definitionData := commandline.NewDefinitionData(name, serviceVersion, []byte(data))
 	b.context.Definitions = append(b.context.Definitions, *definitionData)
 	return b
 }

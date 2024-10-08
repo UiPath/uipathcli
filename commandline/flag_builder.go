@@ -18,7 +18,7 @@ const FlagNameWait = "wait"
 const FlagNameWaitTimeout = "wait-timeout"
 const FlagNameFile = "file"
 const FlagNameIdentityUri = "identity-uri"
-const FlagNameVersion = "version"
+const FlagNameServiceVersion = "service-version"
 const FlagNameHelp = "help"
 
 const FlagValueFromStdIn = "-"
@@ -38,7 +38,7 @@ var FlagNamesPredefined = []string{
 	FlagNameWaitTimeout,
 	FlagNameFile,
 	FlagNameIdentityUri,
-	FlagNameVersion,
+	FlagNameServiceVersion,
 	FlagNameHelp,
 }
 
@@ -75,8 +75,8 @@ func (b *FlagBuilder) AddHelpFlag() *FlagBuilder {
 	return b
 }
 
-func (b *FlagBuilder) AddVersionFlag(hidden bool) *FlagBuilder {
-	b.AddFlag(b.versionFlag(hidden))
+func (b *FlagBuilder) AddServiceVersionFlag(hidden bool) *FlagBuilder {
+	b.AddFlag(b.serviceVersionFlag(hidden))
 	return b
 }
 
@@ -130,13 +130,13 @@ func (b FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 		NewFlag(FlagNameIdentityUri, "Identity Server URI", FlagTypeString).
 			WithEnvVarName("UIPATH_IDENTITY_URI").
 			WithHidden(hidden),
-		b.versionFlag(hidden),
+		b.serviceVersionFlag(hidden),
 	}
 }
 
-func (b FlagBuilder) versionFlag(hidden bool) *FlagDefinition {
-	return NewFlag(FlagNameVersion, "Specific service version", FlagTypeString).
-		WithEnvVarName("UIPATH_VERSION").
+func (b FlagBuilder) serviceVersionFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameServiceVersion, "Specific service version", FlagTypeString).
+		WithEnvVarName("UIPATH_SERVICE_VERSION").
 		WithDefaultValue("").
 		WithHidden(hidden)
 }

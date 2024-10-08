@@ -320,13 +320,13 @@ func TestConfigSetAuthProperties(t *testing.T) {
 	}
 }
 
-func TestConfigSetVersion(t *testing.T) {
+func TestConfigSetServiceVersion(t *testing.T) {
 	configFile := createFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
 
-	RunCli([]string{"config", "set", "--key", "version", "--value", "22.10"}, context)
+	RunCli([]string{"config", "set", "--key", "serviceVersion", "--value", "22.10"}, context)
 
 	config, err := os.ReadFile(configFile)
 	if err != nil {
@@ -334,7 +334,7 @@ func TestConfigSetVersion(t *testing.T) {
 	}
 	expectedConfig := `profiles:
 - name: default
-  version: "22.10"
+  serviceVersion: "22.10"
 `
 	if string(config) != expectedConfig {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))

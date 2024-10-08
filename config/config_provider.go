@@ -47,7 +47,7 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 	profile.Auth = config.Auth.Config
 	profile.Header = config.Header
 	profile.Parameter = config.Parameter
-	profile.Version = config.Version
+	profile.ServiceVersion = config.ServiceVersion
 
 	if index == -1 {
 		p.profiles = append(p.profiles, profile)
@@ -82,10 +82,10 @@ func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
 			Type:   fmt.Sprintf("%v", profile.Auth["type"]),
 			Config: profile.Auth,
 		},
-		Insecure: profile.Insecure,
-		Debug:    profile.Debug,
-		Output:   profile.Output,
-		Version:  profile.Version,
+		Insecure:       profile.Insecure,
+		Debug:          profile.Debug,
+		Output:         profile.Output,
+		ServiceVersion: profile.ServiceVersion,
 	}
 }
 
