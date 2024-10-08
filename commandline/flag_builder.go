@@ -20,6 +20,7 @@ const FlagNameFile = "file"
 const FlagNameIdentityUri = "identity-uri"
 const FlagNameServiceVersion = "service-version"
 const FlagNameHelp = "help"
+const FlagNameVersion = "version"
 
 const FlagValueFromStdIn = "-"
 const FlagValueOutputFormatJson = "json"
@@ -40,6 +41,7 @@ var FlagNamesPredefined = []string{
 	FlagNameIdentityUri,
 	FlagNameServiceVersion,
 	FlagNameHelp,
+	FlagNameVersion,
 }
 
 // The FlagBuilder can be used to prepare a list of flags for a CLI command.
@@ -72,6 +74,11 @@ func (b *FlagBuilder) AddDefaultFlags(hidden bool) *FlagBuilder {
 
 func (b *FlagBuilder) AddHelpFlag() *FlagBuilder {
 	b.AddFlag(b.helpFlag())
+	return b
+}
+
+func (b *FlagBuilder) AddVersionFlag() *FlagBuilder {
+	b.AddFlag(b.versionFlag())
 	return b
 }
 
@@ -132,6 +139,11 @@ func (b FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 			WithHidden(hidden),
 		b.serviceVersionFlag(hidden),
 	}
+}
+
+func (b FlagBuilder) versionFlag() *FlagDefinition {
+	return NewFlag(FlagNameVersion, "Display the build version", FlagTypeBoolean).
+		WithHidden(true)
 }
 
 func (b FlagBuilder) serviceVersionFlag(hidden bool) *FlagDefinition {
