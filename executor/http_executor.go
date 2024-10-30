@@ -175,7 +175,7 @@ func (e HttpExecutor) progressReader(text string, completedText string, reader i
 }
 
 func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) (string, int64) {
-	contentLength := e.calculateMultipartSize(parameters)
+	multipartSize := e.calculateMultipartSize(parameters)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
 		defer bodyWriter.Close()
@@ -186,7 +186,7 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 			return
 		}
 	}()
-	return formWriter.FormDataContentType(), contentLength
+	return formWriter.FormDataContentType(), multipartSize
 }
 
 func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) {
@@ -230,30 +230,31 @@ func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []Exec
 	}()
 }
 
-func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64) {
+func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64, int64) {
 	if context.Input != nil {
 		reader, writer := io.Pipe()
 		e.writeInputBody(writer, context.Input, errorChan)
-		return reader, context.ContentType, -1
+		contentLength, _ := context.Input.Size()
+		return reader, context.ContentType, contentLength, contentLength
 	}
 	formParameters := context.Parameters.Form()
 	if len(formParameters) > 0 {
 		reader, writer := io.Pipe()
-		contentType, contentLength := e.writeMultipartBody(writer, formParameters, errorChan)
-		return reader, contentType, contentLength
+		contentType, multipartSize := e.writeMultipartBody(writer, formParameters, errorChan)
+		return reader, contentType, -1, multipartSize
 	}
 	bodyParameters := context.Parameters.Body()
 	if len(bodyParameters) > 0 && context.ContentType == "application/x-www-form-urlencoded" {
 		reader, writer := io.Pipe()
 		e.writeUrlEncodedBody(writer, bodyParameters, errorChan)
-		return reader, context.ContentType, -1
+		return reader, context.ContentType, -1, -1
 	}
 	if len(bodyParameters) > 0 {
 		reader, writer := io.Pipe()
 		e.writeJsonBody(writer, bodyParameters, errorChan)
-		return reader, context.ContentType, -1
+		return reader, context.ContentType, -1, -1
 	}
-	return bytes.NewReader([]byte{}), context.ContentType, -1
+	return bytes.NewReader([]byte{}), context.ContentType, -1, -1
 }
 
 func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan chan error) (*http.Response, error) {
@@ -306,9 +307,9 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 		return err
 	}
 	requestError := make(chan error)
-	bodyReader, contentType, contentLength := e.writeBody(context, requestError)
+	bodyReader, contentType, contentLength, size := e.writeBody(context, requestError)
 	uploadBar := utils.NewProgressBar(logger)
-	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
+	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, size, uploadBar)
 	defer uploadBar.Remove()
 	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
 	if err != nil {
@@ -316,6 +317,9 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 	if contentType != "" {
 		request.Header.Add("Content-Type", contentType)
+	}
+	if contentLength != -1 {
+		request.ContentLength = contentLength
 	}
 	e.addHeaders(request, context.Parameters.Header())
 	auth, err := e.executeAuthenticators(context.AuthConfig, context.IdentityUri, context.Debug, context.Insecure, request)
