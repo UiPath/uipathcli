@@ -1260,6 +1260,10 @@ paths:
 	if contentType != "application/octet-stream" {
 		t.Errorf("Content-Type is not application/octet-stream, got: %v", contentType)
 	}
+	contentLength := result.RequestHeader["content-length"]
+	if contentLength != "11" {
+		t.Errorf("Content-Length is not 11, got: %v", contentLength)
+	}
 	if result.RequestBody != "hello-world" {
 		t.Errorf("Request body is not as expected, got: %v", result.RequestBody)
 	}
