@@ -18,7 +18,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
       responses:
         "200":
@@ -82,6 +82,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: projects
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}:
     get:
       tags:
@@ -96,7 +97,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -107,7 +108,7 @@ paths:
             default: 00000000-0000-0000-0000-000000000000
         - name: projectVersion
           in: query
-          description: Version of the Project.
+          description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
       responses:
         "200":
           description: OK
@@ -170,6 +171,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: project-by-id
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/document-types:
     get:
       tags:
@@ -184,7 +186,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -193,6 +195,9 @@ paths:
           schema:
             type: string
             default: 00000000-0000-0000-0000-000000000000
+        - name: projectVersion
+          in: query
+          description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
       responses:
         "200":
           description: OK
@@ -267,6 +272,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: document-types
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/document-types/{documentTypeId}:
     get:
       tags:
@@ -281,7 +287,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -299,7 +305,7 @@ paths:
             default: invoices
         - name: projectVersion
           in: query
-          description: Version of the Project.
+          description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
       responses:
         "200":
           description: OK
@@ -374,6 +380,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: document-type-by-id
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/classifiers:
     get:
       tags:
@@ -388,7 +395,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -399,7 +406,7 @@ paths:
             default: 00000000-0000-0000-0000-000000000000
         - name: projectVersion
           in: query
-          description: Version of the Project.
+          description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
       responses:
         "200":
           description: OK
@@ -474,6 +481,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: classifiers
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/classifiers/{classifierId}:
     get:
       tags:
@@ -488,7 +496,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -578,6 +586,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: classifier-by-id
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/extractors:
     get:
       tags:
@@ -592,7 +601,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -603,7 +612,7 @@ paths:
             default: 00000000-0000-0000-0000-000000000000
         - name: projectVersion
           in: query
-          description: Version of the Project.
+          description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
       responses:
         "200":
           description: OK
@@ -678,6 +687,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: extractors
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/extractors/{extractorId}:
     get:
       tags:
@@ -692,7 +702,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -794,6 +804,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: extractor-by-id
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/tags:
     get:
       tags:
@@ -808,7 +819,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -891,6 +902,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
       x-uipathcli-name: tags
+      x-uipath-scope: Du.Digitization.Api
   /projects/{projectId}/digitization/start:
     post:
       tags:
@@ -905,7 +917,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1041,7 +1053,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1154,7 +1166,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1178,11 +1190,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1194,11 +1206,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1210,11 +1222,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 01d7210a-c33f-4688-91c0-3807a63b0833
+                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1320,7 +1332,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1341,11 +1353,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1357,11 +1369,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1373,11 +1385,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 3d81558b-81b2-4978-9291-4a65b4af8442
+                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1483,7 +1495,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1507,11 +1519,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1523,11 +1535,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1539,11 +1551,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1de31e53-5f68-4e16-a1ac-9831ba324821
+                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1625,7 +1637,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1646,11 +1658,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1662,11 +1674,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1678,11 +1690,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b6f3bb35-677d-44e4-8f76-0cd1f313b9b2
+                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1764,7 +1776,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1872,7 +1884,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -1977,7 +1989,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2001,13 +2013,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2022,13 +2034,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2043,13 +2055,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 71c8db12-83ba-4ac2-9063-c5d8cd72c8e9
+                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2170,7 +2182,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2194,13 +2206,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2215,13 +2227,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2236,13 +2248,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 9ecbf874-62a5-4c8c-bdc2-16f60de52c24
+                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2327,7 +2339,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2352,13 +2364,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2373,13 +2385,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2394,13 +2406,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: e001ad91-5f30-44ad-9eed-a50b5bae1d86
+                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2521,7 +2533,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2546,13 +2558,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2567,13 +2579,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2588,13 +2600,13 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 7d38d17f-978f-4089-b086-02982bbb5fd9
+                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
@@ -2679,7 +2691,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2787,7 +2799,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2896,7 +2908,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -2922,7 +2934,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2946,7 +2958,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2957,7 +2969,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2985,7 +2997,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3000,7 +3012,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3024,7 +3036,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3035,7 +3047,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3063,7 +3075,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3078,7 +3090,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3102,7 +3114,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3113,7 +3125,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3141,7 +3153,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 1b856587-51b7-4f12-8af2-4c8351031f97
+                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3248,7 +3260,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -3271,7 +3283,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3295,7 +3307,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3306,7 +3318,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3334,7 +3346,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3349,7 +3361,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3373,7 +3385,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3384,7 +3396,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3412,7 +3424,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3427,7 +3439,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3451,7 +3463,7 @@ paths:
                         TextLength: 1
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3462,7 +3474,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3490,7 +3502,7 @@ paths:
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: ca5c3561-edf8-4a76-bfb2-14f6ac550e23
+                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3597,7 +3609,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -3717,7 +3729,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -3834,7 +3846,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -3859,7 +3871,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4033,7 +4045,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4043,7 +4055,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4217,13 +4229,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4237,7 +4255,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4411,7 +4429,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4421,7 +4439,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4595,13 +4613,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4615,7 +4639,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4789,7 +4813,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4799,7 +4823,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4973,13 +4997,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 062a7803-3f1b-4f55-bdf9-89252880938a
+                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5086,7 +5116,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -5112,7 +5142,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5286,7 +5316,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5296,7 +5326,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5470,13 +5500,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5490,7 +5526,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5664,7 +5700,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5674,7 +5710,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5848,13 +5884,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5868,7 +5910,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -6042,7 +6084,7 @@ paths:
                   prompts: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6052,7 +6094,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -6226,13 +6268,19 @@ paths:
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: null
+                      multiValued: null
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: null
+                      multiValued: null
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: null
+                      multiValued: null
                   fieldsValidationConfidence: null
                   allowChangeOfDocumentType: null
-                  documentId: 96e341ca-e579-42e7-b6aa-6bf883fe9255
+                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6339,7 +6387,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -6459,7 +6507,7 @@ paths:
           required: true
           schema:
             enum:
-              - "1"
+              - "1.0"
             type: string
         - name: projectId
           in: path
@@ -7454,6 +7502,9 @@ components:
           type: string
           format: date-time
           nullable: true
+        description:
+          type: string
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentType:
       type: object
@@ -7500,6 +7551,9 @@ components:
           format: int32
           nullable: true
         projectVersionName:
+          type: string
+          nullable: true
+        description:
           type: string
           nullable: true
       additionalProperties: false
@@ -7673,6 +7727,9 @@ components:
           items:
             $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ExtractorField'
           nullable: true
+        description:
+          type: string
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetExtractorsResponse:
       type: object
@@ -7775,11 +7832,18 @@ components:
           format: uri
           nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties:
+      enum:
+        - IsPredefined
+        - SupportsTags
+        - SupportsVersions
+      type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType:
       enum:
         - Classic
         - Modern
         - IXP
+        - Unknown
       type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus:
       enum:
@@ -7872,7 +7936,7 @@ components:
         prompts:
           type: array
           items:
-            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.ExtractionPrompt'
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractionPromptRequestBody'
           nullable: true
         configuration:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractRequestBodyConfiguration'
@@ -7890,6 +7954,20 @@ components:
       properties:
         extractionResult:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractionPromptRequestBody:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Id of the extracted field.
+          nullable: true
+          example: sum
+        question:
+          type: string
+          description: Question of the extracted field.
+          nullable: true
+          example: What is the sum?
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse:
       type: object
@@ -8186,7 +8264,21 @@ components:
         question:
           type: string
           nullable: true
+        fieldType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.GptFieldType'
+        multiValued:
+          type: boolean
+          nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.GptFieldType:
+      enum:
+        - Address
+        - Boolean
+        - Date
+        - Name
+        - Number
+        - Text
+      type: string
     UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel:
       type: object
       properties:
@@ -8313,7 +8405,7 @@ components:
       description: In order to enable access to the Cloud APIs you have to create an <A HREF="https://docs.uipath.com/document-understanding/automation-cloud/latest/api-guide/api-authentication">external application</A> with the desired scopes. After the external application is registered, you can use the App ID & App Secret in order to Authorize.
       flows:
         clientCredentials:
-          tokenUrl: https://alpha.uipath.com/identity_/connect/token
+          tokenUrl: https://cloud.uipath.com/identity_/connect/token
           scopes:
             Du.Digitization.Api: Digitization Api Scope
             Du.Classification.Api: Classification Api Scope
