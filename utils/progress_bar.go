@@ -14,6 +14,22 @@ import (
 type ProgressBar struct {
 	logger         log.Logger
 	renderedLength int
+	position       int
+}
+
+func (b *ProgressBar) Tick(text string) {
+	position := b.position + 1
+	if position > 100 {
+		position = 0
+	}
+	b.logger.LogError("\r")
+	length := b.renderTick(text, position)
+	left := b.renderedLength - length
+	if left > 0 {
+		b.logger.LogError(strings.Repeat(" ", left))
+	}
+	b.renderedLength = length
+	b.position = position
 }
 
 func (b *ProgressBar) Update(text string, current int64, total int64, bytesPerSecond int64) {
@@ -31,6 +47,16 @@ func (b *ProgressBar) Remove() {
 		clear := fmt.Sprintf("\r%s\r", strings.Repeat(" ", b.renderedLength))
 		b.logger.LogError(clear)
 	}
+}
+
+func (b ProgressBar) renderTick(text string, position int) int {
+	barCount := int(position / 5.0)
+	bar := strings.Repeat("█", barCount) + strings.Repeat(" ", 20-barCount)
+	output := fmt.Sprintf("%s      |%s|",
+		text,
+		bar)
+	b.logger.LogError(output)
+	return utf8.RuneCountInString(output)
 }
 
 func (b ProgressBar) render(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
@@ -80,5 +106,5 @@ func (b ProgressBar) formatBytesInUnit(count int64, unit string) (string, string
 }
 
 func NewProgressBar(logger log.Logger) *ProgressBar {
-	return &ProgressBar{logger, 0}
+	return &ProgressBar{logger, 0, 0}
 }

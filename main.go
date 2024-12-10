@@ -18,6 +18,7 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
+	plugin_studio "github.com/UiPath/uipathcli/plugin/studio"
 	"github.com/UiPath/uipathcli/utils"
 )
 
@@ -63,9 +64,10 @@ func main() {
 			commandline.NewDefinitionFileStore(os.Getenv("UIPATH_DEFINITIONS_PATH"), embedded),
 			parser.NewOpenApiParser(),
 			[]plugin.CommandPlugin{
-				plugin_digitizer.DigitizeCommand{},
-				plugin_orchestrator.UploadCommand{},
-				plugin_orchestrator.DownloadCommand{},
+				plugin_digitizer.NewDigitizeCommand(),
+				plugin_orchestrator.NewUploadCommand(),
+				plugin_orchestrator.NewDownloadCommand(),
+				plugin_studio.NewPackagePackCommand(),
 			},
 		),
 		*configProvider,

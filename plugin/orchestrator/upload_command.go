@@ -269,3 +269,7 @@ func (c UploadCommand) logResponse(logger log.Logger, response *http.Response, b
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }
+
+func NewUploadCommand() *UploadCommand {
+	return &UploadCommand{}
+}
