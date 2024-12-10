@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: 3.2.4
-  x-uipath-version: 3.2.4
+  version: 3.2.11
+  x-uipath-version: 3.2.11
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
@@ -1170,6 +1170,9 @@ components:
         externalId:
           type: string
           nullable: true
+        creationTime:
+          type: string
+          format: date-time
     GroupDto:
       type: object
       properties:

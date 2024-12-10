@@ -1356,6 +1356,7 @@ paths:
               - Manual
               - Scheduled
               - ExternalTool
+              - TestManager
             x-ms-enum:
               name: ExecutionTriggerType
               modelAsString: false
@@ -1363,6 +1364,7 @@ paths:
               - Manual
               - Scheduled
               - ExternalTool
+              - TestManager
           x-ms-enum:
             name: ExecutionTriggerType
             modelAsString: false
@@ -1370,6 +1372,7 @@ paths:
             - Manual
             - Scheduled
             - ExternalTool
+            - TestManager
         - name: X-UIPATH-OrganizationUnitId
           in: header
           description: Folder/OrganizationUnit Id
@@ -4222,7 +4225,7 @@ paths:
     get:
       tags:
         - BusinessRules
-      summary: Get Business Rule by id
+      summary: Get Business Rule by key
       description: |-
         OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
 
@@ -4233,8 +4236,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4279,8 +4282,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: X-UIPATH-OrganizationUnitId
           in: header
           description: Folder/OrganizationUnit Id
@@ -4327,8 +4330,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: X-UIPATH-OrganizationUnitId
           in: header
           description: Folder/OrganizationUnit Id
@@ -4413,80 +4416,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfBusinessRuleDto'
       security:
         - OAuth2: []
-  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetByKey(identifier={identifier}):
-    get:
-      tags:
-        - BusinessRules
-      summary: Get Business Rule by key
-      description: |-
-        OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
-
-        Required permissions: (BusinessRules.View).
-      operationId: BusinessRules_GetByKeyByIdentifier
-      parameters:
-        - name: identifier
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $filter
-          in: query
-          description: Restricts the set of items returned. The maximum number of expressions is 100.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-        - name: $orderby
-          in: query
-          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
-          schema:
-            type: string
-        - name: $top
-          in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
-          schema:
-            type: integer
-            format: int32
-        - name: $skip
-          in: query
-          description: Excludes the specified number of items of the queried collection from the result.
-          schema:
-            type: integer
-            format: int32
-        - name: $count
-          in: query
-          description: Indicates whether the total count of items within a collection are returned in the result.
-          schema:
-            type: boolean
-        - name: X-UIPATH-OrganizationUnitId
-          in: header
-          description: Folder/OrganizationUnit Id
-          schema:
-            type: integer
-            format: int64
-          x-uipathcli-name: folder-id
-          required: true
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BusinessRuleDto'
-        "404":
-          description: Business Rule not found
-          content: {}
-      security:
-        - OAuth2: []
   /odata/BusinessRules/UiPath.Server.Configuration.OData.GetFoldersForBusinessRule(id={id}):
     get:
       tags:
@@ -4502,8 +4431,8 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4556,7 +4485,7 @@ paths:
           schema:
             type: integer
             format: int32
-            default: 30
+            default: 0
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4587,7 +4516,7 @@ paths:
           content: {}
       security:
         - OAuth2: []
-  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetVersionList(name='{name}'):
+  /odata/BusinessRules/UiPath.Server.Configuration.OData.GetVersionList(id={id}):
     get:
       tags:
         - BusinessRules
@@ -4596,13 +4525,14 @@ paths:
         OAuth required scopes: OR.BusinessRules or OR.BusinessRules.Read.
 
         Required permissions: (BusinessRules.View).
-      operationId: BusinessRules_GetVersionListByName
+      operationId: BusinessRules_GetVersionListById
       parameters:
-        - name: name
+        - name: id
           in: path
           required: true
           schema:
             type: string
+            format: uuid
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -4768,7 +4698,7 @@ paths:
             type: string
         - name: $top
           in: query
-          description: Limits the number of items returned from a collection.
+          description: Limits the number of items returned from a collection. The maximum value is 1000.
           schema:
             type: integer
             format: int32
@@ -9014,6 +8944,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -9036,6 +8970,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
           x-ms-enum:
             name: RobotType
             modelAsString: false
@@ -9058,6 +8996,10 @@ paths:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -9210,6 +9152,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -9232,6 +9178,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
           x-ms-enum:
             name: RobotType
             modelAsString: false
@@ -9254,6 +9204,10 @@ paths:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -10720,68 +10674,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfProcessDto'
       security:
         - OAuth2: []
-  /odata/Processes/UiPath.Server.Configuration.OData.SetArguments:
-    post:
-      tags:
-        - Processes
-      summary: Saves process arguments
-      description: |-
-        OAuth required scopes: OR.Execution or OR.Execution.Write.
-
-        Required permissions: Packages.Edit.
-      operationId: Processes_SetArguments
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/ProcessesSetArgumentsRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
   /odata/Processes/UiPath.Server.Configuration.OData.UploadPackage:
     post:
       tags:
@@ -12655,7 +12547,7 @@ paths:
             type: string
         - name: $top
           in: query
-          description: Limits the number of items returned from a collection. The maximum value is 1000.
+          description: Limits the number of items returned from a collection. The maximum value is 100.
           schema:
             type: integer
             format: int32
@@ -17176,6 +17068,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -17273,6 +17169,10 @@ paths:
               - ServerlessTestAutomation
               - AutomationCloudTestAutomation
               - AttendedStudioWeb
+              - Hosting
+              - AssistantWeb
+              - ProcessOrchestration
+              - AgentService
             x-ms-enum:
               name: RobotType
               modelAsString: false
@@ -17585,11 +17485,26 @@ paths:
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
           schema:
             type: string
+        - name: $filter
+          in: query
+          description: Restricts the set of items returned. The maximum number of expressions is 100.
+          schema:
+            type: string
         - name: $select
           in: query
           description: Limits the properties returned in the result.
           schema:
             type: string
+        - name: $orderby
+          in: query
+          description: Specifies the order in which items are returned. The maximum number of expressions is 5.
+          schema:
+            type: string
+        - name: $count
+          in: query
+          description: Indicates whether the total count of items within a collection are returned in the result.
+          schema:
+            type: boolean
       responses:
         "200":
           description: Success
@@ -17669,121 +17584,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/Settings/UiPath.Server.Configuration.OData.ActivateLicenseOffline:
-    post:
-      tags:
-        - Settings
-      summary: "Uploads a new offline license activation.\r\nThe content of the license is sent as a file embedded in the HTTP request."
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Create or License.Edit.
-      operationId: Settings_ActivateLicenseOffline
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              required:
-                - file
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Bad Request
-          content: {}
-      security:
-        - OAuth2: []
-  /odata/Settings/UiPath.Server.Configuration.OData.ActivateLicenseOnline:
-    post:
-      tags:
-        - Settings
-      summary: Activate the license for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Create or License.Edit.
-      operationId: Settings_ActivateLicenseOnline
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/Settings/UiPath.Server.Configuration.OData.DeactivateLicenseOnline:
-    post:
-      tags:
-        - Settings
-      summary: Deactivate the license for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Delete.
-      operationId: Settings_DeactivateLicenseOnline
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Settings/UiPath.Server.Configuration.OData.DeleteBulk:
     post:
       tags:
@@ -17847,22 +17647,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/Settings/UiPath.Server.Configuration.OData.DeleteLicense:
-    post:
-      tags:
-        - Settings
-      summary: Removes the license
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Delete.
-      operationId: Settings_DeleteLicense
-      responses:
-        "200":
-          description: Success
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Settings/UiPath.Server.Configuration.OData.GetActivitySettings:
     get:
       tags:
@@ -17944,69 +17728,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/CalendarDto'
       deprecated: true
-      security:
-        - OAuth2: []
-  /odata/Settings/UiPath.Server.Configuration.OData.GetConnectionString:
-    get:
-      tags:
-        - Settings
-      summary: Gets the connection string
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Read.
-
-        Required permissions: Settings.View.
-      operationId: Settings_GetConnectionString
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfString'
-      security:
-        - OAuth2: []
-  /odata/Settings/UiPath.Server.Configuration.OData.GetDeactivateLicenseOffline:
-    post:
-      tags:
-        - Settings
-      summary: Deactivate the license offline for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Delete.
-      operationId: Settings_GetDeactivateLicenseOffline
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfString'
-        "400":
-          description: Invalid parameters
-          content: {}
       security:
         - OAuth2: []
   /odata/Settings/UiPath.Server.Configuration.OData.GetExecutionSettingsConfiguration(scope={scope}):
@@ -18101,85 +17822,6 @@ paths:
                 $ref: '#/components/schemas/LicenseDto'
       security:
         - OAuth2: []
-  /odata/Settings/UiPath.Server.Configuration.OData.GetLicenseOffline:
-    post:
-      tags:
-        - Settings
-      summary: Create the offline activation request for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Create or License.Edit.
-      operationId: Settings_GetLicenseOffline
-      parameters:
-        - name: $expand
-          in: query
-          description: Indicates the related entities to be represented inline. The maximum depth is 2.
-          schema:
-            type: string
-        - name: $select
-          in: query
-          description: Limits the properties returned in the result.
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/LicenseRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ODataValueOfString'
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
   /odata/Settings/UiPath.Server.Configuration.OData.GetSecureStoreConfiguration(storeTypeName='{storeTypeName}'):
     get:
       tags:
@@ -18440,25 +18082,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/Settings/UiPath.Server.Configuration.OData.UpdateLicenseOnline:
-    post:
-      tags:
-        - Settings
-      summary: Update the license for a specific tenant
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Edit.
-      operationId: Settings_UpdateLicenseOnline
-      responses:
-        "200":
-          description: Success
-          content: {}
-        "400":
-          description: Invalid parameters
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Settings/UiPath.Server.Configuration.OData.UpdateUserSetting:
     post:
       tags:
@@ -18535,34 +18158,6 @@ paths:
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
-  /odata/Settings/UiPath.Server.Configuration.OData.UploadLicense:
-    post:
-      tags:
-        - Settings
-      summary: Uploads a new license file that was previously generated with Regutil. The content of the license is sent as a file embedded in the HTTP request.
-      description: |-
-        OAuth required scopes: OR.Settings or OR.Settings.Write.
-
-        Required permissions: License.Create or License.Edit.
-      operationId: Settings_UploadLicense
-      requestBody:
-        content:
-          multipart/form-data:
-            schema:
-              required:
-                - file
-              type: object
-              properties:
-                file:
-                  type: string
-                  format: binary
-        required: true
-      responses:
-        "200":
-          description: Success
-          content: {}
-      security:
-        - OAuth2: []
   /odata/Settings/UiPath.Server.Configuration.OData.VerifySmtpSetting:
     post:
       tags:
@@ -20979,70 +20574,6 @@ paths:
                 $ref: '#/components/schemas/ODataValueOfIEnumerableOfTenantDto'
       security:
         - OAuth2: []
-    post:
-      tags:
-        - Tenants
-      summary: Creates a tenant.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: Tenants_Post
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-        required: false
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TenantDto'
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
   /odata/Tenants({key}):
     get:
       tags:
@@ -21079,158 +20610,6 @@ paths:
                 $ref: '#/components/schemas/TenantDto'
       security:
         - OAuth2: []
-    delete:
-      tags:
-        - Tenants
-      summary: Deletes a tenant based on its id.
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: Tenants_DeleteById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      responses:
-        "204":
-          description: No Content
-          content: {}
-      security:
-        - OAuth2: []
-    patch:
-      tags:
-        - Tenants
-      summary: Partially updates a tenant
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: Tenants_PatchById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/TenantDto'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/Tenants/UiPath.Server.Configuration.OData.SetActive:
-    post:
-      tags:
-        - Tenants
-      summary: Toggles the active status of tenants
-      description: |-
-        OAuth required scopes: OR.Administration or OR.Administration.Write.
-
-        Host only. Requires authentication.
-      operationId: Tenants_SetActive
-      requestBody:
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/TenantSetActiveRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
   /odata/TestCaseDefinitions:
     get:
       tags:
@@ -21239,6 +20618,12 @@ paths:
       description: "OAuth required scopes: OR.TestSets or OR.TestSets.Read.\n\nRequired permissions: TestSets.View.\n\nResponses:\r\n200 Returns a list of Test Case Definitions filtered with queryOptions\r\n403 If the caller doesn't have permissions to view Test Case Definitions"
       operationId: TestCaseDefinitions_Get
       parameters:
+        - name: distinctByUniqueIdAndPackageIdentifier
+          in: query
+          description: To get one entry per UniqueId and PackageIdentifier combination
+          schema:
+            type: boolean
+            default: false
         - name: $expand
           in: query
           description: Indicates the related entities to be represented inline. The maximum depth is 2.
@@ -23007,10 +22392,7 @@ paths:
       tags:
         - Users
       summary: Activate or deactivate a user
-      description: |-
-        OAuth required scopes: OR.Users or OR.Users.Write.
-
-        Required permissions: Users.Edit.
+      description: "OAuth required scopes: OR.Users or OR.Users.Write.\n\nRequired permissions: Users.Edit.\nDEPRECATED: \nThis API is deprecated. Please do not use it any longer.\nPlease refer to https://docs.uipath.com/orchestrator/reference"
       operationId: Users_SetActiveById
       parameters:
         - name: key
@@ -23068,76 +22450,7 @@ paths:
         "200":
           description: Success
           content: {}
-      security:
-        - OAuth2: []
-      x-codegen-request-body-name: body
-  /odata/Users({key})/UiPath.Server.Configuration.OData.ToggleOrganizationUnit:
-    post:
-      tags:
-        - Users
-      summary: Associates/dissociates the given user with/from an organization unit based on toggle parameter.
-      description: |-
-        OAuth required scopes: OR.Users or OR.Users.Write.
-
-        Required permissions: Users.Edit.
-      operationId: Users_ToggleOrganizationUnitById
-      parameters:
-        - name: key
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        description: "<para />Toggle - States whether to associate or to dissociate the organization unit with/from the user.\r\n            <para />OrganizationUnitId - The id of the organization unit to be associated/dissociated."
-        content:
-          application/json;odata.metadata=minimal;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=minimal;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=minimal:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=full;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=full;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=full:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=none;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=none;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.metadata=none:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.streaming=true:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json;odata.streaming=false:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/json-patch+json:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-          application/*+json:
-            schema:
-              $ref: '#/components/schemas/UsersToggleOrganizationUnitRequest'
-        required: false
-      responses:
-        "200":
-          description: Success
-          content: {}
+      deprecated: true
       security:
         - OAuth2: []
       x-codegen-request-body-name: body
@@ -24477,6 +23790,7 @@ components:
             - Export
             - RateLimits
             - AutopilotForRobots
+            - Webhooks
           x-enum-varnames:
             - Robots
             - Transactions
@@ -24495,6 +23809,7 @@ components:
             - Export
             - RateLimits
             - AutopilotForRobots
+            - Webhooks
           x-ms-enum:
             name: AlertDtoComponent
             modelAsString: false
@@ -24573,15 +23888,17 @@ components:
         Timestamp:
           type: string
           format: date-time
-        IsEmailDisabled:
-          type: boolean
         UserKey:
           type: string
           format: uuid
+        IsUserGroup:
+          type: boolean
         NotificationNames:
           type: array
           items:
             type: string
+        IsEmailDisabled:
+          type: boolean
         EventTime:
           type: string
           format: date-time
@@ -24625,10 +23942,14 @@ components:
         UserKey:
           type: string
           format: uuid
+        IsUserGroup:
+          type: boolean
         NotificationNames:
           type: array
           items:
             type: string
+        IsEmailDisabled:
+          type: boolean
         EventTime:
           type: string
           format: date-time
@@ -24649,6 +23970,483 @@ components:
           type: integer
           format: int64
       x-webhook-event: alert.unsubscribed
+    ApiTriggerCreatedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: ApiTriggerCreatedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        requiresUserInteraction:
+          type: boolean
+        alertPendingJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        killJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: ApiTriggerCreatedEventRemoteControlAccess
+            modelAsString: false
+        apiTriggerType:
+          type: string
+          readOnly: true
+          enum:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-enum-varnames:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-ms-enum:
+            name: ApiTriggerCreatedEventApiTriggerType
+            modelAsString: false
+        isConnected:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    ApiTriggerDeletedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: ApiTriggerDeletedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        requiresUserInteraction:
+          type: boolean
+        alertPendingJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        killJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: ApiTriggerDeletedEventRemoteControlAccess
+            modelAsString: false
+        apiTriggerType:
+          type: string
+          readOnly: true
+          enum:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-enum-varnames:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-ms-enum:
+            name: ApiTriggerDeletedEventApiTriggerType
+            modelAsString: false
+        isConnected:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    ApiTriggerUpdatedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: ApiTriggerUpdatedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        requiresUserInteraction:
+          type: boolean
+        alertPendingJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        killJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: ApiTriggerUpdatedEventRemoteControlAccess
+            modelAsString: false
+        apiTriggerType:
+          type: string
+          readOnly: true
+          enum:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-enum-varnames:
+            - Manual
+            - IntegrationTrigger
+            - AutomationOpsPipelines
+          x-ms-enum:
+            name: ApiTriggerUpdatedEventApiTriggerType
+            modelAsString: false
+        isConnected:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     AppTasksCreateRequest:
       required:
         - appId
@@ -24804,6 +24602,29 @@ components:
           description: Gets or sets the expiry time of Actionable Task Schedule
           items:
             $ref: '#/components/schemas/TaskSlaDetailDto'
+        completedByUser:
+          $ref: '#/components/schemas/UserLoginInfoDto'
+        taskAssignmentCriteria:
+          type: string
+          description: Task status
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskDataDtoTaskAssignmentCriteria
+            modelAsString: false
+        taskAssignees:
+          type: array
+          description: Gets or sets the list of users to whom task is assigned
+          items:
+            $ref: '#/components/schemas/UserLoginInfoDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -25487,6 +25308,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -25506,6 +25331,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: AttendedRobotDtoRobotType
             modelAsString: false
@@ -25934,6 +25763,50 @@ components:
           type: boolean
         Headers:
           $ref: '#/components/schemas/ResponseDictionaryDto'
+    BlobFileDeletedEvent:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        BucketName:
+          type: string
+        FullPath:
+          type: string
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: blobfile.deleted
     BlobFileDto:
       type: object
       properties:
@@ -25948,6 +25821,50 @@ components:
           type: boolean
         Id:
           type: string
+    BlobFileUploadedEvent:
+      required:
+        - EventId
+        - Timestamp
+        - Type
+      type: object
+      properties:
+        Type:
+          minLength: 1
+          type: string
+        EventId:
+          maxLength: 50
+          minLength: 0
+          type: string
+        EntityKey:
+          type: string
+          format: uuid
+        Timestamp:
+          type: string
+          format: date-time
+        BucketName:
+          type: string
+        FullPath:
+          type: string
+        EventTime:
+          type: string
+          format: date-time
+        EventSourceId:
+          type: integer
+          format: int64
+          readOnly: true
+        TenantId:
+          type: integer
+          format: int32
+        OrganizationUnitId:
+          type: integer
+          format: int64
+        OrganizationUnitKey:
+          type: string
+          format: uuid
+        UserId:
+          type: integer
+          format: int64
+      x-webhook-event: blobfile.uploaded
     BucketCreatedEvent:
       type: object
       properties:
@@ -26414,11 +26331,11 @@ components:
     BulkOperationResponseDtoOfFailedQueueItemDto:
       type: object
       properties:
-        success:
+        Success:
           type: boolean
-        message:
+        Message:
           type: string
-        failedItems:
+        FailedItems:
           type: array
           items:
             $ref: '#/components/schemas/FailedQueueItemDto'
@@ -26521,14 +26438,67 @@ components:
           maxLength: 512
           type: string
           description: Comment to be added while doing the bulk operation
+    BusinessRuleCreatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    BusinessRuleDeletedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     BusinessRuleDto:
       required:
         - Name
       type: object
       properties:
-        Key:
-          type: string
-          format: uuid
         Name:
           maxLength: 100
           type: string
@@ -26558,16 +26528,16 @@ components:
           type: integer
           format: int64
         Id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
     BusinessRuleFolderShareRequest:
       type: object
       properties:
-        BusinessRuleIds:
+        BusinessRuleKeys:
           type: array
           items:
-            type: integer
-            format: int64
+            type: string
+            format: uuid
         ToAddFolderIds:
           type: array
           items:
@@ -26578,6 +26548,34 @@ components:
           items:
             type: integer
             format: int64
+    BusinessRuleUpdatedEvent:
+      type: object
+      properties:
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     BusinessRuleVersionDownloadResponse:
       type: object
       properties:
@@ -26586,14 +26584,11 @@ components:
         BusinessRuleName:
           type: string
         DownloadUri:
-          $ref: '#/components/schemas/UiBlobFileAccessUri'
+          $ref: '#/components/schemas/BlobFileAccessDto'
     BusinessRuleVersionDto:
       type: object
       properties:
-        BusinessRuleId:
-          type: integer
-          format: int64
-        Key:
+        BusinessRuleKey:
           type: string
           format: uuid
         VersionNumber:
@@ -26607,8 +26602,8 @@ components:
           type: string
           format: date-time
         Id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
     CalendarDto:
       type: object
       properties:
@@ -27567,6 +27562,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -27586,6 +27585,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -27718,6 +27721,8 @@ components:
             - SharedAccessSignatureFailure
             - ProviderNotSupported
             - EmailAlreadyUsed
+            - DuplicateKey
+            - FeatureUnavailable
             - InvalidAuditRelationship
             - InvalidOrganizationUnit
             - RequiredOrganizationUnit
@@ -27874,7 +27879,8 @@ components:
             - InvalidJobStateForSuspend
             - JobNotFoundByPersistenceId
             - SuspendJobStateNotFound
-            - InvalidPackageJsonVersion
+            - InvalidPackageDescriptorJsonVersion
+            - PackageFieldLimitExceeded
             - ErrorPackagePublish
             - ErrorSavingPackageDefinition
             - MaxNumberJobsAlreadyExist
@@ -27962,6 +27968,7 @@ components:
             - UnknownWebhookEventType
             - WebhookQuotaReached
             - WebhookDuplicateName
+            - WebhookAlreadyDisabled
             - ExecutionMediaStorageUnavailable
             - ExecutionMediaNotAvailableForJob
             - ExecutionMediaContentNotAvailable
@@ -28055,6 +28062,15 @@ components:
             - FailedToRetrieveActiondApps
             - AppTaskDataViolatesExpectedJsonParsing
             - ActionDefinitionReplacedbyActionApps
+            - TaskAssignmentsRequired
+            - GroupAssignmentNotEnabled
+            - AssignmentCriteriaNotSupported
+            - MultipleGroupAssignmentNotEnabled
+            - SaveAndReassignNotPermittedForGroupTask
+            - GroupAssignmentActionNotPermitted
+            - ReassignOrUnassignNotPermittedForAllUserTasks
+            - LocalGroupDoesNotExist
+            - NoUsersFoundInLocalGroup
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -28115,6 +28131,9 @@ components:
             - UnavailableStorageProvider
             - BucketDoesNotExists
             - BucketSecretNotFoundInCredentialStore
+            - BucketEncryptedCannotBeChanged
+            - BlobFileEncryptionKeyNotFound
+            - BucketEncryptedCannotBeEnabled
             - TestSetNotNewOnCreate
             - TestAutomationKeyMismatch
             - TestSetNewOnUpdate
@@ -28200,7 +28219,7 @@ components:
             - VirtualTriggerCanNotHaveUser
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
-            - ConnectedEventTriggerStatePatchFail
+            - ConnectedEventTriggerStateUpstreamFail
             - ConnectedEventTriggerOnShellConnectionError
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
@@ -28253,6 +28272,8 @@ components:
             - SolutionsCannotInstallInPWFolder
             - InvalidMerge
             - SolutionConnectionInfoInvalid
+            - CannotChangeInstallationFolder
+            - SolutionInvalidFolderHierarchy
             - ExportTimeout
             - ExportTenantDailyLimitReached
             - InvalidMessageReceived
@@ -28268,6 +28289,7 @@ components:
             - EntitlementConsumationFailure
             - LimitExceeded
             - ReportsLimitsExceeded
+            - AssistantWebProvisioningFailed
             - ContentLengthTooLarge
           x-enum-varnames:
             - Unknown
@@ -28302,6 +28324,8 @@ components:
             - SharedAccessSignatureFailure
             - ProviderNotSupported
             - EmailAlreadyUsed
+            - DuplicateKey
+            - FeatureUnavailable
             - InvalidAuditRelationship
             - InvalidOrganizationUnit
             - RequiredOrganizationUnit
@@ -28458,7 +28482,8 @@ components:
             - InvalidJobStateForSuspend
             - JobNotFoundByPersistenceId
             - SuspendJobStateNotFound
-            - InvalidPackageJsonVersion
+            - InvalidPackageDescriptorJsonVersion
+            - PackageFieldLimitExceeded
             - ErrorPackagePublish
             - ErrorSavingPackageDefinition
             - MaxNumberJobsAlreadyExist
@@ -28546,6 +28571,7 @@ components:
             - UnknownWebhookEventType
             - WebhookQuotaReached
             - WebhookDuplicateName
+            - WebhookAlreadyDisabled
             - ExecutionMediaStorageUnavailable
             - ExecutionMediaNotAvailableForJob
             - ExecutionMediaContentNotAvailable
@@ -28639,6 +28665,15 @@ components:
             - FailedToRetrieveActiondApps
             - AppTaskDataViolatesExpectedJsonParsing
             - ActionDefinitionReplacedbyActionApps
+            - TaskAssignmentsRequired
+            - GroupAssignmentNotEnabled
+            - AssignmentCriteriaNotSupported
+            - MultipleGroupAssignmentNotEnabled
+            - SaveAndReassignNotPermittedForGroupTask
+            - GroupAssignmentActionNotPermitted
+            - ReassignOrUnassignNotPermittedForAllUserTasks
+            - LocalGroupDoesNotExist
+            - NoUsersFoundInLocalGroup
             - InvalidSecureStoreContext
             - MailSmtpSettingsError
             - CannotDeleteCalendarWhenUsedBySchedule
@@ -28699,6 +28734,9 @@ components:
             - UnavailableStorageProvider
             - BucketDoesNotExists
             - BucketSecretNotFoundInCredentialStore
+            - BucketEncryptedCannotBeChanged
+            - BlobFileEncryptionKeyNotFound
+            - BucketEncryptedCannotBeEnabled
             - TestSetNotNewOnCreate
             - TestAutomationKeyMismatch
             - TestSetNewOnUpdate
@@ -28784,7 +28822,7 @@ components:
             - VirtualTriggerCanNotHaveUser
             - EventTriggerCreateFailedConnectionNotAvailable
             - UserHasNoRobotToFireUserEventTrigger
-            - ConnectedEventTriggerStatePatchFail
+            - ConnectedEventTriggerStateUpstreamFail
             - ConnectedEventTriggerOnShellConnectionError
             - CredentialsProxyNotFound
             - CannotDeleteCredentialsProxyInUse
@@ -28837,6 +28875,8 @@ components:
             - SolutionsCannotInstallInPWFolder
             - InvalidMerge
             - SolutionConnectionInfoInvalid
+            - CannotChangeInstallationFolder
+            - SolutionInvalidFolderHierarchy
             - ExportTimeout
             - ExportTenantDailyLimitReached
             - InvalidMessageReceived
@@ -28852,6 +28892,7 @@ components:
             - EntitlementConsumationFailure
             - LimitExceeded
             - ReportsLimitsExceeded
+            - AssistantWebProvisioningFailed
             - ContentLengthTooLarge
           x-ms-enum:
             name: FailedQueueItemDtoErrorCode
@@ -29199,6 +29240,628 @@ components:
         connectionError:
           type: string
           description: "An error code that further describes the type of connection error.\r\nDoes not include TLS/SSL errors"
+    HttpTriggerCreatedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: HttpTriggerCreatedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Legacy
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: HttpTriggerCreatedEventTargetFramework
+            modelAsString: false
+        requiresUserInteraction:
+          type: boolean
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: HttpTriggerCreatedEventRemoteControlAccess
+            modelAsString: false
+        callingMode:
+          type: string
+          readOnly: true
+          enum:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-enum-varnames:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-ms-enum:
+            name: HttpTriggerCreatedEventCallingMode
+            modelAsString: false
+        method:
+          type: string
+          readOnly: true
+          enum:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-enum-varnames:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-ms-enum:
+            name: HttpTriggerCreatedEventMethod
+            modelAsString: false
+        successCallbackUrl:
+          type: string
+          readOnly: true
+        failureCallbackUrl:
+          type: string
+          readOnly: true
+        callbackMode:
+          type: string
+          readOnly: true
+          enum:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-enum-varnames:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-ms-enum:
+            name: HttpTriggerCreatedEventCallbackMode
+            modelAsString: false
+        allowInsecureSsl:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    HttpTriggerDeletedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: HttpTriggerDeletedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Legacy
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: HttpTriggerDeletedEventTargetFramework
+            modelAsString: false
+        requiresUserInteraction:
+          type: boolean
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        killJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertPendingJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: HttpTriggerDeletedEventRemoteControlAccess
+            modelAsString: false
+        callingMode:
+          type: string
+          readOnly: true
+          enum:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-enum-varnames:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-ms-enum:
+            name: HttpTriggerDeletedEventCallingMode
+            modelAsString: false
+        method:
+          type: string
+          readOnly: true
+          enum:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-enum-varnames:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-ms-enum:
+            name: HttpTriggerDeletedEventMethod
+            modelAsString: false
+        successCallbackUrl:
+          type: string
+          readOnly: true
+        failureCallbackUrl:
+          type: string
+          readOnly: true
+        callbackMode:
+          type: string
+          readOnly: true
+          enum:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-enum-varnames:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-ms-enum:
+            name: HttpTriggerDeletedEventCallbackMode
+            modelAsString: false
+        allowInsecureSsl:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
+    HttpTriggerUpdatedEvent:
+      type: object
+      properties:
+        type:
+          type: string
+          readOnly: true
+          enum:
+            - Api
+            - Http
+          x-enum-varnames:
+            - Api
+            - Http
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventType
+            modelAsString: false
+        organizationUnitFullyQualifiedName:
+          type: string
+          readOnly: true
+        externalReference:
+          type: string
+          readOnly: true
+        jobCount:
+          type: integer
+          format: int32
+          readOnly: true
+        jobPriority:
+          type: integer
+          format: int32
+          readOnly: true
+        targetFramework:
+          type: string
+          readOnly: true
+          enum:
+            - Legacy
+            - Windows
+            - Portable
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventTargetFramework
+            modelAsString: false
+        requiresUserInteraction:
+          type: boolean
+          readOnly: true
+        stopJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        killJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertPendingJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        alertRunningJobAfterSeconds:
+          type: integer
+          format: int32
+          readOnly: true
+        remoteControlAccess:
+          type: string
+          readOnly: true
+          enum:
+            - None
+            - ReadOnly
+            - Full
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventRemoteControlAccess
+            modelAsString: false
+        callingMode:
+          type: string
+          readOnly: true
+          enum:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-enum-varnames:
+            - AsyncRequestReply
+            - AsyncCallback
+            - LongPolling
+            - FireAndForget
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventCallingMode
+            modelAsString: false
+        method:
+          type: string
+          readOnly: true
+          enum:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-enum-varnames:
+            - Get
+            - Post
+            - Put
+            - Delete
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventMethod
+            modelAsString: false
+        successCallbackUrl:
+          type: string
+          readOnly: true
+        failureCallbackUrl:
+          type: string
+          readOnly: true
+        callbackMode:
+          type: string
+          readOnly: true
+          enum:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-enum-varnames:
+            - Disabled
+            - OnSuccess
+            - OnFailure
+            - OnAny
+          x-ms-enum:
+            name: HttpTriggerUpdatedEventCallbackMode
+            modelAsString: false
+        allowInsecureSsl:
+          type: boolean
+          readOnly: true
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
+          type: boolean
+          readOnly: true
+        consecutiveJobFailuresThreshold:
+          type: integer
+          format: int32
+          readOnly: true
+        jobFailuresGracePeriodInHours:
+          type: integer
+          format: int32
+          readOnly: true
+        runAsMe:
+          type: boolean
+          readOnly: true
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
+        folderKeys:
+          type: array
+          readOnly: true
+          items:
+            type: string
+            format: uuid
+        eventTime:
+          type: string
+          format: date-time
+        eventSource:
+          type: object
     JobCompletedEventDto:
       required:
         - EventId
@@ -29325,6 +29988,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-enum-varnames:
             - Manual
             - Schedule
@@ -29342,6 +30008,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-ms-enum:
             name: JobDtoSourceType
             modelAsString: false
@@ -29432,6 +30101,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: JobDtoRuntimeType
             modelAsString: false
@@ -29459,10 +30132,16 @@ components:
           enum:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-enum-varnames:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-ms-enum:
             name: JobDtoProcessType
@@ -29520,10 +30199,6 @@ components:
           format: date-time
         AutopilotForRobots:
           $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
-        EnableAutopilotHealing:
-          type: boolean
-          description: 'DEPRECATED. '
-          x-deprecated: true
         Id:
           type: integer
           format: int64
@@ -30073,6 +30748,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-enum-varnames:
             - Undefined
             - Process
@@ -30080,6 +30761,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-ms-enum:
             name: PackageDtoProjectType
             modelAsString: false
@@ -30225,20 +30912,6 @@ components:
           items:
             type: string
       description: Stores information about a named-user license (attended/development).
-    LicenseRequest:
-      required:
-        - environment
-        - licenseKey
-      type: object
-      properties:
-        licenseKey:
-          minLength: 1
-          type: string
-        environment:
-          minLength: 1
-          type: string
-        email:
-          type: string
     LicenseResultDto:
       type: object
       properties:
@@ -30328,6 +31001,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -30336,6 +31011,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: LicenseRuntimeDtoMachineScope
             modelAsString: false
@@ -30364,6 +31041,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -30383,6 +31064,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: LicenseStatsModelRobotType
             modelAsString: false
@@ -30423,6 +31108,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -30442,6 +31131,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: LicensesToggleEnabledRequestRobotType
             modelAsString: false
@@ -30563,6 +31256,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: LogDtoRuntimeType
             modelAsString: false
@@ -30636,6 +31333,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -30644,6 +31343,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineCreatedEventScope
             modelAsString: false
@@ -30773,6 +31474,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -30781,6 +31484,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineDeletedEventScope
             modelAsString: false
@@ -30901,6 +31606,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -30909,6 +31616,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineDtoScope
             modelAsString: false
@@ -30927,6 +31636,10 @@ components:
         TestAutomationSlots:
           type: integer
           description: Number of TestAutomation slots to be reserved at runtime
+          format: int32
+        HostingSlots:
+          type: integer
+          description: Number of Hosting slots to be reserved at runtime
           format: int32
         AutomationCloudSlots:
           type: integer
@@ -31094,6 +31807,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -31113,6 +31830,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineRuntimeDtoType
             modelAsString: false
@@ -31294,6 +32015,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -31313,6 +32038,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineSessionRuntimeDtoRuntimeType
             modelAsString: false
@@ -31337,6 +32066,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -31345,6 +32076,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineSessionRuntimeDtoMachineScope
             modelAsString: false
@@ -31444,6 +32177,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - Default
             - Shared
@@ -31452,6 +32187,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: MachineUpdatedEventScope
             modelAsString: false
@@ -32285,6 +33022,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-ms-enum:
             name: PackageDeletedEventProjectType
             modelAsString: false
@@ -32335,6 +33078,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-ms-enum:
             name: PackageUploadedEventProjectType
             modelAsString: false
@@ -32693,6 +33442,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-enum-varnames:
             - Undefined
             - Process
@@ -32700,6 +33455,12 @@ components:
             - BusinessProcess
             - BusinessProcessLibrary
             - TestAutomationProcess
+            - ProcessOrchestration
+            - BusinessProcessOrchestration
+            - WebApp
+            - BusinessWebApp
+            - Agent
+            - BusinessAgent
           x-ms-enum:
             name: PackageDtoProjectType
             modelAsString: false
@@ -32726,19 +33487,6 @@ components:
     ProcessScheduleCreatedEvent:
       type: object
       properties:
-        key:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        description:
-          type: string
-          readOnly: true
-        enabled:
-          type: boolean
-          readOnly: true
         releaseName:
           type: string
           readOnly: true
@@ -32752,43 +33500,6 @@ components:
           type: integer
           format: int32
           readOnly: true
-        runtimeType:
-          type: string
-          readOnly: true
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - StudioPro
-            - RpaDeveloperPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: ProcessScheduleCreatedEventRuntimeType
-            modelAsString: false
-        stopProcessExpression:
-          type: string
-          readOnly: true
-        stopStrategy:
-          type: string
-          readOnly: true
-          enum:
-            - SoftStop
-            - Kill
-          x-ms-enum:
-            name: ProcessScheduleCreatedEventStopStrategy
-            modelAsString: false
         killProcessExpression:
           type: string
           readOnly: true
@@ -32820,21 +33531,74 @@ components:
           type: integer
           format: int64
           readOnly: true
-        resumeOnSameContext:
-          type: boolean
-          readOnly: true
-        tags:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/TagDto'
         alertPendingExpression:
           type: string
           readOnly: true
         alertRunningExpression:
           type: string
           readOnly: true
-        runAsMe:
+        isConnected:
+          type: boolean
+          readOnly: true
+        queueDefinitionKey:
+          type: string
+          format: uuid
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
           type: boolean
           readOnly: true
         consecutiveJobFailuresThreshold:
@@ -32845,17 +33609,17 @@ components:
           type: integer
           format: int32
           readOnly: true
-        isConnected:
+        runAsMe:
           type: boolean
           readOnly: true
-        releaseKey:
-          type: string
-          format: uuid
-        queueDefinitionKey:
-          type: string
-          format: uuid
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         folderKeys:
           type: array
+          readOnly: true
           items:
             type: string
             format: uuid
@@ -32867,19 +33631,6 @@ components:
     ProcessScheduleDeletedEvent:
       type: object
       properties:
-        key:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        description:
-          type: string
-          readOnly: true
-        enabled:
-          type: boolean
-          readOnly: true
         releaseName:
           type: string
           readOnly: true
@@ -32893,43 +33644,6 @@ components:
           type: integer
           format: int32
           readOnly: true
-        runtimeType:
-          type: string
-          readOnly: true
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - StudioPro
-            - RpaDeveloperPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: ProcessScheduleDeletedEventRuntimeType
-            modelAsString: false
-        stopProcessExpression:
-          type: string
-          readOnly: true
-        stopStrategy:
-          type: string
-          readOnly: true
-          enum:
-            - SoftStop
-            - Kill
-          x-ms-enum:
-            name: ProcessScheduleDeletedEventStopStrategy
-            modelAsString: false
         killProcessExpression:
           type: string
           readOnly: true
@@ -32961,21 +33675,74 @@ components:
           type: integer
           format: int64
           readOnly: true
-        resumeOnSameContext:
-          type: boolean
-          readOnly: true
-        tags:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/TagDto'
         alertPendingExpression:
           type: string
           readOnly: true
         alertRunningExpression:
           type: string
           readOnly: true
-        runAsMe:
+        isConnected:
+          type: boolean
+          readOnly: true
+        queueDefinitionKey:
+          type: string
+          format: uuid
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
           type: boolean
           readOnly: true
         consecutiveJobFailuresThreshold:
@@ -32986,17 +33753,17 @@ components:
           type: integer
           format: int32
           readOnly: true
-        isConnected:
+        runAsMe:
           type: boolean
           readOnly: true
-        releaseKey:
-          type: string
-          format: uuid
-        queueDefinitionKey:
-          type: string
-          format: uuid
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         folderKeys:
           type: array
+          readOnly: true
           items:
             type: string
             format: uuid
@@ -33080,6 +33847,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: ProcessScheduleDtoRuntimeType
             modelAsString: false
@@ -33271,19 +34042,6 @@ components:
     ProcessScheduleUpdatedEvent:
       type: object
       properties:
-        key:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          readOnly: true
-        description:
-          type: string
-          readOnly: true
-        enabled:
-          type: boolean
-          readOnly: true
         releaseName:
           type: string
           readOnly: true
@@ -33297,43 +34055,6 @@ components:
           type: integer
           format: int32
           readOnly: true
-        runtimeType:
-          type: string
-          readOnly: true
-          enum:
-            - NonProduction
-            - Attended
-            - Unattended
-            - Development
-            - Studio
-            - RpaDeveloper
-            - StudioX
-            - CitizenDeveloper
-            - Headless
-            - StudioPro
-            - RpaDeveloperPro
-            - TestAutomation
-            - AutomationCloud
-            - Serverless
-            - AutomationKit
-            - ServerlessTestAutomation
-            - AutomationCloudTestAutomation
-            - AttendedStudioWeb
-          x-ms-enum:
-            name: ProcessScheduleUpdatedEventRuntimeType
-            modelAsString: false
-        stopProcessExpression:
-          type: string
-          readOnly: true
-        stopStrategy:
-          type: string
-          readOnly: true
-          enum:
-            - SoftStop
-            - Kill
-          x-ms-enum:
-            name: ProcessScheduleUpdatedEventStopStrategy
-            modelAsString: false
         killProcessExpression:
           type: string
           readOnly: true
@@ -33365,21 +34086,74 @@ components:
           type: integer
           format: int64
           readOnly: true
-        resumeOnSameContext:
-          type: boolean
-          readOnly: true
-        tags:
-          type: array
-          readOnly: true
-          items:
-            $ref: '#/components/schemas/TagDto'
         alertPendingExpression:
           type: string
           readOnly: true
         alertRunningExpression:
           type: string
           readOnly: true
-        runAsMe:
+        isConnected:
+          type: boolean
+          readOnly: true
+        queueDefinitionKey:
+          type: string
+          format: uuid
+        key:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+        enabled:
+          type: boolean
+          readOnly: true
+        releaseKey:
+          type: string
+          format: uuid
+          readOnly: true
+        runtimeType:
+          type: string
+          readOnly: true
+          enum:
+            - NonProduction
+            - Attended
+            - Unattended
+            - Development
+            - Studio
+            - RpaDeveloper
+            - StudioX
+            - CitizenDeveloper
+            - Headless
+            - StudioPro
+            - RpaDeveloperPro
+            - TestAutomation
+            - AutomationCloud
+            - Serverless
+            - AutomationKit
+            - ServerlessTestAutomation
+            - AutomationCloudTestAutomation
+            - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
+          x-ms-enum:
+            name: BaseTriggerEventRuntimeType
+            modelAsString: false
+        stopStrategy:
+          type: string
+          readOnly: true
+          enum:
+            - SoftStop
+            - Kill
+          x-ms-enum:
+            name: BaseTriggerEventStopStrategy
+            modelAsString: false
+        resumeOnSameContext:
           type: boolean
           readOnly: true
         consecutiveJobFailuresThreshold:
@@ -33390,17 +34164,17 @@ components:
           type: integer
           format: int32
           readOnly: true
-        isConnected:
+        runAsMe:
           type: boolean
           readOnly: true
-        releaseKey:
-          type: string
-          format: uuid
-        queueDefinitionKey:
-          type: string
-          format: uuid
+        tags:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/TagDto'
         folderKeys:
           type: array
+          readOnly: true
           items:
             type: string
             format: uuid
@@ -33441,21 +34215,6 @@ components:
           type: boolean
         AutopilotForRobots:
           $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
-        EnableAutopilotHealing:
-          type: boolean
-          description: 'DEPRECATED. '
-          x-deprecated: true
-    ProcessesSetArgumentsRequest:
-      required:
-        - arguments
-        - key
-      type: object
-      properties:
-        key:
-          minLength: 1
-          type: string
-        arguments:
-          $ref: '#/components/schemas/ArgumentMetadata'
     ProcessingExceptionDto:
       type: object
       properties:
@@ -34961,6 +35720,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: ReexecuteTestCasesOptionsDtoRuntimeType
             modelAsString: false
@@ -35114,10 +35877,16 @@ components:
           enum:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-enum-varnames:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-ms-enum:
             name: ReleaseDtoProcessType
@@ -35424,6 +36193,7 @@ components:
             - QueueTrigger
             - AppsTrigger
             - Property
+            - BusinessRule
           x-enum-varnames:
             - Unknown
             - Queue
@@ -35438,6 +36208,7 @@ components:
             - QueueTrigger
             - AppsTrigger
             - Property
+            - BusinessRule
           x-ms-enum:
             name: ResourceOverwriteDto`1ResourceType
             modelAsString: false
@@ -35480,10 +36251,6 @@ components:
         jobId:
           type: integer
           format: int64
-        enableAutopilotHealing:
-          type: boolean
-          description: 'DEPRECATED. '
-          x-deprecated: true
     ResumeJobRequest:
       required:
         - jobKey
@@ -35657,6 +36424,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -35676,6 +36447,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -35925,6 +36700,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -35944,6 +36723,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -36128,6 +36911,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -36147,6 +36934,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -36744,6 +37535,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: SimpleJobEventDtoRuntimeType
             modelAsString: false
@@ -36767,6 +37562,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-ms-enum:
             name: SimpleJobEventDtoSourceType
             modelAsString: false
@@ -36821,6 +37619,8 @@ components:
             - Serverless
             - AutomationCloudRobot
             - ElasticRobot
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: SimpleMachineDtoScope
             modelAsString: false
@@ -36880,10 +37680,16 @@ components:
           enum:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-enum-varnames:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-ms-enum:
             name: ReleaseDtoProcessType
@@ -37076,6 +37882,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -37095,6 +37905,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: RobotDtoType
             modelAsString: false
@@ -37217,6 +38031,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: SimpleRobotEventDtoType
             modelAsString: false
@@ -37295,7 +38113,8 @@ components:
           format: date-time
         IsActive:
           type: boolean
-          description: States if the user is active or not. An inactive user cannot login to Orchestrator.
+          description: DEPRECATED. States if the user is active or not. An inactive user cannot login to Orchestrator.
+          x-deprecated: true
         CreationTime:
           type: string
           description: The date and time when the user was created.
@@ -37305,7 +38124,8 @@ components:
           description: The source which authenticated this user.
         Password:
           type: string
-          description: The password used during application login.
+          description: DEPRECATED. The password used during application login.
+          x-deprecated: true
         IsExternalLicensed:
           type: boolean
         UserRoles:
@@ -37395,6 +38215,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: UserDtoLicenseType
             modelAsString: false
@@ -37429,6 +38253,18 @@ components:
           type: string
         HasOnlyInheritedPrivileges:
           type: boolean
+        ExplicitMayHaveUserSession:
+          type: boolean
+          description: 'Specifies whether this user is explicitly allowed to have a User session (default: true)'
+        ExplicitMayHaveRobotSession:
+          type: boolean
+          description: 'Specifies whether this user is explicitly allowed to have an Attended Robot attached (default: true)'
+        ExplicitMayHavePersonalWorkspace:
+          type: boolean
+          description: Specifies whether this user is explicitly allowed to have a Personal Workspace
+        ExplicitRestrictToPersonalWorkspace:
+          type: boolean
+          description: Explicitly restricted to personal workspace view
         LastModificationTime:
           type: string
           format: date-time
@@ -37622,6 +38458,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-enum-varnames:
             - Manual
             - Schedule
@@ -37639,6 +38478,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-ms-enum:
             name: StartProcessDtoSource
             modelAsString: false
@@ -37679,6 +38521,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: StartProcessDtoRuntimeType
             modelAsString: false
@@ -37751,10 +38597,6 @@ components:
           description: Operation id which started the job.
         AutopilotForRobots:
           $ref: '#/components/schemas/AutopilotForRobotsSettingsDto'
-        EnableAutopilotHealing:
-          type: boolean
-          description: 'DEPRECATED. '
-          x-deprecated: true
         ProfilingOptions:
           maxLength: 4000
           minLength: 0
@@ -37963,6 +38805,33 @@ components:
           maxLength: 256
           type: string
           description: Gets or sets the UserName or Email for this task assignment. If UserId is provided, this property is ignored.
+        AssignmentCriteria:
+          type: string
+          description: "Gets or sets the assignment criteria for this task assignment.\r\nCan be \"SingleUser\", Hierarchy\", \"Workload\", \"AllUsers\", etc."
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskAssignmentRequestAssignmentCriteria
+            modelAsString: false
+        AssigneeNamesOrEmails:
+          type: array
+          description: Gets or sets the collection of assignee names or emails for this task assignment.
+          items:
+            type: string
+        AssigneeUserIds:
+          type: array
+          description: Gets or sets the collection of assignee UserIds for this task assignment.
+          items:
+            type: integer
+            format: int64
       description: Class to hold assignment request details of a task.
     TaskCatalogCreatedEvent:
       type: object
@@ -38477,6 +39346,29 @@ components:
           description: Gets or sets the expiry time of Actionable Task Schedule
           items:
             $ref: '#/components/schemas/TaskSlaDetailDto'
+        completedByUser:
+          $ref: '#/components/schemas/UserLoginInfoDto'
+        taskAssignmentCriteria:
+          type: string
+          description: Task status
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskDataDtoTaskAssignmentCriteria
+            modelAsString: false
+        taskAssignees:
+          type: array
+          description: Gets or sets the list of users to whom task is assigned
+          items:
+            $ref: '#/components/schemas/UserLoginInfoDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -38773,6 +39665,21 @@ components:
             modelAsString: false
         AssignedToUser:
           $ref: '#/components/schemas/UserLoginInfoDto'
+        TaskAssignmentCriteria:
+          type: string
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskDtoTaskAssignmentCriteria
+            modelAsString: false
         CreatorUser:
           $ref: '#/components/schemas/UserLoginInfoDto'
         LastModifierUser:
@@ -38973,6 +39880,29 @@ components:
           description: Gets or sets the expiry time of Actionable Task Schedule
           items:
             $ref: '#/components/schemas/TaskSlaDetailDto'
+        completedByUser:
+          $ref: '#/components/schemas/UserLoginInfoDto'
+        taskAssignmentCriteria:
+          type: string
+          description: Task status
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskDataDtoTaskAssignmentCriteria
+            modelAsString: false
+        taskAssignees:
+          type: array
+          description: Gets or sets the list of users to whom task is assigned
+          items:
+            $ref: '#/components/schemas/UserLoginInfoDto'
         title:
           type: string
           description: Gets or sets title of this task.
@@ -39249,6 +40179,33 @@ components:
           maxLength: 256
           type: string
           description: Gets or sets the UserName or Email for this task assignment. If UserId is provided, this property is ignored.
+        AssignmentCriteria:
+          type: string
+          description: "Gets or sets the assignment criteria for this task assignment.\r\nCan be \"SingleUser\", Hierarchy\", \"Workload\", \"AllUsers\", etc."
+          enum:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-enum-varnames:
+            - SingleUser
+            - Workload
+            - AllUsers
+            - Hierarchy
+          x-ms-enum:
+            name: TaskAssignmentRequestAssignmentCriteria
+            modelAsString: false
+        AssigneeNamesOrEmails:
+          type: array
+          description: Gets or sets the collection of assignee names or emails for this task assignment.
+          items:
+            type: string
+        AssigneeUserIds:
+          type: array
+          description: Gets or sets the collection of assignee UserIds for this task assignment.
+          items:
+            type: integer
+            format: int64
       description: Class to hold save and reassignment request details of a task.
     TaskSavedEventDto:
       required:
@@ -39573,7 +40530,8 @@ components:
           maxLength: 32
           minLength: 0
           type: string
-          description: Default tenant's admin user account password. Only valid for create/update operations.
+          description: DEPRECATED. Default tenant's admin user account password. Only valid for create/update operations.
+          x-deprecated: true
         LastLoginTime:
           type: string
           description: The last time a user logged in this tenant.
@@ -39581,12 +40539,6 @@ components:
         IsActive:
           type: boolean
           description: Specifies if the tenant is active or not.
-        ConnectionString:
-          maxLength: 1024
-          minLength: 0
-          type: string
-          description: DEPRECATED. DB connection string
-          x-deprecated: true
         License:
           $ref: '#/components/schemas/TenantLicenseDto'
         OrganizationName:
@@ -39619,16 +40571,6 @@ components:
         Id:
           type: integer
           format: int64
-    TenantSetActiveRequest:
-      type: object
-      properties:
-        active:
-          type: boolean
-        tenantIds:
-          type: array
-          items:
-            type: integer
-            format: int32
     TestCaseAssertionDto:
       type: object
       properties:
@@ -39861,6 +40803,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: TestCaseExecutionDtoRuntimeType
             modelAsString: false
@@ -39885,6 +40831,9 @@ components:
         ExecutionOrder:
           type: integer
           format: int32
+        TestManagerTestCaseId:
+          type: string
+          format: uuid
         Id:
           type: integer
           format: int64
@@ -39905,6 +40854,9 @@ components:
         executionOrder:
           type: integer
           format: int32
+        testManagerTestCaseId:
+          type: string
+          format: uuid
     TestDataQueueAddItemDto:
       required:
         - queueName
@@ -40217,10 +41169,12 @@ components:
             - Manual
             - Scheduled
             - ExternalTool
+            - TestManager
           x-enum-varnames:
             - Manual
             - Scheduled
             - ExternalTool
+            - TestManager
           x-ms-enum:
             name: TestSetExecutionDtoTriggerType
             modelAsString: false
@@ -40279,10 +41233,12 @@ components:
             - Manual
             - Scheduled
             - ExternalTool
+            - TestManager
           x-enum-varnames:
             - Manual
             - Scheduled
             - ExternalTool
+            - TestManager
           x-ms-enum:
             name: TestSetExecutionOptionsDtoTriggerType
             modelAsString: false
@@ -40316,6 +41272,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: TestSetExecutionOptionsDtoRuntimeType
             modelAsString: false
@@ -40536,19 +41496,6 @@ components:
           type: string
           description: The operation id which finished the queue item. Will be saved only if queue item is in final state
       description: Stores data sent when processing an item ended.
-    UiBlobFileAccessUri:
-      type: object
-      properties:
-        uri:
-          type: string
-        verb:
-          type: string
-        requiresAuth:
-          type: boolean
-        headers:
-          type: object
-          additionalProperties:
-            type: string
     UnattendedRobotDto:
       type: object
       properties:
@@ -40841,7 +41788,8 @@ components:
           format: date-time
         IsActive:
           type: boolean
-          description: States if the user is active or not. An inactive user cannot login to Orchestrator.
+          description: DEPRECATED. States if the user is active or not. An inactive user cannot login to Orchestrator.
+          x-deprecated: true
         CreationTime:
           type: string
           description: The date and time when the user was created.
@@ -40851,7 +41799,8 @@ components:
           description: The source which authenticated this user.
         Password:
           type: string
-          description: The password used during application login.
+          description: DEPRECATED. The password used during application login.
+          x-deprecated: true
         IsExternalLicensed:
           type: boolean
         UserRoles:
@@ -40941,6 +41890,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: UserDtoLicenseType
             modelAsString: false
@@ -40975,6 +41928,18 @@ components:
           type: string
         HasOnlyInheritedPrivileges:
           type: boolean
+        ExplicitMayHaveUserSession:
+          type: boolean
+          description: 'Specifies whether this user is explicitly allowed to have a User session (default: true)'
+        ExplicitMayHaveRobotSession:
+          type: boolean
+          description: 'Specifies whether this user is explicitly allowed to have an Attended Robot attached (default: true)'
+        ExplicitMayHavePersonalWorkspace:
+          type: boolean
+          description: Specifies whether this user is explicitly allowed to have a Personal Workspace
+        ExplicitRestrictToPersonalWorkspace:
+          type: boolean
+          description: Explicitly restricted to personal workspace view
         LastModificationTime:
           type: string
           format: date-time
@@ -41112,6 +42077,10 @@ components:
           type: boolean
           description: 'DEPRECATED. '
           x-deprecated: true
+        Webhooks:
+          type: boolean
+          description: 'DEPRECATED. '
+          x-deprecated: true
     UserOrganizationUnitDto:
       type: object
       properties:
@@ -41214,17 +42183,6 @@ components:
       type: object
       properties:
         active:
-          type: boolean
-    UsersToggleOrganizationUnitRequest:
-      required:
-        - organizationUnitId
-        - toggle
-      type: object
-      properties:
-        organizationUnitId:
-          type: integer
-          format: int64
-        toggle:
           type: boolean
     UsersToggleRoleRequest:
       required:
@@ -41869,6 +42827,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-enum-varnames:
             - Manual
             - Schedule
@@ -41886,6 +42847,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-ms-enum:
             name: WrappedJobDtoSourceType
             modelAsString: false
@@ -41963,6 +42927,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: WrappedJobDtoRuntimeType
             modelAsString: false
@@ -41973,10 +42941,16 @@ components:
           enum:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-enum-varnames:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-ms-enum:
             name: WrappedJobDtoProcessType
@@ -42162,10 +43136,16 @@ components:
           enum:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-enum-varnames:
             - Undefined
             - Process
+            - ProcessOrchestration
+            - WebApp
+            - Agent
             - TestAutomationProcess
           x-ms-enum:
             name: WrappedReleaseDtoProcessType
@@ -42255,6 +43235,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-enum-varnames:
             - NonProduction
             - Attended
@@ -42274,6 +43258,10 @@ components:
             - ServerlessTestAutomation
             - AutomationCloudTestAutomation
             - AttendedStudioWeb
+            - Hosting
+            - AssistantWeb
+            - ProcessOrchestration
+            - AgentService
           x-ms-enum:
             name: WrappedRobotDtoType
             modelAsString: false
@@ -42359,6 +43347,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-enum-varnames:
             - Manual
             - Schedule
@@ -42376,6 +43367,9 @@ components:
             - CommandLine
             - RobotNetAPI
             - Autopilot
+            - TestManager
+            - AgentService
+            - ProcessOrchestration
           x-ms-enum:
             name: WrappedStartProcessDtoSource
             modelAsString: false
