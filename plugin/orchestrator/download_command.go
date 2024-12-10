@@ -77,7 +77,7 @@ func (c DownloadCommand) progressReader(text string, completedText string, reade
 		if progress.Completed {
 			displayText = completedText
 		}
-		progressBar.Update(displayText, progress.BytesRead, length, progress.BytesPerSecond)
+		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
 	return progressReader
 }
@@ -119,18 +119,9 @@ func (c DownloadCommand) createReadUrlRequest(context plugin.ExecutionContext) (
 	if context.Tenant == "" {
 		return nil, errors.New("Tenant is not set")
 	}
-	folderId, err := c.getIntParameter("folder-id", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
-	bucketId, err := c.getIntParameter("key", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
-	path, err := c.getStringParameter("path", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
+	folderId := c.getIntParameter("folder-id", context.Parameters)
+	bucketId := c.getIntParameter("key", context.Parameters)
+	path := c.getStringParameter("path", context.Parameters)
 
 	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
@@ -182,26 +173,30 @@ func (c DownloadCommand) sendRequest(request *http.Request, insecure bool) (*htt
 	return client.Do(request)
 }
 
-func (c DownloadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {
+func (c DownloadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) string {
+	result := ""
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c DownloadCommand) getIntParameter(name string, parameters []plugin.ExecutionParameter) (int, error) {
+func (c DownloadCommand) getIntParameter(name string, parameters []plugin.ExecutionParameter) int {
+	result := 0
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(int); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return 0, fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
 func (c DownloadCommand) logRequest(logger log.Logger, request *http.Request) {
@@ -216,4 +211,8 @@ func (c DownloadCommand) logRequest(logger log.Logger, request *http.Request) {
 func (c DownloadCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
+}
+
+func NewDownloadCommand() *DownloadCommand {
+	return &DownloadCommand{}
 }

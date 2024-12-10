@@ -1,0 +1,6 @@
+crossplatform/*
+!crossplatform/Main.xaml
+!crossplatform/project.json
+windows/*
+!windows/Main.xaml
+!windows/project.json

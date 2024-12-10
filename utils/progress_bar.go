@@ -16,9 +16,19 @@ type ProgressBar struct {
 	renderedLength int
 }
 
-func (b *ProgressBar) Update(text string, current int64, total int64, bytesPerSecond int64) {
+func (b *ProgressBar) UpdatePercentage(text string, percent float64) {
 	b.logger.LogError("\r")
-	length := b.render(text, current, total, bytesPerSecond)
+	length := b.renderTick(text, percent)
+	left := b.renderedLength - length
+	if left > 0 {
+		b.logger.LogError(strings.Repeat(" ", left))
+	}
+	b.renderedLength = length
+}
+
+func (b *ProgressBar) UpdateProgress(text string, current int64, total int64, bytesPerSecond int64) {
+	b.logger.LogError("\r")
+	length := b.renderProgress(text, current, total, bytesPerSecond)
 	left := b.renderedLength - length
 	if left > 0 {
 		b.logger.LogError(strings.Repeat(" ", left))
@@ -33,10 +43,18 @@ func (b *ProgressBar) Remove() {
 	}
 }
 
-func (b ProgressBar) render(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
+func (b ProgressBar) renderTick(text string, percent float64) int {
+	bar := b.createBar(percent)
+	output := fmt.Sprintf("%s      |%s|",
+		text,
+		bar)
+	b.logger.LogError(output)
+	return utf8.RuneCountInString(output)
+}
+
+func (b ProgressBar) renderProgress(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
 	percent := math.Min(float64(currentBytes)/float64(totalBytes)*100.0, 100.0)
-	barCount := int(percent / 5.0)
-	bar := strings.Repeat("█", barCount) + strings.Repeat(" ", 20-barCount)
+	bar := b.createBar(percent)
 	totalBytesFormatted, unit := b.formatBytes(totalBytes)
 	currentBytesFormatted, unit := b.formatBytesInUnit(currentBytes, unit)
 	bytesPerSecondFormatted, bytesPerSecondUnit := b.formatBytes(bytesPerSecond)
@@ -51,6 +69,14 @@ func (b ProgressBar) render(text string, currentBytes int64, totalBytes int64, b
 		bytesPerSecondUnit)
 	b.logger.LogError(output)
 	return utf8.RuneCountInString(output)
+}
+
+func (b ProgressBar) createBar(percent float64) string {
+	barCount := int(percent / 5.0)
+	if barCount > 20 {
+		barCount = 20
+	}
+	return strings.Repeat("█", barCount) + strings.Repeat(" ", 20-barCount)
 }
 
 func (b ProgressBar) formatBytes(count int64) (string, string) {

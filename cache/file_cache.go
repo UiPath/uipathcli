@@ -9,11 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/UiPath/uipathcli/utils"
 )
 
 const cacheFilePermissions = 0600
-const cacheDirectoryPermissions = 0700
-const cacheDirectory = "uipath"
 const separator = "|"
 
 // The FileCache stores data on disk in order to preserve them across
@@ -63,15 +63,12 @@ func (c FileCache) readValue(key string) (int64, string, error) {
 }
 
 func (c FileCache) cacheFilePath(key string) (string, error) {
-	userCacheDirectory, err := os.UserCacheDir()
+	cacheDirectory, err := utils.Directories{}.Cache()
 	if err != nil {
 		return "", err
 	}
-	cacheDirectory := filepath.Join(userCacheDirectory, cacheDirectory)
-	_ = os.MkdirAll(cacheDirectory, cacheDirectoryPermissions)
-
 	hash := sha256.Sum256([]byte(key))
-	fileName := fmt.Sprintf("%x.cache", hash)
+	fileName := fmt.Sprintf("%x", hash)
 	return filepath.Join(cacheDirectory, fileName), nil
 }
 
