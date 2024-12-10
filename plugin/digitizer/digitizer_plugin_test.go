@@ -20,7 +20,7 @@ paths:
 
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234"}, context)
@@ -47,7 +47,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithConfig(config).
 		WithDefinition("du", definition).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", "does-not-exist"}, context)
@@ -67,7 +67,7 @@ paths:
 
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", "hello-world"}, context)
@@ -87,7 +87,7 @@ paths:
 
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--organization", "myorg", "--project-id", "1234", "--file", "hello-world"}, context)
@@ -117,7 +117,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(400, "validation error").
 		Build()
 
@@ -148,7 +148,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(202, `{"documentId":"04908673-2b65-4647-8ab3-dde8a3aa7885"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/04908673-2b65-4647-8ab3-dde8a3aa7885?api-version=1", 400, `validation error`).
 		Build()
@@ -190,7 +190,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(202, `{"documentId":"648ea1c2-7dbe-42a8-b112-6474d07e61c1"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/00000000-0000-0000-0000-000000000000/digitization/result/648ea1c2-7dbe-42a8-b112-6474d07e61c1?api-version=1", 200, `{"status":"Done"}`).
 		Build()
@@ -236,7 +236,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
@@ -272,7 +272,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
 		Build()
@@ -313,7 +313,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithStdIn(stdIn).
 		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
@@ -360,7 +360,7 @@ paths:
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
-		WithCommandPlugin(DigitizeCommand{}).
+		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()

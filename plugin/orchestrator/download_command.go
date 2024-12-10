@@ -217,3 +217,7 @@ func (c DownloadCommand) logResponse(logger log.Logger, response *http.Response,
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }
+
+func NewDownloadCommand() *DownloadCommand {
+	return &DownloadCommand{}
+}

@@ -16,7 +16,7 @@ import (
 func TestUploadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
@@ -29,7 +29,7 @@ func TestUploadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 func TestUploadWithoutKeyParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--path", "file.txt", "--file", "does-not-exist"}, context)
@@ -42,7 +42,7 @@ func TestUploadWithoutKeyParameterShowsValidationError(t *testing.T) {
 func TestUploadWithInvalidFolderIdParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "invalid", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
@@ -55,7 +55,7 @@ func TestUploadWithInvalidFolderIdParameterShowsValidationError(t *testing.T) {
 func TestUploadWithoutPathParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--file", "does-not-exist"}, context)
@@ -68,7 +68,7 @@ func TestUploadWithoutPathParameterShowsValidationError(t *testing.T) {
 func TestUploadWithoutFileParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -88,7 +88,7 @@ func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithConfig(config).
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		WithResponse(200, `{"Uri":"http://localhost"}`).
 		Build()
 
@@ -102,7 +102,7 @@ func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
 func TestUploadWithoutOrganizationShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "hello-world"}, context)
@@ -115,7 +115,7 @@ func TestUploadWithoutOrganizationShowsValidationError(t *testing.T) {
 func TestUploadWithoutTenantShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--organization", "myorg", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "hello-world"}, context)
@@ -138,7 +138,7 @@ func TestUploadWithFailedResponseReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		WithResponse(400, "validation error").
 		Build()
 
@@ -197,7 +197,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
@@ -242,7 +242,7 @@ servers:
 
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
@@ -277,7 +277,7 @@ servers:
 
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
-		WithCommandPlugin(UploadCommand{}).
+		WithCommandPlugin(NewUploadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+"/upload/file.txt"+`"}`).
 		Build()
 
@@ -294,7 +294,7 @@ servers:
 func TestDownloadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--key", "2", "--path", "file.txt"}, context)
@@ -307,7 +307,7 @@ func TestDownloadWithoutFolderIdParameterShowsValidationError(t *testing.T) {
 func TestDownloadWithoutKeyParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--path", "file.txt"}, context)
@@ -320,7 +320,7 @@ func TestDownloadWithoutKeyParameterShowsValidationError(t *testing.T) {
 func TestDownloadWithoutPathParameterShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2"}, context)
@@ -333,7 +333,7 @@ func TestDownloadWithoutPathParameterShowsValidationError(t *testing.T) {
 func TestDownloadWithoutOrganizationShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -346,7 +346,7 @@ func TestDownloadWithoutOrganizationShowsValidationError(t *testing.T) {
 func TestDownloadWithoutTenantShowsValidationError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--organization", "myorg", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -366,7 +366,7 @@ func TestDownloadWithFailedResponseReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		WithResponse(400, "validation error").
 		Build()
 
@@ -411,7 +411,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
@@ -452,7 +452,7 @@ servers:
 
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
@@ -485,7 +485,7 @@ servers:
 
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
-		WithCommandPlugin(DownloadCommand{}).
+		WithCommandPlugin(NewDownloadCommand()).
 		WithResponse(200, `{"Uri":"`+srv.URL+`/download/file.txt"}`).
 		Build()
 

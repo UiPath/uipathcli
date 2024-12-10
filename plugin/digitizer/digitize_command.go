@@ -304,3 +304,7 @@ func (c DigitizeCommand) logResponse(logger log.Logger, response *http.Response,
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
 }
+
+func NewDigitizeCommand() *DigitizeCommand {
+	return &DigitizeCommand{}
+}
