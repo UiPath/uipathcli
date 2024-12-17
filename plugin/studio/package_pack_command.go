@@ -8,9 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -22,8 +20,6 @@ import (
 )
 
 const defaultProjectJson = "project.json"
-const uipcliVersion = "24.12.9111.31003"
-const uipcliUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_apis/packaging/feeds/1c781268-d43d-45ab-9dfc-0151a1c740b7/nuget/packages/UiPath.CLI/versions/" + uipcliVersion + "/content"
 
 // The PackagePackCommand packs a project into a single NuGet package
 type PackagePackCommand struct {
@@ -72,17 +68,11 @@ func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer outp
 }
 
 func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger log.Logger) (*packagePackResult, error) {
-	uipcliPath, err := c.getUipcliPath(logger)
-	if err != nil {
-		return nil, err
-	}
-
 	if !debug {
 		bar := c.newPackagingProgressBar(logger)
 		defer close(bar)
 	}
 
-	path := uipcliPath
 	args := []string{"package", "pack", params.Source, "--output", params.Destination}
 	if params.PackageVersion != "" {
 		args = append(args, "--version", params.PackageVersion)
@@ -100,15 +90,11 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 		args = append(args, "--releaseNotes", params.ReleaseNotes)
 	}
 
-	if filepath.Ext(uipcliPath) == ".dll" {
-		path, err = exec.LookPath("dotnet")
-		if err != nil {
-			return nil, fmt.Errorf("Could not find dotnet runtime to run pack command: %v", err)
-		}
-		args = append([]string{uipcliPath}, args...)
+	uipcli := newUipcli(c.Exec, logger)
+	cmd, err := uipcli.Execute(args...)
+	if err != nil {
+		return nil, err
 	}
-
-	cmd := c.Exec.Command(path, args...)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		return nil, fmt.Errorf("Could not run pack command: %v", err)
@@ -191,15 +177,6 @@ func (c PackagePackCommand) extractVersion(nupkgFile string) string {
 func (c PackagePackCommand) wait(cmd utils.ExecCmd, wg *sync.WaitGroup) {
 	defer wg.Done()
 	_ = cmd.Wait()
-}
-
-func (c PackagePackCommand) getUipcliPath(logger log.Logger) (string, error) {
-	externalPlugin := plugin.NewExternalPlugin(logger)
-	executable := "tools/uipcli.dll"
-	if c.isWindows() {
-		executable = "tools/uipcli.exe"
-	}
-	return externalPlugin.GetTool("uipcli", uipcliUrl, executable)
 }
 
 func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan struct{} {
@@ -292,10 +269,6 @@ func (c PackagePackCommand) getBoolParameter(name string, parameters []plugin.Ex
 		}
 	}
 	return false, fmt.Errorf("Could not find '%s' parameter", name)
-}
-
-func (c PackagePackCommand) isWindows() bool {
-	return runtime.GOOS == "windows"
 }
 
 func NewPackagePackCommand() *PackagePackCommand {
