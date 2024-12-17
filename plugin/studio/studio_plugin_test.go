@@ -134,6 +134,84 @@ func TestPackSuccessfully(t *testing.T) {
 	}
 }
 
+func TestAnalyzeWithoutSourceParameterShowsValidationError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "analyze"}, context)
+
+	if !strings.Contains(result.StdErr, "Argument --source is missing") {
+		t.Errorf("Expected stderr to show that source parameter is missing, but got: %v", result.StdErr)
+	}
+}
+
+func TestAnalyzeSuccessfully(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
+	}
+	if stdout["error"] != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.StdOut)
+	}
+	violations := stdout["violations"].([]interface{})
+	if len(violations) == 0 {
+		t.Errorf("Expected violations not to be empty, but got: %v", result.StdOut)
+	}
+	violation := findViolation(violations, "TA-DBP-002")
+	if violation == nil {
+		t.Errorf("Could not find violation TA-DBP-002, got: %v", result.StdOut)
+	}
+	if violation["activityDisplayName"] != "" {
+		t.Errorf("Expected violation to have a activityDisplayName, but got: %v", result.StdOut)
+	}
+	if violation["description"] != "Workflow Main.xaml does not have any assigned Test Cases." {
+		t.Errorf("Expected violation to have a description, but got: %v", result.StdOut)
+	}
+	if violation["documentationLink"] != "https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002" {
+		t.Errorf("Expected violation to have a documentationLink, but got: %v", result.StdOut)
+	}
+	if violation["errorSeverity"] != 1.0 {
+		t.Errorf("Expected violation to have a errorSeverity, but got: %v", result.StdOut)
+	}
+	if violation["filePath"] != "" {
+		t.Errorf("Expected violation to have a filePath, but got: %v", result.StdOut)
+	}
+	if violation["recommendation"] != "Creating Test Cases for your workflows allows you to run them frequently to discover potential issues early on before they are introduced in your production environment. [Learn more.](https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002)" {
+		t.Errorf("Expected violation to have a recommendation, but got: %v", result.StdOut)
+	}
+	if violation["ruleName"] != "Untested Workflows" {
+		t.Errorf("Expected violation to have a ruleName, but got: %v", result.StdOut)
+	}
+	if violation["workflowDisplayName"] != "Main" {
+		t.Errorf("Expected violation to have a workflowDisplayName, but got: %v", result.StdOut)
+	}
+}
+
+func findViolation(violations []interface{}, errorCode string) map[string]interface{} {
+	var violation map[string]interface{}
+	for _, v := range violations {
+		vMap := v.(map[string]interface{})
+		if vMap["errorCode"] == errorCode {
+			violation = vMap
+		}
+	}
+	return violation
+}
+
 func studioProjectDirectory() string {
 	_, filename, _, _ := runtime.Caller(0)
 	return filepath.Join(filepath.Dir(filename), "project")

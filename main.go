@@ -68,6 +68,7 @@ func main() {
 				plugin_orchestrator.NewUploadCommand(),
 				plugin_orchestrator.NewDownloadCommand(),
 				plugin_studio.NewPackagePackCommand(),
+				plugin_studio.NewPackageAnalyzeCommand(),
 			},
 		),
 		*configProvider,

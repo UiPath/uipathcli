@@ -22,7 +22,7 @@ type ExternalPlugin struct {
 }
 
 func (p ExternalPlugin) GetTool(name string, url string, executable string) (string, error) {
-	pluginDirectory, err := p.cacheFilePath(name, url)
+	pluginDirectory, err := p.pluginDirectory(name, url)
 	if err != nil {
 		return "", fmt.Errorf("Could not download %s: %v", name, err)
 	}
@@ -88,15 +88,14 @@ func (p ExternalPlugin) progressReader(text string, completedText string, reader
 	return progressReader
 }
 
-func (p ExternalPlugin) cacheFilePath(name string, url string) (string, error) {
-	cacheDirectory, err := utils.Directories{}.Cache()
+func (p ExternalPlugin) pluginDirectory(name string, url string) (string, error) {
+	pluginDirectory, err := utils.Directories{}.Plugin()
 	if err != nil {
 		return "", err
 	}
 	hash := sha256.Sum256([]byte(url))
 	subdirectory := fmt.Sprintf("%s-%x", name, hash)
-	pluginDirectory := filepath.Join(cacheDirectory, "plugins", subdirectory)
-	return pluginDirectory, nil
+	return filepath.Join(pluginDirectory, subdirectory), nil
 }
 
 func (p ExternalPlugin) randomFolderName() string {

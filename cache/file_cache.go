@@ -14,7 +14,6 @@ import (
 )
 
 const cacheFilePermissions = 0600
-const cacheDirectoryPermissions = 0700
 const separator = "|"
 
 // The FileCache stores data on disk in order to preserve them across
@@ -68,12 +67,9 @@ func (c FileCache) cacheFilePath(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	fileCacheDirectory := filepath.Join(cacheDirectory, "cache")
-	_ = os.MkdirAll(fileCacheDirectory, cacheDirectoryPermissions)
-
 	hash := sha256.Sum256([]byte(key))
 	fileName := fmt.Sprintf("%x", hash)
-	return filepath.Join(fileCacheDirectory, fileName), nil
+	return filepath.Join(cacheDirectory, fileName), nil
 }
 
 func NewFileCache() *FileCache {
