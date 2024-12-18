@@ -28,12 +28,18 @@ func (c DigitizeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("du").
 		WithCategory("digitization", "Document Digitization", "Digitizes a document, extracting its Document Object Model (DOM) and text.").
 		WithOperation("digitize", "Digitize file", "Digitize the given file").
-		WithParameter("project-id", plugin.ParameterTypeString, "The project id", true).
+		WithParameter("project-id", plugin.ParameterTypeString, "The project id", false).
 		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true).
 		WithParameter("content-type", plugin.ParameterTypeString, "The content type", false)
 }
 
 func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	if context.Organization == "" {
+		return errors.New("Organization is not set")
+	}
+	if context.Tenant == "" {
+		return errors.New("Tenant is not set")
+	}
 	documentId, err := c.startDigitization(context, logger)
 	if err != nil {
 		return err
@@ -118,16 +124,8 @@ func (c DigitizeCommand) waitForDigitization(documentId string, context plugin.E
 }
 
 func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, uploadBar *utils.ProgressBar, requestError chan error) (*http.Request, error) {
-	if context.Organization == "" {
-		return nil, errors.New("Organization is not set")
-	}
-	if context.Tenant == "" {
-		return nil, errors.New("Tenant is not set")
-	}
-	projectId, _ := c.getParameter("project-id", context.Parameters)
-	if projectId == "" {
-		return nil, errors.New("ProjectId is not set")
-	}
+	projectId := c.getProjectId(context.Parameters)
+
 	var err error
 	file := context.Input
 	if file == nil {
@@ -184,7 +182,7 @@ func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string, p
 }
 
 func (c DigitizeCommand) createDigitizeStatusRequest(documentId string, context plugin.ExecutionContext) (*http.Request, error) {
-	projectId, _ := c.getParameter("project-id", context.Parameters)
+	projectId := c.getProjectId(context.Parameters)
 	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant, projectId) + fmt.Sprintf("/digitization/result/%s?api-version=1", documentId)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
 	if err != nil {
@@ -261,6 +259,14 @@ func (c DigitizeCommand) sendRequest(request *http.Request, insecure bool) (*htt
 	}
 	client := &http.Client{Transport: transport}
 	return client.Do(request)
+}
+
+func (c DigitizeCommand) getProjectId(parameters []plugin.ExecutionParameter) string {
+	projectId, _ := c.getParameter("project-id", parameters)
+	if projectId == "" {
+		projectId = "00000000-0000-0000-0000-000000000000"
+	}
+	return projectId
 }
 
 func (c DigitizeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {

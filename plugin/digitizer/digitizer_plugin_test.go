@@ -10,26 +10,6 @@ import (
 	"github.com/UiPath/uipathcli/test"
 )
 
-func TestDigitizeWithoutProjectIdParameterShowsValidationError(t *testing.T) {
-	definition := `
-paths:
-  /digitize:
-    get:
-      operationId: digitize
-`
-
-	context := test.NewContextBuilder().
-		WithDefinition("du", definition).
-		WithCommandPlugin(DigitizeCommand{}).
-		Build()
-
-	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", "myfile"}, context)
-
-	if !strings.Contains(result.StdErr, "Argument --project-id is missing") {
-		t.Errorf("Expected stderr to show that project-id parameter is missing, but got: %v", result.StdErr)
-	}
-}
-
 func TestDigitizeWithoutFileParameterShowsValidationError(t *testing.T) {
 	definition := `
 paths:
@@ -177,6 +157,52 @@ paths:
 
 	if !strings.Contains(result.StdErr, "Digitizer returned status code '400' and body 'validation error'") {
 		t.Errorf("Expected stderr to show that digitizer call failed, but got: %v", result.StdErr)
+	}
+}
+
+func TestDigitizeWithoutProjectIdUsesDefaultProject(t *testing.T) {
+	path := createFile(t)
+	writeFile(path, []byte("hello-world"))
+
+	config := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+`
+
+	definition := `
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithConfig(config).
+		WithCommandPlugin(DigitizeCommand{}).
+		WithResponse(202, `{"documentId":"648ea1c2-7dbe-42a8-b112-6474d07e61c1"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/00000000-0000-0000-0000-000000000000/digitization/result/648ea1c2-7dbe-42a8-b112-6474d07e61c1?api-version=1", 200, `{"status":"Done"}`).
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path}, context)
+
+	expectedResult := `{
+  "status": "Done"
+}
+`
+	if result.StdOut != expectedResult {
+		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}
 }
 
