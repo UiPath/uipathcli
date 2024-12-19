@@ -70,11 +70,7 @@ func (c UploadCommand) upload(context plugin.ExecutionContext, logger log.Logger
 func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url string, uploadBar *utils.ProgressBar, requestError chan error) (*http.Request, error) {
 	file := context.Input
 	if file == nil {
-		var err error
-		file, err = c.getFileParameter(context.Parameters)
-		if err != nil {
-			return nil, err
-		}
+		file = c.getFileParameter(context.Parameters)
 	}
 	bodyReader, bodyWriter := io.Pipe()
 	contentType, contentLength := c.writeBody(bodyWriter, file, requestError)
@@ -160,18 +156,9 @@ func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext) (*
 	if context.Tenant == "" {
 		return nil, errors.New("Tenant is not set")
 	}
-	folderId, err := c.getIntParameter("folder-id", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
-	bucketId, err := c.getIntParameter("key", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
-	path, err := c.getStringParameter("path", context.Parameters)
-	if err != nil {
-		return nil, err
-	}
+	folderId := c.getIntParameter("folder-id", context.Parameters)
+	bucketId := c.getIntParameter("key", context.Parameters)
+	path := c.getStringParameter("path", context.Parameters)
 
 	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
 	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
@@ -223,37 +210,43 @@ func (c UploadCommand) sendRequest(request *http.Request, insecure bool) (*http.
 	return client.Do(request)
 }
 
-func (c UploadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {
+func (c UploadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) string {
+	result := ""
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c UploadCommand) getIntParameter(name string, parameters []plugin.ExecutionParameter) (int, error) {
+func (c UploadCommand) getIntParameter(name string, parameters []plugin.ExecutionParameter) int {
+	result := 0
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(int); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return 0, fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) (utils.Stream, error) {
+func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) utils.Stream {
+	var result utils.Stream
 	for _, p := range parameters {
 		if p.Name == "file" {
 			if stream, ok := p.Value.(utils.Stream); ok {
-				return stream, nil
+				result = stream
+				break
 			}
 		}
 	}
-	return nil, fmt.Errorf("Could not find 'file' parameter")
+	return result
 }
 
 func (c UploadCommand) logRequest(logger log.Logger, request *http.Request) {
