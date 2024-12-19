@@ -41,8 +41,8 @@ func (c PackageAnalyzeCommand) Execute(context plugin.ExecutionContext, writer o
 	if err != nil {
 		return err
 	}
-	treatWarningsAsErrors, _ := c.getBoolParameter("treat-warnings-as-errors", context.Parameters)
-	stopOnRuleViolation, _ := c.getBoolParameter("stop-on-rule-violation", context.Parameters)
+	treatWarningsAsErrors := c.getBoolParameter("treat-warnings-as-errors", context.Parameters)
+	stopOnRuleViolation := c.getBoolParameter("stop-on-rule-violation", context.Parameters)
 	exitCode, result, err := c.execute(source, treatWarningsAsErrors, stopOnRuleViolation, context.Debug, logger)
 	if err != nil {
 		return err
@@ -223,7 +223,7 @@ func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan s
 }
 
 func (c PackageAnalyzeCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source, _ := c.getParameter("source", context.Parameters)
+	source := c.getParameter("source", context.Parameters)
 	if source == "" {
 		return "", errors.New("source is not set")
 	}
@@ -247,26 +247,30 @@ func (c PackageAnalyzeCommand) readOutput(output io.Reader, logger log.Logger, w
 	}
 }
 
-func (c PackageAnalyzeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {
+func (c PackageAnalyzeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
+	result := ""
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c PackageAnalyzeCommand) getBoolParameter(name string, parameters []plugin.ExecutionParameter) (bool, error) {
+func (c PackageAnalyzeCommand) getBoolParameter(name string, parameters []plugin.ExecutionParameter) bool {
+	result := false
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(bool); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return false, fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
 func NewPackageAnalyzeCommand() *PackageAnalyzeCommand {

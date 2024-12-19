@@ -48,11 +48,11 @@ func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer outp
 	if err != nil {
 		return err
 	}
-	packageVersion, _ := c.getParameter("package-version", context.Parameters)
-	autoVersion, _ := c.getBoolParameter("auto-version", context.Parameters)
-	outputType, _ := c.getParameter("output-type", context.Parameters)
-	splitOutput, _ := c.getBoolParameter("split-output", context.Parameters)
-	releaseNotes, _ := c.getParameter("release-notes", context.Parameters)
+	packageVersion := c.getParameter("package-version", context.Parameters)
+	autoVersion := c.getBoolParameter("auto-version", context.Parameters)
+	outputType := c.getParameter("output-type", context.Parameters)
+	splitOutput := c.getBoolParameter("split-output", context.Parameters)
+	releaseNotes := c.getParameter("release-notes", context.Parameters)
 	params := newPackagePackParams(source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes)
 
 	result, err := c.execute(*params, context.Debug, logger)
@@ -199,7 +199,7 @@ func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan stru
 }
 
 func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source, _ := c.getParameter("source", context.Parameters)
+	source := c.getParameter("source", context.Parameters)
 	if source == "" {
 		return "", errors.New("source is not set")
 	}
@@ -234,7 +234,7 @@ func (c PackagePackCommand) readProjectJson(path string) (projectJson, error) {
 }
 
 func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) (string, error) {
-	destination, _ := c.getParameter("destination", context.Parameters)
+	destination := c.getParameter("destination", context.Parameters)
 	if destination == "" {
 		return "", errors.New("destination is not set")
 	}
@@ -251,26 +251,30 @@ func (c PackagePackCommand) readOutput(output io.Reader, logger log.Logger, wg *
 	}
 }
 
-func (c PackagePackCommand) getParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {
+func (c PackagePackCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
+	result := ""
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c PackagePackCommand) getBoolParameter(name string, parameters []plugin.ExecutionParameter) (bool, error) {
+func (c PackagePackCommand) getBoolParameter(name string, parameters []plugin.ExecutionParameter) bool {
+	result := false
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(bool); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return false, fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
 func NewPackagePackCommand() *PackagePackCommand {
