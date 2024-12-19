@@ -28,7 +28,7 @@ var embedded embed.FS
 func authenticators() []auth.Authenticator {
 	return []auth.Authenticator{
 		auth.NewPatAuthenticator(),
-		auth.NewOAuthAuthenticator(cache.NewFileCache(), auth.NewExecBrowserLauncher()),
+		auth.NewOAuthAuthenticator(cache.NewFileCache(), *auth.NewBrowserLauncher()),
 		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	}
 }

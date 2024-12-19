@@ -187,7 +187,7 @@ func RunCli(args []string, context Context) Result {
 	stderr := new(bytes.Buffer)
 	authenticators := []auth.Authenticator{
 		auth.NewPatAuthenticator(),
-		auth.NewOAuthAuthenticator(cache.NewFileCache(), auth.NewExecBrowserLauncher()),
+		auth.NewOAuthAuthenticator(cache.NewFileCache(), *auth.NewBrowserLauncher()),
 		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	}
 	commandPlugins := []plugin.CommandPlugin{}

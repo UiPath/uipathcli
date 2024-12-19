@@ -227,6 +227,7 @@ func (c PackageAnalyzeCommand) getSource(context plugin.ExecutionContext) (strin
 	if source == "" {
 		return "", errors.New("source is not set")
 	}
+	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
 		return "", fmt.Errorf("%s not found", defaultProjectJson)

@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/test"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 const studioDefinition = `
@@ -69,7 +70,7 @@ func TestPackNonExistentProject(t *testing.T) {
 }
 
 func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
-	exec := test.NewFakeExecProcess(1, "Build output", "There was an error")
+	exec := utils.NewExecCustomProcess(1, "Build output", "There was an error", func(name string, args []string) {})
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(PackagePackCommand{exec}).

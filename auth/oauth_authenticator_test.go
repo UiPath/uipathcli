@@ -11,10 +11,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"runtime"
 	"strings"
 	"testing"
 
 	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils"
 )
 
 func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
@@ -25,7 +27,7 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
 	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
 	if result.Error != "" {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
@@ -46,7 +48,7 @@ func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", headers)
 	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
 	if result.Error != "" {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
@@ -65,7 +67,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
 	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
 
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
 	if result.Error != "Invalid oauth authenticator configuration: Invalid value for clientId: '1'" {
 		t.Errorf("Expected error with invalid config, but got: %v", result.Error)
@@ -122,7 +124,7 @@ func TestOAuthFlowIsCached(t *testing.T) {
 	performLogin(loginUrl, t)
 	<-resultChannel
 
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), nil)
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(context)
 
 	if result.Error != "" {
@@ -208,8 +210,15 @@ func TestMissingCodeShowsErrorMessage(t *testing.T) {
 
 func callAuthenticator(context AuthenticatorContext) (url.URL, chan AuthenticatorResult) {
 	loginChan := make(chan string)
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), NoOpBrowserLauncher{
-		loginUrlChannel: loginChan,
+	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), BrowserLauncher{
+		Exec: utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+			switch runtime.GOOS {
+			case "windows":
+				loginChan <- args[1]
+			default:
+				loginChan <- args[0]
+			}
+		}),
 	})
 
 	resultChannel := make(chan AuthenticatorResult)
@@ -322,13 +331,4 @@ func (i identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge
 func (i identityServerFake) writeValidationErrorResponse(response http.ResponseWriter, message string) {
 	response.WriteHeader(400)
 	_, _ = response.Write([]byte(message))
-}
-
-type NoOpBrowserLauncher struct {
-	loginUrlChannel chan string
-}
-
-func (l NoOpBrowserLauncher) Open(url string) error {
-	l.loginUrlChannel <- url
-	return nil
 }
