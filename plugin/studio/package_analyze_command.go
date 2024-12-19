@@ -146,6 +146,9 @@ func (c PackageAnalyzeCommand) randomJsonResultFileName() string {
 
 func (c PackageAnalyzeCommand) readAnalyzeResult(path string) ([]packageAnalyzeViolation, error) {
 	file, err := os.Open(path)
+	if err != nil && errors.Is(err, os.ErrNotExist) {
+		return []packageAnalyzeViolation{}, nil
+	}
 	if err != nil {
 		return []packageAnalyzeViolation{}, fmt.Errorf("Error reading %s file: %v", filepath.Base(path), err)
 	}
