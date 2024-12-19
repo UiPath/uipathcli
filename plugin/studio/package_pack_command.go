@@ -203,6 +203,7 @@ func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, 
 	if source == "" {
 		return "", errors.New("source is not set")
 	}
+	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
 		return "", fmt.Errorf("%s not found", defaultProjectJson)
@@ -237,6 +238,7 @@ func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) (str
 	if destination == "" {
 		return "", errors.New("destination is not set")
 	}
+	destination, _ = filepath.Abs(destination)
 	return destination, nil
 }
 
