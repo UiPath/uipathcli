@@ -213,7 +213,13 @@ func createFile(t *testing.T, directory string, name string) string {
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(func() { os.Remove(tempFile.Name()) })
+	defer tempFile.Close()
+	t.Cleanup(func() {
+		err := os.Remove(tempFile.Name())
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
 	return tempFile.Name()
 }
 

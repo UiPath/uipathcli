@@ -18,6 +18,7 @@ func TestFileStreamName(t *testing.T) {
 
 func TestFileStreamSize(t *testing.T) {
 	tempFile, _ := os.CreateTemp("", "uipath-test")
+	defer tempFile.Close()
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
 	if err != nil {
@@ -37,6 +38,7 @@ func TestFileStreamSize(t *testing.T) {
 
 func TestFileStreamData(t *testing.T) {
 	tempFile, _ := os.CreateTemp("", "uipath-test")
+	defer tempFile.Close()
 	t.Cleanup(func() { os.Remove(tempFile.Name()) })
 	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
 	if err != nil {

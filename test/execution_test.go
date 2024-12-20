@@ -1288,10 +1288,10 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	path := createFile(t)
+	currentPath, _ := os.Getwd()
+	path := createFileInFolder(t, filepath.Join(currentPath, "tmp"))
 	writeFile(t, path, []byte("hello-world"))
 
-	currentPath, _ := os.Getwd()
 	relativePath, _ := filepath.Rel(currentPath, path)
 	result := RunCli([]string{"myservice", "upload", "--file", relativePath}, context)
 
