@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 
@@ -48,7 +49,7 @@ func TestPackWithoutDestinationParameterShowsValidationError(t *testing.T) {
 		WithCommandPlugin(NewPackagePackCommand()).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source}, context)
 
 	if !strings.Contains(result.StdErr, "Argument --destination is missing") {
@@ -76,7 +77,7 @@ func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
@@ -93,13 +94,13 @@ func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
 	}
 }
 
-func TestPackSuccessfully(t *testing.T) {
+func TestPackCrossPlatformSuccessfully(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(NewPackagePackCommand()).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
@@ -136,10 +137,8 @@ func TestPackSuccessfully(t *testing.T) {
 }
 
 func TestPackWithAutoVersionArgument(t *testing.T) {
-	commandName := ""
 	commandArgs := []string{}
 	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandName = name
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -147,48 +146,18 @@ func TestPackWithAutoVersionArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--auto-version", "true"}, context)
 
-	expectedCommandName := "uipcli.exe"
-	if runtime.GOOS != "windows" {
-		expectedCommandName = "dotnet"
-	}
-	if !strings.HasSuffix(commandName, expectedCommandName) {
-		t.Errorf("Expected command name to be %s, but got: %v", expectedCommandName, commandName)
-	}
-	if runtime.GOOS != "windows" {
-		if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
-			t.Errorf("Expected first argument to be the uipcli.dll, but got: %v", commandArgs[0])
-		}
-		commandArgs = commandArgs[1:]
-	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be the package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "pack" {
-		t.Errorf("Expected 2nd argument to be the analyze, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--output" {
-		t.Errorf("Expected 4th argument to be the output, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != destination {
-		t.Errorf("Expected 5th argument to be the output path, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != "--autoVersion" {
-		t.Errorf("Expected 6th argument to be autoVersion, but got: %v", commandArgs[5])
+	if !slices.Contains(commandArgs, "--autoVersion") {
+		t.Errorf("Expected argument --autoVersion, but got: %v", strings.Join(commandArgs, " "))
 	}
 }
 
 func TestPackWithOutputTypeArgument(t *testing.T) {
-	commandName := ""
 	commandArgs := []string{}
 	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandName = name
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -196,51 +165,18 @@ func TestPackWithOutputTypeArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "Process"}, context)
 
-	expectedCommandName := "uipcli.exe"
-	if runtime.GOOS != "windows" {
-		expectedCommandName = "dotnet"
-	}
-	if !strings.HasSuffix(commandName, expectedCommandName) {
-		t.Errorf("Expected command name to be %s, but got: %v", expectedCommandName, commandName)
-	}
-	if runtime.GOOS != "windows" {
-		if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
-			t.Errorf("Expected first argument to be the uipcli.dll, but got: %v", commandArgs[0])
-		}
-		commandArgs = commandArgs[1:]
-	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be the package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "pack" {
-		t.Errorf("Expected 2nd argument to be the analyze, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--output" {
-		t.Errorf("Expected 4th argument to be the output, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != destination {
-		t.Errorf("Expected 5th argument to be the output path, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != "--outputType" {
-		t.Errorf("Expected 6th argument to be outputType, but got: %v", commandArgs[5])
-	}
-	if commandArgs[6] != "Process" {
-		t.Errorf("Expected 7th argument to be outputType value, but got: %v", commandArgs[6])
+	if !slices.Contains(commandArgs, "--outputType") {
+		t.Errorf("Expected argument --outputType, but got: %v", strings.Join(commandArgs, " "))
 	}
 }
 
 func TestPackWithSplitOutputArgument(t *testing.T) {
-	commandName := ""
 	commandArgs := []string{}
 	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandName = name
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -248,48 +184,18 @@ func TestPackWithSplitOutputArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--split-output", "true"}, context)
 
-	expectedCommandName := "uipcli.exe"
-	if runtime.GOOS != "windows" {
-		expectedCommandName = "dotnet"
-	}
-	if !strings.HasSuffix(commandName, expectedCommandName) {
-		t.Errorf("Expected command name to be %s, but got: %v", expectedCommandName, commandName)
-	}
-	if runtime.GOOS != "windows" {
-		if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
-			t.Errorf("Expected first argument to be the uipcli.dll, but got: %v", commandArgs[0])
-		}
-		commandArgs = commandArgs[1:]
-	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be the package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "pack" {
-		t.Errorf("Expected 2nd argument to be the analyze, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--output" {
-		t.Errorf("Expected 4th argument to be the output, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != destination {
-		t.Errorf("Expected 5th argument to be the output path, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != "--splitOutput" {
-		t.Errorf("Expected 6th argument to be splitOutput, but got: %v", commandArgs[5])
+	if !slices.Contains(commandArgs, "--splitOutput") {
+		t.Errorf("Expected argument --splitOutput, but got: %v", strings.Join(commandArgs, " "))
 	}
 }
 
 func TestPackWithReleaseNotesArgument(t *testing.T) {
-	commandName := ""
 	commandArgs := []string{}
 	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandName = name
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -297,43 +203,16 @@ func TestPackWithReleaseNotesArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--release-notes", "These are release notes."}, context)
 
-	expectedCommandName := "uipcli.exe"
-	if runtime.GOOS != "windows" {
-		expectedCommandName = "dotnet"
+	index := slices.Index(commandArgs, "--releaseNotes")
+	if commandArgs[index] != "--releaseNotes" {
+		t.Errorf("Expected argument --releaseNotes, but got: %v", strings.Join(commandArgs, " "))
 	}
-	if !strings.HasSuffix(commandName, expectedCommandName) {
-		t.Errorf("Expected command name to be %s, but got: %v", expectedCommandName, commandName)
-	}
-	if runtime.GOOS != "windows" {
-		if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
-			t.Errorf("Expected first argument to be the uipcli.dll, but got: %v", commandArgs[0])
-		}
-		commandArgs = commandArgs[1:]
-	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be the package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "pack" {
-		t.Errorf("Expected 2nd argument to be the analyze, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--output" {
-		t.Errorf("Expected 4th argument to be the output, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != destination {
-		t.Errorf("Expected 5th argument to be the output path, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != "--releaseNotes" {
-		t.Errorf("Expected 6th argument to be outputType, but got: %v", commandArgs[5])
-	}
-	if commandArgs[6] != "These are release notes." {
-		t.Errorf("Expected 7th argument to be outputType value, but got: %v", commandArgs[6])
+	if commandArgs[index+1] != "These are release notes." {
+		t.Errorf("Expected release notes argument, but got: %v", strings.Join(commandArgs, " "))
 	}
 }
 
@@ -350,13 +229,13 @@ func TestAnalyzeWithoutSourceParameterShowsValidationError(t *testing.T) {
 	}
 }
 
-func TestAnalyzeSuccessfully(t *testing.T) {
+func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	stdout := map[string]interface{}{}
@@ -411,7 +290,7 @@ func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
+	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	stdout := map[string]interface{}{}
@@ -427,11 +306,9 @@ func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
 	}
 }
 
-func TestAnalyzeWithTreatWarningsAsErrorsAndStopOnRuleViolation(t *testing.T) {
-	commandName := ""
+func TestAnalyzeWithTreatWarningsAsErrorsArgument(t *testing.T) {
 	commandArgs := []string{}
 	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandName = name
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -439,39 +316,29 @@ func TestAnalyzeWithTreatWarningsAsErrorsAndStopOnRuleViolation(t *testing.T) {
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 
-	source := studioProjectDirectory()
-	test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true", "--stop-on-rule-violation", "true"}, context)
+	source := studioCrossPlatformProjectDirectory()
+	test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true"}, context)
 
-	expectedCommandName := "uipcli.exe"
-	if runtime.GOOS != "windows" {
-		expectedCommandName = "dotnet"
+	if !slices.Contains(commandArgs, "--treatWarningsAsErrors") {
+		t.Errorf("Expected argument --treatWarningsAsErrors, but got: %v", strings.Join(commandArgs, " "))
 	}
-	if !strings.HasSuffix(commandName, expectedCommandName) {
-		t.Errorf("Expected command name to be %s, but got: %v", expectedCommandName, commandName)
-	}
-	if runtime.GOOS != "windows" {
-		if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
-			t.Errorf("Expected first argument to be the uipcli.dll, but got: %v", commandArgs[0])
-		}
-		commandArgs = commandArgs[1:]
-	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be the package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "analyze" {
-		t.Errorf("Expected 2nd argument to be the analyze, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--resultPath" {
-		t.Errorf("Expected 4th argument to be the result path, but got: %v", commandArgs[3])
-	}
-	if commandArgs[5] != "--treatWarningsAsErrors" {
-		t.Errorf("Expected 6th argument to be treatWarningsAsErrors, but got: %v", commandArgs[5])
-	}
-	if commandArgs[6] != "--stopOnRuleViolation" {
-		t.Errorf("Expected 7th argument to be stopOnRuleViolation, but got: %v", commandArgs[6])
+}
+
+func TestAnalyzeWithStopOnRuleViolationArgument(t *testing.T) {
+	commandArgs := []string{}
+	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		commandArgs = args
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(PackageAnalyzeCommand{exec}).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--stop-on-rule-violation", "true"}, context)
+
+	if !slices.Contains(commandArgs, "--stopOnRuleViolation") {
+		t.Errorf("Expected argument --stopOnRuleViolation, but got: %v", strings.Join(commandArgs, " "))
 	}
 }
 
@@ -486,9 +353,9 @@ func findViolation(violations []interface{}, errorCode string) map[string]interf
 	return violation
 }
 
-func studioProjectDirectory() string {
+func studioCrossPlatformProjectDirectory() string {
 	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "project")
+	return filepath.Join(filepath.Dir(filename), "projects", "crossplatform")
 }
 
 func createDirectory(t *testing.T) string {

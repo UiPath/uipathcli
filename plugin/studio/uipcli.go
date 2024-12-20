@@ -14,13 +14,23 @@ import (
 const uipcliVersion = "24.12.9111.31003"
 const uipcliUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_apis/packaging/feeds/1c781268-d43d-45ab-9dfc-0151a1c740b7/nuget/packages/UiPath.CLI/versions/" + uipcliVersion + "/content"
 
+const uipcliWindowsVersion = "24.12.9111.31003"
+const uipcliWindowsUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_apis/packaging/feeds/1c781268-d43d-45ab-9dfc-0151a1c740b7/nuget/packages/UiPath.CLI.Windows/versions/" + uipcliWindowsVersion + "/content"
+
 type uipcli struct {
 	Exec   utils.ExecProcess
 	Logger log.Logger
 }
 
-func (c uipcli) Execute(args ...string) (utils.ExecCmd, error) {
-	uipcliPath, err := c.getPath()
+func (c uipcli) Execute(targetFramework TargetFramework, args ...string) (utils.ExecCmd, error) {
+	if targetFramework == TargetFrameworkWindows {
+		return c.execute("uipcli-win", uipcliWindowsUrl, args)
+	}
+	return c.execute("uipcli", uipcliUrl, args)
+}
+
+func (c uipcli) execute(name string, url string, args []string) (utils.ExecCmd, error) {
+	uipcliPath, err := c.getPath(name, url)
 	if err != nil {
 		return nil, err
 	}
@@ -38,13 +48,13 @@ func (c uipcli) Execute(args ...string) (utils.ExecCmd, error) {
 	return cmd, nil
 }
 
-func (c uipcli) getPath() (string, error) {
+func (c uipcli) getPath(name string, url string) (string, error) {
 	externalPlugin := plugin.NewExternalPlugin(c.Logger)
 	executable := "tools/uipcli.dll"
 	if c.isWindows() {
 		executable = "tools/uipcli.exe"
 	}
-	return externalPlugin.GetTool("uipcli", uipcliUrl, executable)
+	return externalPlugin.GetTool(name, url, executable)
 }
 
 func (c uipcli) isWindows() bool {

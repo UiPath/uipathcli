@@ -82,8 +82,10 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 		args = append(args, "--stopOnRuleViolation")
 	}
 
+	projectReader := newStudioProjectReader(source)
+
 	uipcli := newUipcli(c.Exec, logger)
-	cmd, err := uipcli.Execute(args...)
+	cmd, err := uipcli.Execute(projectReader.GetTargetFramework(), args...)
 	if err != nil {
 		return 1, nil, err
 	}

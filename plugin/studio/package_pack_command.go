@@ -90,8 +90,10 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 		args = append(args, "--releaseNotes", params.ReleaseNotes)
 	}
 
+	projectReader := newStudioProjectReader(params.Source)
+
 	uipcli := newUipcli(c.Exec, logger)
-	cmd, err := uipcli.Execute(args...)
+	cmd, err := uipcli.Execute(projectReader.GetTargetFramework(), args...)
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +122,7 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	go c.wait(cmd, &wg)
 	wg.Wait()
 
-	projectJson, err := c.readProjectJson(params.Source)
+	project, err := projectReader.ReadMetadata()
 	if err != nil {
 		return nil, err
 	}
@@ -132,16 +134,16 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 		version := c.extractVersion(nupkgFile)
 		result = newSucceededPackagePackResult(
 			filepath.Join(params.Destination, nupkgFile),
-			projectJson.Name,
-			projectJson.Description,
-			projectJson.ProjectId,
+			project.Name,
+			project.Description,
+			project.ProjectId,
 			version)
 	} else {
 		result = newFailedPackagePackResult(
 			stderrOutputBuilder.String(),
-			&projectJson.Name,
-			&projectJson.Description,
-			&projectJson.ProjectId)
+			&project.Name,
+			&project.Description,
+			&project.ProjectId)
 	}
 	return result, nil
 }
@@ -212,25 +214,6 @@ func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, 
 		source = filepath.Join(source, defaultProjectJson)
 	}
 	return source, nil
-}
-
-func (c PackagePackCommand) readProjectJson(path string) (projectJson, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return projectJson{}, fmt.Errorf("Error reading %s file: %v", defaultProjectJson, err)
-	}
-	defer file.Close()
-	byteValue, err := io.ReadAll(file)
-	if err != nil {
-		return projectJson{}, fmt.Errorf("Error reading %s file: %v", defaultProjectJson, err)
-	}
-
-	var project projectJson
-	err = json.Unmarshal(byteValue, &project)
-	if err != nil {
-		return projectJson{}, fmt.Errorf("Error parsing %s file: %v", defaultProjectJson, err)
-	}
-	return project, nil
 }
 
 func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) (string, error) {
