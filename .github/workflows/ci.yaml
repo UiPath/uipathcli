@@ -41,7 +41,30 @@ jobs:
           path: build/packages/
           if-no-files-found: error
 
-  test_linux:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: true
+      - name: Test
+        run: go test -coverprofile="coverage.out" -coverpkg "github.com/UiPath/uipathcli,github.com/UiPath/uipathcli/auth,github.com/UiPath/uipathcli/cache,github.com/UiPath/uipathcli/commandline,github.com/UiPath/uipathcli/config,github.com/UiPath/uipathcli/executor,github.com/UiPath/uipathcli/log,github.com/UiPath/uipathcli/output,github.com/UiPath/uipathcli/parser,github.com/UiPath/uipathcli/plugin,github.com/UiPath/uipathcli/plugin/digitizer,github.com/UiPath/uipathcli/plugin/orchestrator,github.com/UiPath/uipathcli/utils" ./...
+      - name: Coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          go install github.com/mattn/goveralls@latest
+          goveralls -coverprofile="coverage.out" -service="github" -parallel -flagname="uipathcli-${{ matrix.os }}"
+
+  tests_completed:
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -51,43 +74,15 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache: true
-      - name: Test
-        run: go test -coverprofile="coverage.out" -coverpkg "$(go list github.com/UiPath/uipathcli/... | grep -v 'test' | tr '\n' ',')" ./...
-      - name: Coverage
+      - name: Complete Coverage
         env:
-          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+          COVERALLS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           go install github.com/mattn/goveralls@latest
-          goveralls -coverprofile="coverage.out" -service="github"
-
-  test_windows:
-    runs-on: windows-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
-      - name: Test
-        run: go test ./...
-
-  test_macos:
-    runs-on: macos-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: true
-      - name: Test
-        run: go test ./...
+          goveralls -parallel-finish
 
   publish_pages:
-    needs: [build, test_linux, test_windows, test_macos]
+    needs: [build, tests_completed]
     permissions:
       pages: write
       id-token: write
@@ -115,7 +110,7 @@ jobs:
         uses: actions/deploy-pages@v4
 
   release:
-    needs: [build, test_linux, test_windows, test_macos]
+    needs: [build, tests_completed]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     env:
