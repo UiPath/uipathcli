@@ -3,7 +3,7 @@ on: [push]
 
 env:
   UIPATHCLI_BASE_VERSION: "v2.0"
-  GO_VERSION: "1.22.2"
+  GO_VERSION: "1.23.4"
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
         run: go build -ldflags="-X github.com/UiPath/uipathcli/commandline.Version=$UIPATHCLI_VERSION" .
       - name: Lint
         run: |
-          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.54.2
+          go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4
           golangci-lint run
       - name: Package
         run: ./build.sh && ./package.sh
