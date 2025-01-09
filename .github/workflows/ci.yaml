@@ -2,7 +2,7 @@ name: CI
 on: [push]
 
 env:
-  UIPATHCLI_BASE_VERSION: "v1.1"
+  UIPATHCLI_BASE_VERSION: "v2.0"
   GO_VERSION: "1.22.2"
 
 jobs:

@@ -169,7 +169,7 @@ func (e HttpExecutor) progressReader(text string, completedText string, reader i
 		if progress.Completed {
 			displayText = completedText
 		}
-		progressBar.Update(displayText, progress.BytesRead, length, progress.BytesPerSecond)
+		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
 	return progressReader
 }

@@ -129,12 +129,9 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	var err error
 	file := context.Input
 	if file == nil {
-		file, err = c.getFileParameter(context.Parameters)
-		if err != nil {
-			return nil, err
-		}
+		file = c.getFileParameter(context.Parameters)
 	}
-	contentType, _ := c.getParameter("content-type", context.Parameters)
+	contentType := c.getParameter("content-type", context.Parameters)
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
@@ -164,7 +161,7 @@ func (c DigitizeCommand) progressReader(text string, completedText string, reade
 		if progress.Completed {
 			displayText = completedText
 		}
-		progressBar.Update(displayText, progress.BytesRead, length, progress.BytesPerSecond)
+		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
 	return progressReader
 }
@@ -262,33 +259,37 @@ func (c DigitizeCommand) sendRequest(request *http.Request, insecure bool) (*htt
 }
 
 func (c DigitizeCommand) getProjectId(parameters []plugin.ExecutionParameter) string {
-	projectId, _ := c.getParameter("project-id", parameters)
+	projectId := c.getParameter("project-id", parameters)
 	if projectId == "" {
 		projectId = "00000000-0000-0000-0000-000000000000"
 	}
 	return projectId
 }
 
-func (c DigitizeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) (string, error) {
+func (c DigitizeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
+	result := ""
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
-				return data, nil
+				result = data
+				break
 			}
 		}
 	}
-	return "", fmt.Errorf("Could not find '%s' parameter", name)
+	return result
 }
 
-func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) (utils.Stream, error) {
+func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) utils.Stream {
+	var result utils.Stream
 	for _, p := range parameters {
 		if p.Name == "file" {
 			if stream, ok := p.Value.(utils.Stream); ok {
-				return stream, nil
+				result = stream
+				break
 			}
 		}
 	}
-	return nil, fmt.Errorf("Could not find 'file' parameter")
+	return result
 }
 
 func (c DigitizeCommand) logRequest(logger log.Logger, request *http.Request) {
@@ -303,4 +304,8 @@ func (c DigitizeCommand) logRequest(logger log.Logger, request *http.Request) {
 func (c DigitizeCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
 	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
 	logger.LogResponse(*responseInfo)
+}
+
+func NewDigitizeCommand() *DigitizeCommand {
+	return &DigitizeCommand{}
 }
