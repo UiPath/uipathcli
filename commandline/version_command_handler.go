@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"io"
 	"runtime"
-)
 
-// This Version variable is overridden during build time
-// by providing the linker flag:
-// -ldflags="-X github.com/UiPath/uipathcli/commandline.Version=1.2.3"
-var Version = "main"
+	"github.com/UiPath/uipathcli/utils"
+)
 
 // The VersionCommandHandler outputs the build information
 //
@@ -22,7 +19,7 @@ type versionCommandHandler struct {
 }
 
 func (h versionCommandHandler) Execute() {
-	fmt.Fprintf(h.StdOut, "uipathcli %s (%s, %s)\n", Version, runtime.GOOS, runtime.GOARCH)
+	fmt.Fprintf(h.StdOut, "uipathcli %s (%s, %s)\n", utils.Version, runtime.GOOS, runtime.GOARCH)
 }
 
 func newVersionCommandHandler(stdOut io.Writer) *versionCommandHandler {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -76,29 +77,33 @@ paths:
 	if !strings.HasPrefix(stdErr[0], expected) {
 		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[0])
 	}
-	expected = "X-Request-Id:"
+	expected = "User-Agent:"
 	if !strings.HasPrefix(stdErr[1], expected) {
 		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[1])
 	}
-	expected = "HTTP/1.1 200 OK"
-	if stdErr[4] != expected {
-		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[4])
+	expected = "X-Request-Id:"
+	if !strings.HasPrefix(stdErr[2], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[2])
 	}
-	expected = "Content-Length:"
-	if !strings.HasPrefix(stdErr[5], expected) {
+	expected = "HTTP/1.1 200 OK"
+	if stdErr[5] != expected {
 		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[5])
 	}
-	expected = "Content-Type: text/plain; charset=utf-8"
-	if stdErr[6] != expected {
+	expected = "Content-Length:"
+	if !strings.HasPrefix(stdErr[6], expected) {
 		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[6])
 	}
-	expected = "Date:"
-	if !strings.HasPrefix(stdErr[7], expected) {
+	expected = "Content-Type: text/plain; charset=utf-8"
+	if stdErr[7] != expected {
 		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[7])
 	}
+	expected = "Date:"
+	if !strings.HasPrefix(stdErr[8], expected) {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[8])
+	}
 	expected = `{"hello":"world"}`
-	if stdErr[9] != expected {
-		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[9])
+	if stdErr[10] != expected {
+		t.Errorf("Expected on stderr %v, got: %v", expected, stdErr[10])
 	}
 }
 
@@ -123,6 +128,28 @@ paths:
 `
 	if result.StdOut != expected {
 		t.Errorf("Expected only response body on stdout %v, got: %v", expected, result.StdOut)
+	}
+}
+
+func TestUserAgent(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithResponse(200, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "get-ping"}, context)
+
+	userAgent := result.RequestHeader["user-agent"]
+	expected := fmt.Sprintf("uipathcli/main (%s; %s)", runtime.GOOS, runtime.GOARCH)
+	if userAgent != expected {
+		t.Errorf("Could not find user-agent on header, got: %v", userAgent)
 	}
 }
 
