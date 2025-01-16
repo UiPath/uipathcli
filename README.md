@@ -295,30 +295,152 @@ Example: Create profile which uses the staging environment
 uipath config set --key "uri" --value "https://staging.uipath.com" --profile staging
 ```
 
-## Commands and arguments
+## Quickstart Guide
 
-CLI commands consist of three main parts:
+This section explains how to use the uipathcli and highlights some of the most common use-cases.
+
+## Package, Deploy and Run Studio Projects
+
+The CLI makes it very easy to package and upload studio projects. You can create a release and execute it using UiPath Orchestrator.
 
 ```bash
-uipath <service-name> <operation-name> <arguments>
+# Download example project
+projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/plugin/studio/projects/crossplatform"
+curl --remote-name "$projectUrl/Main.xaml" \
+     --remote-name "$projectUrl/project.json"
+
+# Build and package project
+uipath studio package pack --source . --destination . --package-version 1.0.0
+
+# Upload package
+uipath orchestrator processes upload-package --file "MyProcess.1.0.0.nupkg"
+
+# Create release
+folderId=$(uipath orchestrator folders get --query "value[0].Id")
+releaseKey=$(uipath orchestrator releases post --folder-id $folderId \
+                                               --name "MyProcess" \
+                                               --process-key "MyProcess" \
+                                               --process-version "1.0.0" \
+                                               --query "Key" \
+                                               --output text)
+
+# Start process
+jobId=$(uipath orchestrator jobs start-jobs --folder-id $folderId \
+                                            --start-info "ReleaseKey=$releaseKey" \
+                                            --query "value[0].Id")
+uipath orchestrator jobs get-by-id --folder-id $folderId --key $jobId
 ```
 
-- `<service-name>`: The CLI discovers the existing OpenAPI specifications and shows each of them as a separate service
-- `<operation-name>`: The operation typically represents the route to call
-- `<arguments>`: A list of arguments which are used as request parameters (in the path, header, querystring or body)
+## Manage Orchestrator Resources
+
+There are various UiPath Orchestrator resources which you can manage through the CLI. This example shows how to create new assets and query for the existing ones:
+
+```bash
+folderId=$(uipath orchestrator folders get --query "value[0].Id")
+
+# Create new Text asset
+uipath orchestrator assets post --folder-id $folderId \
+                                --name "MyAsset" \
+                                --value-scope "Global" \
+                                --value-type "Text" \
+                                --string-value "my-value"
+
+# List existing assets
+uipath orchestrator assets get --folder-id $folderId
+```
+
+## Classify Documents using Document Understanding
+
+You can use the CLI to upload a document and classify it using UiPath Document Understanding.
+
+```bash
+# Download example invoice
+curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
+
+# Start digitization and classification using the default project
+uipath du digitization start --file invoice.jpg | uipath du classification classify --query "classificationResults[0].DocumentTypeId" --file -
+```
+
+```json
+"invoices"
+```
+
+## Extract Data from Documents using Document Understanding
+
+This snippet shows how to upload a document and extract data using UiPath Document Understanding. The CLI converts the result into a list of fields, the extracted values as well as their confidence levels:
+
+```bash
+# Download example invoice
+curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
+
+# Digitization the file and extract using the default project
+uipath du digitization start --file "invoice.jpg" | uipath du extraction extract --query "extractionResult.ResultsDocument.Fields[?not_null(Values)].{field: FieldId, value: Values[0].Value, confidence: Values[0].Confidence}" --file - 
+```
+
+```json
+[
+  {
+    "field": "name",
+    "value": "Sit Amet Corp.",
+    "confidence": 0.996
+  },
+  {
+    "field": "total",
+    "value": "17310.00",
+    "confidence": 0.995
+  }
+  ...
+]
+```
+
+## Connect to Automation Suite
+
+Log in to Automation Suite as an organization administrator and set up an external application to generate the client secrets for the uipathcli. After that, you can configure a new CLI profile for your automation suite server to specify the access url and client secrets:
+
+```yaml
+profiles:
+  - name: automationsuite
+    organization: test
+    tenant: DefaultTenant
+    auth:
+      clientId: <your-client-id>
+      clientSecret: <your-client-secret>
+    uri: https://<your-automation-suite-cluster-url>
+```
+
+*Note: You can also disable HTTPS certificate validation by adding `insecure: true` to you profile but this imposes a security risk. Please make sure you understand the implications of this setting and just disable the certificate check when absolutely necessary.*
+
+And you simply call the CLI with the `--profile automationsuite` parameter:
+
+```bash
+uipath orchestrator users get --profile automationsuite
+```
+
+## Commands and arguments
+
+CLI commands consist of four main parts:
+
+```bash
+uipath <service-name> <resource-name> <operation-name> --<argument1> --<argument2>
+```
+
+- `<service-name>`: The UiPath product or service to call
+- `<resource-name>`: The resource to access
+- `<operation-name>`: The operation to perform on the resource
+- `<argument>`: A list of arguments passed to the operation
 
 Example:
 
 ```bash
-uipath product create --name "new-product" --stock "5"
+uipath orchestrator folders get --orderby "DisplayName"
 ```
 
 ### Basic arguments
 
-The CLI supports string, integer, floating point and boolean arguments. The arguments are automatically converted to the type defined in the OpenAPI specification:
+The CLI supports string, integer, floating point and boolean arguments. The arguments are automatically converted to the expected type:
 
 ```bash
-uipath product create --name "new-product" --stock "5" --price "1.4" --deleted "false"
+uipath orchestrator folders get --orderby "DisplayName" --top 10
 ```
 
 ### Array arguments
@@ -326,26 +448,13 @@ uipath product create --name "new-product" --stock "5" --price "1.4" --deleted "
 Array arguments can be passed as comma-separated strings and are automatically converted to arrays in the JSON body. The CLI supports string, integer, floating point and boolean arrays.
 
 ```bash
-uipath product list --name-filter "my-product,new-product"
+uipath orchestrator jobs stop-jobs --folder-id "2000021" --strategy "SoftStop" --job-ids "451019658,451019773"
 ```
 
 You can also provide arrays by specifing the same parameter multiple times:
 
 ```bash
-uipath product list --name-filter "my-product" --name-filter "new-product"
-```
-
-This also works for complex objects using the assignment notation or plain JSON:
-
-```bash
-uipath app create --users "name=Administrator" --users "name=Guest"
-uipath app create --users '{"name": "Administrator"}' --users '{"name": "Guest"}'
-```
-
-Object arrays are also supported and can be provided using the index operator `[0]`,`[1]`, `[2]`, ...
-
-```bash
-uipath user create --auth "roles[0].name = admin; roles[1].name = user"
+uipath orchestrator jobs stop-jobs --folder-id "2000021" --strategy "SoftStop" --job-ids "451019658" --job-ids "451019773"
 ```
 
 ### Nested Object arguments
@@ -353,29 +462,24 @@ uipath user create --auth "roles[0].name = admin; roles[1].name = user"
 More complex nested objects can be passed as semi-colon separated list of property assigments:
 
 ```bash
-uipath product create --product "name=my-product;price.value=340;price.sale.discount=10;price.sale.value=306"
+uipath orchestrator jobs start-jobs --folder-id "2000021" --start-info "ReleaseKey=4bfcd6e6-44ae-46d2-b1a5-d8647bec8b66; RunAsMe=false; RuntimeType=Unattended"
 ```
 
 The command creates the following JSON body in the HTTP request:
 
 ```json
 {
-  "product": {
-    "name": "my-product",
-    "price": {
-      "value": 340,
-      "sale": {
-        "discount": 10,
-        "value": 306
-      }
-    }
+  "startInfo": {
+    "releaseKey": "4bfcd6e6-44ae-46d2-b1a5-d8647bec8b66",
+    "runAsMe": false, 
+    "runtimeType": "Unattended"
   }
 }
 ```
 
 You can also specify JSON directly as an argument, e.g.:
 ```bash
-uipath product create --product '{ "name": "my-product", "price": { "value": 340, "sale": { "discount": 10, "value": 306 } } }'
+uipath orchestrator jobs start-jobs --folder-id "2000021" --start-info '{"releaseKey":"4bfcd6e6-44ae-46d2-b1a5-d8647bec8b66","runAsMe":false,"runtimeType":"Unattended"}'
 ```
 
 ### File Upload arguments
@@ -423,7 +527,7 @@ User Thomas was created at 2023-01-26T10:35:15.736Z
 
 ## Queries
 
-The CLI supports [JMESPath queries](https://jmespath.org/tutorial.html) to filter and modify the service response on the client-side. This does not replace server-side filtering which is more efficient and works across paginated results. JMESPath queries simply allow you to modify the CLI output only without the need to install any external tools.
+The CLI supports [JMESPath queries](https://jmespath.org/tutorial.html) to filter and modify the service response on the client-side. This does not replace server-side filtering which is more efficient and works across paginated results but allows you to modify the CLI output without the need to install any external tools.
 
 Examples:
 
@@ -491,29 +595,23 @@ Content-Type: application/json; charset=utf-8
 
 You can specify JMESPath expressions on the response body to retry an operation until the provided condition evaluates to true. This allows you to write a sync call which waits for some backend operation to be carried out instead of polling manually.
 
-The following command adds the DocumentUnderstanding service to a tenant:
+The following command digitizes a file:
 
 ```bash
-uipath oms tenant update-tenant --organization-guid "..." \
-                                --tenant-guid "..." \
-                                --services "du=true"
+documentId=$(uipath du digitization start --file "invoice.jpg" --query "documentId" --output text)
+uipath du digitization get --document-id $documentId
 ```
 
-But the operation to add a service to the tenant is asynchronous and can take some time to complete. Instead of calling the `get-tenant` operation in a loop, you can use the `--wait` flag with a condition to wait for:
+But the operation is asynchronous and can take some time to complete. Instead of calling the `get` operation in a loop, you can use the `--wait` flag with a condition to wait for:
 
 ```bash
-uipath oms tenant get-tenant --organization-guid "..." \
-                             --tenant-guid "..." \
-                             --wait "tenantServiceInstances[?serviceType == 'du'].status == 'Enabled'"
+uipath du digitization get --document-id $documentId --wait "status == 'Succeeded'"
 ```
 
 The default timeout is 30s but can be adjusted by providing the `--wait-timeout` flag, e.g.
 
 ```bash
-uipath oms tenant get-tenant --organization-guid "..." \
-                             --tenant-guid "..." \
-                             --wait "tenantServiceInstances[?serviceType == 'du'].status == 'Enabled'" \
-                             --wait-timeout 300
+uipath du digitization get --document-id $documentId --wait "status == 'Succeeded'" --wait-timeout 300
 ```
 
 ## Multiple Profiles
@@ -576,79 +674,6 @@ You can either pass global arguments as CLI parameters, set an env variable or s
 | `--wait` | | `string` | | [JMESPath expression](https://jmespath.org/) to wait for |
 | `--wait-timeout` | | `integer` | 30 | Time in seconds until giving up waiting for condition  |
 
-
-## FAQ
-
-### How to run the CLI against Automation Suite?
-
-You can set up a separate profile for automation suite which configures the URI and disables HTTPS certificate checks (if necessary).
-
-*Note: Disabling HTTPS certificate validation imposes a security risk. Please make sure you understand the implications of this setting and just disable the certificate check when absolutely necessary.*
-
-```yaml
-profiles:
-  - name: automationsuite
-    organization: test
-    tenant: DefaultTenant
-    auth:
-      clientId: <your-client-id>
-      clientSecret: <your-client-secret>
-    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
-    insecure: true
-```
-
-And you simply call the CLI with the `--profile automationsuite` parameter:
-
-```bash
-uipath orchestrator users get --profile automationsuite
-```
-
-### How to bootstrap Automation Suite?
-
-You can use the CLI to create a new org on Automation Suite and license the server. As a prerequisite, you need to create a client secret on the server which allows grant type `password`. Once set up, you can configure the CLI to retrieve bearer tokens for the `Host` admin user:
-
-```yaml
-profiles:
-  - name: default
-    organization: Host
-    auth:
-      clientId: <your-client-id>
-      clientSecret: <your-client-secret>
-      grantType: password
-      properties:
-        username: admin
-        password: <your-admin-password>
-        acr_values: tenant:Host
-    uri: https://sfdev1234567-cluster.infra-sf-ea.infra.uipath-dev.com
-    insecure: true
-```
-
-After that you can create a new organization and license it:
-
-```bash
-org_name="testorg"
-password="<new-password>"
-license_code="<license-code>"
-
-# Create a new organization
-org_id=$(uipath oms on-prem-organization create-organization-on-prem
-  --organization-name "$org_name" \
-  --admin-email "admin@uipath.com" \
-  --admin-user-name "admin" \
-  --admin-first-name "Admin" \
-  --admin-last-name "User" \
-  --admin-password "$password" \
-  --language "en" \
-  --query "id" \
-  --output "text")
-
-# Use the new organization and activate it
-uipath config set --key "organization" --value "$org_name"
-uipath config set --key "auth.properties.acr_values" --value "tenant:$org_id"
-uipath config set --key "auth.properties.password" --value "$password"
-uipath oms license activate --license "$license_code"
-```
-
-### How to contribute?
+## How to contribute?
 
 Take a look at the [contribution guide](CONTRIBUTING.md) for details on how to contribute to this project.
