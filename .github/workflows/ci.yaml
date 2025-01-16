@@ -27,7 +27,7 @@ jobs:
           echo "UIPATHCLI_VERSION=$(echo $UIPATHCLI_VERSION)" >> $GITHUB_ENV
           echo "UIPATHCLI_VERSION=$(echo $UIPATHCLI_VERSION)" >> $GITHUB_OUTPUT
       - name: Build
-        run: go build -ldflags="-X github.com/UiPath/uipathcli/commandline.Version=$UIPATHCLI_VERSION" .
+        run: go build -ldflags="-X github.com/UiPath/uipathcli/utils.Version=$UIPATHCLI_VERSION" .
       - name: Lint
         run: |
           go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.63.4

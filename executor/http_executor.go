@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
+	"runtime"
 	"strings"
 	"time"
 
@@ -29,6 +30,8 @@ For more information you can view the help:
 
     uipath config --help
 `
+
+var UserAgent = fmt.Sprintf("uipathcli/%s (%s; %s)", utils.Version, runtime.GOOS, runtime.GOARCH)
 
 // The HttpExecutor implements the Executor interface and constructs HTTP request
 // from the given command line parameters and configurations.
@@ -51,6 +54,7 @@ func (e HttpExecutor) requestId() string {
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
 	formatter := newParameterFormatter()
 	request.Header.Add("x-request-id", e.requestId())
+	request.Header.Add("User-Agent", UserAgent)
 	for _, parameter := range headerParameters {
 		headerValue := formatter.Format(parameter)
 		request.Header.Add(parameter.Name, headerValue)
