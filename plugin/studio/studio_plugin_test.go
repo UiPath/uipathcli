@@ -70,6 +70,20 @@ func TestPackNonExistentProjectShowsProjectJsonNotFound(t *testing.T) {
 	}
 }
 
+func TestInvalidOutputTypeShowsValidationError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackagePackCommand()).
+		Build()
+	source := studioCrossPlatformProjectDirectory()
+	destination := createDirectory(t)
+	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "unknown"}, context)
+
+	if !strings.Contains(result.StdErr, "Invalid output type 'unknown', allowed values: Process, Library, Tests, Objects") {
+		t.Errorf("Expected stderr to show output type is invalid, but got: %v", result.StdErr)
+	}
+}
+
 func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
 	exec := utils.NewExecCustomProcess(1, "Build output", "There was an error", func(name string, args []string) {})
 	context := test.NewContextBuilder().

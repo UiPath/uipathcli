@@ -9,6 +9,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -20,6 +21,8 @@ import (
 )
 
 const defaultProjectJson = "project.json"
+
+var OutputTypeAllowedValues = []string{"Process", "Library", "Tests", "Objects"}
 
 // The PackagePackCommand packs a project into a single NuGet package
 type PackagePackCommand struct {
@@ -34,7 +37,7 @@ func (c PackagePackCommand) Command() plugin.Command {
 		WithParameter("destination", plugin.ParameterTypeString, "The output folder", true).
 		WithParameter("package-version", plugin.ParameterTypeString, "The package version", false).
 		WithParameter("auto-version", plugin.ParameterTypeBoolean, "Auto-generate package version", false).
-		WithParameter("output-type", plugin.ParameterTypeString, "Force the output to a specific type", false).
+		WithParameter("output-type", plugin.ParameterTypeString, "Force the output to a specific type."+c.formatAllowedValues(OutputTypeAllowedValues), false).
 		WithParameter("split-output", plugin.ParameterTypeBoolean, "Enables the output split to runtime and design libraries", false).
 		WithParameter("release-notes", plugin.ParameterTypeString, "Add release notes", false)
 }
@@ -51,6 +54,9 @@ func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer outp
 	packageVersion := c.getParameter("package-version", context.Parameters)
 	autoVersion := c.getBoolParameter("auto-version", context.Parameters)
 	outputType := c.getParameter("output-type", context.Parameters)
+	if outputType != "" && !slices.Contains(OutputTypeAllowedValues, outputType) {
+		return fmt.Errorf("Invalid output type '%s', allowed values: %s", outputType, strings.Join(OutputTypeAllowedValues, ", "))
+	}
 	splitOutput := c.getBoolParameter("split-output", context.Parameters)
 	releaseNotes := c.getParameter("release-notes", context.Parameters)
 	params := newPackagePackParams(source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes)
@@ -65,6 +71,10 @@ func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer outp
 		return fmt.Errorf("pack command failed: %v", err)
 	}
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
+}
+
+func (c PackagePackCommand) formatAllowedValues(allowed []string) string {
+	return "\n\nAllowed Values:\n- " + strings.Join(allowed, "\n- ")
 }
 
 func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger log.Logger) (*packagePackResult, error) {
