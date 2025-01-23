@@ -16,6 +16,7 @@ import (
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/plugin"
+	plugin_dataservice "github.com/UiPath/uipathcli/plugin/dataservice"
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator_download "github.com/UiPath/uipathcli/plugin/orchestrator/download"
 	plugin_orchestrator_upload "github.com/UiPath/uipathcli/plugin/orchestrator/upload"
@@ -77,6 +78,7 @@ func main() {
 				plugin_studio_restore.NewPackageRestoreCommand(),
 				plugin_studio_publish.NewPackagePublishCommand(),
 				plugin_studio_testrun.NewTestRunCommand(),
+				plugin_dataservice.NewDataServiceCommand(os.Args, os.Stderr, *configProvider, authenticators),
 			},
 		),
 		*configProvider,
