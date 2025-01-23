@@ -1,0 +1,17 @@
+openapi: 3.0.1
+info:
+  title: UiPath DataService
+  description: UiPath DataService
+  version: v1
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/dataservice_/api
+    description: The production url
+    variables:
+      organization:
+        description: The organization name (or id)
+        default: my-org
+      tenant:
+        description: The tenant name (or id)
+        default: my-tenant
+paths:
+  {}
