@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/UiPath/uipathcli/cache"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/resiliency"
 )
 
 type identityClient struct {
@@ -48,7 +48,7 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 
 func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, insecure bool) (*tokenResponse, error) {
 	var response *tokenResponse
-	err := utils.Retry(func() error {
+	err := resiliency.Retry(func() error {
 		var err error
 		response, err = c.send(baseUri, form, insecure)
 		return err
@@ -70,15 +70,15 @@ func (c identityClient) send(baseUri url.URL, form url.Values, insecure bool) (*
 	client := http.Client{Transport: transport}
 	response, err := client.Do(request)
 	if err != nil {
-		return nil, utils.Retryable(fmt.Errorf("Error sending request: %w", err))
+		return nil, resiliency.Retryable(fmt.Errorf("Error sending request: %w", err))
 	}
 	defer response.Body.Close()
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, utils.Retryable(fmt.Errorf("Error reading response: %w", err))
+		return nil, resiliency.Retryable(fmt.Errorf("Error reading response: %w", err))
 	}
 	if response.StatusCode >= 500 {
-		return nil, utils.Retryable(fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes)))
+		return nil, resiliency.Retryable(fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes)))
 	}
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes))

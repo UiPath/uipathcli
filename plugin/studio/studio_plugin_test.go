@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/test"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
 )
 
 const studioDefinition = `
@@ -85,7 +85,7 @@ func TestInvalidOutputTypeShowsValidationError(t *testing.T) {
 }
 
 func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
-	exec := utils.NewExecCustomProcess(1, "Build output", "There was an error", func(name string, args []string) {})
+	exec := process.NewExecCustomProcess(1, "Build output", "There was an error", func(name string, args []string) {})
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(PackagePackCommand{exec}).
@@ -152,7 +152,7 @@ func TestPackCrossPlatformSuccessfully(t *testing.T) {
 
 func TestPackWithAutoVersionArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -171,7 +171,7 @@ func TestPackWithAutoVersionArgument(t *testing.T) {
 
 func TestPackWithOutputTypeArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -190,7 +190,7 @@ func TestPackWithOutputTypeArgument(t *testing.T) {
 
 func TestPackWithSplitOutputArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -209,7 +209,7 @@ func TestPackWithSplitOutputArgument(t *testing.T) {
 
 func TestPackWithReleaseNotesArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -298,7 +298,7 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 }
 
 func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
-	exec := utils.NewExecCustomProcess(1, "Analyze output", "There was an error", func(name string, args []string) {})
+	exec := process.NewExecCustomProcess(1, "Analyze output", "There was an error", func(name string, args []string) {})
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
@@ -322,7 +322,7 @@ func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
 
 func TestAnalyzeWithTreatWarningsAsErrorsArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().
@@ -340,7 +340,7 @@ func TestAnalyzeWithTreatWarningsAsErrorsArgument(t *testing.T) {
 
 func TestAnalyzeWithStopOnRuleViolationArgument(t *testing.T) {
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandArgs = args
 	})
 	context := test.NewContextBuilder().

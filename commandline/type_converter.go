@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/UiPath/uipathcli/parser"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
 )
 
 // The typeConverter converts the string value from the command-line argument into the type
@@ -53,8 +53,8 @@ func (c typeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
-func (c typeConverter) convertToBinary(value string, parameter parser.Parameter) (utils.Stream, error) {
-	return utils.NewFileStream(value), nil
+func (c typeConverter) convertToBinary(value string, parameter parser.Parameter) (stream.Stream, error) {
+	return stream.NewFileStream(value), nil
 }
 
 func (c typeConverter) findParameter(parameter *parser.Parameter, name string) *parser.Parameter {

@@ -14,7 +14,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 // The DownloadCommand is a custom command for the orchestrator service which makes downloading
@@ -53,7 +53,7 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 		return fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
-	downloadBar := utils.NewProgressBar(logger)
+	downloadBar := visualization.NewProgressBar(logger)
 	downloadReader := c.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()
 	body, err := io.ReadAll(downloadReader)
@@ -68,11 +68,11 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 	return nil
 }
 
-func (c DownloadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
+func (c DownloadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
+	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText

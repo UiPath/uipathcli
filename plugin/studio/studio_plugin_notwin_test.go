@@ -8,13 +8,13 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/test"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
 )
 
 func TestPackOnLinuxWithCorrectArguments(t *testing.T) {
 	commandName := ""
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandName = name
 		commandArgs = args
 	})
@@ -53,7 +53,7 @@ func TestPackOnLinuxWithCorrectArguments(t *testing.T) {
 func TestAnalyzeOnLinuxWithCorrectArguments(t *testing.T) {
 	commandName := ""
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandName = name
 		commandArgs = args
 	})

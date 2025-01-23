@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/test"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
 )
 
 func TestPackWindowsSuccessfully(t *testing.T) {
@@ -59,7 +59,7 @@ func TestPackWindowsSuccessfully(t *testing.T) {
 func TestPackOnWindowsWithCorrectArguments(t *testing.T) {
 	commandName := ""
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandName = name
 		commandArgs = args
 	})
@@ -121,7 +121,7 @@ func TestAnalyzeWindowsSuccessfully(t *testing.T) {
 func TestAnalyzeOnWindowsWithCorrectArguments(t *testing.T) {
 	commandName := ""
 	commandArgs := []string{}
-	exec := utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		commandName = name
 		commandArgs = args
 	})

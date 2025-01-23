@@ -1,4 +1,4 @@
-package utils
+package directories
 
 import (
 	"os"
@@ -7,23 +7,20 @@ import (
 
 const directoryPermissions = 0700
 
-type Directories struct {
+func Temp() (string, error) {
+	return userDirectory("tmp")
 }
 
-func (d Directories) Temp() (string, error) {
-	return d.userDirectory("tmp")
+func Cache() (string, error) {
+	return userDirectory("cache")
 }
 
-func (d Directories) Cache() (string, error) {
-	return d.userDirectory("cache")
+func Plugin() (string, error) {
+	return userDirectory("plugins")
 }
 
-func (d Directories) Plugin() (string, error) {
-	return d.userDirectory("plugins")
-}
-
-func (d Directories) userDirectory(name string) (string, error) {
-	userDirectory, err := d.baseUserDirectory()
+func userDirectory(name string) (string, error) {
+	userDirectory, err := baseUserDirectory()
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +29,7 @@ func (d Directories) userDirectory(name string) (string, error) {
 	return directory, nil
 }
 
-func (d Directories) baseUserDirectory() (string, error) {
+func baseUserDirectory() (string, error) {
 	userCacheDirectory, err := os.UserCacheDir()
 	if err != nil {
 		return "", err
