@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/parser"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
 )
 
 func TestConvertReturnsErrorForInvalidBoolean(t *testing.T) {
@@ -41,7 +41,7 @@ func TestConvertStringToFileStream(t *testing.T) {
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
 	}
-	fileStream := result.(*utils.FileStream)
+	fileStream := result.(*stream.FileStream)
 	if fileStream.Name() != "test.txt" {
 		t.Errorf("Result should be file stream, but got: %v", result)
 	}

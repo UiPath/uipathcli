@@ -1,4 +1,4 @@
-package executor
+package converter
 
 import (
 	"net/url"
@@ -6,41 +6,41 @@ import (
 )
 
 func TestRemovesTrailingSlash(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com/"), "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/"), "/my-service")
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service" {
 		t.Errorf("Did not remove trailing slash, got: %v", uri)
 	}
 }
 
 func TestAddsMissingSlashSeparator(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "my-service")
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service" {
 		t.Errorf("Did not add missing slash separator, got: %v", uri)
 	}
 }
 
 func TestFormatPathReplacesPlaceholder(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
 
-	formatter.FormatPath(*NewExecutionParameter("organization", "my-org", "path"))
+	builder.FormatPath("organization", "my-org")
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-org/{tenant}/my-service" {
 		t.Errorf("Did not replace placeholder, got: %v", uri)
 	}
 }
 
 func TestFormatPathReplacesMultiplePlaceholders(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
 
-	formatter.FormatPath(*NewExecutionParameter("organization", "my-org", "path"))
-	formatter.FormatPath(*NewExecutionParameter("tenant", "my-tenant", "path"))
+	builder.FormatPath("organization", "my-org")
+	builder.FormatPath("tenant", "my-tenant")
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-org/my-tenant/my-service" {
 		t.Errorf("Did not replace placeholder, got: %v", uri)
 	}
@@ -65,40 +65,34 @@ func TestFormatPathDataTypes(t *testing.T) {
 	})
 }
 func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/{param}")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
 
-	formatter.FormatPath(*NewExecutionParameter("param", value, "path"))
+	builder.FormatPath("param", value)
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/"+expected {
 		t.Errorf("Did not format data type properly, got: %v", uri)
 	}
 }
 
 func TestAddQueryString(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
-	parameters := []ExecutionParameter{
-		*NewExecutionParameter("filter", "my-value", "query"),
-	}
-	formatter.AddQueryString(parameters)
+	builder.AddQueryString("filter", "my-value")
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service?filter=my-value" {
 		t.Errorf("Did not add querystring, got: %v", uri)
 	}
 }
 
 func TestAddMultipleQueryStringParameters(t *testing.T) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
-	parameters := []ExecutionParameter{
-		*NewExecutionParameter("skip", 1, "query"),
-		*NewExecutionParameter("take", 5, "query"),
-	}
-	formatter.AddQueryString(parameters)
+	builder.AddQueryString("skip", 1)
+	builder.AddQueryString("take", 5)
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service?skip=1&take=5" {
 		t.Errorf("Did not add querystring, got: %v", uri)
 	}
@@ -123,14 +117,11 @@ func TestQueryStringDataTypes(t *testing.T) {
 	})
 }
 func QueryStringDataTypes(t *testing.T, value interface{}, expected string) {
-	formatter := newUriFormatter(toUrl("https://cloud.uipath.com"), "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
-	parameters := []ExecutionParameter{
-		*NewExecutionParameter("param", value, "query"),
-	}
-	formatter.AddQueryString(parameters)
+	builder.AddQueryString("param", value)
 
-	uri := formatter.Uri()
+	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service"+expected {
 		t.Errorf("Did not format data type for query string properly, got: %v", uri)
 	}

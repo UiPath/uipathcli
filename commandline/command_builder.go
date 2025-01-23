@@ -16,12 +16,12 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/parser"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
 )
 
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
-	Input              utils.Stream
+	Input              stream.Stream
 	StdIn              io.Reader
 	StdOut             io.Writer
 	StdErr             io.Writer
@@ -37,7 +37,7 @@ func (b CommandBuilder) sort(commands []*CommandDefinition) {
 	})
 }
 
-func (b CommandBuilder) fileInput(context *CommandExecContext, parameters []parser.Parameter) utils.Stream {
+func (b CommandBuilder) fileInput(context *CommandExecContext, parameters []parser.Parameter) stream.Stream {
 	value := context.String(FlagNameFile)
 	if value == "" {
 		return nil
@@ -50,7 +50,7 @@ func (b CommandBuilder) fileInput(context *CommandExecContext, parameters []pars
 			return nil
 		}
 	}
-	return utils.NewFileStream(value)
+	return stream.NewFileStream(value)
 }
 
 func (b CommandBuilder) createExecutionParameters(context *CommandExecContext, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {

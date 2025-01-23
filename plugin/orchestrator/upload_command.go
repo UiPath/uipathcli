@@ -14,7 +14,8 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 // The UploadCommand is a custom command for the orchestrator service which makes uploading
@@ -41,7 +42,7 @@ func (c UploadCommand) Execute(context plugin.ExecutionContext, writer output.Ou
 }
 
 func (c UploadCommand) upload(context plugin.ExecutionContext, logger log.Logger, url string) error {
-	uploadBar := utils.NewProgressBar(logger)
+	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
 	requestError := make(chan error)
 	request, err := c.createUploadRequest(context, url, uploadBar, requestError)
@@ -67,7 +68,7 @@ func (c UploadCommand) upload(context plugin.ExecutionContext, logger log.Logger
 	return nil
 }
 
-func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url string, uploadBar *utils.ProgressBar, requestError chan error) (*http.Request, error) {
+func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url string, uploadBar *visualization.ProgressBar, requestError chan error) (*http.Request, error) {
 	file := context.Input
 	if file == nil {
 		file = c.getFileParameter(context.Parameters)
@@ -86,7 +87,7 @@ func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url 
 	return request, nil
 }
 
-func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) (string, int64) {
+func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input stream.Stream, errorChan chan error) (string, int64) {
 	go func() {
 		defer bodyWriter.Close()
 		data, err := input.Data()
@@ -105,11 +106,11 @@ func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input utils.Stream, 
 	return "application/octet-stream", size
 }
 
-func (c UploadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
+func (c UploadCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
+	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
@@ -236,11 +237,11 @@ func (c UploadCommand) getIntParameter(name string, parameters []plugin.Executio
 	return result
 }
 
-func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) utils.Stream {
-	var result utils.Stream
+func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) stream.Stream {
+	var result stream.Stream
 	for _, p := range parameters {
 		if p.Name == "file" {
-			if stream, ok := p.Value.(utils.Stream); ok {
+			if stream, ok := p.Value.(stream.Stream); ok {
 				result = stream
 				break
 			}

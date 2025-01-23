@@ -17,7 +17,8 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 const defaultProjectJson = "project.json"
@@ -26,7 +27,7 @@ var OutputTypeAllowedValues = []string{"Process", "Library", "Tests", "Objects"}
 
 // The PackagePackCommand packs a project into a single NuGet package
 type PackagePackCommand struct {
-	Exec utils.ExecProcess
+	Exec process.ExecProcess
 }
 
 func (c PackagePackCommand) Command() plugin.Command {
@@ -186,13 +187,13 @@ func (c PackagePackCommand) extractVersion(nupkgFile string) string {
 	return fmt.Sprintf("%s.%s.%s", parts[len-4], parts[len-3], parts[len-2])
 }
 
-func (c PackagePackCommand) wait(cmd utils.ExecCmd, wg *sync.WaitGroup) {
+func (c PackagePackCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
 	defer wg.Done()
 	_ = cmd.Wait()
 }
 
 func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan struct{} {
-	progressBar := utils.NewProgressBar(logger)
+	progressBar := visualization.NewProgressBar(logger)
 	ticker := time.NewTicker(10 * time.Millisecond)
 	cancel := make(chan struct{})
 	var percent float64 = 0
@@ -276,5 +277,5 @@ func (c PackagePackCommand) getBoolParameter(name string, parameters []plugin.Ex
 }
 
 func NewPackagePackCommand() *PackagePackCommand {
-	return &PackagePackCommand{utils.NewExecProcess()}
+	return &PackagePackCommand{process.NewExecProcess()}
 }

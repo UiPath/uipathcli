@@ -1,4 +1,4 @@
-package utils
+package visualization
 
 // The Progress structure contains statistics about how many bytes
 // have been read from the underlying reader.

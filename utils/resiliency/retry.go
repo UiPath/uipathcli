@@ -1,6 +1,6 @@
 // Package utils contains command functionality which is reused across
 // multiple other packages.
-package utils
+package resiliency
 
 import "time"
 

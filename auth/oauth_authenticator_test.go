@@ -16,7 +16,7 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/cache"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
 )
 
 func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
@@ -211,7 +211,7 @@ func TestMissingCodeShowsErrorMessage(t *testing.T) {
 func callAuthenticator(context AuthenticatorContext) (url.URL, chan AuthenticatorResult) {
 	loginChan := make(chan string)
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), BrowserLauncher{
-		Exec: utils.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		Exec: process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 			switch runtime.GOOS {
 			case "windows":
 				loginChan <- args[1]

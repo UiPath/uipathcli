@@ -19,12 +19,14 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/directories"
+	"github.com/UiPath/uipathcli/utils/process"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 // The PackageAnalyzeCommand runs static code analyis on the project to detect common errors.
 type PackageAnalyzeCommand struct {
-	Exec utils.ExecProcess
+	Exec process.ExecProcess
 }
 
 func (c PackageAnalyzeCommand) Command() plugin.Command {
@@ -133,7 +135,7 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 }
 
 func (c PackageAnalyzeCommand) getTemporaryJsonResultFilePath() (string, error) {
-	tempDirectory, err := utils.Directories{}.Temp()
+	tempDirectory, err := directories.Temp()
 	if err != nil {
 		return "", err
 	}
@@ -203,13 +205,13 @@ func (c PackageAnalyzeCommand) convertToViolations(json analyzeResultJson) []pac
 	return violations
 }
 
-func (c PackageAnalyzeCommand) wait(cmd utils.ExecCmd, wg *sync.WaitGroup) {
+func (c PackageAnalyzeCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
 	defer wg.Done()
 	_ = cmd.Wait()
 }
 
 func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan struct{} {
-	progressBar := utils.NewProgressBar(logger)
+	progressBar := visualization.NewProgressBar(logger)
 	ticker := time.NewTicker(10 * time.Millisecond)
 	cancel := make(chan struct{})
 	var percent float64 = 0
@@ -284,5 +286,5 @@ func (c PackageAnalyzeCommand) getBoolParameter(name string, parameters []plugin
 }
 
 func NewPackageAnalyzeCommand() *PackageAnalyzeCommand {
-	return &PackageAnalyzeCommand{utils.NewExecProcess()}
+	return &PackageAnalyzeCommand{process.NewExecProcess()}
 }

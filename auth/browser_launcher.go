@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/process"
 )
 
 // BrowserLauncher tries to open the default browser on the local system.
 type BrowserLauncher struct {
-	Exec utils.ExecProcess
+	Exec process.ExecProcess
 }
 
 func (l BrowserLauncher) Open(url string) error {
@@ -32,5 +32,5 @@ func (l BrowserLauncher) Open(url string) error {
 }
 
 func NewBrowserLauncher() *BrowserLauncher {
-	return &BrowserLauncher{utils.NewExecProcess()}
+	return &BrowserLauncher{process.NewExecProcess()}
 }

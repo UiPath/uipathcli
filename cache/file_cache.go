@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/directories"
 )
 
 const cacheFilePermissions = 0600
@@ -63,7 +63,7 @@ func (c FileCache) readValue(key string) (int64, string, error) {
 }
 
 func (c FileCache) cacheFilePath(key string) (string, error) {
-	cacheDirectory, err := utils.Directories{}.Cache()
+	cacheDirectory, err := directories.Cache()
 	if err != nil {
 		return "", err
 	}

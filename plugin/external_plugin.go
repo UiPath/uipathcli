@@ -12,7 +12,8 @@ import (
 	"path/filepath"
 
 	"github.com/UiPath/uipathcli/log"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/directories"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 const pluginDirectoryPermissions = 0700
@@ -34,7 +35,7 @@ func (p ExternalPlugin) GetTool(name string, url string, executable string) (str
 	tmpPluginDirectory := pluginDirectory + "-" + p.randomFolderName()
 	_ = os.MkdirAll(tmpPluginDirectory, pluginDirectoryPermissions)
 
-	progressBar := utils.NewProgressBar(p.Logger)
+	progressBar := visualization.NewProgressBar(p.Logger)
 	defer progressBar.Remove()
 	progressBar.UpdatePercentage("downloading...", 0)
 	zipArchivePath := filepath.Join(tmpPluginDirectory, name)
@@ -54,7 +55,7 @@ func (p ExternalPlugin) GetTool(name string, url string, executable string) (str
 	return path, nil
 }
 
-func (p ExternalPlugin) download(name string, url string, destination string, progressBar *utils.ProgressBar) error {
+func (p ExternalPlugin) download(name string, url string, destination string, progressBar *visualization.ProgressBar) error {
 	out, err := os.Create(destination)
 	if err != nil {
 		return fmt.Errorf("Could not download %s: %v", name, err)
@@ -77,8 +78,8 @@ func (p ExternalPlugin) download(name string, url string, destination string, pr
 	return nil
 }
 
-func (p ExternalPlugin) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
-	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
+func (p ExternalPlugin) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
+	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
@@ -89,7 +90,7 @@ func (p ExternalPlugin) progressReader(text string, completedText string, reader
 }
 
 func (p ExternalPlugin) pluginDirectory(name string, url string) (string, error) {
-	pluginDirectory, err := utils.Directories{}.Plugin()
+	pluginDirectory, err := directories.Plugin()
 	if err != nil {
 		return "", err
 	}

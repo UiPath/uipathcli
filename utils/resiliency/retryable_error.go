@@ -1,4 +1,4 @@
-package utils
+package resiliency
 
 // RetryableError can be returned inside of the Retry() block to indicate
 // that the function failed and should be retried.

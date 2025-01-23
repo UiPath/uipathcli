@@ -20,6 +20,10 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/converter"
+	"github.com/UiPath/uipathcli/utils/resiliency"
+	"github.com/UiPath/uipathcli/utils/stream"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 const NotConfiguredErrorTemplate = `Run config command to set organization and tenant:
@@ -40,7 +44,7 @@ type HttpExecutor struct {
 }
 
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	return utils.Retry(func() error {
+	return resiliency.Retry(func() error {
 		return e.call(context, writer, logger)
 	})
 }
@@ -52,11 +56,11 @@ func (e HttpExecutor) requestId() string {
 }
 
 func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
-	formatter := newParameterFormatter()
+	converter := converter.NewStringConverter()
 	request.Header.Add("x-request-id", e.requestId())
 	request.Header.Add("User-Agent", UserAgent)
 	for _, parameter := range headerParameters {
-		headerValue := formatter.Format(parameter)
+		headerValue := converter.ToString(parameter.Value)
 		request.Header.Add(parameter.Name, headerValue)
 	}
 }
@@ -67,7 +71,7 @@ func (e HttpExecutor) calculateMultipartSize(parameters []ExecutionParameter) in
 		switch v := parameter.Value.(type) {
 		case string:
 			result = result + int64(len(v))
-		case utils.Stream:
+		case stream.Stream:
 			size, err := v.Size()
 			if err == nil {
 				result = result + size
@@ -89,7 +93,7 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 			if err != nil {
 				return fmt.Errorf("Error writing form field '%s': %w", parameter.Name, err)
 			}
-		case utils.Stream:
+		case stream.Stream:
 			w, err := writer.CreateFormFile(parameter.Name, v.Name())
 			if err != nil {
 				return fmt.Errorf("Error writing form file '%s': %w", parameter.Name, err)
@@ -140,12 +144,14 @@ func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
-	formatter := newUriFormatter(baseUri, route)
+	uriBuilder := converter.NewUriBuilder(baseUri, route)
 	for _, parameter := range pathParameters {
-		formatter.FormatPath(parameter)
+		uriBuilder.FormatPath(parameter.Name, parameter.Value)
 	}
-	formatter.AddQueryString(queryParameters)
-	return e.validateUri(formatter.Uri())
+	for _, parameter := range queryParameters {
+		uriBuilder.AddQueryString(parameter.Name, parameter.Value)
+	}
+	return e.validateUri(uriBuilder.Build())
 }
 
 func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, identityUri url.URL, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
@@ -164,11 +170,11 @@ func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, identi
 	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
 }
 
-func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
+func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
+	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
@@ -193,7 +199,7 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 	return formWriter.FormDataContentType(), multipartSize
 }
 
-func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input utils.Stream, errorChan chan error) {
+func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input stream.Stream, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
 		data, err := input.Data()
@@ -213,8 +219,11 @@ func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input utils.Stre
 func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
 	go func() {
 		defer bodyWriter.Close()
-		formatter := newQueryStringFormatter()
-		queryString := formatter.Format(parameters)
+		queryStringBuilder := converter.NewQueryStringBuilder()
+		for _, parameter := range parameters {
+			queryStringBuilder.Add(parameter.Name, parameter.Value)
+		}
+		queryString := queryStringBuilder.Build()
 		_, err := bodyWriter.Write([]byte(queryString))
 		if err != nil {
 			errorChan <- err
@@ -312,7 +321,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 	requestError := make(chan error)
 	bodyReader, contentType, contentLength, size := e.writeBody(context, requestError)
-	uploadBar := utils.NewProgressBar(logger)
+	uploadBar := visualization.NewProgressBar(logger)
 	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, size, uploadBar)
 	defer uploadBar.Remove()
 	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
@@ -344,19 +353,19 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	}
 	response, err := e.send(client, request, requestError)
 	if err != nil {
-		return utils.Retryable(fmt.Errorf("Error sending request: %w", err))
+		return resiliency.Retryable(fmt.Errorf("Error sending request: %w", err))
 	}
 	defer response.Body.Close()
-	downloadBar := utils.NewProgressBar(logger)
+	downloadBar := visualization.NewProgressBar(logger)
 	downloadReader := e.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()
 	body, err := io.ReadAll(downloadReader)
 	if err != nil {
-		return utils.Retryable(fmt.Errorf("Error reading response body: %w", err))
+		return resiliency.Retryable(fmt.Errorf("Error reading response body: %w", err))
 	}
 	e.logResponse(logger, response, body)
 	if response.StatusCode >= 500 {
-		return utils.Retryable(fmt.Errorf("Service returned status code '%v' and body '%v'", response.StatusCode, string(body)))
+		return resiliency.Retryable(fmt.Errorf("Service returned status code '%v' and body '%v'", response.StatusCode, string(body)))
 	}
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {

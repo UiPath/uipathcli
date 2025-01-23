@@ -19,7 +19,7 @@ import (
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
 	plugin_studio "github.com/UiPath/uipathcli/plugin/studio"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
 )
 
 //go:embed definitions/*.yaml
@@ -40,8 +40,8 @@ func colorsSupported() bool {
 	return !omitColors
 }
 
-func stdIn() utils.Stream {
-	return utils.NewReaderStream(parser.RawBodyParameterName, os.Stdin)
+func stdIn() stream.Stream {
+	return stream.NewReaderStream(parser.RawBodyParameterName, os.Stdin)
 }
 
 func main() {

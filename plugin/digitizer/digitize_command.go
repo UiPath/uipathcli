@@ -17,7 +17,8 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils"
+	"github.com/UiPath/uipathcli/utils/stream"
+	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 // The DigitizeCommand is a convenient wrapper over the async digitizer API
@@ -59,7 +60,7 @@ func (c DigitizeCommand) Execute(context plugin.ExecutionContext, writer output.
 }
 
 func (c DigitizeCommand) startDigitization(context plugin.ExecutionContext, logger log.Logger) (string, error) {
-	uploadBar := utils.NewProgressBar(logger)
+	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
 	requestError := make(chan error)
 	request, err := c.createDigitizeRequest(context, uploadBar, requestError)
@@ -123,7 +124,7 @@ func (c DigitizeCommand) waitForDigitization(documentId string, context plugin.E
 	return true, err
 }
 
-func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, uploadBar *utils.ProgressBar, requestError chan error) (*http.Request, error) {
+func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, uploadBar *visualization.ProgressBar, requestError chan error) (*http.Request, error) {
 	projectId := c.getProjectId(context.Parameters)
 
 	var err error
@@ -152,11 +153,11 @@ func (c DigitizeCommand) createDigitizeRequest(context plugin.ExecutionContext, 
 	return request, nil
 }
 
-func (c DigitizeCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *utils.ProgressBar) io.Reader {
+func (c DigitizeCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := utils.NewProgressReader(reader, func(progress utils.Progress) {
+	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
@@ -191,12 +192,12 @@ func (c DigitizeCommand) createDigitizeStatusRequest(documentId string, context 
 	return request, nil
 }
 
-func (c DigitizeCommand) calculateMultipartSize(stream utils.Stream) int64 {
+func (c DigitizeCommand) calculateMultipartSize(stream stream.Stream) int64 {
 	size, _ := stream.Size()
 	return size
 }
 
-func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream utils.Stream, contentType string) error {
+func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
 	filePart := textproto.MIMEHeader{}
 	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, stream.Name()))
 	filePart.Set("Content-Type", contentType)
@@ -216,7 +217,7 @@ func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream uti
 	return nil
 }
 
-func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream utils.Stream, contentType string, errorChan chan error) (string, int64) {
+func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, errorChan chan error) (string, int64) {
 	contentLength := c.calculateMultipartSize(stream)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
@@ -279,11 +280,11 @@ func (c DigitizeCommand) getParameter(name string, parameters []plugin.Execution
 	return result
 }
 
-func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) utils.Stream {
-	var result utils.Stream
+func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter) stream.Stream {
+	var result stream.Stream
 	for _, p := range parameters {
 		if p.Name == "file" {
-			if stream, ok := p.Value.(utils.Stream); ok {
+			if stream, ok := p.Value.(stream.Stream); ok {
 				result = stream
 				break
 			}
