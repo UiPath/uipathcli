@@ -110,10 +110,18 @@ func (p DefinitionProvider) parse(data DefinitionData) (*parser.Definition, erro
 }
 
 func (p DefinitionProvider) applyPlugins(definition *parser.Definition) {
-	for _, plugin := range p.commandPlugins {
-		command := plugin.Command()
+	for _, commandPlugin := range p.commandPlugins {
+		command := commandPlugin.Command()
 		if definition.Name == command.Service {
-			p.applyPluginCommand(plugin, command, definition)
+			multiCommand, isMultiCommand := commandPlugin.(plugin.MultiCommandPlugin)
+			if isMultiCommand {
+				commands := multiCommand.Commands()
+				for _, command := range commands {
+					p.applyPluginCommand(commandPlugin, command, definition)
+				}
+			} else {
+				p.applyPluginCommand(commandPlugin, command, definition)
+			}
 		}
 	}
 }
@@ -127,12 +135,19 @@ func (p DefinitionProvider) applyPluginCommand(plugin plugin.CommandPlugin, comm
 	baseUri, _ := url.Parse(parser.DefaultServerBaseUrl)
 	operation := parser.NewOperation(command.Name, command.Description, "", "", *baseUri, "", "application/json", parameters, plugin, command.Hidden, category)
 	for i := range definition.Operations {
-		if definition.Operations[i].Name == command.Name {
+		if p.commandEqualsOperation(command, definition.Operations[i]) {
 			definition.Operations[i] = *operation
 			return
 		}
 	}
 	definition.Operations = append(definition.Operations, *operation)
+}
+
+func (p DefinitionProvider) commandEqualsOperation(command plugin.Command, operation parser.Operation) bool {
+	categoryEquals := (operation.Category == nil && command.Category == nil) ||
+		(operation.Category != nil && command.Category != nil && operation.Category.Name == command.Category.Name)
+	nameEquals := operation.Name == command.Name
+	return categoryEquals && nameEquals
 }
 
 func (p DefinitionProvider) convertToParameters(parameters []plugin.CommandParameter) []parser.Parameter {
