@@ -326,6 +326,14 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 				tenant = config.Tenant
 			}
 			insecure := context.Bool(FlagNameInsecure) || config.Insecure
+			timeout := time.Duration(context.Int(FlagNameCallTimeout)) * time.Second
+			if timeout < 0 {
+				return fmt.Errorf("Invalid value for '%s'", FlagNameCallTimeout)
+			}
+			maxAttempts := context.Int(FlagNameMaxAttempts)
+			if maxAttempts < 1 {
+				return fmt.Errorf("Invalid value for '%s'", FlagNameMaxAttempts)
+			}
 			debug := context.Bool(FlagNameDebug) || config.Debug
 			identityUri, err := b.createIdentityUri(context, *config, baseUri)
 			if err != nil {
@@ -343,6 +351,8 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 				parameters,
 				config.Auth,
 				insecure,
+				timeout,
+				maxAttempts,
 				debug,
 				*identityUri,
 				operation.Plugin)

@@ -13,7 +13,6 @@ import (
 	"net/url"
 	"runtime"
 	"strings"
-	"time"
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
@@ -44,7 +43,7 @@ type HttpExecutor struct {
 }
 
 func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	return resiliency.Retry(func() error {
+	return resiliency.RetryN(context.MaxAttempts, func() error {
 		return e.call(context, writer, logger)
 	})
 }
@@ -345,7 +344,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 
 	transport := &http.Transport{
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: context.Insecure}, //nolint // This is user configurable and disabled by default
-		ResponseHeaderTimeout: 60 * time.Second,
+		ResponseHeaderTimeout: context.Timeout,
 	}
 	client := &http.Client{Transport: transport}
 	if context.Debug {

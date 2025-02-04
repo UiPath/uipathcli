@@ -141,7 +141,23 @@ paths:
 		names = append(names, parameter["name"].(string))
 	}
 
-	expectedNames := []string{"debug", "profile", "uri", "organization", "tenant", "insecure", "output", "query", "wait", "wait-timeout", "file", "identity-uri", "service-version", "help"}
+	expectedNames := []string{
+		"debug",
+		"profile",
+		"uri",
+		"organization",
+		"tenant",
+		"insecure",
+		"call-timeout",
+		"max-attempts",
+		"output",
+		"query",
+		"wait",
+		"wait-timeout",
+		"file",
+		"identity-uri",
+		"service-version",
+		"help"}
 	if !reflect.DeepEqual(names, expectedNames) {
 		t.Errorf("Unexpected global parameters in output, expected: %v but got: %v", expectedNames, names)
 	}

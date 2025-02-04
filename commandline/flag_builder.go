@@ -21,6 +21,8 @@ const FlagNameIdentityUri = "identity-uri"
 const FlagNameServiceVersion = "service-version"
 const FlagNameHelp = "help"
 const FlagNameVersion = "version"
+const FlagNameCallTimeout = "call-timeout"
+const FlagNameMaxAttempts = "max-attempts"
 
 const FlagValueFromStdIn = "-"
 const FlagValueOutputFormatJson = "json"
@@ -33,6 +35,8 @@ var FlagNamesPredefined = []string{
 	FlagNameOrganization,
 	FlagNameTenant,
 	FlagNameInsecure,
+	FlagNameCallTimeout,
+	FlagNameMaxAttempts,
 	FlagNameOutputFormat,
 	FlagNameQuery,
 	FlagNameWait,
@@ -118,6 +122,14 @@ func (b FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 			WithEnvVarName("UIPATH_INSECURE").
 			WithDefaultValue(false).
 			WithHidden(hidden),
+		NewFlag(FlagNameCallTimeout, "Call Timeout", FlagTypeInteger).
+			WithEnvVarName("UIPATH_CALL_TIMEOUT").
+			WithDefaultValue(60).
+			WithHidden(true),
+		NewFlag(FlagNameMaxAttempts, "Max Attempts", FlagTypeInteger).
+			WithEnvVarName("UIPATH_MAX_ATTEMPTS").
+			WithDefaultValue(3).
+			WithHidden(true),
 		NewFlag(FlagNameOutputFormat, fmt.Sprintf("Set output format: %s (default), %s", FlagValueOutputFormatJson, FlagValueOutputFormatText), FlagTypeString).
 			WithEnvVarName("UIPATH_OUTPUT").
 			WithDefaultValue("").
