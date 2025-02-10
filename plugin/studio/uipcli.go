@@ -20,28 +20,33 @@ const uipcliWindowsUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_api
 type uipcli struct {
 	Exec   process.ExecProcess
 	Logger log.Logger
+	path   string
 }
 
-func (c uipcli) Execute(targetFramework TargetFramework, args ...string) (process.ExecCmd, error) {
+func (c *uipcli) Initialize(targetFramework TargetFramework) error {
+	name := "uipcli"
+	url := uipcliUrl
 	if targetFramework == TargetFrameworkWindows {
-		return c.execute("uipcli-win", uipcliWindowsUrl, args)
+		name = "uipcli-win"
+		url = uipcliWindowsUrl
 	}
-	return c.execute("uipcli", uipcliUrl, args)
-}
-
-func (c uipcli) execute(name string, url string, args []string) (process.ExecCmd, error) {
 	uipcliPath, err := c.getPath(name, url)
 	if err != nil {
-		return nil, err
+		return err
 	}
+	c.path = uipcliPath
+	return nil
+}
 
-	path := uipcliPath
-	if filepath.Ext(uipcliPath) == ".dll" {
-		path, err = exec.LookPath("dotnet")
+func (c uipcli) Execute(args ...string) (process.ExecCmd, error) {
+	path := c.path
+	if filepath.Ext(path) == ".dll" {
+		dotnetPath, err := exec.LookPath("dotnet")
 		if err != nil {
 			return nil, fmt.Errorf("Could not find dotnet runtime to run command: %v", err)
 		}
-		args = append([]string{uipcliPath}, args...)
+		path = dotnetPath
+		args = append([]string{c.path}, args...)
 	}
 
 	cmd := c.Exec.Command(path, args...)
@@ -62,5 +67,5 @@ func (c uipcli) isWindows() bool {
 }
 
 func newUipcli(exec process.ExecProcess, logger log.Logger) *uipcli {
-	return &uipcli{exec, logger}
+	return &uipcli{exec, logger, ""}
 }

@@ -65,11 +65,6 @@ func (c PackageAnalyzeCommand) Execute(context plugin.ExecutionContext, writer o
 }
 
 func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool, stopOnRuleViolation bool, debug bool, logger log.Logger) (int, *packageAnalyzeResult, error) {
-	if !debug {
-		bar := c.newAnalyzingProgressBar(logger)
-		defer close(bar)
-	}
-
 	jsonResultFilePath, err := c.getTemporaryJsonResultFilePath()
 	if err != nil {
 		return 1, nil, err
@@ -87,7 +82,16 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 	projectReader := newStudioProjectReader(source)
 
 	uipcli := newUipcli(c.Exec, logger)
-	cmd, err := uipcli.Execute(projectReader.GetTargetFramework(), args...)
+	err = uipcli.Initialize(projectReader.GetTargetFramework())
+	if err != nil {
+		return 1, nil, err
+	}
+
+	if !debug {
+		bar := c.newAnalyzingProgressBar(logger)
+		defer close(bar)
+	}
+	cmd, err := uipcli.Execute(args...)
 	if err != nil {
 		return 1, nil, err
 	}
