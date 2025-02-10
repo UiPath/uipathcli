@@ -79,11 +79,6 @@ func (c PackagePackCommand) formatAllowedValues(allowed []string) string {
 }
 
 func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger log.Logger) (*packagePackResult, error) {
-	if !debug {
-		bar := c.newPackagingProgressBar(logger)
-		defer close(bar)
-	}
-
 	args := []string{"package", "pack", params.Source, "--output", params.Destination}
 	if params.PackageVersion != "" {
 		args = append(args, "--version", params.PackageVersion)
@@ -104,7 +99,16 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	projectReader := newStudioProjectReader(params.Source)
 
 	uipcli := newUipcli(c.Exec, logger)
-	cmd, err := uipcli.Execute(projectReader.GetTargetFramework(), args...)
+	err := uipcli.Initialize(projectReader.GetTargetFramework())
+	if err != nil {
+		return nil, err
+	}
+
+	if !debug {
+		bar := c.newPackagingProgressBar(logger)
+		defer close(bar)
+	}
+	cmd, err := uipcli.Execute(args...)
 	if err != nil {
 		return nil, err
 	}
