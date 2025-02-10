@@ -373,7 +373,7 @@ This snippet shows how to upload a document and extract data using UiPath Docume
 # Download example invoice
 curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
 
-# Digitization the file and extract using the default project
+# Digitize the file and extract using the default project
 uipath du digitization start --file "invoice.jpg" | uipath du extraction extract --query "extractionResult.ResultsDocument.Fields[?not_null(Values)].{field: FieldId, value: Values[0].Value, confidence: Values[0].Confidence}" --file - 
 ```
 
@@ -391,6 +391,23 @@ uipath du digitization start --file "invoice.jpg" | uipath du extraction extract
   }
   ...
 ]
+```
+
+## Extract Data from Documents using Generative Extractor
+
+```bash
+# Download example invoice
+curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
+
+# Digitize the file
+documentId=$(uipath du digitization start --file "invoice.jpg" --query "documentId" --output text)
+
+# Extract the total amount using the Generative Extractor
+uipath du extraction extract --project-id 00000000-0000-0000-0000-000000000001 --extractor-id "generative_extractor" --document-id "$documentId" --query "extractionResult.ResultsDocument.Fields[0].Values[0].Value" --prompts "id=total; question=The total amount"
+```
+
+```json
+"$17,310.00"
 ```
 
 ## Connect to Automation Suite
