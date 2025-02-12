@@ -13,8 +13,8 @@ const MaxArchiveSize = 1 * 1024 * 1024 * 1024
 
 type zipArchive struct{}
 
-func (z zipArchive) Extract(zipArchive string, destinationFolder string, permissions os.FileMode) error {
-	archive, err := zip.OpenReader(zipArchive)
+func (z zipArchive) Extract(filePath string, destinationFolder string, permissions os.FileMode) error {
+	archive, err := zip.OpenReader(filePath)
 	if err != nil {
 		return err
 	}
