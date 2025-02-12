@@ -97,9 +97,14 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	}
 
 	projectReader := newStudioProjectReader(params.Source)
+	targetFramework := projectReader.GetTargetFramework()
+	supported, err := targetFramework.IsSupported()
+	if !supported {
+		return nil, err
+	}
 
 	uipcli := newUipcli(c.Exec, logger)
-	err := uipcli.Initialize(projectReader.GetTargetFramework())
+	err = uipcli.Initialize(targetFramework)
 	if err != nil {
 		return nil, err
 	}

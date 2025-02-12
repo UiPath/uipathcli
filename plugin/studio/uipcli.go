@@ -26,7 +26,7 @@ type uipcli struct {
 func (c *uipcli) Initialize(targetFramework TargetFramework) error {
 	name := "uipcli"
 	url := uipcliUrl
-	if targetFramework == TargetFrameworkWindows {
+	if targetFramework.IsWindowsOnly() {
 		name = "uipcli-win"
 		url = uipcliWindowsUrl
 	}

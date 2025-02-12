@@ -81,3 +81,46 @@ func TestAnalyzeOnLinuxWithCorrectArguments(t *testing.T) {
 		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[3])
 	}
 }
+
+func TestAnalyzeWindowsProjectOnLinuxReturnsCompatibilityError(t *testing.T) {
+	called := false
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		called = true
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(PackageAnalyzeCommand{exec}).
+		Build()
+
+	source := studioWindowsProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
+
+	if called {
+		t.Error("Expected uipcli not to be called but it was.")
+	}
+	if result.Error == nil || result.Error.Error() != "UiPath Studio Projects which target windows-only are not support on linux devices. Build the project on windows or change the target framework to cross-platform." {
+		t.Errorf("Expected compatibility error, but got: %v", result.Error)
+	}
+}
+
+func TestPackWindowsProjectOnLinuxReturnsCompatibilityError(t *testing.T) {
+	called := false
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		called = true
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(PackagePackCommand{exec}).
+		Build()
+
+	source := studioWindowsProjectDirectory()
+	destination := createDirectory(t)
+	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+
+	if called {
+		t.Error("Expected uipcli not to be called but it was.")
+	}
+	if result.Error == nil || result.Error.Error() != "UiPath Studio Projects which target windows-only are not support on linux devices. Build the project on windows or change the target framework to cross-platform." {
+		t.Errorf("Expected compatibility error, but got: %v", result.Error)
+	}
+}

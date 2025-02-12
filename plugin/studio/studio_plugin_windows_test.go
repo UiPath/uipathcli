@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"testing"
 
@@ -145,9 +144,4 @@ func TestAnalyzeOnWindowsWithCorrectArguments(t *testing.T) {
 	if commandArgs[2] != filepath.Join(source, "project.json") {
 		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[2])
 	}
-}
-
-func studioWindowsProjectDirectory() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "projects", "windows")
 }

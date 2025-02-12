@@ -80,9 +80,14 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 	}
 
 	projectReader := newStudioProjectReader(source)
+	targetFramework := projectReader.GetTargetFramework()
+	supported, err := targetFramework.IsSupported()
+	if !supported {
+		return 1, nil, err
+	}
 
 	uipcli := newUipcli(c.Exec, logger)
-	err = uipcli.Initialize(projectReader.GetTargetFramework())
+	err = uipcli.Initialize(targetFramework)
 	if err != nil {
 		return 1, nil, err
 	}
