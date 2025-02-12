@@ -372,6 +372,11 @@ func studioCrossPlatformProjectDirectory() string {
 	return filepath.Join(filepath.Dir(filename), "projects", "crossplatform")
 }
 
+func studioWindowsProjectDirectory() string {
+	_, filename, _, _ := runtime.Caller(0)
+	return filepath.Join(filepath.Dir(filename), "projects", "windows")
+}
+
 func createDirectory(t *testing.T) string {
 	tmp, err := os.MkdirTemp("", "uipath-test")
 	if err != nil {

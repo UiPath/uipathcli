@@ -14,6 +14,9 @@ type studioProjectReader struct {
 
 func (p studioProjectReader) GetTargetFramework() TargetFramework {
 	project, _ := p.ReadMetadata()
+	if strings.EqualFold(project.TargetFramework, "legacy") {
+		return TargetFrameworkLegacy
+	}
 	if strings.EqualFold(project.TargetFramework, "windows") {
 		return TargetFrameworkWindows
 	}
