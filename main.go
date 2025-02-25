@@ -67,6 +67,7 @@ func main() {
 				plugin_digitizer.NewDigitizeCommand(),
 				plugin_orchestrator.NewUploadCommand(),
 				plugin_orchestrator.NewDownloadCommand(),
+				plugin_studio.NewPackagePublishCommand(),
 				plugin_studio.NewPackagePackCommand(),
 				plugin_studio.NewPackageAnalyzeCommand(),
 			},
