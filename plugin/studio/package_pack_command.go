@@ -146,14 +146,18 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	exitCode := cmd.ExitCode()
 	var result *packagePackResult
 	if exitCode == 0 {
-		nupkgFile := c.findNupkg(params.Destination)
-		version := c.extractVersion(nupkgFile)
+		nupkgPath := findLatestNupkg(params.Destination)
+		nupkgReader := newNupkgReader(nupkgPath)
+		nuspec, err := nupkgReader.ReadNuspec()
+		if err != nil {
+			return nil, err
+		}
 		result = newSucceededPackagePackResult(
-			filepath.Join(params.Destination, nupkgFile),
+			nupkgPath,
 			project.Name,
 			project.Description,
 			project.ProjectId,
-			version)
+			nuspec.Version)
 	} else {
 		result = newFailedPackagePackResult(
 			stderrOutputBuilder.String(),
@@ -162,34 +166,6 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 			&project.ProjectId)
 	}
 	return result, nil
-}
-
-func (c PackagePackCommand) findNupkg(destination string) string {
-	newestFile := ""
-	newestTime := time.Time{}
-
-	files, _ := os.ReadDir(destination)
-	for _, file := range files {
-		extension := filepath.Ext(file.Name())
-		if strings.EqualFold(extension, ".nupkg") {
-			fileInfo, _ := file.Info()
-			time := fileInfo.ModTime()
-			if time.After(newestTime) {
-				newestTime = time
-				newestFile = file.Name()
-			}
-		}
-	}
-	return newestFile
-}
-
-func (c PackagePackCommand) extractVersion(nupkgFile string) string {
-	parts := strings.Split(nupkgFile, ".")
-	len := len(parts)
-	if len < 4 {
-		return ""
-	}
-	return fmt.Sprintf("%s.%s.%s", parts[len-4], parts[len-3], parts[len-2])
 }
 
 func (c PackagePackCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {

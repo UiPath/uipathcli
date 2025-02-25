@@ -312,12 +312,12 @@ curl --remote-name "$projectUrl/Main.xaml" \
 # Build and package project
 uipath studio package pack
 
-# Upload package
-uipath orchestrator processes upload-package --file "MyProcess.1.0.0.nupkg"
+# Publish the package
+uipath studio package publish
 
 # Create release
 folderId=$(uipath orchestrator folders get --query "value[0].Id")
-releaseKey=$(uipath orchestrator releases post --folder-id $folderId \
+releaseKey=$(uipath orchestrator releases post --folder-id "$folderId" \
                                                --name "MyProcess" \
                                                --process-key "MyProcess" \
                                                --process-version "1.0.0" \
@@ -325,10 +325,10 @@ releaseKey=$(uipath orchestrator releases post --folder-id $folderId \
                                                --output text)
 
 # Start process
-jobId=$(uipath orchestrator jobs start-jobs --folder-id $folderId \
+jobId=$(uipath orchestrator jobs start-jobs --folder-id "$folderId" \
                                             --start-info "ReleaseKey=$releaseKey" \
                                             --query "value[0].Id")
-uipath orchestrator jobs get-by-id --folder-id $folderId --key $jobId
+uipath orchestrator jobs get-by-id --folder-id "$folderId" --key "$jobId"
 ```
 
 ## Manage Orchestrator Resources
@@ -339,7 +339,7 @@ There are various UiPath Orchestrator resources which you can manage through the
 folderId=$(uipath orchestrator folders get --query "value[0].Id")
 
 # Create new Text asset
-uipath orchestrator assets post --folder-id $folderId \
+uipath orchestrator assets post --folder-id "$folderId" \
                                 --name "MyAsset" \
                                 --value-scope "Global" \
                                 --value-type "Text" \
