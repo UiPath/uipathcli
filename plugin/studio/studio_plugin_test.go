@@ -2,9 +2,9 @@ package studio
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -12,23 +12,6 @@ import (
 	"github.com/UiPath/uipathcli/test"
 	"github.com/UiPath/uipathcli/utils/process"
 )
-
-const studioDefinition = `
-openapi: 3.0.1
-info:
-  title: UiPath Studio
-  description: UiPath Studio
-  version: v1
-servers:
-  - url: https://cloud.uipath.com/{organization}/studio_/backend
-    description: The production url
-    variables:
-      organization:
-        description: The organization name (or id)
-        default: my-org
-paths:
-  {}
-`
 
 func TestPackNonExistentProjectShowsProjectJsonNotFound(t *testing.T) {
 	context := test.NewContextBuilder().
@@ -316,6 +299,176 @@ func TestAnalyzeWithStopOnRuleViolationArgument(t *testing.T) {
 	}
 }
 
+func TestPublishNoPackageFileReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", "not-found"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Package not found." {
+		t.Errorf("Expected package not found error, but got: %v", result.Error)
+	}
+}
+
+func TestPublishMissingOrganizationReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--tenant", "my-tenant", "--source", "my.nupkg"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Organization is not set" {
+		t.Errorf("Expected organization is not set error, but got: %v", result.Error)
+	}
+}
+
+func TestPublishMissingTenantReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--source", "my.nupkg"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Tenant is not set" {
+		t.Errorf("Expected tenant is not set error, but got: %v", result.Error)
+	}
+}
+
+func TestPublishInvalidPackageReturnsError(t *testing.T) {
+	path := createFile(t)
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", path}, context)
+
+	if result.Error == nil || !strings.HasPrefix(result.Error.Error(), "Could not read package") {
+		t.Errorf("Expected package read error, but got: %v", result.Error)
+	}
+}
+
+func TestPublishReturnsPackageMetadata(t *testing.T) {
+	nupkgPath := createNupkgArchive(t, nuspecContent)
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithResponse(200, `{}`).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize publish command result: %v", err)
+	}
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
+	}
+	if stdout["error"] != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.StdOut)
+	}
+	if stdout["name"] != "My Library" {
+		t.Errorf("Expected name to be My Library, but got: %v", result.StdOut)
+	}
+	if stdout["version"] != "1.0.0" {
+		t.Errorf("Expected version to be 1.0.0, but got: %v", result.StdOut)
+	}
+	if stdout["package"] == nil || stdout["package"] == "" {
+		t.Errorf("Expected package not to be empty, but got: %v", result.StdOut)
+	}
+}
+
+func TestPublishUploadsPackageToOrchestrator(t *testing.T) {
+	nupkgPath := createNupkgArchive(t, nuspecContent)
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithResponse(200, `{}`).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
+
+	if result.RequestUrl != "/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage" {
+		t.Errorf("Expected upload package request url, but got: %v", result.RequestUrl)
+	}
+	contentType := result.RequestHeader["content-type"]
+	if !strings.HasPrefix(contentType, "multipart/form-data; boundary=") {
+		t.Errorf("Expected Content-Type header to be multipart/form-data, but got: %v", contentType)
+	}
+	expectedContentDisposition := fmt.Sprintf(`Content-Disposition: form-data; name="file"; filename="%s"`, filepath.Base(nupkgPath))
+	if !strings.Contains(result.RequestBody, expectedContentDisposition) {
+		t.Errorf("Expected request body to contain Content-Disposition, but got: %v", result.RequestBody)
+	}
+	if !strings.Contains(result.RequestBody, "Content-Type: application/octet-stream") {
+		t.Errorf("Expected request body to contain Content-Type, but got: %v", result.RequestBody)
+	}
+	if !strings.Contains(result.RequestBody, "MyProcess.nuspec") {
+		t.Errorf("Expected request body to contain nuspec file, but got: %v", result.RequestBody)
+	}
+}
+
+func TestPublishPackageAlreadyExistsReturnsFailed(t *testing.T) {
+	nupkgPath := createNupkgArchive(t, `
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+	<metadata minClientVersion="3.3">
+	<id>MyProcess</id>
+	<version>2.0.0</version>
+	<title>My Process</title>
+	</metadata>
+</package>`)
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithResponse(409, `{}`).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize publish command result: %v", err)
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
+	}
+	expectedError := fmt.Sprintf("Package '%s' already exists", filepath.Base(nupkgPath))
+	if stdout["error"] != expectedError {
+		t.Errorf("Expected error to be Package already exists, but got: %v", result.StdOut)
+	}
+	if stdout["name"] != "My Process" {
+		t.Errorf("Expected name to be My Process, but got: %v", result.StdOut)
+	}
+	if stdout["version"] != "2.0.0" {
+		t.Errorf("Expected version to be 2.0.0, but got: %v", result.StdOut)
+	}
+	if stdout["package"] == nil || stdout["package"] == "" {
+		t.Errorf("Expected package not to be empty, but got: %v", result.StdOut)
+	}
+}
+
+func TestPublishOrchestratorErrorReturnsError(t *testing.T) {
+	nupkgPath := createNupkgArchive(t, nuspecContent)
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithResponse(503, `{}`).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
+
+	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '503' and body '{}'" {
+		t.Errorf("Expected orchestrator error, but got: %v", result.Error)
+	}
+}
+
 func findViolation(violations []interface{}, errorCode string) map[string]interface{} {
 	var violation map[string]interface{}
 	for _, v := range violations {
@@ -325,23 +478,4 @@ func findViolation(violations []interface{}, errorCode string) map[string]interf
 		}
 	}
 	return violation
-}
-
-func studioCrossPlatformProjectDirectory() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "projects", "crossplatform")
-}
-
-func studioWindowsProjectDirectory() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "projects", "windows")
-}
-
-func createDirectory(t *testing.T) string {
-	tmp, err := os.MkdirTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { os.RemoveAll(tmp) })
-	return tmp
 }
