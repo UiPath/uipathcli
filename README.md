@@ -310,7 +310,7 @@ curl --remote-name "$projectUrl/Main.xaml" \
      --remote-name "$projectUrl/project.json"
 
 # Build and package project
-uipath studio package pack --source . --destination . --package-version 1.0.0
+uipath studio package pack
 
 # Upload package
 uipath orchestrator processes upload-package --file "MyProcess.1.0.0.nupkg"

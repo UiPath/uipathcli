@@ -41,7 +41,9 @@
       "privateWorkflows": []
     },
     "processOptions": {
-      "ignoredFiles": []
+      "ignoredFiles": [
+        "MyWindowsProcess.*.nupkg"
+      ]
     },
     "fileInfoCollection": [],
     "saveToCloud": false
