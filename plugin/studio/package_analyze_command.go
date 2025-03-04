@@ -33,7 +33,7 @@ func (c PackageAnalyzeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("analyze", "Analyze Project", "Runs static code analysis on the project to detect common errors").
-		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file", true).
+		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
 		WithParameter("treat-warnings-as-errors", plugin.ParameterTypeBoolean, "Treat warnings as errors", false).
 		WithParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated", false)
 }
@@ -80,14 +80,17 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 	}
 
 	projectReader := newStudioProjectReader(source)
-	targetFramework := projectReader.GetTargetFramework()
-	supported, err := targetFramework.IsSupported()
+	project, err := projectReader.ReadMetadata()
+	if err != nil {
+		return 1, nil, err
+	}
+	supported, err := project.TargetFramework.IsSupported()
 	if !supported {
 		return 1, nil, err
 	}
 
 	uipcli := newUipcli(c.Exec, logger)
-	err = uipcli.Initialize(targetFramework)
+	err = uipcli.Initialize(project.TargetFramework)
 	if err != nil {
 		return 1, nil, err
 	}
@@ -244,10 +247,7 @@ func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan s
 }
 
 func (c PackageAnalyzeCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", context.Parameters)
-	if source == "" {
-		return "", errors.New("source is not set")
-	}
+	source := c.getParameter("source", ".", context.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -268,8 +268,8 @@ func (c PackageAnalyzeCommand) readOutput(output io.Reader, logger log.Logger, w
 	}
 }
 
-func (c PackageAnalyzeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
-	result := ""
+func (c PackageAnalyzeCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {

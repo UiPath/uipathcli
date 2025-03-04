@@ -30,33 +30,6 @@ paths:
   {}
 `
 
-func TestPackWithoutSourceParameterShowsValidationError(t *testing.T) {
-	context := test.NewContextBuilder().
-		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(NewPackagePackCommand()).
-		Build()
-
-	result := test.RunCli([]string{"studio", "package", "pack", "--destination", "test.nupkg"}, context)
-
-	if !strings.Contains(result.StdErr, "Argument --source is missing") {
-		t.Errorf("Expected stderr to show that source parameter is missing, but got: %v", result.StdErr)
-	}
-}
-
-func TestPackWithoutDestinationParameterShowsValidationError(t *testing.T) {
-	context := test.NewContextBuilder().
-		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(NewPackagePackCommand()).
-		Build()
-
-	source := studioCrossPlatformProjectDirectory()
-	result := test.RunCli([]string{"studio", "package", "pack", "--source", source}, context)
-
-	if !strings.Contains(result.StdErr, "Argument --destination is missing") {
-		t.Errorf("Expected stderr to show that destination parameter is missing, but got: %v", result.StdErr)
-	}
-}
-
 func TestPackNonExistentProjectShowsProjectJsonNotFound(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
@@ -138,11 +111,11 @@ func TestPackCrossPlatformSuccessfully(t *testing.T) {
 	if stdout["projectId"] != "9011ee47-8dd4-4726-8850-299bd6ef057c" {
 		t.Errorf("Expected projectId to be set, but got: %v", result.StdOut)
 	}
-	if stdout["version"] != "1.0.2" {
+	if stdout["version"] != "1.0.0" {
 		t.Errorf("Expected version to be set, but got: %v", result.StdOut)
 	}
 	outputFile := stdout["output"].(string)
-	if outputFile != filepath.Join(destination, "MyProcess.1.0.2.nupkg") {
+	if outputFile != filepath.Join(destination, "MyProcess.1.0.0.nupkg") {
 		t.Errorf("Expected output path to be set, but got: %v", result.StdOut)
 	}
 	if _, err := os.Stat(outputFile); err != nil {
@@ -227,19 +200,6 @@ func TestPackWithReleaseNotesArgument(t *testing.T) {
 	}
 	if commandArgs[index+1] != "These are release notes." {
 		t.Errorf("Expected release notes argument, but got: %v", strings.Join(commandArgs, " "))
-	}
-}
-
-func TestAnalyzeWithoutSourceParameterShowsValidationError(t *testing.T) {
-	context := test.NewContextBuilder().
-		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(NewPackageAnalyzeCommand()).
-		Build()
-
-	result := test.RunCli([]string{"studio", "package", "analyze"}, context)
-
-	if !strings.Contains(result.StdErr, "Argument --source is missing") {
-		t.Errorf("Expected stderr to show that source parameter is missing, but got: %v", result.StdErr)
 	}
 }
 

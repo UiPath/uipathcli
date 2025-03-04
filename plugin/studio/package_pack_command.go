@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -34,8 +33,8 @@ func (c PackagePackCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("pack", "Package Project", "Packs a project into a single package").
-		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file", true).
-		WithParameter("destination", plugin.ParameterTypeString, "The output folder", true).
+		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
+		WithParameter("destination", plugin.ParameterTypeString, "The output folder (default .)", false).
 		WithParameter("package-version", plugin.ParameterTypeString, "The package version", false).
 		WithParameter("auto-version", plugin.ParameterTypeBoolean, "Auto-generate package version", false).
 		WithParameter("output-type", plugin.ParameterTypeString, "Force the output to a specific type."+c.formatAllowedValues(OutputTypeAllowedValues), false).
@@ -48,18 +47,15 @@ func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer outp
 	if err != nil {
 		return err
 	}
-	destination, err := c.getDestination(context)
-	if err != nil {
-		return err
-	}
-	packageVersion := c.getParameter("package-version", context.Parameters)
+	destination := c.getDestination(context)
+	packageVersion := c.getParameter("package-version", "", context.Parameters)
 	autoVersion := c.getBoolParameter("auto-version", context.Parameters)
-	outputType := c.getParameter("output-type", context.Parameters)
+	outputType := c.getParameter("output-type", "", context.Parameters)
 	if outputType != "" && !slices.Contains(OutputTypeAllowedValues, outputType) {
 		return fmt.Errorf("Invalid output type '%s', allowed values: %s", outputType, strings.Join(OutputTypeAllowedValues, ", "))
 	}
 	splitOutput := c.getBoolParameter("split-output", context.Parameters)
-	releaseNotes := c.getParameter("release-notes", context.Parameters)
+	releaseNotes := c.getParameter("release-notes", "", context.Parameters)
 	params := newPackagePackParams(source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes)
 
 	result, err := c.execute(*params, context.Debug, logger)
@@ -97,14 +93,18 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	}
 
 	projectReader := newStudioProjectReader(params.Source)
-	targetFramework := projectReader.GetTargetFramework()
-	supported, err := targetFramework.IsSupported()
+	project, err := projectReader.ReadMetadata()
+	if err != nil {
+		return nil, err
+	}
+	supported, err := project.TargetFramework.IsSupported()
 	if !supported {
 		return nil, err
 	}
+	_ = projectReader.AddToIgnoredFiles(project.NupkgIgnoreFilePattern())
 
 	uipcli := newUipcli(c.Exec, logger)
-	err = uipcli.Initialize(targetFramework)
+	err = uipcli.Initialize(project.TargetFramework)
 	if err != nil {
 		return nil, err
 	}
@@ -141,11 +141,6 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	go c.readOutput(stderrReader, logger, &wg)
 	go c.wait(cmd, &wg)
 	wg.Wait()
-
-	project, err := projectReader.ReadMetadata()
-	if err != nil {
-		return nil, err
-	}
 
 	exitCode := cmd.ExitCode()
 	var result *packagePackResult
@@ -226,10 +221,7 @@ func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan stru
 }
 
 func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", context.Parameters)
-	if source == "" {
-		return "", errors.New("source is not set")
-	}
+	source := c.getParameter("source", ".", context.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -241,13 +233,10 @@ func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, 
 	return source, nil
 }
 
-func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) (string, error) {
-	destination := c.getParameter("destination", context.Parameters)
-	if destination == "" {
-		return "", errors.New("destination is not set")
-	}
+func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) string {
+	destination := c.getParameter("destination", ".", context.Parameters)
 	destination, _ = filepath.Abs(destination)
-	return destination, nil
+	return destination
 }
 
 func (c PackagePackCommand) readOutput(output io.Reader, logger log.Logger, wg *sync.WaitGroup) {
@@ -259,8 +248,8 @@ func (c PackagePackCommand) readOutput(output io.Reader, logger log.Logger, wg *
 	}
 }
 
-func (c PackagePackCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
-	result := ""
+func (c PackagePackCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
