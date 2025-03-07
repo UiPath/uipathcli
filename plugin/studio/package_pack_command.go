@@ -75,23 +75,6 @@ func (c PackagePackCommand) formatAllowedValues(allowed []string) string {
 }
 
 func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger log.Logger) (*packagePackResult, error) {
-	args := []string{"package", "pack", params.Source, "--output", params.Destination}
-	if params.PackageVersion != "" {
-		args = append(args, "--version", params.PackageVersion)
-	}
-	if params.AutoVersion {
-		args = append(args, "--autoVersion")
-	}
-	if params.OutputType != "" {
-		args = append(args, "--outputType", params.OutputType)
-	}
-	if params.SplitOutput {
-		args = append(args, "--splitOutput")
-	}
-	if params.ReleaseNotes != "" {
-		args = append(args, "--releaseNotes", params.ReleaseNotes)
-	}
-
 	projectReader := newStudioProjectReader(params.Source)
 	project, err := projectReader.ReadMetadata()
 	if err != nil {
@@ -113,6 +96,7 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 		bar := c.newPackagingProgressBar(logger)
 		defer close(bar)
 	}
+	args := c.preparePackArguments(params)
 	cmd, err := uipcli.Execute(args...)
 	if err != nil {
 		return nil, err
@@ -145,14 +129,18 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	exitCode := cmd.ExitCode()
 	var result *packagePackResult
 	if exitCode == 0 {
-		nupkgFile := c.findNupkg(params.Destination)
-		version := c.extractVersion(nupkgFile)
+		nupkgPath := findLatestNupkg(params.Destination)
+		nupkgReader := newNupkgReader(nupkgPath)
+		nuspec, err := nupkgReader.ReadNuspec()
+		if err != nil {
+			return nil, err
+		}
 		result = newSucceededPackagePackResult(
-			filepath.Join(params.Destination, nupkgFile),
+			nupkgPath,
 			project.Name,
 			project.Description,
 			project.ProjectId,
-			version)
+			nuspec.Version)
 	} else {
 		result = newFailedPackagePackResult(
 			stderrOutputBuilder.String(),
@@ -163,32 +151,24 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 	return result, nil
 }
 
-func (c PackagePackCommand) findNupkg(destination string) string {
-	newestFile := ""
-	newestTime := time.Time{}
-
-	files, _ := os.ReadDir(destination)
-	for _, file := range files {
-		extension := filepath.Ext(file.Name())
-		if strings.EqualFold(extension, ".nupkg") {
-			fileInfo, _ := file.Info()
-			time := fileInfo.ModTime()
-			if time.After(newestTime) {
-				newestTime = time
-				newestFile = file.Name()
-			}
-		}
+func (c PackagePackCommand) preparePackArguments(params packagePackParams) []string {
+	args := []string{"package", "pack", params.Source, "--output", params.Destination}
+	if params.PackageVersion != "" {
+		args = append(args, "--version", params.PackageVersion)
 	}
-	return newestFile
-}
-
-func (c PackagePackCommand) extractVersion(nupkgFile string) string {
-	parts := strings.Split(nupkgFile, ".")
-	len := len(parts)
-	if len < 4 {
-		return ""
+	if params.AutoVersion {
+		args = append(args, "--autoVersion")
 	}
-	return fmt.Sprintf("%s.%s.%s", parts[len-4], parts[len-3], parts[len-2])
+	if params.OutputType != "" {
+		args = append(args, "--outputType", params.OutputType)
+	}
+	if params.SplitOutput {
+		args = append(args, "--splitOutput")
+	}
+	if params.ReleaseNotes != "" {
+		args = append(args, "--releaseNotes", params.ReleaseNotes)
+	}
+	return args
 }
 
 func (c PackagePackCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {

@@ -1,7 +1,6 @@
 package studio
 
 import (
-	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -291,28 +290,4 @@ func TestStudioProjectReaderAddToIgnoredFilesFilePatternExistsNoOp(t *testing.T)
 	if !strings.Contains(json, `["my-file", "*.nupkg"]`) {
 		t.Errorf("Should contain ignored file pattern, but got: %s", json)
 	}
-}
-
-func writeFile(t *testing.T, data string) string {
-	path := createFile(t)
-	err := os.WriteFile(path, []byte(data), 0600)
-	if err != nil {
-		panic(fmt.Errorf("Error writing file '%s': %w", path, err))
-	}
-	return path
-}
-
-func createFile(t *testing.T) string {
-	tempFile, err := os.CreateTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
 }
