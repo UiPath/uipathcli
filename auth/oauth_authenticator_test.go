@@ -25,7 +25,7 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 		"scopes":   "OR.Users",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
-	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), "72b54f995dc5df454d2c1d984cea9c59", false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
@@ -46,12 +46,12 @@ func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
 		"my-header": "my-value",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", headers)
-	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), "77a4d29d6c01dd5f146974cabdef3524", false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
 	if result.Error != "" {
-		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
+		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if result.RequestHeader["my-header"] != "my-value" {
 		t.Errorf("Request header should not be changed, but got: %v", result.RequestHeader)
@@ -65,7 +65,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 		"scopes":      "OR.Users",
 	}
 	request := NewAuthenticatorRequest("http:/localhost", map[string]string{})
-	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), false, false, *request)
+	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), "02ce225755f20f839fb03b38557b8341", false, *request)
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(*context)
@@ -240,7 +240,7 @@ func createAuthContext(baseUrl url.URL) AuthenticatorContext {
 	}
 	identityUrl := createIdentityUrl(baseUrl.Host)
 	request := NewAuthenticatorRequest(fmt.Sprintf("%s://%s", baseUrl.Scheme, baseUrl.Host), map[string]string{})
-	context := NewAuthenticatorContext("login", config, identityUrl, false, false, *request)
+	context := NewAuthenticatorContext("login", config, identityUrl, "d7b087788be2154da3ad9d6bc14588f4", false, *request)
 	return *context
 }
 

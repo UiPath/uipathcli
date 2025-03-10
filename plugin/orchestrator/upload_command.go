@@ -1,8 +1,7 @@
 package orchestrator
 
 import (
-	"bytes"
-	"crypto/tls"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -33,72 +33,63 @@ func (c UploadCommand) Command() plugin.Command {
 		WithParameter("file", plugin.ParameterTypeBinary, "The file to upload", true)
 }
 
-func (c UploadCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	writeUrl, err := c.getWriteUrl(context, logger)
+func (c UploadCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	writeUrl, err := c.getWriteUrl(ctx, logger)
 	if err != nil {
 		return err
 	}
-	return c.upload(context, logger, writeUrl)
+	return c.upload(ctx, logger, writeUrl)
 }
 
-func (c UploadCommand) upload(context plugin.ExecutionContext, logger log.Logger, url string) error {
+func (c UploadCommand) upload(ctx plugin.ExecutionContext, logger log.Logger, url string) error {
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
-	requestError := make(chan error)
-	request, err := c.createUploadRequest(context, url, uploadBar, requestError)
+	context, cancel := context.WithCancelCause(context.Background())
+	request := c.createUploadRequest(ctx, url, uploadBar, cancel)
+	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	response, err := client.SendWithContext(request, context)
 	if err != nil {
 		return err
-	}
-	if context.Debug {
-		c.logRequest(logger, request)
-	}
-	response, err := c.send(request, context.Insecure, requestError)
-	if err != nil {
-		return fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return fmt.Errorf("Error reading response: %w", err)
 	}
-	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusCreated {
 		return fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
 	return nil
 }
 
-func (c UploadCommand) createUploadRequest(context plugin.ExecutionContext, url string, uploadBar *visualization.ProgressBar, requestError chan error) (*http.Request, error) {
-	file := context.Input
+func (c UploadCommand) createUploadRequest(ctx plugin.ExecutionContext, url string, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
+	file := ctx.Input
 	if file == nil {
-		file = c.getFileParameter(context.Parameters)
+		file = c.getFileParameter(ctx.Parameters)
 	}
 	bodyReader, bodyWriter := io.Pipe()
-	contentType, contentLength := c.writeBody(bodyWriter, file, requestError)
+	contentType, contentLength := c.writeBody(bodyWriter, file, cancel)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
 
-	request, err := http.NewRequest("PUT", url, uploadReader)
-	if err != nil {
-		return nil, err
+	header := http.Header{
+		"Content-Type":   {contentType},
+		"x-ms-blob-type": {"BlockBlob"},
 	}
-	request.ContentLength = contentLength
-	request.Header.Add("Content-Type", contentType)
-	request.Header.Add("x-ms-blob-type", "BlockBlob")
-	return request, nil
+	return network.NewHttpPutRequest(url, header, uploadReader, contentLength)
 }
 
-func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input stream.Stream, errorChan chan error) (string, int64) {
+func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input stream.Stream, cancel context.CancelCauseFunc) (string, int64) {
 	go func() {
 		defer bodyWriter.Close()
 		data, err := input.Data()
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 		defer data.Close()
 		_, err = io.Copy(bodyWriter, data)
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
@@ -110,35 +101,33 @@ func (c UploadCommand) progressReader(text string, completedText string, reader 
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
+	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
 		}
 		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
-	return progressReader
 }
 
-func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, logger log.Logger) (string, error) {
-	request, err := c.createWriteUrlRequest(context)
+func (c UploadCommand) getWriteUrl(ctx plugin.ExecutionContext, logger log.Logger) (string, error) {
+	if ctx.Organization == "" {
+		return "", errors.New("Organization is not set")
+	}
+	if ctx.Tenant == "" {
+		return "", errors.New("Tenant is not set")
+	}
+	request := c.createWriteUrlRequest(ctx)
+	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	response, err := client.Send(request)
 	if err != nil {
 		return "", err
-	}
-	if context.Debug {
-		c.logRequest(logger, request)
-	}
-	requestError := make(chan error)
-	response, err := c.send(request, context.Insecure, requestError)
-	if err != nil {
-		return "", fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
 	}
-	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -150,27 +139,19 @@ func (c UploadCommand) getWriteUrl(context plugin.ExecutionContext, logger log.L
 	return result.Uri, nil
 }
 
-func (c UploadCommand) createWriteUrlRequest(context plugin.ExecutionContext) (*http.Request, error) {
-	if context.Organization == "" {
-		return nil, errors.New("Organization is not set")
-	}
-	if context.Tenant == "" {
-		return nil, errors.New("Tenant is not set")
-	}
-	folderId := c.getIntParameter("folder-id", context.Parameters)
-	bucketId := c.getIntParameter("key", context.Parameters)
-	path := c.getStringParameter("path", context.Parameters)
+func (c UploadCommand) createWriteUrlRequest(ctx plugin.ExecutionContext) *network.HttpRequest {
+	folderId := c.getIntParameter("folder-id", ctx.Parameters)
+	bucketId := c.getIntParameter("key", ctx.Parameters)
+	path := c.getStringParameter("path", ctx.Parameters)
 
-	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
-	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
-	if err != nil {
-		return nil, err
+	uri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
+	header := http.Header{
+		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
 	}
-	request.Header.Add("X-UiPath-OrganizationUnitId", fmt.Sprintf("%d", folderId))
-	for key, value := range context.Auth.Header {
-		request.Header.Add(key, value)
+	for key, value := range ctx.Auth.Header {
+		header.Set(key, value)
 	}
-	return request, nil
+	return network.NewHttpGetRequest(uri, header)
 }
 
 func (c UploadCommand) formatUri(baseUri url.URL, org string, tenant string) string {
@@ -182,33 +163,6 @@ func (c UploadCommand) formatUri(baseUri url.URL, org string, tenant string) str
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
 	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
-}
-
-func (c UploadCommand) send(request *http.Request, insecure bool, errorChan chan error) (*http.Response, error) {
-	responseChan := make(chan *http.Response)
-	go func(request *http.Request) {
-		response, err := c.sendRequest(request, insecure)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		responseChan <- response
-	}(request)
-
-	select {
-	case err := <-errorChan:
-		return nil, err
-	case response := <-responseChan:
-		return response, nil
-	}
-}
-
-func (c UploadCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
-	}
-	client := &http.Client{Transport: transport}
-	return client.Do(request)
 }
 
 func (c UploadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) string {
@@ -250,18 +204,13 @@ func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) 
 	return result
 }
 
-func (c UploadCommand) logRequest(logger log.Logger, request *http.Request) {
-	buffer := &bytes.Buffer{}
-	_, _ = buffer.ReadFrom(request.Body)
-	body := buffer.Bytes()
-	request.Body = io.NopCloser(bytes.NewReader(body))
-	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
-	logger.LogRequest(*requestInfo)
-}
-
-func (c UploadCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
-	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
-	logger.LogResponse(*responseInfo)
+func (c UploadCommand) httpClientSettings(ctx plugin.ExecutionContext) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		ctx.Debug,
+		ctx.Settings.OperationId,
+		ctx.Settings.Timeout,
+		ctx.Settings.MaxAttempts,
+		ctx.Settings.Insecure)
 }
 
 func NewUploadCommand() *UploadCommand {

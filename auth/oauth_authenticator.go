@@ -35,7 +35,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %w", err))
 	}
-	token, err := a.retrieveToken(config.IdentityUri, *config, ctx.Insecure)
+	token, err := a.retrieveToken(config.IdentityUri, *config, ctx.OperationId, ctx.Insecure)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
@@ -43,7 +43,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
 }
 
-func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, insecure bool) (string, error) {
+func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, operationId string, insecure bool) (string, error) {
 	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.Scopes)
 	token, _ := a.cache.Get(cacheKey)
 	if token != "" {
@@ -65,6 +65,7 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthA
 		code,
 		codeVerifier,
 		config.RedirectUrl.String(),
+		operationId,
 		insecure)
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {

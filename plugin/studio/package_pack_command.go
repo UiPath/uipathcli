@@ -42,23 +42,23 @@ func (c PackagePackCommand) Command() plugin.Command {
 		WithParameter("release-notes", plugin.ParameterTypeString, "Add release notes", false)
 }
 
-func (c PackagePackCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	source, err := c.getSource(context)
+func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	source, err := c.getSource(ctx)
 	if err != nil {
 		return err
 	}
-	destination := c.getDestination(context)
-	packageVersion := c.getParameter("package-version", "", context.Parameters)
-	autoVersion := c.getBoolParameter("auto-version", context.Parameters)
-	outputType := c.getParameter("output-type", "", context.Parameters)
+	destination := c.getDestination(ctx)
+	packageVersion := c.getParameter("package-version", "", ctx.Parameters)
+	autoVersion := c.getBoolParameter("auto-version", ctx.Parameters)
+	outputType := c.getParameter("output-type", "", ctx.Parameters)
 	if outputType != "" && !slices.Contains(OutputTypeAllowedValues, outputType) {
 		return fmt.Errorf("Invalid output type '%s', allowed values: %s", outputType, strings.Join(OutputTypeAllowedValues, ", "))
 	}
-	splitOutput := c.getBoolParameter("split-output", context.Parameters)
-	releaseNotes := c.getParameter("release-notes", "", context.Parameters)
+	splitOutput := c.getBoolParameter("split-output", ctx.Parameters)
+	releaseNotes := c.getParameter("release-notes", "", ctx.Parameters)
 	params := newPackagePackParams(source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes)
 
-	result, err := c.execute(*params, context.Debug, logger)
+	result, err := c.execute(*params, ctx.Debug, logger)
 	if err != nil {
 		return err
 	}
@@ -200,8 +200,8 @@ func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan stru
 	return cancel
 }
 
-func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", context.Parameters)
+func (c PackagePackCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
+	source := c.getParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -213,8 +213,8 @@ func (c PackagePackCommand) getSource(context plugin.ExecutionContext) (string, 
 	return source, nil
 }
 
-func (c PackagePackCommand) getDestination(context plugin.ExecutionContext) string {
-	destination := c.getParameter("destination", ".", context.Parameters)
+func (c PackagePackCommand) getDestination(ctx plugin.ExecutionContext) string {
+	destination := c.getParameter("destination", ".", ctx.Parameters)
 	destination, _ = filepath.Abs(destination)
 	return destination
 }

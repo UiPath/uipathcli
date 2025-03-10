@@ -8,8 +8,8 @@ type packagePublishParams struct {
 	Version  string
 	BaseUri  string
 	Auth     plugin.AuthResult
-	Insecure bool
 	Debug    bool
+	Settings plugin.ExecutionSettings
 }
 
 func newPackagePublishParams(
@@ -18,7 +18,7 @@ func newPackagePublishParams(
 	version string,
 	baseUri string,
 	auth plugin.AuthResult,
-	insecure bool,
-	debug bool) *packagePublishParams {
-	return &packagePublishParams{source, name, version, baseUri, auth, insecure, debug}
+	debug bool,
+	settings plugin.ExecutionSettings) *packagePublishParams {
+	return &packagePublishParams{source, name, version, baseUri, auth, debug, settings}
 }

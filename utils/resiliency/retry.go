@@ -7,15 +7,15 @@ import "time"
 const MaxAttempts = 3
 
 // Retries the given function up to 3 times when it returns an RetryableError.
-func Retry(f func() error) error {
+func Retry(f func(attempt int) error) error {
 	return RetryN(MaxAttempts, f)
 }
 
 // Retries the given function up to n times when it returns an RetryableError.
-func RetryN(maxAttempts int, f func() error) error {
+func RetryN(maxAttempts int, f func(attempt int) error) error {
 	var err error
 	for i := 1; ; i++ {
-		err = f()
+		err = f(i)
 		_, retryable := err.(*RetryableError)
 		if !retryable || i == maxAttempts {
 			return err

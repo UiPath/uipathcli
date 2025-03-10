@@ -12,5 +12,5 @@ import (
 // The OutputWriter should be used to output the result of the command.
 // The Logger should be used for providing additional information when running a command.
 type Executor interface {
-	Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error
+	Call(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error
 }

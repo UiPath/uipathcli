@@ -202,8 +202,8 @@ profiles:
 
 	RunCli([]string{"mypluginservice", "my-plugin-command"}, context)
 
-	if !pluginCommand.Context.Insecure {
-		t.Errorf("Expected insecure flag to be true, but got: %v", pluginCommand.Context.Insecure)
+	if !pluginCommand.Context.Settings.Insecure {
+		t.Errorf("Expected insecure flag to be true, but got: %v", pluginCommand.Context.Settings.Insecure)
 	}
 }
 
@@ -283,7 +283,7 @@ func (c SimplePluginCommand) Command() plugin.Command {
 		WithOperation("my-plugin-command", "Simple Command", "This is a simple plugin command")
 }
 
-func (c SimplePluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c SimplePluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	logger.LogError("Simple plugin logging output")
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "https", map[string][]string{}, bytes.NewReader([]byte("Simple plugin output"))))
 }
@@ -298,8 +298,8 @@ func (c ContextPluginCommand) Command() plugin.Command {
 		WithParameter("filter", plugin.ParameterTypeString, "This is a filter", false)
 }
 
-func (c *ContextPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	c.Context = context
+func (c *ContextPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	c.Context = ctx
 	return nil
 }
 
@@ -310,7 +310,7 @@ func (c ErrorPluginCommand) Command() plugin.Command {
 		WithOperation("my-failed-command", "Command fails", "This command always fails")
 }
 
-func (c ErrorPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c ErrorPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	return fmt.Errorf("Internal server error when calling mypluginservice")
 }
 
@@ -322,7 +322,7 @@ func (c HideOperationPluginCommand) Command() plugin.Command {
 		IsHidden()
 }
 
-func (c HideOperationPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c HideOperationPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	return fmt.Errorf("my-hidden-command is not supported")
 }
 
@@ -334,6 +334,6 @@ func (c ParametrizedPluginCommand) Command() plugin.Command {
 		WithParameter("take", plugin.ParameterTypeInteger, "This is a take parameter", true)
 }
 
-func (c ParametrizedPluginCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c ParametrizedPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	return nil
 }
