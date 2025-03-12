@@ -218,11 +218,36 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to deserialize analyze command result: %v", err)
 	}
+	if result.Error != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.Error)
+	}
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
 	if stdout["error"] != nil {
-		t.Errorf("Expected error to be nil, but got: %v", result.StdOut)
+		t.Errorf("Expected no error message, but got: %v", result.StdOut)
+	}
+}
+
+func TestAnalyzeCrossPlatformWithViolations(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
 	violations := stdout["violations"].([]interface{})
 	if len(violations) == 0 {
@@ -241,8 +266,11 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 	if violation["documentationLink"] != "https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002" {
 		t.Errorf("Expected violation to have a documentationLink, but got: %v", result.StdOut)
 	}
-	if violation["errorSeverity"] != 1.0 {
-		t.Errorf("Expected violation to have a errorSeverity, but got: %v", result.StdOut)
+	if violation["errorSeverity"] != 2.0 {
+		t.Errorf("Expected violation to have error severity, but got: %v", result.StdOut)
+	}
+	if violation["severity"] != "Warning" {
+		t.Errorf("Expected violation to have Warning severity, but got: %v", result.StdOut)
 	}
 	if violation["filePath"] != "" {
 		t.Errorf("Expected violation to have a filePath, but got: %v", result.StdOut)
@@ -258,7 +286,32 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 	}
 }
 
-func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
+func TestAnalyzeCrossPlatformWithTreatWarningAsErrors(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error == nil {
+		t.Errorf("Expected error, but got nil")
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
+	}
+	if stdout["error"] != nil {
+		t.Errorf("Expected no error message, but got: %v", result.StdOut)
+	}
+}
+
+func TestAnalyzeReturnsErrorStatus(t *testing.T) {
 	exec := process.NewExecCustomProcess(1, "Analyze output", "There was an error", func(name string, args []string) {})
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
@@ -273,7 +326,7 @@ func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to deserialize analyze command result: %v", err)
 	}
-	if stdout["status"] != "Failed" {
+	if stdout["status"] != "Error" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
 	if stdout["error"] != "There was an error" {
@@ -281,39 +334,119 @@ func TestFailedAnalyzeReturnsFailureStatus(t *testing.T) {
 	}
 }
 
-func TestAnalyzeWithTreatWarningsAsErrorsArgument(t *testing.T) {
-	commandArgs := []string{}
-	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandArgs = args
-	})
+func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
+	governanceFile := writeFile(t, `
+{
+  "product-name": "Development",
+  "policy-name": "Modern Policy - Development",
+  "data": {
+    "embedded-rules-config-rules": [
+      {
+        "code-embedded-rules-config-rules": "ST-USG-010",
+        "is-enabled-embedded-rules-config-rules": true,
+        "default-action": "Warning",
+        "parameters-embedded-rules-config-rules": []
+      }
+	]
+  }
+}
+`)
+
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(PackageAnalyzeCommand{exec}).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
 	source := studioCrossPlatformProjectDirectory()
-	test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true"}, context)
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
-	if !slices.Contains(commandArgs, "--treatWarningsAsErrors") {
-		t.Errorf("Expected argument --treatWarningsAsErrors, but got: %v", strings.Join(commandArgs, " "))
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
+	}
+	if stdout["error"] != nil {
+		t.Errorf("Expected no error message, but got: %v", result.StdOut)
 	}
 }
 
-func TestAnalyzeWithStopOnRuleViolationArgument(t *testing.T) {
-	commandArgs := []string{}
-	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
-		commandArgs = args
-	})
+func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
+	governanceFile := writeFile(t, `
+{
+  "product-name": "Development",
+  "policy-name": "Modern Policy - Development",
+  "data": {
+    "embedded-rules-config-rules": [
+      {
+        "code-embedded-rules-config-rules": "ST-USG-010",
+        "is-enabled-embedded-rules-config-rules": true,
+        "default-action": "Error",
+        "parameters-embedded-rules-config-rules": []
+      }
+	]
+  }
+}
+`)
+
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(PackageAnalyzeCommand{exec}).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
 	source := studioCrossPlatformProjectDirectory()
-	test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--stop-on-rule-violation", "true"}, context)
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
-	if !slices.Contains(commandArgs, "--stopOnRuleViolation") {
-		t.Errorf("Expected argument --stopOnRuleViolation, but got: %v", strings.Join(commandArgs, " "))
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error == nil {
+		t.Errorf("Expected error not to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
+	}
+	violations := stdout["violations"].([]interface{})
+	if len(violations) == 0 {
+		t.Errorf("Expected violations not to be empty, but got: %v", result.StdOut)
+	}
+	violation := findViolation(violations, "ST-USG-010")
+	if violation == nil {
+		t.Errorf("Could not find violation ST-USG-010, got: %v", result.StdOut)
+	}
+	if violation["activityDisplayName"] != "" {
+		t.Errorf("Expected violation not to have a activityDisplayName, but got: %v", result.StdOut)
+	}
+	if violation["description"] != "Dependency package UiPath.Testing.Activities is not used." {
+		t.Errorf("Expected violation to have a description, but got: %v", result.StdOut)
+	}
+	if violation["documentationLink"] != "https://docs.uipath.com/studio/lang-en/v2025.4/docs/st-usg-010" {
+		t.Errorf("Expected violation to have a documentationLink, but got: %v", result.StdOut)
+	}
+	if violation["errorSeverity"] != 1.0 {
+		t.Errorf("Expected violation to have error severity, but got: %v", result.StdOut)
+	}
+	if violation["severity"] != "Error" {
+		t.Errorf("Expected violation to have Error severity, but got: %v", result.StdOut)
+	}
+	if violation["filePath"] != "" {
+		t.Errorf("Expected violation to have a filePath, but got: %v", result.StdOut)
+	}
+	if violation["recommendation"] != "Remove unused packages in order to improve process execution time. [Learn more.](https://docs.uipath.com/studio/lang-en/v2025.4/docs/st-usg-010)" {
+		t.Errorf("Expected violation to have a recommendation, but got: %v", result.StdOut)
+	}
+	if violation["ruleName"] != "Unused Dependencies" {
+		t.Errorf("Expected violation to have a ruleName, but got: %v", result.StdOut)
+	}
+	if violation["workflowDisplayName"] != "" {
+		t.Errorf("Expected violation not to have a workflowDisplayName, but got: %v", result.StdOut)
 	}
 }
 
@@ -492,41 +625,6 @@ func TestPublishLargeFile(t *testing.T) {
 	}
 }
 
-func createLargeNupkgArchive(t *testing.T, size int) string {
-	path := createFile(t)
-	archive, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer archive.Close()
-	zipWriter := zip.NewWriter(archive)
-	nuspecWriter, err := zipWriter.Create("MyProcess.nuspec")
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = io.WriteString(nuspecWriter, nuspecContent)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	content, err := zipWriter.CreateHeader(&zip.FileHeader{
-		Name:   "Content.txt",
-		Method: zip.Store,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = content.Write(make([]byte, size))
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = zipWriter.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-	return path
-}
-
 func TestPublishWithDebugFlagOutputsRequestData(t *testing.T) {
 	nupkgPath := createNupkgArchive(t, nuspecContent)
 	context := test.NewContextBuilder().
@@ -607,4 +705,39 @@ func findViolation(violations []interface{}, errorCode string) map[string]interf
 		}
 	}
 	return violation
+}
+
+func createLargeNupkgArchive(t *testing.T, size int) string {
+	path := createFile(t)
+	archive, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer archive.Close()
+	zipWriter := zip.NewWriter(archive)
+	nuspecWriter, err := zipWriter.Create("MyProcess.nuspec")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = io.WriteString(nuspecWriter, nuspecContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	content, err := zipWriter.CreateHeader(&zip.FileHeader{
+		Name:   "Content.txt",
+		Method: zip.Store,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = content.Write(make([]byte, size))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return path
 }

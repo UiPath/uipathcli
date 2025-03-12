@@ -16,9 +16,11 @@ type packageAnalyzeViolation struct {
 	WorkflowDisplayName string                    `json:"workflowDisplayName"`
 	Item                *packageAnalyzeItem       `json:"item"`
 	ErrorSeverity       int                       `json:"errorSeverity"`
+	Severity            string                    `json:"severity"`
 	Recommendation      string                    `json:"recommendation"`
 	DocumentationLink   string                    `json:"documentationLink"`
 }
+
 type packageAnalyzeActivityId struct {
 	Id    string `json:"id"`
 	IdRef string `json:"idRef"`
@@ -33,6 +35,10 @@ func newSucceededPackageAnalyzeResult(violations []packageAnalyzeViolation) *pac
 	return &packageAnalyzeResult{"Succeeded", violations, nil}
 }
 
-func newFailedPackageAnalyzeResult(violations []packageAnalyzeViolation, err string) *packageAnalyzeResult {
-	return &packageAnalyzeResult{"Failed", violations, &err}
+func newFailedPackageAnalyzeResult(violations []packageAnalyzeViolation) *packageAnalyzeResult {
+	return &packageAnalyzeResult{"Failed", violations, nil}
+}
+
+func newErrorPackageAnalyzeResult(violations []packageAnalyzeViolation, err string) *packageAnalyzeResult {
+	return &packageAnalyzeResult{"Error", violations, &err}
 }

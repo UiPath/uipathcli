@@ -130,7 +130,7 @@ func TestPackWindowsOnlyProjectOnWindowsWithCorrectArguments(t *testing.T) {
 	}
 }
 
-func TestAnalyzeWindowsSuccessfully(t *testing.T) {
+func TestAnalyzeWindowsWithErrors(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
@@ -144,11 +144,43 @@ func TestAnalyzeWindowsSuccessfully(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to deserialize analyze command result: %v", err)
 	}
-	if stdout["status"] != "Succeeded" {
-		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
+	if result.Error == nil {
+		t.Errorf("Expected error not to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
 	if stdout["error"] != nil {
-		t.Errorf("Expected error to be nil, but got: %v", result.StdOut)
+		t.Errorf("Expected no standard error output, but got: %v", result.StdOut)
+	}
+	violations := stdout["violations"].([]interface{})
+	if len(violations) == 0 {
+		t.Errorf("Expected violations not to be empty, but got: %v", result.StdOut)
+	}
+}
+
+func TestAnalyzeWindowsWithErrorsButStopOnRuleViolationFalse(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioWindowsProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--stop-on-rule-violation", "false"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
+	}
+	if stdout["error"] != nil {
+		t.Errorf("Expected no standard error output, but got: %v", result.StdOut)
 	}
 	violations := stdout["violations"].([]interface{})
 	if len(violations) == 0 {
