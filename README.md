@@ -331,6 +331,29 @@ jobId=$(uipath orchestrator jobs start-jobs --folder-id "$folderId" \
 uipath orchestrator jobs get-by-id --folder-id "$folderId" --key "$jobId"
 ```
 
+## Analyze Studio Projects
+
+The following command is analyzing a UiPath Studio package using the default governance file and searching for any warnings or errors within the package. It will output violations as human-readable text, specifically showing the error code and the description.
+
+```bash
+# Download example project
+projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/plugin/studio/projects/crossplatform"
+curl --remote-name "$projectUrl/Main.xaml" \
+     --remote-name "$projectUrl/project.json" \
+     --remote-name "$projectUrl/uipath.policy.default.json"
+
+# Analyze project using the uipath.policy.default.json governance file and output all Warnings and Errors
+uipath studio package analyze --query "violations[?severity == 'Warning' || severity == 'Error'].[errorCode, description]" \
+                              --output text
+```
+
+```bash
+ST-USG-010      Dependency package UiPath.Testing.Activities is not used.
+ST-MRD-002      Activity Log Message has a default name.
+TA-DBP-002      Workflow Main.xaml does not have any assigned Test Cases.
+ST-USG-034      Your organization requires your project to have an Automation Hub URL defined.
+```
+
 ## Manage Orchestrator Resources
 
 There are various UiPath Orchestrator resources which you can manage through the CLI. This example shows how to create new assets and query for the existing ones:

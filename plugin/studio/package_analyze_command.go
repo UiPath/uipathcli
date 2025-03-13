@@ -34,8 +34,9 @@ func (c PackageAnalyzeCommand) Command() plugin.Command {
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("analyze", "Analyze Project", "Runs static code analysis on the project to detect common errors").
 		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
+		WithParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated (default: true)", false).
 		WithParameter("treat-warnings-as-errors", plugin.ParameterTypeBoolean, "Treat warnings as errors", false).
-		WithParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated", false)
+		WithParameter("governance-file", plugin.ParameterTypeString, "Pass governance policies containing the Workflow Analyzer rules (default: uipath.policy.default.json)", false)
 }
 
 func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -43,9 +44,15 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return err
 	}
-	treatWarningsAsErrors := c.getBoolParameter("treat-warnings-as-errors", ctx.Parameters)
-	stopOnRuleViolation := c.getBoolParameter("stop-on-rule-violation", ctx.Parameters)
-	exitCode, result, err := c.execute(source, treatWarningsAsErrors, stopOnRuleViolation, ctx.Debug, logger)
+
+	stopOnRuleViolation := c.getBoolParameter("stop-on-rule-violation", true, ctx.Parameters)
+	treatWarningsAsErrors := c.getBoolParameter("treat-warnings-as-errors", false, ctx.Parameters)
+	governanceFile, err := c.getGovernanceFile(ctx, source)
+	if err != nil {
+		return err
+	}
+
+	exitCode, result, err := c.execute(source, stopOnRuleViolation, treatWarningsAsErrors, governanceFile, ctx.Debug, logger)
 	if err != nil {
 		return err
 	}
@@ -64,7 +71,7 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	return nil
 }
 
-func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool, stopOnRuleViolation bool, debug bool, logger log.Logger) (int, *packageAnalyzeResult, error) {
+func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, treatWarningsAsErrors bool, governanceFile string, debug bool, logger log.Logger) (int, *packageAnalyzeResult, error) {
 	jsonResultFilePath, err := c.getTemporaryJsonResultFilePath()
 	if err != nil {
 		return 1, nil, err
@@ -72,11 +79,8 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 	defer os.Remove(jsonResultFilePath)
 
 	args := []string{"package", "analyze", source, "--resultPath", jsonResultFilePath}
-	if treatWarningsAsErrors {
-		args = append(args, "--treatWarningsAsErrors")
-	}
-	if stopOnRuleViolation {
-		args = append(args, "--stopOnRuleViolation")
+	if governanceFile != "" {
+		args = append(args, "--governanceFilePath", governanceFile)
 	}
 
 	projectReader := newStudioProjectReader(source)
@@ -99,23 +103,46 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 		bar := c.newAnalyzingProgressBar(logger)
 		defer close(bar)
 	}
-	cmd, err := uipcli.Execute(args...)
+
+	exitCode, stdErr, err := c.executeUipcli(uipcli, args, logger)
+	if err != nil {
+		return exitCode, nil, err
+	}
+
+	violations, err := c.readAnalyzeResult(jsonResultFilePath)
 	if err != nil {
 		return 1, nil, err
 	}
+	errorViolationsFound := c.hasErrorViolations(violations, treatWarningsAsErrors)
+
+	if exitCode != 0 {
+		return exitCode, newErrorPackageAnalyzeResult(violations, stdErr), nil
+	} else if stopOnRuleViolation && errorViolationsFound {
+		return 1, newFailedPackageAnalyzeResult(violations), nil
+	} else if errorViolationsFound {
+		return 0, newFailedPackageAnalyzeResult(violations), nil
+	}
+	return 0, newSucceededPackageAnalyzeResult(violations), nil
+}
+
+func (c PackageAnalyzeCommand) executeUipcli(uipcli *uipcli, args []string, logger log.Logger) (int, string, error) {
+	cmd, err := uipcli.Execute(args...)
+	if err != nil {
+		return 1, "", err
+	}
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		return 1, nil, fmt.Errorf("Could not run analyze command: %v", err)
+		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
 	}
 	defer stdout.Close()
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		return 1, nil, fmt.Errorf("Could not run analyze command: %v", err)
+		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
 	}
 	defer stderr.Close()
 	err = cmd.Start()
 	if err != nil {
-		return 1, nil, fmt.Errorf("Could not run analyze command: %v", err)
+		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
 	}
 
 	stderrOutputBuilder := new(strings.Builder)
@@ -128,22 +155,19 @@ func (c PackageAnalyzeCommand) execute(source string, treatWarningsAsErrors bool
 	go c.wait(cmd, &wg)
 	wg.Wait()
 
-	violations, err := c.readAnalyzeResult(jsonResultFilePath)
-	if err != nil {
-		return 1, nil, err
-	}
+	return cmd.ExitCode(), stderrOutputBuilder.String(), nil
+}
 
-	exitCode := cmd.ExitCode()
-	var result *packageAnalyzeResult
-	if exitCode == 0 {
-		result = newSucceededPackageAnalyzeResult(violations)
-	} else {
-		result = newFailedPackageAnalyzeResult(
-			violations,
-			stderrOutputBuilder.String(),
-		)
+func (c PackageAnalyzeCommand) hasErrorViolations(violations []packageAnalyzeViolation, treatWarningsAsErrors bool) bool {
+	for _, violation := range violations {
+		if violation.Severity == "Error" {
+			return true
+		}
+		if treatWarningsAsErrors && violation.Severity == "Warning" {
+			return true
+		}
 	}
-	return exitCode, result, nil
+	return false
 }
 
 func (c PackageAnalyzeCommand) getTemporaryJsonResultFilePath() (string, error) {
@@ -207,6 +231,7 @@ func (c PackageAnalyzeCommand) convertToViolations(json analyzeResultJson) []pac
 			ActivityDisplayName: entry.ActivityDisplayName,
 			WorkflowDisplayName: entry.WorkflowDisplayName,
 			ErrorSeverity:       entry.ErrorSeverity,
+			Severity:            c.convertToSeverity(entry.ErrorSeverity),
 			Recommendation:      entry.Recommendation,
 			DocumentationLink:   entry.DocumentationLink,
 			ActivityId:          activityId,
@@ -215,6 +240,21 @@ func (c PackageAnalyzeCommand) convertToViolations(json analyzeResultJson) []pac
 		violations = append(violations, violation)
 	}
 	return violations
+}
+
+func (c PackageAnalyzeCommand) convertToSeverity(errorSeverity int) string {
+	switch errorSeverity {
+	case 0:
+		return "Off"
+	case 1:
+		return "Error"
+	case 2:
+		return "Warning"
+	case 3:
+		return "Info"
+	default:
+		return "Trace"
+	}
 }
 
 func (c PackageAnalyzeCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
@@ -259,6 +299,30 @@ func (c PackageAnalyzeCommand) getSource(ctx plugin.ExecutionContext) (string, e
 	return source, nil
 }
 
+func (c PackageAnalyzeCommand) defaultGovernanceFile(source string) string {
+	directory := filepath.Dir(source)
+	file := filepath.Join(directory, "uipath.policy.default.json")
+	fileInfo, err := os.Stat(file)
+	if err != nil || fileInfo.IsDir() {
+		return ""
+	}
+	return file
+}
+
+func (c PackageAnalyzeCommand) getGovernanceFile(context plugin.ExecutionContext, source string) (string, error) {
+	governanceFileParam := c.getParameter("governance-file", "", context.Parameters)
+	if governanceFileParam == "" {
+		return c.defaultGovernanceFile(source), nil
+	}
+
+	file, _ := filepath.Abs(governanceFileParam)
+	fileInfo, err := os.Stat(file)
+	if err != nil || fileInfo.IsDir() {
+		return "", fmt.Errorf("%s not found", governanceFileParam)
+	}
+	return file, nil
+}
+
 func (c PackageAnalyzeCommand) readOutput(output io.Reader, logger log.Logger, wg *sync.WaitGroup) {
 	defer wg.Done()
 	scanner := bufio.NewScanner(output)
@@ -281,8 +345,8 @@ func (c PackageAnalyzeCommand) getParameter(name string, defaultValue string, pa
 	return result
 }
 
-func (c PackageAnalyzeCommand) getBoolParameter(name string, parameters []plugin.ExecutionParameter) bool {
-	result := false
+func (c PackageAnalyzeCommand) getBoolParameter(name string, defaultValue bool, parameters []plugin.ExecutionParameter) bool {
+	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(bool); ok {
