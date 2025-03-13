@@ -1697,3 +1697,68 @@ paths:
 		t.Errorf("Did not find json object in request body, expected: %v, got: %v", expected, result.RequestBody)
 	}
 }
+
+func TestRetriesServerErrorsUntilSuccess(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("service", definition).
+		WithNextResponse(500, "Internal Server Error").
+		WithNextResponse(500, "Internal Server Error").
+		WithResponse(200, `{"hello":"world"}`).
+		Build()
+
+	result := RunCli([]string{"service", "ping", "--debug"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error after retries, but got: %v", result.Error)
+	}
+
+	expectedStdOut := `{
+  "hello": "world"
+}
+`
+	if result.StdOut != expectedStdOut {
+		t.Errorf("Expected response body on stdout %v, got: %v", expectedStdOut, result.StdOut)
+	}
+
+	responseErrorCount := strings.Count(result.StdErr, "HTTP/1.1 500 Internal Server Error")
+	if responseErrorCount != 2 {
+		t.Errorf("Expected 2 response errors, but got: %v", result.StdErr)
+	}
+	responseSuccessCount := strings.Count(result.StdErr, "HTTP/1.1 200 OK")
+	if responseSuccessCount != 1 {
+		t.Errorf("Expected 1 success response, but got: %v", result.StdErr)
+	}
+}
+
+func TestRetriesServerErrorsThreeTimes(t *testing.T) {
+	definition := `
+paths:
+  /ping:
+    get:
+      summary: Simple ping
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("service", definition).
+		WithResponse(500, "Internal Server Error").
+		Build()
+
+	result := RunCli([]string{"service", "ping", "--debug"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Service returned status code '500' and body 'Internal Server Error'" {
+		t.Errorf("Expected service error, but got: %v", result.Error)
+	}
+	responseErrorCount := strings.Count(result.StdErr, "HTTP/1.1 500 Internal Server Error")
+	if responseErrorCount != 3 {
+		t.Errorf("Expected 3 response errors, but got: %v", result.StdErr)
+	}
+}

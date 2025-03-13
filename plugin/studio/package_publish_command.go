@@ -2,7 +2,7 @@ package studio
 
 import (
 	"bytes"
-	"crypto/tls"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,6 +18,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -33,14 +34,14 @@ func (c PackagePublishCommand) Command() plugin.Command {
 		WithParameter("source", plugin.ParameterTypeString, "Path to package (default: .)", false)
 }
 
-func (c PackagePublishCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	if context.Organization == "" {
+func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	if ctx.Organization == "" {
 		return errors.New("Organization is not set")
 	}
-	if context.Tenant == "" {
+	if ctx.Tenant == "" {
 		return errors.New("Tenant is not set")
 	}
-	source, err := c.getSource(context)
+	source, err := c.getSource(ctx)
 	if err != nil {
 		return err
 	}
@@ -49,8 +50,8 @@ func (c PackagePublishCommand) Execute(context plugin.ExecutionContext, writer o
 	if err != nil {
 		return err
 	}
-	baseUri := c.formatUri(context.BaseUri, context.Organization, context.Tenant)
-	params := newPackagePublishParams(source, nuspec.Title, nuspec.Version, baseUri, context.Auth, context.Insecure, context.Debug)
+	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
+	params := newPackagePublishParams(source, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
 	result, err := c.publish(*params, logger)
 	if err != nil {
 		return err
@@ -67,24 +68,18 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	file := stream.NewFileStream(params.Source)
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
-	requestError := make(chan error)
-	request, err := c.createUploadRequest(file, params, uploadBar, requestError)
+	context, cancel := context.WithCancelCause(context.Background())
+	request := c.createUploadRequest(file, params, uploadBar, cancel)
+	client := network.NewHttpClient(logger, c.httpClientSettings(params))
+	response, err := client.SendWithContext(request, context)
 	if err != nil {
 		return nil, err
-	}
-	if params.Debug {
-		c.logRequest(logger, request)
-	}
-	response, err := c.send(request, params.Insecure, requestError)
-	if err != nil {
-		return nil, fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading response: %w", err)
 	}
-	c.logResponse(logger, response, body)
 	if response.StatusCode == http.StatusConflict {
 		errorMessage := fmt.Sprintf("Package '%s' already exists", filepath.Base(params.Source))
 		return newFailedPackagePublishResult(errorMessage, params.Source, params.Name, params.Version), nil
@@ -95,40 +90,33 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	return newSucceededPackagePublishResult(params.Source, params.Name, params.Version), nil
 }
 
-func (c PackagePublishCommand) createUploadRequest(file stream.Stream, params packagePublishParams, uploadBar *visualization.ProgressBar, requestError chan error) (*http.Request, error) {
+func (c PackagePublishCommand) createUploadRequest(file stream.Stream, params packagePublishParams, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
 	bodyReader, bodyWriter := io.Pipe()
-	contentType, contentLength := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", requestError)
-	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, contentLength, uploadBar)
+	streamSize, _ := file.Size()
+	contentType := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", cancel)
+	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
 
 	uri := params.BaseUri + "/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage"
-	request, err := http.NewRequest("POST", uri, uploadReader)
-	if err != nil {
-		return nil, err
+	header := http.Header{
+		"Content-Type": {contentType},
 	}
-	request.Header.Add("Content-Type", contentType)
 	for key, value := range params.Auth.Header {
-		request.Header.Add(key, value)
+		header.Set(key, value)
 	}
-	return request, nil
+	return network.NewHttpPostRequest(uri, header, uploadReader, -1)
 }
 
 func (c PackagePublishCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
+	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
 		}
 		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
-	return progressReader
-}
-
-func (c PackagePublishCommand) calculateMultipartSize(stream stream.Stream) int64 {
-	size, _ := stream.Size()
-	return size
 }
 
 func (c PackagePublishCommand) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
@@ -151,50 +139,22 @@ func (c PackagePublishCommand) writeMultipartForm(writer *multipart.Writer, stre
 	return nil
 }
 
-func (c PackagePublishCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, errorChan chan error) (string, int64) {
-	contentLength := c.calculateMultipartSize(stream)
+func (c PackagePublishCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
 		defer bodyWriter.Close()
 		defer formWriter.Close()
 		err := c.writeMultipartForm(formWriter, stream, contentType)
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
-	return formWriter.FormDataContentType(), contentLength
+	return formWriter.FormDataContentType()
 }
 
-func (c PackagePublishCommand) send(request *http.Request, insecure bool, errorChan chan error) (*http.Response, error) {
-	responseChan := make(chan *http.Response)
-	go func(request *http.Request) {
-		response, err := c.sendRequest(request, insecure)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		responseChan <- response
-	}(request)
-
-	select {
-	case err := <-errorChan:
-		return nil, err
-	case response := <-responseChan:
-		return response, nil
-	}
-}
-
-func (c PackagePublishCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
-	}
-	client := &http.Client{Transport: transport}
-	return client.Do(request)
-}
-
-func (c PackagePublishCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", context.Parameters)
+func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
+	source := c.getParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -233,18 +193,13 @@ func (c PackagePublishCommand) formatUri(baseUri url.URL, org string, tenant str
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
-func (c PackagePublishCommand) logRequest(logger log.Logger, request *http.Request) {
-	buffer := &bytes.Buffer{}
-	_, _ = buffer.ReadFrom(request.Body)
-	body := buffer.Bytes()
-	request.Body = io.NopCloser(bytes.NewReader(body))
-	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
-	logger.LogRequest(*requestInfo)
-}
-
-func (c PackagePublishCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
-	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
-	logger.LogResponse(*responseInfo)
+func (c PackagePublishCommand) httpClientSettings(params packagePublishParams) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		params.Debug,
+		params.Settings.OperationId,
+		params.Settings.Timeout,
+		params.Settings.MaxAttempts,
+		params.Settings.Insecure)
 }
 
 func NewPackagePublishCommand() *PackagePublishCommand {

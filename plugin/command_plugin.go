@@ -16,5 +16,5 @@ import (
 // The Execute() operation is invoked when the user runs the CLI command.
 type CommandPlugin interface {
 	Command() Command
-	Execute(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error
+	Execute(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error
 }

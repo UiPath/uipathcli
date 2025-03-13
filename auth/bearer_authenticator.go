@@ -32,6 +32,7 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 		config.ClientId,
 		config.ClientSecret,
 		config.Properties,
+		ctx.OperationId,
 		ctx.Insecure)
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {

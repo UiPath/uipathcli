@@ -1,16 +1,16 @@
 package auth
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/UiPath/uipathcli/cache"
-	"github.com/UiPath/uipathcli/utils/resiliency"
+	"github.com/UiPath/uipathcli/utils/network"
 )
 
 type identityClient struct {
@@ -38,7 +38,7 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 		return newTokenResponse(token, expiresIn), nil
 	}
 
-	response, err := c.retrieveToken(tokenRequest.BaseUri, form, tokenRequest.Insecure)
+	response, err := c.retrieveToken(tokenRequest.BaseUri, form, tokenRequest.OperationId, tokenRequest.Insecure)
 	if err != nil {
 		return nil, err
 	}
@@ -46,39 +46,23 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	return response, nil
 }
 
-func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, insecure bool) (*tokenResponse, error) {
-	var response *tokenResponse
-	err := resiliency.Retry(func() error {
-		var err error
-		response, err = c.send(baseUri, form, insecure)
-		return err
-	})
-	return response, err
-}
-
-func (c identityClient) send(baseUri url.URL, form url.Values, insecure bool) (*tokenResponse, error) {
+func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operationId string, insecure bool) (*tokenResponse, error) {
 	uri := baseUri.JoinPath(TokenRoute)
-	request, err := http.NewRequest("POST", uri.String(), strings.NewReader(form.Encode()))
-	if err != nil {
-		return nil, fmt.Errorf("Error preparing request: %w", err)
+	header := http.Header{
+		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	request := network.NewHttpPostRequest(uri.String(), header, strings.NewReader(form.Encode()), -1)
 
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
-	}
-	client := http.Client{Transport: transport}
-	response, err := client.Do(request)
+	clientSettings := network.NewHttpClientSettings(false, operationId, time.Duration(60)*time.Second, 3, insecure)
+	client := network.NewHttpClient(nil, *clientSettings)
+	response, err := client.Send(request)
 	if err != nil {
-		return nil, resiliency.Retryable(fmt.Errorf("Error sending request: %w", err))
+		return nil, err
 	}
 	defer response.Body.Close()
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
-		return nil, resiliency.Retryable(fmt.Errorf("Error reading response: %w", err))
-	}
-	if response.StatusCode >= 500 {
-		return nil, resiliency.Retryable(fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes)))
+		return nil, fmt.Errorf("Error reading response: %w", err)
 	}
 	if response.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes))

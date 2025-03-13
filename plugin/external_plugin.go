@@ -13,6 +13,7 @@ import (
 
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/utils/directories"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/resiliency"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -25,7 +26,7 @@ type ExternalPlugin struct {
 
 func (p ExternalPlugin) GetTool(name string, url string, archiveType ArchiveType, executable string) (string, error) {
 	path := ""
-	err := resiliency.Retry(func() error {
+	err := resiliency.Retry(func(attempt int) error {
 		var err error
 		path, err = p.getTool(name, url, archiveType, executable)
 		if err != nil {
@@ -74,7 +75,7 @@ func (p ExternalPlugin) getTool(name string, url string, archiveType ArchiveType
 }
 
 func (p ExternalPlugin) rename(source string, target string) error {
-	return resiliency.RetryN(10, func() error {
+	return resiliency.RetryN(10, func(attempt int) error {
 		err := os.Rename(source, target)
 		if err != nil {
 			return resiliency.Retryable(err)
@@ -90,14 +91,14 @@ func (p ExternalPlugin) download(name string, url string, destination string, pr
 	}
 	defer out.Close()
 
-	request, err := http.NewRequest(http.MethodGet, url, nil)
+	request := network.NewHttpGetRequest(url, http.Header{})
+	clientSettings := network.NewHttpClientSettings(false, "", 0, 1, false)
+	client := network.NewHttpClient(nil, *clientSettings)
+	response, err := client.Send(request)
 	if err != nil {
 		return fmt.Errorf("Could not download %s: %v", name, err)
 	}
-	response, err := http.DefaultClient.Do(request)
-	if err != nil {
-		return fmt.Errorf("Could not download %s: %v", name, err)
-	}
+	defer response.Body.Close()
 	downloadReader := p.progressReader("downloading...", "installing... ", response.Body, response.ContentLength, progressBar)
 	_, err = io.Copy(out, downloadReader)
 	if err != nil {
@@ -107,14 +108,13 @@ func (p ExternalPlugin) download(name string, url string, destination string, pr
 }
 
 func (p ExternalPlugin) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
-	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
+	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
 		}
 		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
-	return progressReader
 }
 
 func (p ExternalPlugin) pluginDirectory(name string, url string) (string, error) {

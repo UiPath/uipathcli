@@ -14,8 +14,8 @@ type ExecutionContext struct {
 	Auth         AuthResult
 	Input        stream.Stream
 	Parameters   []ExecutionParameter
-	Insecure     bool
 	Debug        bool
+	Settings     ExecutionSettings
 }
 
 func NewExecutionContext(
@@ -25,7 +25,7 @@ func NewExecutionContext(
 	auth AuthResult,
 	input stream.Stream,
 	parameters []ExecutionParameter,
-	insecure bool,
-	debug bool) *ExecutionContext {
-	return &ExecutionContext{organization, tenant, baseUri, auth, input, parameters, insecure, debug}
+	debug bool,
+	settings ExecutionSettings) *ExecutionContext {
+	return &ExecutionContext{organization, tenant, baseUri, auth, input, parameters, debug, settings}
 }

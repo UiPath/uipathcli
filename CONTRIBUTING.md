@@ -161,7 +161,7 @@ func (c CreateCommand) Command() plugin.Command {
   // Provides the definition of the command like name, description and parameters
 }
 
-func (c CreateCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c CreateCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
   // Invoked when the CLI command is executed
 }
 ```
@@ -213,7 +213,7 @@ func (c StatusCommand) Command() plugin.Command {
       IsHidden()
 }
 
-func (c StatusCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+func (c StatusCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
   return fmt.Errorf("Status command not supported")
 }
 ```

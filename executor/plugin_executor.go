@@ -2,10 +2,8 @@ package executor
 
 import (
 	"errors"
-	"net/url"
 
 	"github.com/UiPath/uipathcli/auth"
-	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
@@ -19,20 +17,30 @@ type PluginExecutor struct {
 	authenticators []auth.Authenticator
 }
 
-func (e PluginExecutor) executeAuthenticators(baseUri url.URL, authConfig config.AuthConfig, identityUri url.URL, debug bool, insecure bool) (*auth.AuthenticatorResult, error) {
-	authRequest := *auth.NewAuthenticatorRequest(baseUri.String(), map[string]string{})
-	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, identityUri, debug, insecure, authRequest)
+func (e PluginExecutor) authenticatorContext(ctx ExecutionContext) auth.AuthenticatorContext {
+	authRequest := *auth.NewAuthenticatorRequest(ctx.BaseUri.String(), map[string]string{})
+	return *auth.NewAuthenticatorContext(
+		ctx.AuthConfig.Type,
+		ctx.AuthConfig.Config,
+		ctx.IdentityUri,
+		ctx.Settings.OperationId,
+		ctx.Settings.Insecure,
+		authRequest)
+}
+
+func (e PluginExecutor) executeAuthenticators(ctx ExecutionContext) (*auth.AuthenticatorResult, error) {
+	authContext := e.authenticatorContext(ctx)
 	for _, authProvider := range e.authenticators {
-		result := authProvider.Auth(ctx)
+		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
 		}
-		ctx.Config = result.Config
+		authContext.Config = result.Config
 		for k, v := range result.RequestHeader {
-			ctx.Request.Header[k] = v
+			authContext.Request.Header[k] = v
 		}
 	}
-	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
+	return auth.AuthenticatorSuccess(authContext.Request.Header, authContext.Config), nil
 }
 
 func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParameter) []plugin.ExecutionParameter {
@@ -50,24 +58,24 @@ func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthRe
 	}
 }
 
-func (e PluginExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	auth, err := e.executeAuthenticators(context.BaseUri, context.AuthConfig, context.IdentityUri, context.Debug, context.Insecure)
+func (e PluginExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	auth, err := e.executeAuthenticators(ctx)
 	if err != nil {
 		return err
 	}
 
 	pluginAuth := e.pluginAuth(auth)
-	pluginParams := e.convertToPluginParameters(context.Parameters)
+	pluginParams := e.convertToPluginParameters(ctx.Parameters)
 	pluginContext := plugin.NewExecutionContext(
-		context.Organization,
-		context.Tenant,
-		context.BaseUri,
+		ctx.Organization,
+		ctx.Tenant,
+		ctx.BaseUri,
 		pluginAuth,
-		context.Input,
+		ctx.Input,
 		pluginParams,
-		context.Insecure,
-		context.Debug)
-	return context.Plugin.Execute(*pluginContext, writer, logger)
+		ctx.Debug,
+		*plugin.NewExecutionSettings(ctx.Settings.OperationId, ctx.Settings.Timeout, ctx.Settings.MaxAttempts, ctx.Settings.Insecure))
+	return ctx.Plugin.Execute(*pluginContext, writer, logger)
 }
 
 func NewPluginExecutor(authenticators []auth.Authenticator) *PluginExecutor {

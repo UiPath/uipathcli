@@ -2,8 +2,7 @@ package executor
 
 import (
 	"bytes"
-	"crypto/rand"
-	"crypto/tls"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,16 +10,13 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/url"
-	"runtime"
 	"strings"
 
 	"github.com/UiPath/uipathcli/auth"
-	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
-	"github.com/UiPath/uipathcli/utils"
 	"github.com/UiPath/uipathcli/utils/converter"
-	"github.com/UiPath/uipathcli/utils/resiliency"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -34,33 +30,17 @@ For more information you can view the help:
     uipath config --help
 `
 
-var UserAgent = fmt.Sprintf("uipathcli/%s (%s; %s)", utils.Version, runtime.GOOS, runtime.GOARCH)
-
 // The HttpExecutor implements the Executor interface and constructs HTTP request
 // from the given command line parameters and configurations.
 type HttpExecutor struct {
 	authenticators []auth.Authenticator
 }
 
-func (e HttpExecutor) Call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	return resiliency.RetryN(context.MaxAttempts, func() error {
-		return e.call(context, writer, logger)
-	})
-}
-
-func (e HttpExecutor) requestId() string {
-	bytes := make([]byte, 16)
-	_, _ = rand.Read(bytes)
-	return fmt.Sprintf("%x%x%x%x%x", bytes[0:4], bytes[4:6], bytes[6:8], bytes[8:10], bytes[10:])
-}
-
-func (e HttpExecutor) addHeaders(request *http.Request, headerParameters []ExecutionParameter) {
+func (e HttpExecutor) addHeaders(header http.Header, headerParameters []ExecutionParameter) {
 	converter := converter.NewStringConverter()
-	request.Header.Add("x-request-id", e.requestId())
-	request.Header.Add("User-Agent", UserAgent)
 	for _, parameter := range headerParameters {
 		headerValue := converter.ToString(parameter.Value)
-		request.Header.Add(parameter.Name, headerValue)
+		header.Set(parameter.Name, headerValue)
 	}
 }
 
@@ -153,37 +133,46 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 	return e.validateUri(uriBuilder.Build())
 }
 
-func (e HttpExecutor) executeAuthenticators(authConfig config.AuthConfig, identityUri url.URL, debug bool, insecure bool, request *http.Request) (*auth.AuthenticatorResult, error) {
-	authRequest := *auth.NewAuthenticatorRequest(request.URL.String(), map[string]string{})
-	ctx := *auth.NewAuthenticatorContext(authConfig.Type, authConfig.Config, identityUri, debug, insecure, authRequest)
+func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, url string) auth.AuthenticatorContext {
+	authRequest := *auth.NewAuthenticatorRequest(url, map[string]string{})
+	return *auth.NewAuthenticatorContext(
+		ctx.AuthConfig.Type,
+		ctx.AuthConfig.Config,
+		ctx.IdentityUri,
+		ctx.Settings.OperationId,
+		ctx.Settings.Insecure,
+		authRequest)
+}
+
+func (e HttpExecutor) executeAuthenticators(ctx ExecutionContext, url string) (*auth.AuthenticatorResult, error) {
+	authContext := e.authenticatorContext(ctx, url)
 	for _, authProvider := range e.authenticators {
-		result := authProvider.Auth(ctx)
+		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
 		}
-		ctx.Config = result.Config
+		authContext.Config = result.Config
 		for k, v := range result.RequestHeader {
-			ctx.Request.Header[k] = v
+			authContext.Request.Header[k] = v
 		}
 	}
-	return auth.AuthenticatorSuccess(ctx.Request.Header, ctx.Config), nil
+	return auth.AuthenticatorSuccess(authContext.Request.Header, authContext.Config), nil
 }
 
 func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
+	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
 		}
 		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
-	return progressReader
 }
 
-func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) (string, int64) {
+func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, cancel context.CancelCauseFunc) (string, int64) {
 	multipartSize := e.calculateMultipartSize(parameters)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
@@ -191,31 +180,31 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 		defer formWriter.Close()
 		err := e.writeMultipartForm(formWriter, parameters)
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
 	return formWriter.FormDataContentType(), multipartSize
 }
 
-func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input stream.Stream, errorChan chan error) {
+func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input stream.Stream, cancel context.CancelCauseFunc) {
 	go func() {
 		defer bodyWriter.Close()
 		data, err := input.Data()
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 		defer data.Close()
 		_, err = io.Copy(bodyWriter, data)
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
 }
 
-func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
+func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, cancel context.CancelCauseFunc) {
 	go func() {
 		defer bodyWriter.Close()
 		queryStringBuilder := converter.NewQueryStringBuilder()
@@ -225,134 +214,100 @@ func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters 
 		queryString := queryStringBuilder.Build()
 		_, err := bodyWriter.Write([]byte(queryString))
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
 }
 
-func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, errorChan chan error) {
+func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, cancel context.CancelCauseFunc) {
 	go func() {
 		defer bodyWriter.Close()
 		err := e.serializeJson(bodyWriter, parameters)
 		if err != nil {
-			errorChan <- err
+			cancel(err)
 			return
 		}
 	}()
 }
 
-func (e HttpExecutor) writeBody(context ExecutionContext, errorChan chan error) (io.Reader, string, int64, int64) {
-	if context.Input != nil {
+func (e HttpExecutor) writeBody(ctx ExecutionContext, cancel context.CancelCauseFunc) (io.ReadCloser, string, int64, int64) {
+	if ctx.Input != nil {
 		reader, writer := io.Pipe()
-		e.writeInputBody(writer, context.Input, errorChan)
-		contentLength, _ := context.Input.Size()
-		return reader, context.ContentType, contentLength, contentLength
+		e.writeInputBody(writer, ctx.Input, cancel)
+		contentLength, _ := ctx.Input.Size()
+		return reader, ctx.ContentType, contentLength, contentLength
 	}
-	formParameters := context.Parameters.Form()
+	formParameters := ctx.Parameters.Form()
 	if len(formParameters) > 0 {
 		reader, writer := io.Pipe()
-		contentType, multipartSize := e.writeMultipartBody(writer, formParameters, errorChan)
+		contentType, multipartSize := e.writeMultipartBody(writer, formParameters, cancel)
 		return reader, contentType, -1, multipartSize
 	}
-	bodyParameters := context.Parameters.Body()
-	if len(bodyParameters) > 0 && context.ContentType == "application/x-www-form-urlencoded" {
+	bodyParameters := ctx.Parameters.Body()
+	if len(bodyParameters) > 0 && ctx.ContentType == "application/x-www-form-urlencoded" {
 		reader, writer := io.Pipe()
-		e.writeUrlEncodedBody(writer, bodyParameters, errorChan)
-		return reader, context.ContentType, -1, -1
+		e.writeUrlEncodedBody(writer, bodyParameters, cancel)
+		return reader, ctx.ContentType, -1, -1
 	}
 	if len(bodyParameters) > 0 {
 		reader, writer := io.Pipe()
-		e.writeJsonBody(writer, bodyParameters, errorChan)
-		return reader, context.ContentType, -1, -1
+		e.writeJsonBody(writer, bodyParameters, cancel)
+		return reader, ctx.ContentType, -1, -1
 	}
-	return bytes.NewReader([]byte{}), context.ContentType, -1, -1
+	return io.NopCloser(bytes.NewReader([]byte{})), ctx.ContentType, -1, -1
 }
 
-func (e HttpExecutor) send(client *http.Client, request *http.Request, errorChan chan error) (*http.Response, error) {
-	responseChan := make(chan *http.Response)
-	go func(client *http.Client, request *http.Request) {
-		response, err := client.Do(request)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		responseChan <- response
-	}(client, request)
-
-	select {
-	case err := <-errorChan:
-		return nil, err
-	case response := <-responseChan:
-		return response, nil
+func (e HttpExecutor) pathParameters(ctx ExecutionContext) []ExecutionParameter {
+	pathParameters := ctx.Parameters.Path()
+	if ctx.Organization != "" {
+		pathParameters = append(pathParameters, *NewExecutionParameter("organization", ctx.Organization, "path"))
 	}
-}
-
-func (e HttpExecutor) logRequest(logger log.Logger, request *http.Request) {
-	buffer := &bytes.Buffer{}
-	_, _ = buffer.ReadFrom(request.Body)
-	body := buffer.Bytes()
-	request.Body = io.NopCloser(bytes.NewReader(body))
-	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
-	logger.LogRequest(*requestInfo)
-}
-
-func (e HttpExecutor) logResponse(logger log.Logger, response *http.Response, body []byte) {
-	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
-	logger.LogResponse(*responseInfo)
-}
-
-func (e HttpExecutor) pathParameters(context ExecutionContext) []ExecutionParameter {
-	pathParameters := context.Parameters.Path()
-	if context.Organization != "" {
-		pathParameters = append(pathParameters, *NewExecutionParameter("organization", context.Organization, "path"))
-	}
-	if context.Tenant != "" {
-		pathParameters = append(pathParameters, *NewExecutionParameter("tenant", context.Tenant, "path"))
+	if ctx.Tenant != "" {
+		pathParameters = append(pathParameters, *NewExecutionParameter("tenant", ctx.Tenant, "path"))
 	}
 	return pathParameters
 }
 
-func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	uri, err := e.formatUri(context.BaseUri, context.Route, e.pathParameters(context), context.Parameters.Query())
+func (e HttpExecutor) httpClientSettings(ctx ExecutionContext) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		ctx.Debug,
+		ctx.Settings.OperationId,
+		ctx.Settings.Timeout,
+		ctx.Settings.MaxAttempts,
+		ctx.Settings.Insecure)
+}
+
+func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	uri, err := e.formatUri(ctx.BaseUri, ctx.Route, e.pathParameters(ctx), ctx.Parameters.Query())
 	if err != nil {
 		return err
 	}
-	requestError := make(chan error)
-	bodyReader, contentType, contentLength, size := e.writeBody(context, requestError)
+	context, cancel := context.WithCancelCause(context.Background())
+	bodyReader, contentType, contentLength, size := e.writeBody(ctx, cancel)
 	uploadBar := visualization.NewProgressBar(logger)
 	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, size, uploadBar)
 	defer uploadBar.Remove()
-	request, err := http.NewRequest(context.Method, uri.String(), uploadReader)
-	if err != nil {
-		return fmt.Errorf("Error preparing request: %w", err)
-	}
-	if contentType != "" {
-		request.Header.Add("Content-Type", contentType)
-	}
-	if contentLength != -1 {
-		request.ContentLength = contentLength
-	}
-	e.addHeaders(request, context.Parameters.Header())
-	auth, err := e.executeAuthenticators(context.AuthConfig, context.IdentityUri, context.Debug, context.Insecure, request)
+
+	auth, err := e.executeAuthenticators(ctx, uri.String())
 	if err != nil {
 		return err
 	}
-	for k, v := range auth.RequestHeader {
-		request.Header.Add(k, v)
-	}
 
-	transport := &http.Transport{
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: context.Insecure}, //nolint // This is user configurable and disabled by default
-		ResponseHeaderTimeout: context.Timeout,
+	header := http.Header{}
+	if contentType != "" {
+		header.Set("Content-Type", contentType)
 	}
-	client := &http.Client{Transport: transport}
-	if context.Debug {
-		e.logRequest(logger, request)
+	e.addHeaders(header, ctx.Parameters.Header())
+	for k, v := range auth.RequestHeader {
+		header.Set(k, v)
 	}
-	response, err := e.send(client, request, requestError)
+	request := network.NewHttpRequest(ctx.Method, uri.String(), header, uploadReader, contentLength)
+
+	client := network.NewHttpClient(logger, e.httpClientSettings(ctx))
+	response, err := client.SendWithContext(request, context)
 	if err != nil {
-		return resiliency.Retryable(fmt.Errorf("Error sending request: %w", err))
+		return err
 	}
 	defer response.Body.Close()
 	downloadBar := visualization.NewProgressBar(logger)
@@ -360,11 +315,7 @@ func (e HttpExecutor) call(context ExecutionContext, writer output.OutputWriter,
 	defer downloadBar.Remove()
 	body, err := io.ReadAll(downloadReader)
 	if err != nil {
-		return resiliency.Retryable(fmt.Errorf("Error reading response body: %w", err))
-	}
-	e.logResponse(logger, response, body)
-	if response.StatusCode >= 500 {
-		return resiliency.Retryable(fmt.Errorf("Service returned status code '%v' and body '%v'", response.StatusCode, string(body)))
+		return fmt.Errorf("Error reading response body: %w", err)
 	}
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {

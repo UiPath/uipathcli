@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"bytes"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +13,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
@@ -31,26 +31,20 @@ func (c DownloadCommand) Command() plugin.Command {
 		WithParameter("path", plugin.ParameterTypeString, "The BlobFile full path", true)
 }
 
-func (c DownloadCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	writeUrl, err := c.getReadUrl(context, logger)
+func (c DownloadCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	writeUrl, err := c.getReadUrl(ctx, logger)
 	if err != nil {
 		return err
 	}
-	return c.download(context, writer, logger, writeUrl)
+	return c.download(ctx, writer, logger, writeUrl)
 }
 
-func (c DownloadCommand) download(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger, url string) error {
-	requestError := make(chan error)
-	request, err := http.NewRequest("GET", url, &bytes.Buffer{})
+func (c DownloadCommand) download(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger, url string) error {
+	request := network.NewHttpGetRequest(url, http.Header{})
+	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	response, err := client.Send(request)
 	if err != nil {
 		return err
-	}
-	if context.Debug {
-		c.logRequest(logger, request)
-	}
-	response, err := c.send(request, context.Insecure, requestError)
-	if err != nil {
-		return fmt.Errorf("Error sending request: %w", err)
 	}
 	defer response.Body.Close()
 	downloadBar := visualization.NewProgressBar(logger)
@@ -60,7 +54,6 @@ func (c DownloadCommand) download(context plugin.ExecutionContext, writer output
 	if err != nil {
 		return fmt.Errorf("Error reading response body: %w", err)
 	}
-	c.logResponse(logger, response, body)
 	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
 	if err != nil {
 		return err
@@ -72,26 +65,25 @@ func (c DownloadCommand) progressReader(text string, completedText string, reade
 	if length < 10*1024*1024 {
 		return reader
 	}
-	progressReader := visualization.NewProgressReader(reader, func(progress visualization.Progress) {
+	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
 		displayText := text
 		if progress.Completed {
 			displayText = completedText
 		}
 		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
 	})
-	return progressReader
 }
 
-func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, logger log.Logger) (string, error) {
-	request, err := c.createReadUrlRequest(context)
-	if err != nil {
-		return "", err
+func (c DownloadCommand) getReadUrl(ctx plugin.ExecutionContext, logger log.Logger) (string, error) {
+	if ctx.Organization == "" {
+		return "", errors.New("Organization is not set")
 	}
-	if context.Debug {
-		c.logRequest(logger, request)
+	if ctx.Tenant == "" {
+		return "", errors.New("Tenant is not set")
 	}
-	requestError := make(chan error)
-	response, err := c.send(request, context.Insecure, requestError)
+	request := c.createReadUrlRequest(ctx)
+	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	response, err := client.Send(request)
 	if err != nil {
 		return "", fmt.Errorf("Error sending request: %w", err)
 	}
@@ -100,7 +92,6 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, logger log.
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
 	}
-	c.logResponse(logger, response, body)
 	if response.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
 	}
@@ -112,27 +103,19 @@ func (c DownloadCommand) getReadUrl(context plugin.ExecutionContext, logger log.
 	return result.Uri, nil
 }
 
-func (c DownloadCommand) createReadUrlRequest(context plugin.ExecutionContext) (*http.Request, error) {
-	if context.Organization == "" {
-		return nil, errors.New("Organization is not set")
-	}
-	if context.Tenant == "" {
-		return nil, errors.New("Tenant is not set")
-	}
-	folderId := c.getIntParameter("folder-id", context.Parameters)
-	bucketId := c.getIntParameter("key", context.Parameters)
-	path := c.getStringParameter("path", context.Parameters)
+func (c DownloadCommand) createReadUrlRequest(ctx plugin.ExecutionContext) *network.HttpRequest {
+	folderId := c.getIntParameter("folder-id", ctx.Parameters)
+	bucketId := c.getIntParameter("key", ctx.Parameters)
+	path := c.getStringParameter("path", ctx.Parameters)
 
-	uri := c.formatUri(context.BaseUri, context.Organization, context.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
-	request, err := http.NewRequest("GET", uri, &bytes.Buffer{})
-	if err != nil {
-		return nil, err
+	uri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
+	header := http.Header{
+		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
 	}
-	request.Header.Add("X-UiPath-OrganizationUnitId", fmt.Sprintf("%d", folderId))
-	for key, value := range context.Auth.Header {
-		request.Header.Add(key, value)
+	for key, value := range ctx.Auth.Header {
+		header.Set(key, value)
 	}
-	return request, nil
+	return network.NewHttpGetRequest(uri, header)
 }
 
 func (c DownloadCommand) formatUri(baseUri url.URL, org string, tenant string) string {
@@ -144,33 +127,6 @@ func (c DownloadCommand) formatUri(baseUri url.URL, org string, tenant string) s
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
 	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
-}
-
-func (c DownloadCommand) send(request *http.Request, insecure bool, errorChan chan error) (*http.Response, error) {
-	responseChan := make(chan *http.Response)
-	go func(request *http.Request) {
-		response, err := c.sendRequest(request, insecure)
-		if err != nil {
-			errorChan <- err
-			return
-		}
-		responseChan <- response
-	}(request)
-
-	select {
-	case err := <-errorChan:
-		return nil, err
-	case response := <-responseChan:
-		return response, nil
-	}
-}
-
-func (c DownloadCommand) sendRequest(request *http.Request, insecure bool) (*http.Response, error) {
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: insecure}, //nolint // This is user configurable and disabled by default
-	}
-	client := &http.Client{Transport: transport}
-	return client.Do(request)
 }
 
 func (c DownloadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) string {
@@ -199,18 +155,13 @@ func (c DownloadCommand) getIntParameter(name string, parameters []plugin.Execut
 	return result
 }
 
-func (c DownloadCommand) logRequest(logger log.Logger, request *http.Request) {
-	buffer := &bytes.Buffer{}
-	_, _ = buffer.ReadFrom(request.Body)
-	body := buffer.Bytes()
-	request.Body = io.NopCloser(bytes.NewReader(body))
-	requestInfo := log.NewRequestInfo(request.Method, request.URL.String(), request.Proto, request.Header, bytes.NewReader(body))
-	logger.LogRequest(*requestInfo)
-}
-
-func (c DownloadCommand) logResponse(logger log.Logger, response *http.Response, body []byte) {
-	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body))
-	logger.LogResponse(*responseInfo)
+func (c DownloadCommand) httpClientSettings(ctx plugin.ExecutionContext) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		ctx.Debug,
+		ctx.Settings.OperationId,
+		ctx.Settings.Timeout,
+		ctx.Settings.MaxAttempts,
+		ctx.Settings.Insecure)
 }
 
 func NewDownloadCommand() *DownloadCommand {

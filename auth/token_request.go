@@ -12,13 +12,14 @@ type tokenRequest struct {
 	CodeVerifier string
 	RedirectUri  string
 	Properties   map[string]string
+	OperationId  string
 	Insecure     bool
 }
 
-func newTokenRequest(baseUri url.URL, grantType string, scopes string, clientId string, clientSecret string, properties map[string]string, insecure bool) *tokenRequest {
-	return &tokenRequest{baseUri, grantType, scopes, clientId, clientSecret, "", "", "", properties, insecure}
+func newTokenRequest(baseUri url.URL, grantType string, scopes string, clientId string, clientSecret string, properties map[string]string, operationId string, insecure bool) *tokenRequest {
+	return &tokenRequest{baseUri, grantType, scopes, clientId, clientSecret, "", "", "", properties, operationId, insecure}
 }
 
-func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, code string, codeVerifier string, redirectUrl string, insecure bool) *tokenRequest {
-	return &tokenRequest{baseUri, "authorization_code", "", clientId, "", code, codeVerifier, redirectUrl, map[string]string{}, insecure}
+func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, code string, codeVerifier string, redirectUrl string, operationId string, insecure bool) *tokenRequest {
+	return &tokenRequest{baseUri, "authorization_code", "", clientId, "", code, codeVerifier, redirectUrl, map[string]string{}, operationId, insecure}
 }

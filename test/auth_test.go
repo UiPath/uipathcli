@@ -55,7 +55,7 @@ paths:
 
 	result := RunCli([]string{"myservice", "ping"}, context)
 
-	if result.Error.Error() != "Error retrieving bearer token: Token service returned status code '500' and body 'Internal Server Error'" {
+	if result.Error.Error() != "Error retrieving bearer token: Service returned status code '500' and body 'Internal Server Error'" {
 		t.Errorf("Expected error from identity, but got: %v", result.Error)
 	}
 }
@@ -89,6 +89,38 @@ paths:
 	authorization := result.RequestHeader["authorization"]
 	if authorization != "Bearer my-jwt-access-token" {
 		t.Errorf("Expected bearer token from identity, but got: %v", authorization)
+	}
+}
+
+func TestBearerAuthForwardsRequestId(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+      properties:
+        custom: myvalue
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		Build()
+
+	result := RunCli([]string{"myservice", "ping"}, context)
+
+	requestId := result.RequestHeader["x-request-id"]
+	if requestId == "" {
+		t.Errorf("Expected x-request-id header, but got: %v", requestId)
 	}
 }
 
@@ -223,7 +255,7 @@ paths:
 		Build()
 	result := RunCli([]string{"myservice", "ping"}, context2)
 
-	if result.Error.Error() != "Error retrieving bearer token: Token service returned status code '500' and body 'Internal Server Error'" {
+	if result.Error.Error() != "Error retrieving bearer token: Service returned status code '500' and body 'Internal Server Error'" {
 		t.Errorf("Expected identity call, but got: %v", result.Error)
 	}
 }

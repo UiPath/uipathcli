@@ -1,6 +1,7 @@
 package commandline
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -246,8 +247,8 @@ func (b CommandBuilder) validateArguments(context *CommandExecContext, parameter
 	return err
 }
 
-func (b CommandBuilder) logger(context executor.ExecutionContext, writer io.Writer) log.Logger {
-	if context.Debug {
+func (b CommandBuilder) logger(ctx executor.ExecutionContext, writer io.Writer) log.Logger {
+	if ctx.Debug {
 		return log.NewDebugLogger(writer)
 	}
 	return log.NewDefaultLogger(writer)
@@ -264,11 +265,17 @@ func (b CommandBuilder) outputWriter(writer io.Writer, format string, query stri
 	return output.NewJsonOutputWriter(writer, transformer)
 }
 
-func (b CommandBuilder) executeCommand(context executor.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	if context.Plugin != nil {
-		return b.PluginExecutor.Call(context, writer, logger)
+func (b CommandBuilder) executeCommand(ctx executor.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	if ctx.Plugin != nil {
+		return b.PluginExecutor.Call(ctx, writer, logger)
 	}
-	return b.Executor.Call(context, writer, logger)
+	return b.Executor.Call(ctx, writer, logger)
+}
+
+func (b CommandBuilder) operationId() string {
+	bytes := make([]byte, 16)
+	_, _ = rand.Read(bytes)
+	return fmt.Sprintf("%x%x%x%x%x", bytes[0:4], bytes[4:6], bytes[6:8], bytes[8:10], bytes[10:])
 }
 
 func (b CommandBuilder) createOperationCommand(operation parser.Operation) *CommandDefinition {
@@ -339,6 +346,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 			if err != nil {
 				return err
 			}
+			operationId := b.operationId()
 
 			executionContext := executor.NewExecutionContext(
 				organization,
@@ -350,12 +358,11 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 				input,
 				parameters,
 				config.Auth,
-				insecure,
-				timeout,
-				maxAttempts,
-				debug,
 				*identityUri,
-				operation.Plugin)
+				operation.Plugin,
+				debug,
+				*executor.NewExecutionSettings(operationId, timeout, maxAttempts, insecure),
+			)
 
 			if wait != "" {
 				return b.executeWait(*executionContext, outputFormat, query, wait, waitTimeout)
@@ -364,11 +371,11 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 		})
 }
 
-func (b CommandBuilder) executeWait(executionContext executor.ExecutionContext, outputFormat string, query string, wait string, waitTimeout int) error {
+func (b CommandBuilder) executeWait(ctx executor.ExecutionContext, outputFormat string, query string, wait string, waitTimeout int) error {
 	logger := log.NewDefaultLogger(b.StdErr)
 	outputWriter := output.NewMemoryOutputWriter()
 	for start := time.Now(); time.Since(start) < time.Duration(waitTimeout)*time.Second; {
-		err := b.execute(executionContext, "json", "", outputWriter)
+		err := b.execute(ctx, "json", "", outputWriter)
 		result, evaluationErr := b.evaluateWaitCondition(outputWriter.Response(), wait)
 		if evaluationErr != nil {
 			return evaluationErr
@@ -406,7 +413,7 @@ func (b CommandBuilder) evaluateWaitCondition(response output.ResponseInfo, wait
 	return value, nil
 }
 
-func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outputFormat string, query string, outputWriter output.OutputWriter) error {
+func (b CommandBuilder) execute(ctx executor.ExecutionContext, outputFormat string, query string, outputWriter output.OutputWriter) error {
 	var wg sync.WaitGroup
 	wg.Add(3)
 	reader, writer := io.Pipe()
@@ -430,8 +437,8 @@ func (b CommandBuilder) execute(executionContext executor.ExecutionContext, outp
 		if outputWriter == nil {
 			outputWriter = b.outputWriter(writer, outputFormat, query)
 		}
-		logger := b.logger(executionContext, errorWriter)
-		err = b.executeCommand(executionContext, outputWriter, logger)
+		logger := b.logger(ctx, errorWriter)
+		err = b.executeCommand(ctx, outputWriter, logger)
 	}()
 
 	wg.Wait()

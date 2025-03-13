@@ -38,14 +38,14 @@ func (c PackageAnalyzeCommand) Command() plugin.Command {
 		WithParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated", false)
 }
 
-func (c PackageAnalyzeCommand) Execute(context plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	source, err := c.getSource(context)
+func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
+	source, err := c.getSource(ctx)
 	if err != nil {
 		return err
 	}
-	treatWarningsAsErrors := c.getBoolParameter("treat-warnings-as-errors", context.Parameters)
-	stopOnRuleViolation := c.getBoolParameter("stop-on-rule-violation", context.Parameters)
-	exitCode, result, err := c.execute(source, treatWarningsAsErrors, stopOnRuleViolation, context.Debug, logger)
+	treatWarningsAsErrors := c.getBoolParameter("treat-warnings-as-errors", ctx.Parameters)
+	stopOnRuleViolation := c.getBoolParameter("stop-on-rule-violation", ctx.Parameters)
+	exitCode, result, err := c.execute(source, treatWarningsAsErrors, stopOnRuleViolation, ctx.Debug, logger)
 	if err != nil {
 		return err
 	}
@@ -246,8 +246,8 @@ func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan s
 	return cancel
 }
 
-func (c PackageAnalyzeCommand) getSource(context plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", context.Parameters)
+func (c PackageAnalyzeCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
+	source := c.getParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {

@@ -593,7 +593,7 @@ func TestPublishOrchestratorErrorReturnsError(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
 
-	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '503' and body '{}'" {
+	if result.Error == nil || result.Error.Error() != "Service returned status code '503' and body '{}'" {
 		t.Errorf("Expected orchestrator error, but got: %v", result.Error)
 	}
 }

@@ -2,7 +2,6 @@ package executor
 
 import (
 	"net/url"
-	"time"
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/plugin"
@@ -21,12 +20,10 @@ type ExecutionContext struct {
 	Input        stream.Stream
 	Parameters   ExecutionParameters
 	AuthConfig   config.AuthConfig
-	Insecure     bool
-	Timeout      time.Duration
-	MaxAttempts  int
-	Debug        bool
 	IdentityUri  url.URL
 	Plugin       plugin.CommandPlugin
+	Debug        bool
+	Settings     ExecutionSettings
 }
 
 func NewExecutionContext(
@@ -39,12 +36,10 @@ func NewExecutionContext(
 	input stream.Stream,
 	parameters []ExecutionParameter,
 	authConfig config.AuthConfig,
-	insecure bool,
-	timeout time.Duration,
-	maxAttempts int,
-	debug bool,
 	identityUri url.URL,
-	plugin plugin.CommandPlugin) *ExecutionContext {
+	plugin plugin.CommandPlugin,
+	debug bool,
+	settings ExecutionSettings) *ExecutionContext {
 	return &ExecutionContext{
 		organization,
 		tenant,
@@ -55,11 +50,9 @@ func NewExecutionContext(
 		input,
 		parameters,
 		authConfig,
-		insecure,
-		timeout,
-		maxAttempts,
-		debug,
 		identityUri,
 		plugin,
+		debug,
+		settings,
 	}
 }
