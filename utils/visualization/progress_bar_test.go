@@ -105,6 +105,68 @@ func TestProgressBarUpdatePercentageTo100(t *testing.T) {
 	}
 }
 
+func TestProgressBarUpdateStepsWithZeroTotal(t *testing.T) {
+	var output bytes.Buffer
+	progressBar := NewProgressBar(log.NewDefaultLogger(&output))
+
+	progressBar.UpdateSteps("running...", 0, 0)
+
+	lastLine := lastLine(output)
+	if !strings.HasPrefix(lastLine, "running...      |                    | (0/0)") {
+		t.Errorf("Should display step bar, but got: %v", lastLine)
+	}
+}
+func TestProgressBarUpdateStepsShowsSimpleBar(t *testing.T) {
+	var output bytes.Buffer
+	progressBar := NewProgressBar(log.NewDefaultLogger(&output))
+
+	progressBar.UpdateSteps("running...", 0, 1)
+
+	lastLine := lastLine(output)
+	if !strings.HasPrefix(lastLine, "running...      |                    | (0/1)") {
+		t.Errorf("Should display step bar, but got: %v", lastLine)
+	}
+}
+
+func TestProgressBarUpdateStepsMovesBar(t *testing.T) {
+	var output bytes.Buffer
+	progressBar := NewProgressBar(log.NewDefaultLogger(&output))
+	progressBar.UpdateSteps("running...", 0, 10)
+
+	progressBar.UpdateSteps("running...", 1, 10)
+
+	lastLine := lastLine(output)
+	if !strings.HasPrefix(lastLine, "running...      |██                  | (1/10)") {
+		t.Errorf("Should display step bar, but got: %v", lastLine)
+	}
+}
+
+func TestProgressBarUpdateStepsTo100Percent(t *testing.T) {
+	var output bytes.Buffer
+	progressBar := NewProgressBar(log.NewDefaultLogger(&output))
+	progressBar.UpdateSteps("running...", 0, 10)
+	progressBar.UpdateSteps("running...", 5, 10)
+	progressBar.UpdateSteps("running...", 10, 10)
+
+	lastLine := lastLine(output)
+	if !strings.HasPrefix(lastLine, "running...      |████████████████████| (10/10)") {
+		t.Errorf("Should display step bar, but got: %v", lastLine)
+	}
+}
+
+func TestProgressBarSupportsCombinedModes(t *testing.T) {
+	var output bytes.Buffer
+	progressBar := NewProgressBar(log.NewDefaultLogger(&output))
+	progressBar.UpdateSteps("running...", 1, 10)
+	progressBar.UpdatePercentage("running...", 50)
+	progressBar.UpdateProgress("running...", 8, 10, 1)
+
+	lastLine := lastLine(output)
+	if !strings.HasPrefix(lastLine, "running...  80% |████████████████    | (8/10 B, 1 B/s)") {
+		t.Errorf("Should display bar, but got: %v", lastLine)
+	}
+}
+
 func lastLine(output bytes.Buffer) string {
 	lines := strings.Split(output.String(), "\r")
 	return lines[len(lines)-1]

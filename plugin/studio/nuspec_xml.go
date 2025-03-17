@@ -8,6 +8,7 @@ type nuspecXml struct {
 }
 
 type nuspecPackageMetadataXml struct {
+	Id      string `xml:"id"`
 	Title   string `xml:"title"`
 	Version string `xml:"version"`
 }

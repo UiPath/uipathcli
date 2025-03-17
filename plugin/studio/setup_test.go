@@ -77,6 +77,7 @@ func createNupkgArchive(t *testing.T, nuspec string) string {
 }
 
 func writeNupkgArchive(t *testing.T, path string, nuspec string) {
+	_ = os.MkdirAll(filepath.Dir(path), 0700)
 	archive, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
 		t.Fatal(err)

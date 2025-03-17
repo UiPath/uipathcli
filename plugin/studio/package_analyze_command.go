@@ -1,7 +1,6 @@
 package studio
 
 import (
-	"bufio"
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
@@ -12,8 +11,6 @@ import (
 	"math/big"
 	"os"
 	"path/filepath"
-	"strings"
-	"sync"
 	"time"
 
 	"github.com/UiPath/uipathcli/log"
@@ -78,11 +75,6 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 	}
 	defer os.Remove(jsonResultFilePath)
 
-	args := []string{"package", "analyze", source, "--resultPath", jsonResultFilePath}
-	if governanceFile != "" {
-		args = append(args, "--governanceFilePath", governanceFile)
-	}
-
 	projectReader := newStudioProjectReader(source)
 	project, err := projectReader.ReadMetadata()
 	if err != nil {
@@ -103,8 +95,8 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 		bar := c.newAnalyzingProgressBar(logger)
 		defer close(bar)
 	}
-
-	exitCode, stdErr, err := c.executeUipcli(uipcli, args, logger)
+	args := c.prepareAnalyzeArguments(source, jsonResultFilePath, governanceFile)
+	exitCode, stdErr, err := uipcli.ExecuteAndWait(args...)
 	if err != nil {
 		return exitCode, nil, err
 	}
@@ -125,37 +117,12 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 	return 0, newSucceededPackageAnalyzeResult(violations), nil
 }
 
-func (c PackageAnalyzeCommand) executeUipcli(uipcli *uipcli, args []string, logger log.Logger) (int, string, error) {
-	cmd, err := uipcli.Execute(args...)
-	if err != nil {
-		return 1, "", err
+func (c PackageAnalyzeCommand) prepareAnalyzeArguments(source string, jsonResultFilePath string, governanceFile string) []string {
+	args := []string{"package", "analyze", source, "--resultPath", jsonResultFilePath}
+	if governanceFile != "" {
+		args = append(args, "--governanceFilePath", governanceFile)
 	}
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
-	}
-	defer stdout.Close()
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
-	}
-	defer stderr.Close()
-	err = cmd.Start()
-	if err != nil {
-		return 1, "", fmt.Errorf("Could not run analyze command: %v", err)
-	}
-
-	stderrOutputBuilder := new(strings.Builder)
-	stderrReader := io.TeeReader(stderr, stderrOutputBuilder)
-
-	var wg sync.WaitGroup
-	wg.Add(3)
-	go c.readOutput(stdout, logger, &wg)
-	go c.readOutput(stderrReader, logger, &wg)
-	go c.wait(cmd, &wg)
-	wg.Wait()
-
-	return cmd.ExitCode(), stderrOutputBuilder.String(), nil
+	return args
 }
 
 func (c PackageAnalyzeCommand) hasErrorViolations(violations []packageAnalyzeViolation, treatWarningsAsErrors bool) bool {
@@ -257,11 +224,6 @@ func (c PackageAnalyzeCommand) convertToSeverity(errorSeverity int) string {
 	}
 }
 
-func (c PackageAnalyzeCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
-	defer wg.Done()
-	_ = cmd.Wait()
-}
-
 func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan struct{} {
 	progressBar := visualization.NewProgressBar(logger)
 	ticker := time.NewTicker(10 * time.Millisecond)
@@ -321,15 +283,6 @@ func (c PackageAnalyzeCommand) getGovernanceFile(context plugin.ExecutionContext
 		return "", fmt.Errorf("%s not found", governanceFileParam)
 	}
 	return file, nil
-}
-
-func (c PackageAnalyzeCommand) readOutput(output io.Reader, logger log.Logger, wg *sync.WaitGroup) {
-	defer wg.Done()
-	scanner := bufio.NewScanner(output)
-	scanner.Split(bufio.ScanRunes)
-	for scanner.Scan() {
-		logger.Log(scanner.Text())
-	}
 }
 
 func (c PackageAnalyzeCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {

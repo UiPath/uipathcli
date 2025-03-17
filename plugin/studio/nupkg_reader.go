@@ -44,7 +44,7 @@ func (r nupkgReader) readNuspec(source string, file *zip.File) (*nuspec, error) 
 	if err != nil {
 		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
 	}
-	return newNuspec(nuspec.Metadata.Title, nuspec.Metadata.Version), nil
+	return newNuspec(nuspec.Metadata.Id, nuspec.Metadata.Title, nuspec.Metadata.Version), nil
 }
 
 func findLatestNupkg(directory string) string {

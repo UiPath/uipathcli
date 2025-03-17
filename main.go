@@ -70,6 +70,7 @@ func main() {
 				plugin_studio.NewPackagePublishCommand(),
 				plugin_studio.NewPackagePackCommand(),
 				plugin_studio.NewPackageAnalyzeCommand(),
+				plugin_studio.NewTestRunCommand(),
 			},
 		),
 		*configProvider,

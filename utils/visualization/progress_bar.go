@@ -16,9 +16,24 @@ type ProgressBar struct {
 	renderedLength int
 }
 
+func (b *ProgressBar) UpdateSteps(text string, current int, total int) {
+	b.logger.LogError("\r")
+	percent := 0.1
+	if total > 0 {
+		percent = float64(current) / float64(total) * 100
+	}
+	steps := fmt.Sprintf(" (%d/%d)", current, total)
+	length := b.renderTick(text, percent, steps)
+	left := b.renderedLength - length
+	if left > 0 {
+		b.logger.LogError(strings.Repeat(" ", left))
+	}
+	b.renderedLength = length
+}
+
 func (b *ProgressBar) UpdatePercentage(text string, percent float64) {
 	b.logger.LogError("\r")
-	length := b.renderTick(text, percent)
+	length := b.renderTick(text, percent, "")
 	left := b.renderedLength - length
 	if left > 0 {
 		b.logger.LogError(strings.Repeat(" ", left))
@@ -43,11 +58,12 @@ func (b *ProgressBar) Remove() {
 	}
 }
 
-func (b ProgressBar) renderTick(text string, percent float64) int {
+func (b ProgressBar) renderTick(text string, percent float64, info string) int {
 	bar := b.createBar(percent)
-	output := fmt.Sprintf("%s      |%s|",
+	output := fmt.Sprintf("%s      |%s|%s",
 		text,
-		bar)
+		bar,
+		info)
 	b.logger.LogError(output)
 	return utf8.RuneCountInString(output)
 }
