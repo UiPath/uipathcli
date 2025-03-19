@@ -1,4 +1,4 @@
-package auth
+package api
 
 import (
 	"encoding/json"
@@ -7,19 +7,21 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
-	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/utils/cache"
 	"github.com/UiPath/uipathcli/utils/network"
 )
 
-type identityClient struct {
-	cache cache.Cache
+type IdentityClient struct {
+	cache    cache.Cache
+	baseUri  string
+	debug    bool
+	settings network.HttpClientSettings
+	logger   log.Logger
 }
 
-const TokenRoute = "/connect/token"
-
-func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, error) {
+func (c IdentityClient) GetToken(tokenRequest TokenRequest) (*TokenResponse, error) {
 	form := url.Values{}
 	form.Add("grant_type", tokenRequest.GrantType)
 	form.Add("scope", tokenRequest.Scopes)
@@ -31,14 +33,18 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	for key, value := range tokenRequest.Properties {
 		form.Add(key, value)
 	}
-
-	cacheKey := c.cacheKey(tokenRequest)
-	token, expiresIn := c.cache.Get(cacheKey)
-	if token != "" {
-		return newTokenResponse(token, expiresIn), nil
+	baseUri, err := url.Parse(c.baseUri)
+	if err != nil {
+		return nil, fmt.Errorf("Invalid uri '%s' for identity server: %v", c.baseUri, err)
 	}
 
-	response, err := c.retrieveToken(tokenRequest.BaseUri, form, tokenRequest.OperationId, tokenRequest.Insecure)
+	cacheKey := c.cacheKey(*baseUri, tokenRequest)
+	token, expiresIn := c.cache.Get(cacheKey)
+	if token != "" {
+		return NewTokenResponse(token, expiresIn), nil
+	}
+
+	response, err := c.retrieveToken(*baseUri, form)
 	if err != nil {
 		return nil, err
 	}
@@ -46,15 +52,14 @@ func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, err
 	return response, nil
 }
 
-func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operationId string, insecure bool) (*tokenResponse, error) {
-	uri := baseUri.JoinPath(TokenRoute)
+func (c IdentityClient) retrieveToken(baseUri url.URL, form url.Values) (*TokenResponse, error) {
+	uri := baseUri.JoinPath("/connect/token")
 	header := http.Header{
 		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
 	request := network.NewHttpPostRequest(uri.String(), nil, header, strings.NewReader(form.Encode()), -1)
 
-	clientSettings := network.NewHttpClientSettings(false, operationId, time.Duration(60)*time.Second, 3, insecure)
-	client := network.NewHttpClient(nil, *clientSettings)
+	client := network.NewHttpClient(c.logger, c.debug, c.settings)
 	response, err := client.Send(request)
 	if err != nil {
 		return nil, err
@@ -68,18 +73,18 @@ func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operatio
 		return nil, fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes))
 	}
 
-	var result tokenResponse
+	var result tokenResponseJson
 	err = json.Unmarshal(bytes, &result)
 	if err != nil {
 		return nil, fmt.Errorf("Error parsing json response: %w", err)
 	}
-	return &result, nil
+	return NewTokenResponse(result.AccessToken, result.ExpiresIn), nil
 }
 
-func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
+func (c IdentityClient) cacheKey(baseUri url.URL, tokenRequest TokenRequest) string {
 	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-		tokenRequest.BaseUri.Scheme,
-		tokenRequest.BaseUri.Hostname(),
+		baseUri.Scheme,
+		baseUri.Hostname(),
 		tokenRequest.GrantType,
 		tokenRequest.Scopes,
 		tokenRequest.ClientId,
@@ -90,7 +95,7 @@ func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
 		c.cacheKeyProperties(tokenRequest.Properties))
 }
 
-func (c identityClient) cacheKeyProperties(properties map[string]string) string {
+func (c IdentityClient) cacheKeyProperties(properties map[string]string) string {
 	values := []string{}
 	for key, value := range properties {
 		values = append(values, key+"="+value)
@@ -98,6 +103,11 @@ func (c identityClient) cacheKeyProperties(properties map[string]string) string 
 	return strings.Join(values, ",")
 }
 
-func newIdentityClient(cache cache.Cache) *identityClient {
-	return &identityClient{cache}
+func NewIdentityClient(cache cache.Cache, baseUri string, debug bool, settings network.HttpClientSettings, logger log.Logger) *IdentityClient {
+	return &IdentityClient{cache, baseUri, debug, settings, logger}
+}
+
+type tokenResponseJson struct {
+	AccessToken string  `json:"access_token"`
+	ExpiresIn   float32 `json:"expires_in"`
 }

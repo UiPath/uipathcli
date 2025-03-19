@@ -46,7 +46,7 @@ func (c UploadCommand) upload(ctx plugin.ExecutionContext, logger log.Logger, ur
 	defer uploadBar.Remove()
 	context, cancel := context.WithCancelCause(context.Background())
 	request := c.createUploadRequest(ctx, url, uploadBar, cancel)
-	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	client := network.NewHttpClient(logger, ctx.Debug, ctx.Settings)
 	response, err := client.SendWithContext(request, context)
 	if err != nil {
 		return err
@@ -122,7 +122,7 @@ func (c UploadCommand) getWriteUrl(ctx plugin.ExecutionContext, logger log.Logge
 	path := c.getStringParameter("path", ctx.Parameters)
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(baseUri, ctx.Auth.ToAuthorization(), ctx.Debug, ctx.Settings, logger)
 	return client.GetWriteUrl(folderId, bucketId, path)
 }
 
@@ -174,15 +174,6 @@ func (c UploadCommand) getFileParameter(parameters []plugin.ExecutionParameter) 
 		}
 	}
 	return result
-}
-
-func (c UploadCommand) httpClientSettings(ctx plugin.ExecutionContext) network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		ctx.Debug,
-		ctx.Settings.OperationId,
-		ctx.Settings.Timeout,
-		ctx.Settings.MaxAttempts,
-		ctx.Settings.Insecure)
 }
 
 func NewUploadCommand() *UploadCommand {

@@ -10,7 +10,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils/api"
+	"github.com/UiPath/uipathcli/utils/cache"
+	"github.com/UiPath/uipathcli/utils/network"
 )
 
 // The OAuthAuthenticator triggers the oauth authorization code flow with proof key for code exchange (PKCE).
@@ -57,15 +59,13 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthA
 		return "", err
 	}
 
-	identityClient := newIdentityClient(a.cache)
-	tokenRequest := newAuthorizationCodeTokenRequest(
-		identityBaseUri,
+	clientSettings := network.NewHttpClientSettings(operationId, time.Duration(60)*time.Second, 3, insecure)
+	identityClient := api.NewIdentityClient(a.cache, config.IdentityUri.String(), false, *clientSettings, nil)
+	tokenRequest := api.NewAuthorizationCodeTokenRequest(
 		config.ClientId,
 		code,
 		codeVerifier,
-		config.RedirectUrl.String(),
-		operationId,
-		insecure)
+		config.RedirectUrl.String())
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
 		return "", err

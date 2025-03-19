@@ -12,12 +12,12 @@ import (
 	"testing"
 
 	"github.com/UiPath/uipathcli/auth"
-	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/cache"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 

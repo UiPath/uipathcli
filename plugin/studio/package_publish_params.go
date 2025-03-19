@@ -1,6 +1,9 @@
 package studio
 
-import "github.com/UiPath/uipathcli/plugin"
+import (
+	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/network"
+)
 
 type packagePublishParams struct {
 	Source   string
@@ -9,7 +12,7 @@ type packagePublishParams struct {
 	BaseUri  string
 	Auth     plugin.AuthResult
 	Debug    bool
-	Settings plugin.ExecutionSettings
+	Settings network.HttpClientSettings
 }
 
 func newPackagePublishParams(
@@ -19,6 +22,6 @@ func newPackagePublishParams(
 	baseUri string,
 	auth plugin.AuthResult,
 	debug bool,
-	settings plugin.ExecutionSettings) *packagePublishParams {
+	settings network.HttpClientSettings) *packagePublishParams {
 	return &packagePublishParams{source, name, version, baseUri, auth, debug, settings}
 }

@@ -105,7 +105,7 @@ func (c TestRunCommand) runTests(params testRunParams, ctx plugin.ExecutionConte
 	progressBar.UpdatePercentage("uploading...", 0)
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(baseUri, ctx.Auth.ToAuthorization(), ctx.Debug, ctx.Settings, logger)
 	folderId, err := client.GetSharedFolderId()
 	if err != nil {
 		return nil, err

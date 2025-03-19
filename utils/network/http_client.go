@@ -16,6 +16,7 @@ import (
 
 type HttpClient struct {
 	logger   log.Logger
+	debug    bool
 	settings HttpClientSettings
 }
 
@@ -39,7 +40,7 @@ func (c HttpClient) sendWithRetries(request *HttpRequest, ctx context.Context) (
 		request.Header.Set("Authorization", fmt.Sprintf("%s %s", request.Authorization.Type, request.Authorization.Value))
 	}
 
-	if c.settings.Debug {
+	if c.debug {
 		request.Body = newResettableReader(request.Body, bufferLimit, func(body []byte) { c.logRequest(request, body) })
 	} else if c.settings.MaxAttempts > 1 {
 		request.Body = newResettableReader(request.Body, bufferLimit, func(body []byte) {})
@@ -57,7 +58,7 @@ func (c HttpClient) sendWithRetries(request *HttpRequest, ctx context.Context) (
 			return resiliency.Retryable(err)
 		}
 
-		if c.settings.Debug {
+		if c.debug {
 			response.Body = newResettableReader(response.Body, bufferLimit, func(body []byte) { c.logResponse(response, body) })
 		}
 
@@ -143,6 +144,6 @@ func (c HttpClient) truncate(data []byte, size int) []byte {
 	return data
 }
 
-func NewHttpClient(logger log.Logger, settings HttpClientSettings) *HttpClient {
-	return &HttpClient{logger, settings}
+func NewHttpClient(logger log.Logger, debug bool, settings HttpClientSettings) *HttpClient {
+	return &HttpClient{logger, debug, settings}
 }

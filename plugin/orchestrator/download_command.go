@@ -41,7 +41,7 @@ func (c DownloadCommand) Execute(ctx plugin.ExecutionContext, writer output.Outp
 
 func (c DownloadCommand) download(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger, url string) error {
 	request := network.NewHttpGetRequest(url, nil, http.Header{})
-	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
+	client := network.NewHttpClient(logger, ctx.Debug, ctx.Settings)
 	response, err := client.Send(request)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (c DownloadCommand) getReadUrl(ctx plugin.ExecutionContext, logger log.Logg
 	path := c.getStringParameter("path", ctx.Parameters)
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(baseUri, ctx.Auth.ToAuthorization(), ctx.Debug, ctx.Settings, logger)
 	return client.GetReadUrl(folderId, bucketId, path)
 }
 
@@ -125,15 +125,6 @@ func (c DownloadCommand) getIntParameter(name string, parameters []plugin.Execut
 		}
 	}
 	return result
-}
-
-func (c DownloadCommand) httpClientSettings(ctx plugin.ExecutionContext) network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		ctx.Debug,
-		ctx.Settings.OperationId,
-		ctx.Settings.Timeout,
-		ctx.Settings.MaxAttempts,
-		ctx.Settings.Insecure)
 }
 
 func NewDownloadCommand() *DownloadCommand {

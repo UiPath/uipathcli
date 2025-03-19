@@ -64,7 +64,7 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
 
-	client := api.NewOrchestratorClient(params.BaseUri, params.Auth.Token, params.Debug, params.Settings, logger)
+	client := api.NewOrchestratorClient(params.BaseUri, params.Auth.ToAuthorization(), params.Debug, params.Settings, logger)
 	err := client.Upload(file, uploadBar)
 	if errors.Is(err, api.ErrPackageAlreadyExists) {
 		errorMessage := fmt.Sprintf("Package '%s' already exists", filepath.Base(params.Source))

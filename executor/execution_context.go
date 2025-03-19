@@ -5,6 +5,7 @@ import (
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 
@@ -23,7 +24,7 @@ type ExecutionContext struct {
 	IdentityUri  url.URL
 	Plugin       plugin.CommandPlugin
 	Debug        bool
-	Settings     ExecutionSettings
+	Settings     network.HttpClientSettings
 }
 
 func NewExecutionContext(
@@ -39,7 +40,7 @@ func NewExecutionContext(
 	identityUri url.URL,
 	plugin plugin.CommandPlugin,
 	debug bool,
-	settings ExecutionSettings) *ExecutionContext {
+	settings network.HttpClientSettings) *ExecutionContext {
 	return &ExecutionContext{
 		organization,
 		tenant,

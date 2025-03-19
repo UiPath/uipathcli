@@ -3,6 +3,7 @@ package plugin
 import (
 	"net/url"
 
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 
@@ -15,7 +16,7 @@ type ExecutionContext struct {
 	Input        stream.Stream
 	Parameters   []ExecutionParameter
 	Debug        bool
-	Settings     ExecutionSettings
+	Settings     network.HttpClientSettings
 }
 
 func NewExecutionContext(
@@ -26,6 +27,6 @@ func NewExecutionContext(
 	input stream.Stream,
 	parameters []ExecutionParameter,
 	debug bool,
-	settings ExecutionSettings) *ExecutionContext {
+	settings network.HttpClientSettings) *ExecutionContext {
 	return &ExecutionContext{organization, tenant, baseUri, auth, input, parameters, debug, settings}
 }

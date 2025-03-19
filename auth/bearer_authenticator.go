@@ -3,8 +3,11 @@ package auth
 import (
 	"fmt"
 	"os"
+	"time"
 
-	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils/api"
+	"github.com/UiPath/uipathcli/utils/cache"
+	"github.com/UiPath/uipathcli/utils/network"
 )
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
@@ -24,16 +27,14 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %w", err))
 	}
-	identityClient := newIdentityClient(a.cache)
-	tokenRequest := newTokenRequest(
-		config.IdentityUri,
+	clientSettings := network.NewHttpClientSettings(ctx.OperationId, time.Duration(60)*time.Second, 3, ctx.Insecure)
+	identityClient := api.NewIdentityClient(a.cache, config.IdentityUri.String(), false, *clientSettings, nil)
+	tokenRequest := api.NewTokenRequest(
 		config.GrantType,
 		config.Scopes,
 		config.ClientId,
 		config.ClientSecret,
-		config.Properties,
-		ctx.OperationId,
-		ctx.Insecure)
+		config.Properties)
 	tokenResponse, err := identityClient.GetToken(*tokenRequest)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %w", err))

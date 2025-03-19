@@ -269,16 +269,7 @@ func (e HttpExecutor) pathParameters(ctx ExecutionContext) []ExecutionParameter 
 	return pathParameters
 }
 
-func (e HttpExecutor) httpClientSettings(ctx ExecutionContext) network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		ctx.Debug,
-		ctx.Settings.OperationId,
-		ctx.Settings.Timeout,
-		ctx.Settings.MaxAttempts,
-		ctx.Settings.Insecure)
-}
-
-func (e HttpExecutor) toAuthorization(token *auth.AuthToken) *network.Authorization {
+func (c HttpExecutor) toAuthorization(token *auth.AuthToken) *network.Authorization {
 	if token == nil {
 		return nil
 	}
@@ -308,7 +299,7 @@ func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, log
 	e.addHeaders(header, ctx.Parameters.Header())
 	request := network.NewHttpRequest(ctx.Method, uri.String(), e.toAuthorization(auth.Token), header, uploadReader, contentLength)
 
-	client := network.NewHttpClient(logger, e.httpClientSettings(ctx))
+	client := network.NewHttpClient(logger, ctx.Debug, ctx.Settings)
 	response, err := client.SendWithContext(request, context)
 	if err != nil {
 		return err

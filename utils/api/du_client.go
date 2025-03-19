@@ -9,9 +9,7 @@ import (
 	"net/http"
 	"net/textproto"
 
-	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/log"
-	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
@@ -19,16 +17,16 @@ import (
 
 type DuClient struct {
 	baseUri  string
-	token    *auth.AuthToken
+	auth     *network.Authorization
 	debug    bool
-	settings plugin.ExecutionSettings
+	settings network.HttpClientSettings
 	logger   log.Logger
 }
 
 func (c DuClient) StartDigitization(projectId string, file stream.Stream, contentType string, uploadBar *visualization.ProgressBar) (string, error) {
 	context, cancel := context.WithCancelCause(context.Background())
 	request := c.createStartDigitizationRequest(projectId, file, contentType, uploadBar, cancel)
-	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	client := network.NewHttpClient(c.logger, c.debug, c.settings)
 	response, err := client.SendWithContext(request, context)
 	if err != nil {
 		return "", err
@@ -59,12 +57,12 @@ func (c DuClient) createStartDigitizationRequest(projectId string, file stream.S
 	header := http.Header{
 		"Content-Type": {formDataContentType},
 	}
-	return network.NewHttpPostRequest(uri, c.toAuthorization(c.token), header, uploadReader, -1)
+	return network.NewHttpPostRequest(uri, c.auth, header, uploadReader, -1)
 }
 
 func (c DuClient) GetDigitizationResult(projectId string, documentId string) (string, error) {
 	request := c.createDigitizeStatusRequest(projectId, documentId)
-	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	client := network.NewHttpClient(c.logger, c.debug, c.settings)
 	response, err := client.Send(request)
 	if err != nil {
 		return "", err
@@ -90,7 +88,7 @@ func (c DuClient) GetDigitizationResult(projectId string, documentId string) (st
 
 func (c DuClient) createDigitizeStatusRequest(projectId string, documentId string) *network.HttpRequest {
 	uri := c.baseUri + fmt.Sprintf("/api/framework/projects/%s/digitization/result/%s?api-version=1", projectId, documentId)
-	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), http.Header{})
+	return network.NewHttpGetRequest(uri, c.auth, http.Header{})
 }
 
 func (c DuClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
@@ -140,24 +138,8 @@ func (c DuClient) progressReader(text string, completedText string, reader io.Re
 	})
 }
 
-func (c DuClient) httpClientSettings() network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		c.debug,
-		c.settings.OperationId,
-		c.settings.Timeout,
-		c.settings.MaxAttempts,
-		c.settings.Insecure)
-}
-
-func (c DuClient) toAuthorization(token *auth.AuthToken) *network.Authorization {
-	if token == nil {
-		return nil
-	}
-	return network.NewAuthorization(token.Type, token.Value)
-}
-
-func NewDuClient(baseUri string, token *auth.AuthToken, debug bool, settings plugin.ExecutionSettings, logger log.Logger) *DuClient {
-	return &DuClient{baseUri, token, debug, settings, logger}
+func NewDuClient(baseUri string, auth *network.Authorization, debug bool, settings network.HttpClientSettings, logger log.Logger) *DuClient {
+	return &DuClient{baseUri, auth, debug, settings, logger}
 }
 
 type digitizeResponse struct {

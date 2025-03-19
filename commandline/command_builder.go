@@ -17,6 +17,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/parser"
+	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 
@@ -361,7 +362,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 				*identityUri,
 				operation.Plugin,
 				debug,
-				*executor.NewExecutionSettings(operationId, timeout, maxAttempts, insecure),
+				*network.NewHttpClientSettings(operationId, timeout, maxAttempts, insecure),
 			)
 
 			if wait != "" {

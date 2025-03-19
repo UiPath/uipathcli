@@ -15,7 +15,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils/cache"
 	"github.com/UiPath/uipathcli/utils/process"
 )
 

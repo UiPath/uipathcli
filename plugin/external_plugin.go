@@ -92,8 +92,8 @@ func (p ExternalPlugin) download(name string, url string, destination string, pr
 	defer out.Close()
 
 	request := network.NewHttpGetRequest(url, nil, http.Header{})
-	clientSettings := network.NewHttpClientSettings(false, "", 0, 1, false)
-	client := network.NewHttpClient(nil, *clientSettings)
+	clientSettings := network.NewHttpClientSettings("", 0, 1, false)
+	client := network.NewHttpClient(nil, false, *clientSettings)
 	response, err := client.Send(request)
 	if err != nil {
 		return fmt.Errorf("Could not download %s: %v", name, err)

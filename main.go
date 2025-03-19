@@ -10,7 +10,6 @@ import (
 	"runtime"
 
 	"github.com/UiPath/uipathcli/auth"
-	"github.com/UiPath/uipathcli/cache"
 	"github.com/UiPath/uipathcli/commandline"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -19,6 +18,7 @@ import (
 	plugin_digitizer "github.com/UiPath/uipathcli/plugin/digitizer"
 	plugin_orchestrator "github.com/UiPath/uipathcli/plugin/orchestrator"
 	plugin_studio "github.com/UiPath/uipathcli/plugin/studio"
+	"github.com/UiPath/uipathcli/utils/cache"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 

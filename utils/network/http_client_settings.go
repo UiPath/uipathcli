@@ -3,7 +3,6 @@ package network
 import "time"
 
 type HttpClientSettings struct {
-	Debug       bool
 	OperationId string
 	Timeout     time.Duration
 	MaxAttempts int
@@ -11,13 +10,11 @@ type HttpClientSettings struct {
 }
 
 func NewHttpClientSettings(
-	debug bool,
 	operationId string,
 	timeout time.Duration,
 	maxAttempts int,
 	insecure bool) *HttpClientSettings {
 	return &HttpClientSettings{
-		debug,
 		operationId,
 		timeout,
 		maxAttempts,

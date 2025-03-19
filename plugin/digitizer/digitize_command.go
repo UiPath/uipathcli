@@ -68,14 +68,14 @@ func (c DigitizeCommand) startDigitization(ctx plugin.ExecutionContext, logger l
 	}
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewDuClient(baseUri, ctx.Auth.ToAuthorization(), ctx.Debug, ctx.Settings, logger)
 	return client.StartDigitization(projectId, file, contentType, uploadBar)
 }
 
 func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
 	projectId := c.getProjectId(ctx.Parameters)
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewDuClient(baseUri, ctx.Auth.ToAuthorization(), ctx.Debug, ctx.Settings, logger)
 	result, err := client.GetDigitizationResult(projectId, documentId)
 	if err != nil {
 		return true, err
