@@ -1,16 +1,13 @@
 package studio
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/UiPath/uipathcli/log"
@@ -97,36 +94,11 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 		defer close(bar)
 	}
 	args := c.preparePackArguments(params)
-	cmd, err := uipcli.Execute(args...)
+	exitCode, stdErr, err := uipcli.ExecuteAndWait(args...)
 	if err != nil {
 		return nil, err
 	}
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		return nil, fmt.Errorf("Could not run pack command: %v", err)
-	}
-	defer stdout.Close()
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		return nil, fmt.Errorf("Could not run pack command: %v", err)
-	}
-	defer stderr.Close()
-	err = cmd.Start()
-	if err != nil {
-		return nil, fmt.Errorf("Could not run pack command: %v", err)
-	}
 
-	stderrOutputBuilder := new(strings.Builder)
-	stderrReader := io.TeeReader(stderr, stderrOutputBuilder)
-
-	var wg sync.WaitGroup
-	wg.Add(3)
-	go c.readOutput(stdout, logger, &wg)
-	go c.readOutput(stderrReader, logger, &wg)
-	go c.wait(cmd, &wg)
-	wg.Wait()
-
-	exitCode := cmd.ExitCode()
 	var result *packagePackResult
 	if exitCode == 0 {
 		nupkgPath := findLatestNupkg(params.Destination)
@@ -143,7 +115,7 @@ func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger
 			nuspec.Version)
 	} else {
 		result = newFailedPackagePackResult(
-			stderrOutputBuilder.String(),
+			stdErr,
 			&project.Name,
 			&project.Description,
 			&project.ProjectId)
@@ -169,11 +141,6 @@ func (c PackagePackCommand) preparePackArguments(params packagePackParams) []str
 		args = append(args, "--releaseNotes", params.ReleaseNotes)
 	}
 	return args
-}
-
-func (c PackagePackCommand) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
-	defer wg.Done()
-	_ = cmd.Wait()
 }
 
 func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan struct{} {
@@ -217,15 +184,6 @@ func (c PackagePackCommand) getDestination(ctx plugin.ExecutionContext) string {
 	destination := c.getParameter("destination", ".", ctx.Parameters)
 	destination, _ = filepath.Abs(destination)
 	return destination
-}
-
-func (c PackagePackCommand) readOutput(output io.Reader, logger log.Logger, wg *sync.WaitGroup) {
-	defer wg.Done()
-	scanner := bufio.NewScanner(output)
-	scanner.Split(bufio.ScanRunes)
-	for scanner.Scan() {
-		logger.Log(scanner.Text())
-	}
 }
 
 func (c PackagePackCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {

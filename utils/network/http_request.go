@@ -27,6 +27,10 @@ func NewHttpPutRequest(url string, header http.Header, body io.Reader, contentLe
 	return NewHttpRequest(http.MethodPut, url, header, body, contentLength)
 }
 
+func NewHttpPatchRequest(url string, header http.Header, body io.Reader, contentLength int64) *HttpRequest {
+	return NewHttpRequest(http.MethodPatch, url, header, body, contentLength)
+}
+
 func NewHttpRequest(method string, url string, header http.Header, body io.Reader, contentLength int64) *HttpRequest {
 	return &HttpRequest{"HTTP/1.1", method, url, header, body, contentLength}
 }

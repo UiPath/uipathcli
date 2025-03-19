@@ -2,14 +2,9 @@ package studio
 
 import (
 	"bytes"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/textproto"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -18,7 +13,6 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -68,89 +62,17 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	file := stream.NewFileStream(params.Source)
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
-	context, cancel := context.WithCancelCause(context.Background())
-	request := c.createUploadRequest(file, params, uploadBar, cancel)
-	client := network.NewHttpClient(logger, c.httpClientSettings(params))
-	response, err := client.SendWithContext(request, context)
-	if err != nil {
-		return nil, err
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, fmt.Errorf("Error reading response: %w", err)
-	}
-	if response.StatusCode == http.StatusConflict {
+
+	client := newOrchestratorClient(params.BaseUri, params.Auth, params.Debug, params.Settings, logger)
+	err := client.Upload(file, uploadBar)
+	if errors.Is(err, ErrPackageAlreadyExists) {
 		errorMessage := fmt.Sprintf("Package '%s' already exists", filepath.Base(params.Source))
 		return newFailedPackagePublishResult(errorMessage, params.Source, params.Name, params.Version), nil
 	}
-	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	if err != nil {
+		return nil, err
 	}
 	return newSucceededPackagePublishResult(params.Source, params.Name, params.Version), nil
-}
-
-func (c PackagePublishCommand) createUploadRequest(file stream.Stream, params packagePublishParams, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
-	bodyReader, bodyWriter := io.Pipe()
-	streamSize, _ := file.Size()
-	contentType := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", cancel)
-	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
-
-	uri := params.BaseUri + "/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage"
-	header := http.Header{
-		"Content-Type": {contentType},
-	}
-	for key, value := range params.Auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, uploadReader, -1)
-}
-
-func (c PackagePublishCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
-	if length < 10*1024*1024 {
-		return reader
-	}
-	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
-		displayText := text
-		if progress.Completed {
-			displayText = completedText
-		}
-		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
-	})
-}
-
-func (c PackagePublishCommand) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
-	filePart := textproto.MIMEHeader{}
-	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, stream.Name()))
-	filePart.Set("Content-Type", contentType)
-	w, err := writer.CreatePart(filePart)
-	if err != nil {
-		return fmt.Errorf("Error creating form field 'file': %w", err)
-	}
-	data, err := stream.Data()
-	if err != nil {
-		return err
-	}
-	defer data.Close()
-	_, err = io.Copy(w, data)
-	if err != nil {
-		return fmt.Errorf("Error writing form field 'file': %w", err)
-	}
-	return nil
-}
-
-func (c PackagePublishCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
-	formWriter := multipart.NewWriter(bodyWriter)
-	go func() {
-		defer bodyWriter.Close()
-		defer formWriter.Close()
-		err := c.writeMultipartForm(formWriter, stream, contentType)
-		if err != nil {
-			cancel(err)
-			return
-		}
-	}()
-	return formWriter.FormDataContentType()
 }
 
 func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
@@ -191,15 +113,6 @@ func (c PackagePublishCommand) formatUri(baseUri url.URL, org string, tenant str
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
 	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
-}
-
-func (c PackagePublishCommand) httpClientSettings(params packagePublishParams) network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		params.Debug,
-		params.Settings.OperationId,
-		params.Settings.Timeout,
-		params.Settings.MaxAttempts,
-		params.Settings.Insecure)
 }
 
 func NewPackagePublishCommand() *PackagePublishCommand {

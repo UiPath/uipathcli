@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"reflect"
 	"slices"
 	"strings"
 	"testing"
@@ -450,6 +451,59 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 	}
 }
 
+func TestAnalyzeGovernanceFileViolationsWithoutStopOnRuleViolationReturnsNoError(t *testing.T) {
+	governanceFile := writeFile(t, `
+{
+  "product-name": "Development",
+  "policy-name": "Modern Policy - Development",
+  "data": {
+    "embedded-rules-config-rules": [
+      {
+        "code-embedded-rules-config-rules": "ST-USG-010",
+        "is-enabled-embedded-rules-config-rules": true,
+        "default-action": "Error",
+        "parameters-embedded-rules-config-rules": []
+      }
+	]
+  }
+}
+`)
+
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile, "--stop-on-rule-violation", "false"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize analyze command result: %v", err)
+	}
+	if result.Error != nil {
+		t.Errorf("Expected error to be nil, but got: %v", result.Error)
+	}
+	if stdout["status"] != "Failed" {
+		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
+	}
+}
+
+func TestAnalyzeUnknownGovernanceReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewPackageAnalyzeCommand()).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", "unknown-governance-file"}, context)
+
+	if result.Error == nil || result.Error.Error() != "unknown-governance-file not found" {
+		t.Errorf("Expected governance file not found error, but got: %v", result.Error)
+	}
+}
+
 func TestPublishNoPackageFileReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
@@ -693,6 +747,429 @@ func TestPublishOrchestratorErrorReturnsError(t *testing.T) {
 
 	if result.Error == nil || result.Error.Error() != "Service returned status code '503' and body '{}'" {
 		t.Errorf("Expected orchestrator error, but got: %v", result.Error)
+	}
+}
+
+func TestRunNonExistentProjectShowsProjectJsonNotFound(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewTestRunCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "test", "run", "--source", "non-existent", "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if !strings.Contains(result.StdErr, "project.json not found") {
+		t.Errorf("Expected stderr to show that project.json was not found, but got: %v", result.StdErr)
+	}
+}
+
+func TestRunPassed(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewTestRunCommand()).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "25819").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=25819&triggerType=ExternalTool", 200, "349562").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349562)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyProcess_Tests - 1.0.195912597",
+               "TestSetId":25819,
+               "StartTime":"2025-03-17T12:10:09.053Z",
+               "EndTime":"2025-03-17T12:10:18.183Z",
+               "Status":"Passed",
+               "Id":349562,
+               "TestCaseExecutions":[{
+                 "Id":704170,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize test run command result: %v", err)
+	}
+	expected := map[string]interface{}{
+		"canceledCount": 0.0,
+		"endTime":       "2025-03-17T12:10:18.183Z",
+		"failuresCount": 0.0,
+		"id":            349562.0,
+		"name":          "Automated - MyProcess_Tests - 1.0.195912597",
+		"passedCount":   1.0,
+		"startTime":     "2025-03-17T12:10:09.053Z",
+		"status":        "Passed",
+		"testCaseExecutions": []interface{}{
+			map[string]interface{}{
+				"endTime":    "2025-03-17T12:10:18.083Z",
+				"error":      nil,
+				"id":         704170.0,
+				"name":       "TestCase.xaml",
+				"startTime":  "2025-03-17T12:10:09.087Z",
+				"status":     "Passed",
+				"testCaseId": 169537.0,
+			},
+		},
+		"testCasesCount": 1.0,
+		"testSetId":      25819.0,
+	}
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
+func TestRunFailed(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyLibrary - 1.0.195912597",
+               "TestSetId":29991,
+               "StartTime":"2025-03-17T12:10:09.087Z",
+               "EndTime":"2025-03-17T12:10:25.058Z",
+               "Status":"Failed",
+               "Id":349001,
+               "TestCaseExecutions":[{
+                 "Id":704123,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               },{
+                 "Id":704124,
+                 "TestCaseId":169538,
+                 "EntryPointPath":"TestCase2.xaml",
+                 "StartTime":"2025-03-17T12:10:21.015Z",
+                 "EndTime":"2025-03-17T12:10:25.058Z",
+                 "Status":"Failed",
+				 "Info": "There was an error"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize test run command result: %v", err)
+	}
+	expected := map[string]interface{}{
+		"canceledCount": 0.0,
+		"endTime":       "2025-03-17T12:10:25.058Z",
+		"failuresCount": 1.0,
+		"id":            349001.0,
+		"name":          "Automated - MyLibrary - 1.0.195912597",
+		"passedCount":   1.0,
+		"startTime":     "2025-03-17T12:10:09.087Z",
+		"status":        "Failed",
+		"testCaseExecutions": []interface{}{
+			map[string]interface{}{
+				"endTime":    "2025-03-17T12:10:18.083Z",
+				"error":      nil,
+				"id":         704123.0,
+				"name":       "TestCase.xaml",
+				"startTime":  "2025-03-17T12:10:09.087Z",
+				"status":     "Passed",
+				"testCaseId": 169537.0,
+			},
+			map[string]interface{}{
+				"endTime":    "2025-03-17T12:10:25.058Z",
+				"error":      "There was an error",
+				"id":         704124.0,
+				"name":       "TestCase2.xaml",
+				"startTime":  "2025-03-17T12:10:21.015Z",
+				"status":     "Failed",
+				"testCaseId": 169538.0,
+			},
+		},
+		"testCasesCount": 2.0,
+		"testSetId":      29991.0,
+	}
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
+func TestRunUpdatesExistingRelease(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyLibrary - 1.0.195912597",
+               "TestSetId":29991,
+               "StartTime":"2025-03-17T12:10:09.087Z",
+               "EndTime":"2025-03-17T12:10:18.083Z",
+               "Status":"Passed",
+               "Id":349001,
+               "TestCaseExecutions":[{
+                 "Id":704123,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(result.StdOut), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize test run command result: %v", err)
+	}
+	expected := map[string]interface{}{
+		"canceledCount": 0.0,
+		"endTime":       "2025-03-17T12:10:18.083Z",
+		"failuresCount": 0.0,
+		"id":            349001.0,
+		"name":          "Automated - MyLibrary - 1.0.195912597",
+		"passedCount":   1.0,
+		"startTime":     "2025-03-17T12:10:09.087Z",
+		"status":        "Passed",
+		"testCaseExecutions": []interface{}{
+			map[string]interface{}{
+				"endTime":    "2025-03-17T12:10:18.083Z",
+				"error":      nil,
+				"id":         704123.0,
+				"name":       "TestCase.xaml",
+				"startTime":  "2025-03-17T12:10:09.087Z",
+				"status":     "Passed",
+				"testCaseId": 169537.0,
+			},
+		},
+		"testCasesCount": 1.0,
+		"testSetId":      29991.0,
+	}
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
+func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyLibrary - 1.0.195912597",
+               "TestSetId":29991,
+               "StartTime":"2025-03-17T12:10:09.087Z",
+               "EndTime":null,
+               "Status":"InProgress",
+               "Id":349001,
+               "TestCaseExecutions":[{
+                 "Id":704123,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":null,
+                 "Status":"InProgress"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--timeout", "3", "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Timeout waiting for test execution '349001' to finish." {
+		t.Errorf("Expected test execution timeout error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithMissingFolder(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--timeout", "3", "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Could not find 'Shared' orchestrator folder." {
+		t.Errorf("Expected missing folder error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 500, "{}").
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Service returned status code '500' and body '{}'" {
+		t.Errorf("Expected server error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 500, "{}").
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Service returned status code '500' and body '{}'" {
+		t.Errorf("Expected server error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, "invalid { json }").
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Orchestrator returned invalid response body 'invalid { json }'" {
+		t.Errorf("Expected invalid response error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 400, `{"value":[]}`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != `Orchestrator returned status code '400' and body '{"value":[]}'` {
+		t.Errorf("Expected client error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 400, `Bad Request`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '400' and body 'Bad Request'" {
+		t.Errorf("Expected server error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := args[8]
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 401, `{}`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '401' and body '{}'" {
+		t.Errorf("Expected server error, but got: %v", result.Error)
 	}
 }
 
