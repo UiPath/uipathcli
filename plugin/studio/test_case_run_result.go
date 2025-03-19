@@ -1,6 +1,10 @@
 package studio
 
-import "time"
+import (
+	"time"
+
+	"github.com/UiPath/uipathcli/utils/api"
+)
 
 type testCaseRunResult struct {
 	Status     string    `json:"status"`
@@ -12,7 +16,7 @@ type testCaseRunResult struct {
 	EndTime    time.Time `json:"endTime"`
 }
 
-func newTestCaseRunResult(execution TestCaseExecution) *testCaseRunResult {
+func newTestCaseRunResult(execution api.TestCaseExecution) *testCaseRunResult {
 	var err *string
 	if execution.Status == "Failed" && execution.Info != "" {
 		err = &execution.Info

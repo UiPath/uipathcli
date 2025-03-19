@@ -18,7 +18,7 @@ type BearerAuthenticator struct {
 
 func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if !a.enabled(ctx) {
-		return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+		return *AuthenticatorSuccess(nil)
 	}
 	config, err := a.getConfig(ctx)
 	if err != nil {
@@ -38,8 +38,7 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %w", err))
 	}
-	ctx.Request.Header["Authorization"] = "Bearer " + tokenResponse.AccessToken
-	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+	return *AuthenticatorSuccess(NewBearerToken(tokenResponse.AccessToken))
 }
 
 func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {

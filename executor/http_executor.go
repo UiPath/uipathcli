@@ -145,18 +145,18 @@ func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, url string) aut
 }
 
 func (e HttpExecutor) executeAuthenticators(ctx ExecutionContext, url string) (*auth.AuthenticatorResult, error) {
-	authContext := e.authenticatorContext(ctx, url)
+	var token *auth.AuthToken = nil
 	for _, authProvider := range e.authenticators {
+		authContext := e.authenticatorContext(ctx, url)
 		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
 		}
-		authContext.Config = result.Config
-		for k, v := range result.RequestHeader {
-			authContext.Request.Header[k] = v
+		if result.Token != nil {
+			token = result.Token
 		}
 	}
-	return auth.AuthenticatorSuccess(authContext.Request.Header, authContext.Config), nil
+	return auth.AuthenticatorSuccess(token), nil
 }
 
 func (e HttpExecutor) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
@@ -278,6 +278,13 @@ func (e HttpExecutor) httpClientSettings(ctx ExecutionContext) network.HttpClien
 		ctx.Settings.Insecure)
 }
 
+func (e HttpExecutor) toAuthorization(token *auth.AuthToken) *network.Authorization {
+	if token == nil {
+		return nil
+	}
+	return network.NewAuthorization(token.Type, token.Value)
+}
+
 func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	uri, err := e.formatUri(ctx.BaseUri, ctx.Route, e.pathParameters(ctx), ctx.Parameters.Query())
 	if err != nil {
@@ -299,10 +306,7 @@ func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, log
 		header.Set("Content-Type", contentType)
 	}
 	e.addHeaders(header, ctx.Parameters.Header())
-	for k, v := range auth.RequestHeader {
-		header.Set(k, v)
-	}
-	request := network.NewHttpRequest(ctx.Method, uri.String(), header, uploadReader, contentLength)
+	request := network.NewHttpRequest(ctx.Method, uri.String(), e.toAuthorization(auth.Token), header, uploadReader, contentLength)
 
 	client := network.NewHttpClient(logger, e.httpClientSettings(ctx))
 	response, err := client.SendWithContext(request, context)

@@ -1,4 +1,4 @@
-package studio
+package api
 
 type Release struct {
 	Id   int
