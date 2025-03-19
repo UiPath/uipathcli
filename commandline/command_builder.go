@@ -586,6 +586,7 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 
 	subcommands := []*CommandDefinition{
 		b.createConfigSetCommand(),
+		b.createCacheCommand(),
 	}
 
 	return NewCommand("config", "Interactive Configuration", "Interactive command to configure the CLI").
@@ -623,6 +624,33 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
 		})
+}
+
+func (b CommandBuilder) createCacheClearCommand() *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
+
+	return NewCommand("clear", "Clears the cache", "Clears the cache").
+		WithFlags(flags).
+		WithAction(func(context *CommandExecContext) error {
+			handler := newCacheClearCommandHandler(b.StdOut)
+			return handler.Clear()
+		})
+}
+
+func (b CommandBuilder) createCacheCommand() *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
+
+	subcommands := []*CommandDefinition{
+		b.createCacheClearCommand(),
+	}
+
+	return NewCommand("cache", "Caching-related commands", "Caching-related commands").
+		WithFlags(flags).
+		WithSubcommands(subcommands)
 }
 
 func (b CommandBuilder) loadDefinitions(args []string, serviceVersion string) ([]parser.Definition, error) {

@@ -288,3 +288,53 @@ paths:
 		t.Errorf("Expected PAT in Authorization header, got: %v", header)
 	}
 }
+
+func TestCacheClearShowsConfirmation(t *testing.T) {
+	context := NewContextBuilder().
+		Build()
+	result := RunCli([]string{"config", "cache", "clear"}, context)
+
+	if result.StdOut != "Cache has been successfully cleared\n" {
+		t.Errorf("Expected cache cleared message, but got: %v", result.StdOut)
+	}
+}
+
+func TestCacheClearRemovesCachedAuthToken(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    auth:
+      clientId: cleared-client-id
+      clientSecret: cleared-client-secret
+`
+	definition := `
+paths:
+  /ping:
+    get:
+      operationId: ping
+`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		Build()
+	RunCli([]string{"myservice", "ping"}, context)
+
+	context2 := NewContextBuilder().
+		Build()
+	RunCli([]string{"config", "cache", "clear"}, context2)
+
+	context3 := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(500, "Internal Server Error").
+		Build()
+	result := RunCli([]string{"myservice", "ping"}, context3)
+
+	if result.Error == nil {
+		t.Error("Expected call to identity but did not receive")
+	}
+}
