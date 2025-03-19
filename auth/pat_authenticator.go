@@ -12,14 +12,13 @@ type PatAuthenticator struct{}
 
 func (a PatAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if !a.enabled(ctx) {
-		return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+		return *AuthenticatorSuccess(nil)
 	}
 	pat, err := a.getPat(ctx)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid PAT authenticator configuration: %w", err))
 	}
-	ctx.Request.Header["Authorization"] = "Bearer " + pat
-	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+	return *AuthenticatorSuccess(NewBearerToken(pat))
 }
 
 func (a PatAuthenticator) enabled(ctx AuthenticatorContext) bool {

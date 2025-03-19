@@ -32,29 +32,8 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 	if result.Error != "" {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
 	}
-	if len(result.RequestHeader) != 0 {
-		t.Errorf("Expected request header to be empty, but got: %v", result.RequestHeader)
-	}
-}
-
-func TestOAuthAuthenticatorPreservesExistingHeaders(t *testing.T) {
-	config := map[string]interface{}{
-		"redirectUri": "http://localhost:0",
-		"scopes":      "OR.Users",
-	}
-	headers := map[string]string{
-		"my-header": "my-value",
-	}
-	request := NewAuthenticatorRequest("http:/localhost", headers)
-	context := NewAuthenticatorContext("login", config, createIdentityUrl(""), "77a4d29d6c01dd5f146974cabdef3524", false, *request)
-
-	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
-	result := authenticator.Auth(*context)
-	if result.Error != "" {
-		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
-	}
-	if result.RequestHeader["my-header"] != "my-value" {
-		t.Errorf("Request header should not be changed, but got: %v", result.RequestHeader)
+	if result.Token != nil {
+		t.Errorf("Expected auth token to be empty, but got: %v", result.Token)
 	}
 }
 
@@ -106,9 +85,11 @@ func TestOAuthFlowSuccessful(t *testing.T) {
 	if result.Error != "" {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
-	authorizationHeader := result.RequestHeader["Authorization"]
-	if authorizationHeader != "Bearer my-access-token" {
-		t.Errorf("Expected JWT bearer token in authorization header, but got: %v", authorizationHeader)
+	if result.Token.Type != "Bearer" {
+		t.Errorf("Expected JWT bearer token, but got: %v", result.Token.Type)
+	}
+	if result.Token.Value != "my-access-token" {
+		t.Errorf("Expected value for JWT bearer token, but got: %v", result.Token.Value)
 	}
 }
 
@@ -130,9 +111,11 @@ func TestOAuthFlowIsCached(t *testing.T) {
 	if result.Error != "" {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
-	authorizationHeader := result.RequestHeader["Authorization"]
-	if authorizationHeader != "Bearer my-access-token" {
-		t.Errorf("Expected JWT bearer token in authorization header, but got: %v", authorizationHeader)
+	if result.Token.Type != "Bearer" {
+		t.Errorf("Expected JWT bearer token, but got: %v", result.Token.Type)
+	}
+	if result.Token.Value != "my-access-token" {
+		t.Errorf("Expected value for JWT bearer token, but got: %v", result.Token.Value)
 	}
 }
 

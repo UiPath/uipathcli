@@ -29,7 +29,7 @@ type OAuthAuthenticator struct {
 
 func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if !a.enabled(ctx) {
-		return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+		return *AuthenticatorSuccess(nil)
 	}
 	config, err := a.getConfig(ctx)
 	if err != nil {
@@ -39,8 +39,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
-	ctx.Request.Header["Authorization"] = "Bearer " + token
-	return *AuthenticatorSuccess(ctx.Request.Header, ctx.Config)
+	return *AuthenticatorSuccess(NewBearerToken(token))
 }
 
 func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, operationId string, insecure bool) (string, error) {

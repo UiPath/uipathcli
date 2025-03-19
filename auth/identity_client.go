@@ -51,7 +51,7 @@ func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operatio
 	header := http.Header{
 		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
-	request := network.NewHttpPostRequest(uri.String(), header, strings.NewReader(form.Encode()), -1)
+	request := network.NewHttpPostRequest(uri.String(), nil, header, strings.NewReader(form.Encode()), -1)
 
 	clientSettings := network.NewHttpClientSettings(false, operationId, time.Duration(60)*time.Second, 3, insecure)
 	client := network.NewHttpClient(nil, *clientSettings)

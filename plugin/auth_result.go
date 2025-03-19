@@ -1,8 +1,10 @@
 package plugin
 
+import "github.com/UiPath/uipathcli/auth"
+
 // AuthResult provides authentication information provided by the configured
-// authenticators. Typically, it contains the Authorization HTTP header with
-// a bearer token.
+// authenticators. Typically, it contains the JWT bearer token for authenticating
+// with the external APIs.
 type AuthResult struct {
-	Header map[string]string
+	Token *auth.AuthToken
 }

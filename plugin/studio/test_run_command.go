@@ -13,6 +13,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/api"
 	"github.com/UiPath/uipathcli/utils/directories"
 	"github.com/UiPath/uipathcli/utils/process"
 	"github.com/UiPath/uipathcli/utils/stream"
@@ -98,13 +99,13 @@ func (c TestRunCommand) execute(source string, timeout time.Duration, ctx plugin
 	return newTestRunResult(*execution), nil
 }
 
-func (c TestRunCommand) runTests(params testRunParams, ctx plugin.ExecutionContext, logger log.Logger) (*TestExecution, error) {
+func (c TestRunCommand) runTests(params testRunParams, ctx plugin.ExecutionContext, logger log.Logger) (*api.TestExecution, error) {
 	progressBar := visualization.NewProgressBar(logger)
 	defer progressBar.Remove()
 	progressBar.UpdatePercentage("uploading...", 0)
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := newOrchestratorClient(baseUri, ctx.Auth, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	folderId, err := client.GetSharedFolderId()
 	if err != nil {
 		return nil, err
@@ -126,7 +127,7 @@ func (c TestRunCommand) runTests(params testRunParams, ctx plugin.ExecutionConte
 	if err != nil {
 		return nil, err
 	}
-	return client.WaitForTestExecutionToFinish(folderId, executionId, params.Timeout, func(execution TestExecution) {
+	return client.WaitForTestExecutionToFinish(folderId, executionId, params.Timeout, func(execution api.TestExecution) {
 		total := len(execution.TestCaseExecutions)
 		completed := 0
 		for _, testCase := range execution.TestCaseExecutions {

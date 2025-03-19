@@ -29,18 +29,18 @@ func (e PluginExecutor) authenticatorContext(ctx ExecutionContext) auth.Authenti
 }
 
 func (e PluginExecutor) executeAuthenticators(ctx ExecutionContext) (*auth.AuthenticatorResult, error) {
-	authContext := e.authenticatorContext(ctx)
+	var token *auth.AuthToken = nil
 	for _, authProvider := range e.authenticators {
+		authContext := e.authenticatorContext(ctx)
 		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
 		}
-		authContext.Config = result.Config
-		for k, v := range result.RequestHeader {
-			authContext.Request.Header[k] = v
+		if result.Token != nil {
+			token = result.Token
 		}
 	}
-	return auth.AuthenticatorSuccess(authContext.Request.Header, authContext.Config), nil
+	return auth.AuthenticatorSuccess(token), nil
 }
 
 func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParameter) []plugin.ExecutionParameter {
@@ -54,7 +54,7 @@ func (e PluginExecutor) convertToPluginParameters(parameters []ExecutionParamete
 
 func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthResult {
 	return plugin.AuthResult{
-		Header: auth.RequestHeader,
+		Token: auth.Token,
 	}
 }
 

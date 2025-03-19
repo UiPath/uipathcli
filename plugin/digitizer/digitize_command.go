@@ -1,15 +1,8 @@
 package digitzer
 
 import (
-	"bytes"
-	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
-	"mime/multipart"
-	"net/http"
-	"net/textproto"
 	"net/url"
 	"strings"
 	"time"
@@ -17,7 +10,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
-	"github.com/UiPath/uipathcli/utils/network"
+	"github.com/UiPath/uipathcli/utils/api"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -63,59 +56,8 @@ func (c DigitizeCommand) Execute(ctx plugin.ExecutionContext, writer output.Outp
 func (c DigitizeCommand) startDigitization(ctx plugin.ExecutionContext, logger log.Logger) (string, error) {
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
-	context, cancel := context.WithCancelCause(context.Background())
-	request := c.createDigitizeRequest(ctx, uploadBar, cancel)
-	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
-	response, err := client.SendWithContext(request, context)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return "", fmt.Errorf("Error reading response: %w", err)
-	}
-	if response.StatusCode != http.StatusAccepted {
-		return "", fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(body))
-	}
-	var result digitizeResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %w", err)
-	}
-	return result.DocumentId, nil
-}
 
-func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
-	request := c.createDigitizeStatusRequest(documentId, ctx)
-	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
-	response, err := client.Send(request)
-	if err != nil {
-		return true, err
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return true, fmt.Errorf("Error reading response: %w", err)
-	}
-	if response.StatusCode != http.StatusOK {
-		return true, fmt.Errorf("Digitizer returned status code '%v' and body '%v'", response.StatusCode, string(body))
-	}
-	var result digitizeResultResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return true, fmt.Errorf("Error parsing json response: %w", err)
-	}
-	if result.Status == "NotStarted" || result.Status == "Running" {
-		return false, nil
-	}
-	err = writer.WriteResponse(*output.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, bytes.NewReader(body)))
-	return true, err
-}
-
-func (c DigitizeCommand) createDigitizeRequest(ctx plugin.ExecutionContext, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
 	projectId := c.getProjectId(ctx.Parameters)
-
 	file := ctx.Input
 	if file == nil {
 		file = c.getFileParameter(ctx.Parameters)
@@ -125,88 +67,36 @@ func (c DigitizeCommand) createDigitizeRequest(ctx plugin.ExecutionContext, uplo
 		contentType = "application/octet-stream"
 	}
 
-	streamSize, _ := file.Size()
-	bodyReader, bodyWriter := io.Pipe()
-	formDataContentType := c.writeMultipartBody(bodyWriter, file, contentType, cancel)
-	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
-
-	uri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant, projectId) + "/digitization/start?api-version=1"
-	header := http.Header{
-		"Content-Type": {formDataContentType},
-	}
-	for key, value := range ctx.Auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, uploadReader, -1)
+	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
+	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	return client.StartDigitization(projectId, file, contentType, uploadBar)
 }
 
-func (c DigitizeCommand) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
-	if length < 10*1024*1024 {
-		return reader
+func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
+	projectId := c.getProjectId(ctx.Parameters)
+	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
+	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	result, err := client.GetDigitizationResult(projectId, documentId)
+	if err != nil {
+		return true, err
 	}
-	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {
-		displayText := text
-		if progress.Completed {
-			displayText = completedText
-		}
-		progressBar.UpdateProgress(displayText, progress.BytesRead, length, progress.BytesPerSecond)
-	})
+	if result == "" {
+		return false, nil
+	}
+
+	err = writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, strings.NewReader(result)))
+	return true, err
 }
 
-func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string, projectId string) string {
+func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) string {
 	path := baseUri.Path
 	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/du_/api/framework/projects/{projectId}"
+		path = "/{organization}/{tenant}/du_"
 	}
 	path = strings.ReplaceAll(path, "{organization}", org)
 	path = strings.ReplaceAll(path, "{tenant}", tenant)
-	path = strings.ReplaceAll(path, "{projectId}", projectId)
 	path = strings.TrimSuffix(path, "/")
 	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
-}
-
-func (c DigitizeCommand) createDigitizeStatusRequest(documentId string, ctx plugin.ExecutionContext) *network.HttpRequest {
-	projectId := c.getProjectId(ctx.Parameters)
-	uri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant, projectId) + fmt.Sprintf("/digitization/result/%s?api-version=1", documentId)
-	header := http.Header{}
-	for key, value := range ctx.Auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpGetRequest(uri, header)
-}
-
-func (c DigitizeCommand) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
-	filePart := textproto.MIMEHeader{}
-	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, stream.Name()))
-	filePart.Set("Content-Type", contentType)
-	w, err := writer.CreatePart(filePart)
-	if err != nil {
-		return fmt.Errorf("Error creating form field 'file': %w", err)
-	}
-	data, err := stream.Data()
-	if err != nil {
-		return err
-	}
-	defer data.Close()
-	_, err = io.Copy(w, data)
-	if err != nil {
-		return fmt.Errorf("Error writing form field 'file': %w", err)
-	}
-	return nil
-}
-
-func (c DigitizeCommand) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
-	formWriter := multipart.NewWriter(bodyWriter)
-	go func() {
-		defer bodyWriter.Close()
-		defer formWriter.Close()
-		err := c.writeMultipartForm(formWriter, stream, contentType)
-		if err != nil {
-			cancel(err)
-			return
-		}
-	}()
-	return formWriter.FormDataContentType()
 }
 
 func (c DigitizeCommand) getProjectId(parameters []plugin.ExecutionParameter) string {
@@ -241,15 +131,6 @@ func (c DigitizeCommand) getFileParameter(parameters []plugin.ExecutionParameter
 		}
 	}
 	return result
-}
-
-func (c DigitizeCommand) httpClientSettings(ctx plugin.ExecutionContext) network.HttpClientSettings {
-	return *network.NewHttpClientSettings(
-		ctx.Debug,
-		ctx.Settings.OperationId,
-		ctx.Settings.Timeout,
-		ctx.Settings.MaxAttempts,
-		ctx.Settings.Insecure)
 }
 
 func NewDigitizeCommand() *DigitizeCommand {

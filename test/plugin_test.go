@@ -175,10 +175,15 @@ paths:
 	if !strings.Contains(pluginCommand.Context.BaseUri.String(), "http://127.0.0.1") {
 		t.Errorf("Expected plugin command to retrieve base uri, but got: %v", pluginCommand.Context.BaseUri.String())
 	}
-	expectedAuthorization := "Bearer my-jwt-access-token"
-	authorization := pluginCommand.Context.Auth.Header["Authorization"]
-	if authorization != expectedAuthorization {
-		t.Errorf("Expected plugin command to retrieve authorization header %v, but got: %v", expectedAuthorization, authorization)
+	expectedAuthTokenType := "Bearer"
+	actualAuthTokenType := pluginCommand.Context.Auth.Token.Type
+	if actualAuthTokenType != expectedAuthTokenType {
+		t.Errorf("Expected plugin command to retrieve auth token type %v, but got: %v", expectedAuthTokenType, actualAuthTokenType)
+	}
+	expectedAuthToken := "my-jwt-access-token"
+	actualAuthToken := pluginCommand.Context.Auth.Token.Value
+	if actualAuthToken != expectedAuthToken {
+		t.Errorf("Expected plugin command to retrieve auth token %v, but got: %v", expectedAuthToken, actualAuthToken)
 	}
 }
 

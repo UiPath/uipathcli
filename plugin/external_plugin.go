@@ -91,7 +91,7 @@ func (p ExternalPlugin) download(name string, url string, destination string, pr
 	}
 	defer out.Close()
 
-	request := network.NewHttpGetRequest(url, http.Header{})
+	request := network.NewHttpGetRequest(url, nil, http.Header{})
 	clientSettings := network.NewHttpClientSettings(false, "", 0, 1, false)
 	client := network.NewHttpClient(nil, *clientSettings)
 	response, err := client.Send(request)

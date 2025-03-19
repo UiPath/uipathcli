@@ -2,7 +2,6 @@ package orchestrator
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -13,6 +12,7 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/api"
 	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
@@ -40,7 +40,7 @@ func (c DownloadCommand) Execute(ctx plugin.ExecutionContext, writer output.Outp
 }
 
 func (c DownloadCommand) download(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger, url string) error {
-	request := network.NewHttpGetRequest(url, http.Header{})
+	request := network.NewHttpGetRequest(url, nil, http.Header{})
 	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
 	response, err := client.Send(request)
 	if err != nil {
@@ -81,41 +81,13 @@ func (c DownloadCommand) getReadUrl(ctx plugin.ExecutionContext, logger log.Logg
 	if ctx.Tenant == "" {
 		return "", errors.New("Tenant is not set")
 	}
-	request := c.createReadUrlRequest(ctx)
-	client := network.NewHttpClient(logger, c.httpClientSettings(ctx))
-	response, err := client.Send(request)
-	if err != nil {
-		return "", fmt.Errorf("Error sending request: %w", err)
-	}
-	defer response.Body.Close()
-	body, err := io.ReadAll(response.Body)
-	if err != nil {
-		return "", fmt.Errorf("Error reading response: %w", err)
-	}
-	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
-	}
-	var result urlResponse
-	err = json.Unmarshal(body, &result)
-	if err != nil {
-		return "", fmt.Errorf("Error parsing json response: %w", err)
-	}
-	return result.Uri, nil
-}
-
-func (c DownloadCommand) createReadUrlRequest(ctx plugin.ExecutionContext) *network.HttpRequest {
 	folderId := c.getIntParameter("folder-id", ctx.Parameters)
 	bucketId := c.getIntParameter("key", ctx.Parameters)
 	path := c.getStringParameter("path", ctx.Parameters)
 
-	uri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant) + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
-	header := http.Header{
-		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
-	}
-	for key, value := range ctx.Auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpGetRequest(uri, header)
+	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
+	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	return client.GetReadUrl(folderId, bucketId, path)
 }
 
 func (c DownloadCommand) formatUri(baseUri url.URL, org string, tenant string) string {

@@ -1,4 +1,4 @@
-package studio
+package api
 
 import (
 	"bytes"
@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/utils/network"
@@ -22,15 +23,15 @@ import (
 
 var ErrPackageAlreadyExists = errors.New("Package already exists")
 
-type orchestratorClient struct {
+type OrchestratorClient struct {
 	baseUri  string
-	auth     plugin.AuthResult
+	token    *auth.AuthToken
 	debug    bool
 	settings plugin.ExecutionSettings
 	logger   log.Logger
 }
 
-func (c orchestratorClient) GetSharedFolderId() (int, error) {
+func (c OrchestratorClient) GetSharedFolderId() (int, error) {
 	request := c.createGetFolderRequest()
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
 	response, err := client.Send(request)
@@ -58,18 +59,15 @@ func (c orchestratorClient) GetSharedFolderId() (int, error) {
 	return *folderId, nil
 }
 
-func (c orchestratorClient) createGetFolderRequest() *network.HttpRequest {
+func (c OrchestratorClient) createGetFolderRequest() *network.HttpRequest {
 	uri := c.baseUri + "/odata/Folders"
 	header := http.Header{
 		"Content-Type": {"application/json"},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpGetRequest(uri, header)
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }
 
-func (c orchestratorClient) findFolderId(result getFoldersResponseJson) *int {
+func (c OrchestratorClient) findFolderId(result getFoldersResponseJson) *int {
 	for _, value := range result.Value {
 		if value.Name == "Shared" {
 			return &value.Id
@@ -81,7 +79,7 @@ func (c orchestratorClient) findFolderId(result getFoldersResponseJson) *int {
 	return nil
 }
 
-func (c orchestratorClient) Upload(file stream.Stream, uploadBar *visualization.ProgressBar) error {
+func (c OrchestratorClient) Upload(file stream.Stream, uploadBar *visualization.ProgressBar) error {
 	context, cancel := context.WithCancelCause(context.Background())
 	request := c.createUploadRequest(file, uploadBar, cancel)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
@@ -103,7 +101,7 @@ func (c orchestratorClient) Upload(file stream.Stream, uploadBar *visualization.
 	return nil
 }
 
-func (c orchestratorClient) createUploadRequest(file stream.Stream, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
+func (c OrchestratorClient) createUploadRequest(file stream.Stream, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
 	bodyReader, bodyWriter := io.Pipe()
 	streamSize, _ := file.Size()
 	contentType := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", cancel)
@@ -113,13 +111,10 @@ func (c orchestratorClient) createUploadRequest(file stream.Stream, uploadBar *v
 	header := http.Header{
 		"Content-Type": {contentType},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, uploadReader, -1)
+	return network.NewHttpPostRequest(uri, c.toAuthorization(c.token), header, uploadReader, -1)
 }
 
-func (c orchestratorClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
+func (c OrchestratorClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
 		defer bodyWriter.Close()
@@ -133,7 +128,7 @@ func (c orchestratorClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream
 	return formWriter.FormDataContentType()
 }
 
-func (c orchestratorClient) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
+func (c OrchestratorClient) writeMultipartForm(writer *multipart.Writer, stream stream.Stream, contentType string) error {
 	filePart := textproto.MIMEHeader{}
 	filePart.Set("Content-Disposition", fmt.Sprintf(`form-data; name="file"; filename="%s"`, stream.Name()))
 	filePart.Set("Content-Type", contentType)
@@ -153,7 +148,7 @@ func (c orchestratorClient) writeMultipartForm(writer *multipart.Writer, stream 
 	return nil
 }
 
-func (c orchestratorClient) GetReleases(folderId int, processKey string) ([]Release, error) {
+func (c OrchestratorClient) GetReleases(folderId int, processKey string) ([]Release, error) {
 	request := c.createGetReleasesRequest(folderId, processKey)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
 	response, err := client.Send(request)
@@ -177,7 +172,7 @@ func (c orchestratorClient) GetReleases(folderId int, processKey string) ([]Rele
 	return c.convertToReleases(result), nil
 }
 
-func (c orchestratorClient) convertToReleases(json getReleasesResponseJson) []Release {
+func (c OrchestratorClient) convertToReleases(json getReleasesResponseJson) []Release {
 	releases := []Release{}
 	for _, v := range json.Value {
 		releases = append(releases, *NewRelease(v.Id, v.Name))
@@ -185,19 +180,16 @@ func (c orchestratorClient) convertToReleases(json getReleasesResponseJson) []Re
 	return releases
 }
 
-func (c orchestratorClient) createGetReleasesRequest(folderId int, processKey string) *network.HttpRequest {
+func (c OrchestratorClient) createGetReleasesRequest(folderId int, processKey string) *network.HttpRequest {
 	uri := c.baseUri + "/odata/Releases?$filter=ProcessKey%20eq%20'" + processKey + "'"
 	header := http.Header{
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpGetRequest(uri, header)
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }
 
-func (c orchestratorClient) CreateOrUpdateRelease(folderId int, processKey string, processVersion string) (int, error) {
+func (c OrchestratorClient) CreateOrUpdateRelease(folderId int, processKey string, processVersion string) (int, error) {
 	releases, err := c.GetReleases(folderId, processKey)
 	if err != nil {
 		return -1, err
@@ -208,7 +200,7 @@ func (c orchestratorClient) CreateOrUpdateRelease(folderId int, processKey strin
 	return c.CreateRelease(folderId, processKey, processVersion)
 }
 
-func (c orchestratorClient) CreateRelease(folderId int, processKey string, processVersion string) (int, error) {
+func (c OrchestratorClient) CreateRelease(folderId int, processKey string, processVersion string) (int, error) {
 	request, err := c.createNewReleaseRequest(folderId, processKey, processVersion)
 	if err != nil {
 		return -1, err
@@ -235,7 +227,7 @@ func (c orchestratorClient) CreateRelease(folderId int, processKey string, proce
 	return result.Id, nil
 }
 
-func (c orchestratorClient) createNewReleaseRequest(folderId int, processKey string, processVersion string) (*network.HttpRequest, error) {
+func (c OrchestratorClient) createNewReleaseRequest(folderId int, processKey string, processVersion string) (*network.HttpRequest, error) {
 	json, err := json.Marshal(createReleaseRequestJson{
 		Name:           processKey,
 		ProcessKey:     processKey,
@@ -249,13 +241,10 @@ func (c orchestratorClient) createNewReleaseRequest(folderId int, processKey str
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, bytes.NewBuffer(json), -1), nil
+	return network.NewHttpPostRequest(uri, c.toAuthorization(c.token), header, bytes.NewBuffer(json), -1), nil
 }
 
-func (c orchestratorClient) UpdateRelease(folderId int, releaseId int, processKey string, processVersion string) (int, error) {
+func (c OrchestratorClient) UpdateRelease(folderId int, releaseId int, processKey string, processVersion string) (int, error) {
 	request, err := c.createUpdateReleaseRequest(folderId, releaseId, processKey, processVersion)
 	if err != nil {
 		return -1, err
@@ -276,7 +265,7 @@ func (c orchestratorClient) UpdateRelease(folderId int, releaseId int, processKe
 	return releaseId, nil
 }
 
-func (c orchestratorClient) createUpdateReleaseRequest(folderId int, releaseId int, processKey string, processVersion string) (*network.HttpRequest, error) {
+func (c OrchestratorClient) createUpdateReleaseRequest(folderId int, releaseId int, processKey string, processVersion string) (*network.HttpRequest, error) {
 	json, err := json.Marshal(createReleaseRequestJson{
 		Name:           processKey,
 		ProcessKey:     processKey,
@@ -290,13 +279,10 @@ func (c orchestratorClient) createUpdateReleaseRequest(folderId int, releaseId i
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPatchRequest(uri, header, bytes.NewBuffer(json), -1), nil
+	return network.NewHttpPatchRequest(uri, c.toAuthorization(c.token), header, bytes.NewBuffer(json), -1), nil
 }
 
-func (c orchestratorClient) CreateTestSet(folderId int, releaseId int, processVersion string) (int, error) {
+func (c OrchestratorClient) CreateTestSet(folderId int, releaseId int, processVersion string) (int, error) {
 	request, err := c.createTestSetRequest(folderId, releaseId, processVersion)
 	if err != nil {
 		return -1, err
@@ -317,7 +303,7 @@ func (c orchestratorClient) CreateTestSet(folderId int, releaseId int, processVe
 	return strconv.Atoi(string(body))
 }
 
-func (c orchestratorClient) createTestSetRequest(folderId int, releaseId int, processVersion string) (*network.HttpRequest, error) {
+func (c OrchestratorClient) createTestSetRequest(folderId int, releaseId int, processVersion string) (*network.HttpRequest, error) {
 	json, err := json.Marshal(createTestSetRequestJson{
 		ReleaseId:     releaseId,
 		VersionNumber: processVersion,
@@ -330,13 +316,10 @@ func (c orchestratorClient) createTestSetRequest(folderId int, releaseId int, pr
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, bytes.NewBuffer(json), -1), nil
+	return network.NewHttpPostRequest(uri, c.toAuthorization(c.token), header, bytes.NewBuffer(json), -1), nil
 }
 
-func (c orchestratorClient) ExecuteTestSet(folderId int, testSetId int) (int, error) {
+func (c OrchestratorClient) ExecuteTestSet(folderId int, testSetId int) (int, error) {
 	request := c.createExecuteTestSetRequest(folderId, testSetId)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
 	response, err := client.Send(request)
@@ -354,19 +337,16 @@ func (c orchestratorClient) ExecuteTestSet(folderId int, testSetId int) (int, er
 	return strconv.Atoi(string(body))
 }
 
-func (c orchestratorClient) createExecuteTestSetRequest(folderId int, testSetId int) *network.HttpRequest {
+func (c OrchestratorClient) createExecuteTestSetRequest(folderId int, testSetId int) *network.HttpRequest {
 	uri := c.baseUri + fmt.Sprintf("/api/TestAutomation/StartTestSetExecution?testSetId=%d&triggerType=ExternalTool", testSetId)
 	header := http.Header{
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpPostRequest(uri, header, bytes.NewReader([]byte{}), -1)
+	return network.NewHttpPostRequest(uri, c.toAuthorization(c.token), header, bytes.NewReader([]byte{}), -1)
 }
 
-func (c orchestratorClient) WaitForTestExecutionToFinish(folderId int, executionId int, timeout time.Duration, statusFunc func(TestExecution)) (*TestExecution, error) {
+func (c OrchestratorClient) WaitForTestExecutionToFinish(folderId int, executionId int, timeout time.Duration, statusFunc func(TestExecution)) (*TestExecution, error) {
 	startTime := time.Now()
 	for {
 		execution, err := c.GetTestExecution(folderId, executionId)
@@ -384,7 +364,7 @@ func (c orchestratorClient) WaitForTestExecutionToFinish(folderId int, execution
 	}
 }
 
-func (c orchestratorClient) GetTestExecution(folderId int, executionId int) (*TestExecution, error) {
+func (c OrchestratorClient) GetTestExecution(folderId int, executionId int) (*TestExecution, error) {
 	request := c.createGetTestExecutionRequest(folderId, executionId)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
 	response, err := client.Send(request)
@@ -408,19 +388,78 @@ func (c orchestratorClient) GetTestExecution(folderId int, executionId int) (*Te
 	return c.convertToTestExecution(result), nil
 }
 
-func (c orchestratorClient) createGetTestExecutionRequest(folderId int, executionId int) *network.HttpRequest {
+func (c OrchestratorClient) createGetTestExecutionRequest(folderId int, executionId int) *network.HttpRequest {
 	uri := c.baseUri + fmt.Sprintf("/odata/TestSetExecutions(%d)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", executionId)
 	header := http.Header{
 		"Content-Type":                {"application/json"},
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
-	for key, value := range c.auth.Header {
-		header.Set(key, value)
-	}
-	return network.NewHttpGetRequest(uri, header)
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }
 
-func (c orchestratorClient) convertToTestExecution(json getTestExecutionResponseJson) *TestExecution {
+func (c OrchestratorClient) GetReadUrl(folderId int, bucketId int, path string) (string, error) {
+	request := c.createReadUrlRequest(folderId, bucketId, path)
+	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	response, err := client.Send(request)
+	if err != nil {
+		return "", fmt.Errorf("Error sending request: %w", err)
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("Error reading response: %w", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	}
+	var result urlResponse
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return "", fmt.Errorf("Error parsing json response: %w", err)
+	}
+	return result.Uri, nil
+}
+
+func (c OrchestratorClient) createReadUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
+	uri := c.baseUri + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
+	header := http.Header{
+		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
+	}
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
+}
+
+func (c OrchestratorClient) GetWriteUrl(folderId int, bucketId int, path string) (string, error) {
+	request := c.createWriteUrlRequest(folderId, bucketId, path)
+	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	response, err := client.Send(request)
+	if err != nil {
+		return "", err
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("Error reading response: %w", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	}
+	var result urlResponse
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return "", fmt.Errorf("Error parsing json response: %w", err)
+	}
+	return result.Uri, nil
+}
+
+func (c OrchestratorClient) createWriteUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
+	uri := c.baseUri + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
+	header := http.Header{
+		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
+	}
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
+}
+
+func (c OrchestratorClient) convertToTestExecution(json getTestExecutionResponseJson) *TestExecution {
 	return NewTestExecution(
 		json.Id,
 		json.Status,
@@ -431,7 +470,7 @@ func (c orchestratorClient) convertToTestExecution(json getTestExecutionResponse
 		c.convertToTestCaseExecutions(json.TestCaseExecutions))
 }
 
-func (c orchestratorClient) convertToTestCaseExecutions(json []testCaseExecutionJson) []TestCaseExecution {
+func (c OrchestratorClient) convertToTestCaseExecutions(json []testCaseExecutionJson) []TestCaseExecution {
 	executions := []TestCaseExecution{}
 	for _, v := range json {
 		execution := NewTestCaseExecution(
@@ -447,7 +486,7 @@ func (c orchestratorClient) convertToTestCaseExecutions(json []testCaseExecution
 	return executions
 }
 
-func (c orchestratorClient) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
+func (c OrchestratorClient) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
 	if length < 10*1024*1024 {
 		return reader
 	}
@@ -460,13 +499,20 @@ func (c orchestratorClient) progressReader(text string, completedText string, re
 	})
 }
 
-func (c orchestratorClient) httpClientSettings() network.HttpClientSettings {
+func (c OrchestratorClient) httpClientSettings() network.HttpClientSettings {
 	return *network.NewHttpClientSettings(
 		c.debug,
 		c.settings.OperationId,
 		c.settings.Timeout,
 		c.settings.MaxAttempts,
 		c.settings.Insecure)
+}
+
+func (c OrchestratorClient) toAuthorization(token *auth.AuthToken) *network.Authorization {
+	if token == nil {
+		return nil
+	}
+	return network.NewAuthorization(token.Type, token.Value)
 }
 
 type createReleaseRequestJson struct {
@@ -522,6 +568,10 @@ type testCaseExecutionJson struct {
 	EndTime        time.Time `json:"EndTime"`
 }
 
-func newOrchestratorClient(baseUri string, auth plugin.AuthResult, debug bool, settings plugin.ExecutionSettings, logger log.Logger) *orchestratorClient {
-	return &orchestratorClient{baseUri, auth, debug, settings, logger}
+type urlResponse struct {
+	Uri string `json:"Uri"`
+}
+
+func NewOrchestratorClient(baseUri string, token *auth.AuthToken, debug bool, settings plugin.ExecutionSettings, logger log.Logger) *OrchestratorClient {
+	return &OrchestratorClient{baseUri, token, debug, settings, logger}
 }

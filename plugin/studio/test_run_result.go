@@ -1,6 +1,10 @@
 package studio
 
-import "time"
+import (
+	"time"
+
+	"github.com/UiPath/uipathcli/utils/api"
+)
 
 type testRunResult struct {
 	Status             string              `json:"status"`
@@ -16,7 +20,7 @@ type testRunResult struct {
 	TestCaseExecutions []testCaseRunResult `json:"testCaseExecutions"`
 }
 
-func newTestRunResult(execution TestExecution) *testRunResult {
+func newTestRunResult(execution api.TestExecution) *testRunResult {
 	testCasesCount := 0
 	passedCount := 0
 	failuresCount := 0

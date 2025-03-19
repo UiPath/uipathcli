@@ -35,6 +35,9 @@ func (c HttpClient) SendWithContext(request *HttpRequest, ctx context.Context) (
 func (c HttpClient) sendWithRetries(request *HttpRequest, ctx context.Context) (*HttpResponse, error) {
 	request.Header.Set("User-Agent", UserAgent)
 	request.Header.Set("x-request-id", c.settings.OperationId)
+	if request.Authorization != nil {
+		request.Header.Set("Authorization", fmt.Sprintf("%s %s", request.Authorization.Type, request.Authorization.Value))
+	}
 
 	if c.settings.Debug {
 		request.Body = newResettableReader(request.Body, bufferLimit, func(body []byte) { c.logRequest(request, body) })
