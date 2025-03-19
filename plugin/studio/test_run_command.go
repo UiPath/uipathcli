@@ -76,7 +76,19 @@ func (c TestRunCommand) execute(source string, timeout time.Duration, ctx plugin
 		return nil, err
 	}
 
-	exitCode, stdErr, err := c.executeUipcli(uipcli, source, destination, ctx.Debug, logger)
+	packParams := newPackagePackParams(
+		ctx.Organization,
+		ctx.Tenant,
+		ctx.BaseUri,
+		ctx.Auth.Token,
+		source,
+		destination,
+		"",
+		true,
+		"Tests",
+		false,
+		"")
+	exitCode, stdErr, err := c.executeUipcli(uipcli, *packParams, ctx.Debug, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -139,13 +151,41 @@ func (c TestRunCommand) runTests(params testRunParams, ctx plugin.ExecutionConte
 	})
 }
 
-func (c TestRunCommand) executeUipcli(uipcli *uipcli, source string, destination string, debug bool, logger log.Logger) (int, string, error) {
+func (c TestRunCommand) executeUipcli(uipcli *uipcli, params packagePackParams, debug bool, logger log.Logger) (int, string, error) {
 	if !debug {
 		bar := c.newPackagingProgressBar(logger)
 		defer close(bar)
 	}
-	args := []string{"package", "pack", source, "--outputType", "Tests", "--autoVersion", "--output", destination}
+	args := c.preparePackArguments(params)
 	return uipcli.ExecuteAndWait(args...)
+}
+
+func (c TestRunCommand) preparePackArguments(params packagePackParams) []string {
+	args := []string{"package", "pack", params.Source, "--output", params.Destination}
+	if params.PackageVersion != "" {
+		args = append(args, "--version", params.PackageVersion)
+	}
+	if params.AutoVersion {
+		args = append(args, "--autoVersion")
+	}
+	if params.OutputType != "" {
+		args = append(args, "--outputType", params.OutputType)
+	}
+	if params.SplitOutput {
+		args = append(args, "--splitOutput")
+	}
+	if params.ReleaseNotes != "" {
+		args = append(args, "--releaseNotes", params.ReleaseNotes)
+	}
+	if params.AuthToken != nil && params.Organization != "" {
+		args = append(args, "--libraryOrchestratorUrl", params.BaseUri.String())
+		args = append(args, "--libraryOrchestratorAuthToken", params.AuthToken.Value)
+		args = append(args, "--libraryOrchestratorAccountName", params.Organization)
+		if params.Tenant != "" {
+			args = append(args, "--libraryOrchestratorTenant", params.Tenant)
+		}
+	}
+	return args
 }
 
 func (c TestRunCommand) newPackagingProgressBar(logger log.Logger) chan struct{} {
