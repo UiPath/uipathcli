@@ -15,7 +15,7 @@ func Cache() (string, error) {
 	return userDirectory("cache")
 }
 
-func Plugin() (string, error) {
+func Plugins() (string, error) {
 	return userDirectory("plugins")
 }
 

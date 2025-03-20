@@ -247,8 +247,8 @@ func (b CommandBuilder) validateArguments(context *CommandExecContext, parameter
 	return err
 }
 
-func (b CommandBuilder) logger(ctx executor.ExecutionContext, writer io.Writer) log.Logger {
-	if ctx.Debug {
+func (b CommandBuilder) logger(debug bool, writer io.Writer) log.Logger {
+	if debug {
 		return log.NewDebugLogger(writer)
 	}
 	return log.NewDefaultLogger(writer)
@@ -437,7 +437,7 @@ func (b CommandBuilder) execute(ctx executor.ExecutionContext, outputFormat stri
 		if outputWriter == nil {
 			outputWriter = b.outputWriter(writer, outputFormat, query)
 		}
-		logger := b.logger(ctx, errorWriter)
+		logger := b.logger(ctx.Debug, errorWriter)
 		err = b.executeCommand(ctx, outputWriter, logger)
 	}()
 
@@ -586,6 +586,7 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 
 	subcommands := []*CommandDefinition{
 		b.createConfigSetCommand(),
+		b.createOfflineCommand(),
 	}
 
 	return NewCommand("config", "Interactive Configuration", "Interactive command to configure the CLI").
@@ -622,6 +623,15 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 			value := context.String(flagNameValue)
 			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
+		})
+}
+
+func (b CommandBuilder) createOfflineCommand() *CommandDefinition {
+	return NewCommand("offline", "Configure offline settings", "Configure offline settings").
+		WithAction(func(context *CommandExecContext) error {
+			logger := b.logger(false, b.StdOut)
+			handler := newOfflineCommandHandler(logger)
+			return handler.Execute()
 		})
 }
 
