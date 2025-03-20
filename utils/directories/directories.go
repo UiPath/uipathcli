@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 )
 
+const cacheDirectoryVarName = "UIPATH_CACHE_PATH"
+const offlineModulesDirectoryVarName = "UIPATH_OFFLINE_MODULES_PATH"
 const directoryPermissions = 0700
 
 func Temp() (string, error) {
@@ -15,8 +17,21 @@ func Cache() (string, error) {
 	return userDirectory("cache")
 }
 
-func Plugin() (string, error) {
-	return userDirectory("plugins")
+func Modules() (string, error) {
+	return userDirectory("modules")
+}
+
+func OfflineModules() (string, error) {
+	directory := os.Getenv(offlineModulesDirectoryVarName)
+	if directory == "" {
+		executable, err := os.Executable()
+		if err != nil {
+			return "", err
+		}
+		directory = filepath.Join(filepath.Dir(executable), "modules")
+	}
+	_ = os.MkdirAll(directory, directoryPermissions)
+	return directory, nil
 }
 
 func userDirectory(name string) (string, error) {
@@ -30,11 +45,14 @@ func userDirectory(name string) (string, error) {
 }
 
 func baseUserDirectory() (string, error) {
-	userCacheDirectory, err := os.UserCacheDir()
-	if err != nil {
-		return "", err
+	cacheDirectory := os.Getenv(cacheDirectoryVarName)
+	if cacheDirectory == "" {
+		userCacheDir, err := os.UserCacheDir()
+		if err != nil {
+			return "", err
+		}
+		cacheDirectory = filepath.Join(userCacheDir, "uipath", "uipathcli")
 	}
-	userDirectory := filepath.Join(userCacheDirectory, "uipath", "uipathcli")
-	_ = os.MkdirAll(userDirectory, directoryPermissions)
-	return userDirectory, nil
+	_ = os.MkdirAll(cacheDirectory, directoryPermissions)
+	return cacheDirectory, nil
 }
