@@ -2,11 +2,13 @@ package studio
 
 import (
 	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
+	"slices"
 	"testing"
 )
 
@@ -96,6 +98,23 @@ func writeNupkgArchive(t *testing.T, path string, nuspec string) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func parseOutput(t *testing.T, output string) map[string]interface{} {
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(output), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize command output: %v", err)
+	}
+	return stdout
+}
+
+func getArgumentValue(args []string, name string) string {
+	index := slices.Index(args, name)
+	if index == -1 {
+		return ""
+	}
+	return args[index+1]
 }
 
 func studioCrossPlatformProjectDirectory() string {

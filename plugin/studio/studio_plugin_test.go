@@ -2,7 +2,6 @@ package studio
 
 import (
 	"archive/zip"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,11 +56,7 @@ func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
 	destination := createDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize pack command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -80,11 +75,7 @@ func TestPackCrossPlatformSuccessfully(t *testing.T) {
 	destination := createDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize pack command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
@@ -127,7 +118,7 @@ func TestPackWithAutoVersionArgument(t *testing.T) {
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--auto-version", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--autoVersion") {
-		t.Errorf("Expected argument --autoVersion, but got: %v", strings.Join(commandArgs, " "))
+		t.Errorf("Expected --autoVersion argument to be set, but got: %v", commandArgs)
 	}
 }
 
@@ -145,8 +136,9 @@ func TestPackWithOutputTypeArgument(t *testing.T) {
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "Process"}, context)
 
-	if !slices.Contains(commandArgs, "--outputType") {
-		t.Errorf("Expected argument --outputType, but got: %v", strings.Join(commandArgs, " "))
+	outputType := getArgumentValue(commandArgs, "--outputType")
+	if outputType != "Process" {
+		t.Errorf("Expected argument --outputType to be Process, but got: %v", commandArgs)
 	}
 }
 
@@ -165,7 +157,7 @@ func TestPackWithSplitOutputArgument(t *testing.T) {
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--split-output", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--splitOutput") {
-		t.Errorf("Expected argument --splitOutput, but got: %v", strings.Join(commandArgs, " "))
+		t.Errorf("Expected --splitOutput argument to be set, but got: %v", commandArgs)
 	}
 }
 
@@ -183,12 +175,102 @@ func TestPackWithReleaseNotesArgument(t *testing.T) {
 	destination := createDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--release-notes", "These are release notes."}, context)
 
-	index := slices.Index(commandArgs, "--releaseNotes")
-	if commandArgs[index] != "--releaseNotes" {
-		t.Errorf("Expected argument --releaseNotes, but got: %v", strings.Join(commandArgs, " "))
+	releaseNotes := getArgumentValue(commandArgs, "--releaseNotes")
+	if releaseNotes != "These are release notes." {
+		t.Errorf("Expected release notes argument, but got: %v", commandArgs)
 	}
-	if commandArgs[index+1] != "These are release notes." {
-		t.Errorf("Expected release notes argument, but got: %v", strings.Join(commandArgs, " "))
+}
+
+func TestPackWithLibraryAuthentication(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    tenant: my-tenant
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+`
+	commandArgs := []string{}
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		commandArgs = args
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithCommandPlugin(PackagePackCommand{exec}).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	destination := createDirectory(t)
+	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+
+	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
+	if !strings.HasPrefix(orchestratorUrl, "http") {
+		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
+	}
+
+	authToken := getArgumentValue(commandArgs, "--libraryOrchestratorAuthToken")
+	if authToken != "my-jwt-access-token" {
+		t.Errorf("Expected jwt bearer token as argument, but got: %v", commandArgs)
+	}
+
+	organization := getArgumentValue(commandArgs, "--libraryOrchestratorAccountName")
+	if organization != "my-org" {
+		t.Errorf("Expected organization as argument, but got: %v", commandArgs)
+	}
+
+	tenant := getArgumentValue(commandArgs, "--libraryOrchestratorTenant")
+	if tenant != "my-tenant" {
+		t.Errorf("Expected tenant as argument, but got: %v", commandArgs)
+	}
+}
+
+func TestPackWithOrgOnlyLibraryAuthentication(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+`
+	commandArgs := []string{}
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		commandArgs = args
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithCommandPlugin(PackagePackCommand{exec}).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	destination := createDirectory(t)
+	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+
+	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
+	if !strings.HasPrefix(orchestratorUrl, "http") {
+		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
+	}
+
+	authToken := getArgumentValue(commandArgs, "--libraryOrchestratorAuthToken")
+	if authToken != "my-jwt-access-token" {
+		t.Errorf("Expected jwt bearer token as argument, but got: %v", commandArgs)
+	}
+
+	organization := getArgumentValue(commandArgs, "--libraryOrchestratorAccountName")
+	if organization != "my-org" {
+		t.Errorf("Expected organization as argument, but got: %v", commandArgs)
+	}
+
+	tenant := getArgumentValue(commandArgs, "--libraryOrchestratorTenant")
+	if tenant != "" {
+		t.Errorf("Expected no tenant as argument, but got: %v", commandArgs)
 	}
 }
 
@@ -214,14 +296,10 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error != nil {
 		t.Errorf("Expected error to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
@@ -239,14 +317,10 @@ func TestAnalyzeCrossPlatformWithViolations(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error != nil {
 		t.Errorf("Expected error to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
@@ -254,36 +328,24 @@ func TestAnalyzeCrossPlatformWithViolations(t *testing.T) {
 	if len(violations) == 0 {
 		t.Errorf("Expected violations not to be empty, but got: %v", result.StdOut)
 	}
+
+	expected := map[string]interface{}{
+		"activityDisplayName": "",
+		"activityId":          nil,
+		"description":         "Workflow Main.xaml does not have any assigned Test Cases.",
+		"documentationLink":   "https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002",
+		"errorCode":           "TA-DBP-002",
+		"errorSeverity":       2.0,
+		"severity":            "Warning",
+		"filePath":            "",
+		"item":                nil,
+		"recommendation":      "Creating Test Cases for your workflows allows you to run them frequently to discover potential issues early on before they are introduced in your production environment. [Learn more.](https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002)",
+		"ruleName":            "Untested Workflows",
+		"workflowDisplayName": "Main",
+	}
 	violation := findViolation(violations, "TA-DBP-002")
-	if violation == nil {
-		t.Errorf("Could not find violation TA-DBP-002, got: %v", result.StdOut)
-	}
-	if violation["activityDisplayName"] != "" {
-		t.Errorf("Expected violation to have a activityDisplayName, but got: %v", result.StdOut)
-	}
-	if violation["description"] != "Workflow Main.xaml does not have any assigned Test Cases." {
-		t.Errorf("Expected violation to have a description, but got: %v", result.StdOut)
-	}
-	if violation["documentationLink"] != "https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002" {
-		t.Errorf("Expected violation to have a documentationLink, but got: %v", result.StdOut)
-	}
-	if violation["errorSeverity"] != 2.0 {
-		t.Errorf("Expected violation to have error severity, but got: %v", result.StdOut)
-	}
-	if violation["severity"] != "Warning" {
-		t.Errorf("Expected violation to have Warning severity, but got: %v", result.StdOut)
-	}
-	if violation["filePath"] != "" {
-		t.Errorf("Expected violation to have a filePath, but got: %v", result.StdOut)
-	}
-	if violation["recommendation"] != "Creating Test Cases for your workflows allows you to run them frequently to discover potential issues early on before they are introduced in your production environment. [Learn more.](https://docs.uipath.com/activities/lang-en/docs/ta-dbp-002)" {
-		t.Errorf("Expected violation to have a recommendation, but got: %v", result.StdOut)
-	}
-	if violation["ruleName"] != "Untested Workflows" {
-		t.Errorf("Expected violation to have a ruleName, but got: %v", result.StdOut)
-	}
-	if violation["workflowDisplayName"] != "Main" {
-		t.Errorf("Expected violation to have a workflowDisplayName, but got: %v", result.StdOut)
+	if !reflect.DeepEqual(expected, violation) {
+		t.Errorf("Expected violation '%v', but got: '%v'", expected, violation)
 	}
 }
 
@@ -296,14 +358,10 @@ func TestAnalyzeCrossPlatformWithTreatWarningAsErrors(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error == nil {
 		t.Errorf("Expected error, but got nil")
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -322,11 +380,7 @@ func TestAnalyzeReturnsErrorStatus(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Error" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -361,14 +415,10 @@ func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error != nil {
 		t.Errorf("Expected error to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
@@ -403,14 +453,10 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error == nil {
 		t.Errorf("Expected error not to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -418,36 +464,27 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 	if len(violations) == 0 {
 		t.Errorf("Expected violations not to be empty, but got: %v", result.StdOut)
 	}
+
+	expected := map[string]interface{}{
+		"activityDisplayName": "",
+		"activityId":          nil,
+		"description":         "Dependency package UiPath.Testing.Activities is not used.",
+		"documentationLink":   "https://docs.uipath.com/studio/lang-en/2024.10/docs/st-usg-010",
+		"errorCode":           "ST-USG-010",
+		"errorSeverity":       1.0,
+		"severity":            "Error",
+		"filePath":            "",
+		"item": map[string]interface{}{
+			"name": "UiPath.Testing.Activities",
+			"type": 4.0,
+		},
+		"recommendation":      "Remove unused packages in order to improve process execution time. [Learn more.](https://docs.uipath.com/studio/lang-en/2024.10/docs/st-usg-010)",
+		"ruleName":            "Unused Dependencies",
+		"workflowDisplayName": "",
+	}
 	violation := findViolation(violations, "ST-USG-010")
-	if violation == nil {
-		t.Errorf("Could not find violation ST-USG-010, got: %v", result.StdOut)
-	}
-	if violation["activityDisplayName"] != "" {
-		t.Errorf("Expected violation not to have a activityDisplayName, but got: %v", result.StdOut)
-	}
-	if violation["description"] != "Dependency package UiPath.Testing.Activities is not used." {
-		t.Errorf("Expected violation to have a description, but got: %v", result.StdOut)
-	}
-	if violation["documentationLink"] != "https://docs.uipath.com/studio/lang-en/v2025.4/docs/st-usg-010" {
-		t.Errorf("Expected violation to have a documentationLink, but got: %v", result.StdOut)
-	}
-	if violation["errorSeverity"] != 1.0 {
-		t.Errorf("Expected violation to have error severity, but got: %v", result.StdOut)
-	}
-	if violation["severity"] != "Error" {
-		t.Errorf("Expected violation to have Error severity, but got: %v", result.StdOut)
-	}
-	if violation["filePath"] != "" {
-		t.Errorf("Expected violation to have a filePath, but got: %v", result.StdOut)
-	}
-	if violation["recommendation"] != "Remove unused packages in order to improve process execution time. [Learn more.](https://docs.uipath.com/studio/lang-en/v2025.4/docs/st-usg-010)" {
-		t.Errorf("Expected violation to have a recommendation, but got: %v", result.StdOut)
-	}
-	if violation["ruleName"] != "Unused Dependencies" {
-		t.Errorf("Expected violation to have a ruleName, but got: %v", result.StdOut)
-	}
-	if violation["workflowDisplayName"] != "" {
-		t.Errorf("Expected violation not to have a workflowDisplayName, but got: %v", result.StdOut)
+	if !reflect.DeepEqual(expected, violation) {
+		t.Errorf("Expected violation '%v', but got: '%v'", expected, violation)
 	}
 }
 
@@ -477,14 +514,10 @@ func TestAnalyzeGovernanceFileViolationsWithoutStopOnRuleViolationReturnsNoError
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile, "--stop-on-rule-violation", "false"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error != nil {
 		t.Errorf("Expected error to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -567,11 +600,7 @@ func TestPublishReturnsPackageMetadata(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize publish command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
 	}
@@ -642,11 +671,7 @@ func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", dir}, context)
 
-	stdout := map[string]interface{}{}
-	err = json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize publish command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if !strings.HasSuffix(stdout["package"].(string), "archive2.nupkg") {
 		t.Errorf("Expected publish to use latest nupkg package, but got: %v", result.StdOut)
 	}
@@ -712,11 +737,7 @@ func TestPublishPackageAlreadyExistsReturnsFailed(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize publish command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -795,11 +816,7 @@ func TestRunPassed(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize test run command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
 		"canceledCount": 0.0,
 		"endTime":       "2025-03-17T12:10:18.183Z",
@@ -830,7 +847,7 @@ func TestRunPassed(t *testing.T) {
 
 func TestRunFailed(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -872,11 +889,7 @@ func TestRunFailed(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize test run command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
 		"canceledCount": 0.0,
 		"endTime":       "2025-03-17T12:10:25.058Z",
@@ -916,7 +929,7 @@ func TestRunFailed(t *testing.T) {
 
 func TestRunUpdatesExistingRelease(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -950,11 +963,7 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize test run command result: %v", err)
-	}
+	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
 		"canceledCount": 0.0,
 		"endTime":       "2025-03-17T12:10:18.083Z",
@@ -985,7 +994,7 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 
 func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1026,7 +1035,7 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
 
 func TestRunFailsWithMissingFolder(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1046,7 +1055,7 @@ func TestRunFailsWithMissingFolder(t *testing.T) {
 
 func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1070,7 +1079,7 @@ func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
 
 func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1093,7 +1102,7 @@ func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
 
 func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1115,7 +1124,7 @@ func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
 
 func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1136,7 +1145,7 @@ func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
 
 func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1156,7 +1165,7 @@ func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
 
 func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
-		outputDirectory := args[8]
+		outputDirectory := getArgumentValue(args, "--output")
 		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
 	})
 	context := test.NewContextBuilder().
@@ -1170,6 +1179,54 @@ func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
 
 	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '401' and body '{}'" {
 		t.Errorf("Expected server error, but got: %v", result.Error)
+	}
+}
+
+func TestRunWithLibraryAuthentication(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    tenant: my-tenant
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+`
+	commandArgs := []string{}
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		commandArgs = args
+		outputDirectory := getArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithCommandPlugin(TestRunCommand{exec}).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	test.RunCli([]string{"studio", "test", "run", "--source", source}, context)
+
+	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
+	if !strings.HasPrefix(orchestratorUrl, "http") {
+		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
+	}
+
+	authToken := getArgumentValue(commandArgs, "--libraryOrchestratorAuthToken")
+	if authToken != "my-jwt-access-token" {
+		t.Errorf("Expected jwt bearer token as argument, but got: %v", commandArgs)
+	}
+
+	organization := getArgumentValue(commandArgs, "--libraryOrchestratorAccountName")
+	if organization != "my-org" {
+		t.Errorf("Expected organization as argument, but got: %v", commandArgs)
+	}
+
+	tenant := getArgumentValue(commandArgs, "--libraryOrchestratorTenant")
+	if tenant != "my-tenant" {
+		t.Errorf("Expected tenant as argument, but got: %v", commandArgs)
 	}
 }
 

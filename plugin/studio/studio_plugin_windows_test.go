@@ -3,9 +3,10 @@
 package studio
 
 import (
-	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
+	"slices"
 	"strings"
 	"testing"
 
@@ -23,32 +24,19 @@ func TestPackWindowsSuccessfully(t *testing.T) {
 	destination := createDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize pack command result: %v", err)
+	stdout := parseOutput(t, result.StdOut)
+	outputFile := filepath.Join(destination, "MyWindowsProcess.1.0.0.nupkg")
+	expected := map[string]interface{}{
+		"status":      "Succeeded",
+		"error":       nil,
+		"name":        "MyWindowsProcess",
+		"description": "Blank Process",
+		"projectId":   "94c4c9c1-68c3-45d4-be14-d4427f17eddd",
+		"version":     "1.0.0",
+		"output":      outputFile,
 	}
-	if stdout["status"] != "Succeeded" {
-		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
-	}
-	if stdout["error"] != nil {
-		t.Errorf("Expected error to be nil, but got: %v", result.StdOut)
-	}
-	if stdout["name"] != "MyWindowsProcess" {
-		t.Errorf("Expected name to be set, but got: %v", result.StdOut)
-	}
-	if stdout["description"] != "Blank Process" {
-		t.Errorf("Expected version to be set, but got: %v", result.StdOut)
-	}
-	if stdout["projectId"] != "94c4c9c1-68c3-45d4-be14-d4427f17eddd" {
-		t.Errorf("Expected projectId to be set, but got: %v", result.StdOut)
-	}
-	if stdout["version"] != "1.0.0" {
-		t.Errorf("Expected version to be set, but got: %v", result.StdOut)
-	}
-	outputFile := stdout["output"].(string)
-	if outputFile != filepath.Join(destination, "MyWindowsProcess.1.0.0.nupkg") {
-		t.Errorf("Expected output path to be set, but got: %v", result.StdOut)
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
 	}
 	if _, err := os.Stat(outputFile); err != nil {
 		t.Errorf("Expected output file %s to exists, but could not find it: %v", outputFile, err)
@@ -77,20 +65,11 @@ func TestPackCrossPlatformProjectOnWindowsWithCorrectArguments(t *testing.T) {
 	if !strings.HasSuffix(commandArgs[0], "uipcli.dll") {
 		t.Errorf("Expected 1st argument to be the uipcli.dll, but got: %v", commandArgs[0])
 	}
-	if commandArgs[1] != "package" {
-		t.Errorf("Expected 2nd argument to be package, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != "pack" {
-		t.Errorf("Expected 3rd argument to be pack, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != "--output" {
-		t.Errorf("Expected 5th argument to be output, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != destination {
-		t.Errorf("Expected 6th argument to be the output path, but got: %v", commandArgs[5])
+
+	expectedArgs := []string{"package", "pack", filepath.Join(source, "project.json"), "--output", destination}
+	actualArgs := commandArgs[1:]
+	if !reflect.DeepEqual(expectedArgs, actualArgs) {
+		t.Errorf("Expected arguments to be '%v', but got: '%v'", expectedArgs, actualArgs)
 	}
 }
 
@@ -113,20 +92,10 @@ func TestPackWindowsOnlyProjectOnWindowsWithCorrectArguments(t *testing.T) {
 	if !strings.HasSuffix(commandName, "uipcli.exe") {
 		t.Errorf("Expected command name to be uipcli.exe, but got: %v", commandName)
 	}
-	if commandArgs[0] != "package" {
-		t.Errorf("Expected 1st argument to be package, but got: %v", commandArgs[0])
-	}
-	if commandArgs[1] != "pack" {
-		t.Errorf("Expected 2nd argument to be pack, but got: %v", commandArgs[1])
-	}
-	if commandArgs[2] != filepath.Join(source, "project.json") {
-		t.Errorf("Expected 3rd argument to be the project.json, but got: %v", commandArgs[2])
-	}
-	if commandArgs[3] != "--output" {
-		t.Errorf("Expected 4th argument to be output, but got: %v", commandArgs[3])
-	}
-	if commandArgs[4] != destination {
-		t.Errorf("Expected 5th argument to be the output path, but got: %v", commandArgs[4])
+
+	expectedArgs := []string{"package", "pack", filepath.Join(source, "project.json"), "--output", destination}
+	if !reflect.DeepEqual(expectedArgs, commandArgs) {
+		t.Errorf("Expected arguments to be '%v', but got: '%v'", expectedArgs, commandArgs)
 	}
 }
 
@@ -139,14 +108,10 @@ func TestAnalyzeWindowsWithErrors(t *testing.T) {
 	source := studioWindowsProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error == nil {
 		t.Errorf("Expected error not to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -168,14 +133,10 @@ func TestAnalyzeWindowsWithErrorsButStopOnRuleViolationFalse(t *testing.T) {
 	source := studioWindowsProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--stop-on-rule-violation", "false"}, context)
 
-	stdout := map[string]interface{}{}
-	err := json.Unmarshal([]byte(result.StdOut), &stdout)
-	if err != nil {
-		t.Errorf("Failed to deserialize analyze command result: %v", err)
-	}
 	if result.Error != nil {
 		t.Errorf("Expected error to be nil, but got: %v", result.Error)
 	}
+	stdout := parseOutput(t, result.StdOut)
 	if stdout["status"] != "Failed" {
 		t.Errorf("Expected status to be Failed, but got: %v", result.StdOut)
 	}
@@ -279,19 +240,15 @@ func TestRunOnWindowsWithCorrectPackArguments(t *testing.T) {
 	if commandArgs[3] != filepath.Join(source, "project.json") {
 		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[3])
 	}
-	if commandArgs[4] != "--outputType" {
-		t.Errorf("Expected 5th argument to be outputType, but got: %v", commandArgs[4])
+	output := getArgumentValue(commandArgs, "--output")
+	if output == "" {
+		t.Errorf("Expected --output argument to be set, but got: %v", commandArgs)
 	}
-	if commandArgs[5] != "Tests" {
-		t.Errorf("Expected 6th argument to be Tests, but got: %v", commandArgs[5])
+	outputType := getArgumentValue(commandArgs, "--outputType")
+	if outputType != "Tests" {
+		t.Errorf("Expected --outputType argument to be Tests, but got: %v", commandArgs)
 	}
-	if commandArgs[6] != "--autoVersion" {
-		t.Errorf("Expected 7th argument to be autoVersion, but got: %v", commandArgs[6])
-	}
-	if commandArgs[7] != "--output" {
-		t.Errorf("Expected 8th argument to be output, but got: %v", commandArgs[7])
-	}
-	if commandArgs[8] == "" {
-		t.Errorf("Expected 9th argument to be the output file, but got: %v", commandArgs[8])
+	if !slices.Contains(commandArgs, "--autoVersion") {
+		t.Errorf("Expected --autoVersion argument to be set, but got: %v", commandArgs)
 	}
 }

@@ -53,7 +53,18 @@ func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.O
 	}
 	splitOutput := c.getBoolParameter("split-output", ctx.Parameters)
 	releaseNotes := c.getParameter("release-notes", "", ctx.Parameters)
-	params := newPackagePackParams(source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes)
+	params := newPackagePackParams(
+		ctx.Organization,
+		ctx.Tenant,
+		ctx.BaseUri,
+		ctx.Auth.Token,
+		source,
+		destination,
+		packageVersion,
+		autoVersion,
+		outputType,
+		splitOutput,
+		releaseNotes)
 
 	result, err := c.execute(*params, ctx.Debug, logger)
 	if err != nil {
@@ -139,6 +150,14 @@ func (c PackagePackCommand) preparePackArguments(params packagePackParams) []str
 	}
 	if params.ReleaseNotes != "" {
 		args = append(args, "--releaseNotes", params.ReleaseNotes)
+	}
+	if params.AuthToken != nil && params.Organization != "" {
+		args = append(args, "--libraryOrchestratorUrl", params.BaseUri.String())
+		args = append(args, "--libraryOrchestratorAuthToken", params.AuthToken.Value)
+		args = append(args, "--libraryOrchestratorAccountName", params.Organization)
+		if params.Tenant != "" {
+			args = append(args, "--libraryOrchestratorTenant", params.Tenant)
+		}
 	}
 	return args
 }

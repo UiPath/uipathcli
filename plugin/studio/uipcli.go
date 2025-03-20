@@ -14,11 +14,8 @@ import (
 	"github.com/UiPath/uipathcli/utils/process"
 )
 
-const uipcliCrossPlatformVersion = "24.12.9111.31003"
-const uipcliCrossPlatformUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_apis/packaging/feeds/1c781268-d43d-45ab-9dfc-0151a1c740b7/nuget/packages/UiPath.CLI/versions/" + uipcliCrossPlatformVersion + "/content"
-
-const uipcliWindowsVersion = "24.12.9111.31003"
-const uipcliWindowsUrl = "https://uipath.pkgs.visualstudio.com/Public.Feeds/_apis/packaging/feeds/1c781268-d43d-45ab-9dfc-0151a1c740b7/nuget/packages/UiPath.CLI.Windows/versions/" + uipcliWindowsVersion + "/content"
+const uipcliCrossPlatformUrl = "https://github.com/UiPath/uipathcli/releases/download/plugins-v2.0.0/UiPath.CLI.24.12.9208.28468.nupkg"
+const uipcliWindowsUrl = "https://github.com/UiPath/uipathcli/releases/download/plugins-v2.0.0/UiPath.CLI.Windows.24.12.9208.28468.nupkg"
 
 const dotnetLinuxX64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-linux-x64.tar.gz"
 const dotnetMacOsX64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-osx-x64.tar.gz"
