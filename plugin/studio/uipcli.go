@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"sync"
 
@@ -13,17 +12,6 @@ import (
 	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/utils/process"
 )
-
-const uipcliCrossPlatformUrl = "https://github.com/UiPath/uipathcli/releases/download/plugins-v2.0.0/UiPath.CLI.24.12.9208.28468.nupkg"
-const uipcliWindowsUrl = "https://github.com/UiPath/uipathcli/releases/download/plugins-v2.0.0/UiPath.CLI.Windows.24.12.9208.28468.nupkg"
-
-const dotnetLinuxX64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-linux-x64.tar.gz"
-const dotnetMacOsX64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-osx-x64.tar.gz"
-const dotnetWindowsX64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-win-x64.zip"
-
-const dotnetLinuxArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-linux-arm64.tar.gz"
-const dotnetMacOsArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-osx-arm64.tar.gz"
-const dotnetWindowsArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-win-arm64.zip"
 
 type uipcli struct {
 	Exec   process.ExecProcess
@@ -104,48 +92,16 @@ func (c uipcli) readOutput(output io.Reader, wg *sync.WaitGroup) {
 }
 
 func (c uipcli) getUipcliPath(targetFramework TargetFramework) (string, error) {
-	externalPlugin := plugin.NewExternalPlugin(c.Logger)
-	name := "uipcli"
-	url := uipcliCrossPlatformUrl
-	executable := "tools/uipcli.dll"
+	manager := plugin.NewExternalPluginManager(c.Logger)
 	if targetFramework.IsWindowsOnly() {
-		name = "uipcli-win"
-		url = uipcliWindowsUrl
-		executable = "tools/uipcli.exe"
+		return manager.Get(plugin.UipCliWindows)
 	}
-	return externalPlugin.GetTool(name, url, plugin.ArchiveTypeZip, executable)
+	return manager.Get(plugin.UipCliCrossPlatform)
 }
 
 func (c uipcli) getDotnetPath() (string, error) {
-	externalPlugin := plugin.NewExternalPlugin(c.Logger)
-	name := fmt.Sprintf("dotnet8-%s-%s", runtime.GOOS, runtime.GOARCH)
-	url, archiveType, executable := c.dotnetUrl()
-	return externalPlugin.GetTool(name, url, archiveType, executable)
-}
-
-func (c uipcli) dotnetUrl() (string, plugin.ArchiveType, string) {
-	if c.isArm() {
-		switch runtime.GOOS {
-		case "windows":
-			return dotnetWindowsArm64Url, plugin.ArchiveTypeZip, "dotnet.exe"
-		case "darwin":
-			return dotnetMacOsArm64Url, plugin.ArchiveTypeTarGz, "dotnet"
-		default:
-			return dotnetLinuxArm64Url, plugin.ArchiveTypeTarGz, "dotnet"
-		}
-	}
-	switch runtime.GOOS {
-	case "windows":
-		return dotnetWindowsX64Url, plugin.ArchiveTypeZip, "dotnet.exe"
-	case "darwin":
-		return dotnetMacOsX64Url, plugin.ArchiveTypeTarGz, "dotnet"
-	default:
-		return dotnetLinuxX64Url, plugin.ArchiveTypeTarGz, "dotnet"
-	}
-}
-
-func (c uipcli) isArm() bool {
-	return strings.HasPrefix(strings.ToLower(runtime.GOARCH), "arm")
+	manager := plugin.NewExternalPluginManager(c.Logger)
+	return manager.Get(plugin.DotNet8)
 }
 
 func newUipcli(exec process.ExecProcess, logger log.Logger) *uipcli {

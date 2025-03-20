@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 )
 
+const offlineDirectoryVarName = "UIPATH_OFFLINE_PATH"
 const directoryPermissions = 0700
 
 func Temp() (string, error) {
@@ -15,8 +16,21 @@ func Cache() (string, error) {
 	return userDirectory("cache")
 }
 
-func Plugin() (string, error) {
+func Plugins() (string, error) {
 	return userDirectory("plugins")
+}
+
+func Offline() (string, error) {
+	directory := os.Getenv(offlineDirectoryVarName)
+	if directory == "" {
+		executable, err := os.Executable()
+		if err != nil {
+			return "", err
+		}
+		directory = filepath.Join(filepath.Dir(executable), "offline")
+	}
+	_ = os.MkdirAll(directory, directoryPermissions)
+	return directory, nil
 }
 
 func userDirectory(name string) (string, error) {
