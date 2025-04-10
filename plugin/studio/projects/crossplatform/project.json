@@ -29,7 +29,8 @@
     "readyForPiP": false,
     "startsInPiP": false,
     "mustRestoreAllDependencies": true,
-    "pipType": "ChildSession"
+    "pipType": "ChildSession",
+    "robotVersion": "25.0.0"
   },
   "designOptions": {
     "projectProfile": "Developement",

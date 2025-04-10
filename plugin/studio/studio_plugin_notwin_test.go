@@ -4,6 +4,7 @@ package studio
 
 import (
 	"path/filepath"
+	"slices"
 	"strings"
 	"testing"
 
@@ -42,11 +43,9 @@ func TestPackOnLinuxWithCorrectArguments(t *testing.T) {
 	if commandArgs[3] != filepath.Join(source, "project.json") {
 		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[3])
 	}
-	if commandArgs[4] != "--output" {
-		t.Errorf("Expected 5th argument to be output, but got: %v", commandArgs[4])
-	}
-	if commandArgs[5] != destination {
-		t.Errorf("Expected 6th argument to be the output path, but got: %v", commandArgs[5])
+	output := getArgumentValue(commandArgs, "--output")
+	if output != destination {
+		t.Errorf("Expected --output argument to be %s, but got: %v", destination, commandArgs)
 	}
 }
 
@@ -155,19 +154,15 @@ func TestRunOnLinuxWithCorrectPackArguments(t *testing.T) {
 	if commandArgs[3] != filepath.Join(source, "project.json") {
 		t.Errorf("Expected 4th argument to be the project.json, but got: %v", commandArgs[3])
 	}
-	if commandArgs[4] != "--outputType" {
-		t.Errorf("Expected 5th argument to be outputType, but got: %v", commandArgs[4])
+	output := getArgumentValue(commandArgs, "--output")
+	if output == "" {
+		t.Errorf("Expected --output argument to be set, but got: %v", commandArgs)
 	}
-	if commandArgs[5] != "Tests" {
-		t.Errorf("Expected 6th argument to be Tests, but got: %v", commandArgs[5])
+	outputType := getArgumentValue(commandArgs, "--outputType")
+	if outputType != "Tests" {
+		t.Errorf("Expected --outputType argument to be Tests, but got: %v", commandArgs)
 	}
-	if commandArgs[6] != "--autoVersion" {
-		t.Errorf("Expected 7th argument to be autoVersion, but got: %v", commandArgs[6])
-	}
-	if commandArgs[7] != "--output" {
-		t.Errorf("Expected 8th argument to be output, but got: %v", commandArgs[7])
-	}
-	if commandArgs[8] == "" {
-		t.Errorf("Expected 9th argument to be the output file, but got: %v", commandArgs[8])
+	if !slices.Contains(commandArgs, "--autoVersion") {
+		t.Errorf("Expected --autoVersion argument to be set, but got: %v", commandArgs)
 	}
 }
