@@ -3,6 +3,8 @@
 package studio
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -271,6 +273,128 @@ func TestRestoreWindowsSuccessfully(t *testing.T) {
 		"description": "Blank Process",
 		"projectId":   "94c4c9c1-68c3-45d4-be14-d4427f17eddd",
 		"output":      destination,
+	}
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
+func TestParallelRunPassed(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewTestRunCommand()).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", 200, `{"value":[{"id":10000,"name":"MyProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyWindowsProcess_Tests'", 200, `{"value":[{"id":20000,"name":"MyWindowsProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(10000)", 200, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.0"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(20000)", 200, `{"name":"MyWindowsProcess_Tests","processKey":"MyWindowsProcess_Tests","processVersion":"2.0.0"}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			if request.URL.Path == "/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion" {
+				body := map[string]interface{}{}
+				err := json.Unmarshal(request.Body, &body)
+				if err != nil {
+					return test.ResponseData{Status: 500, Body: err.Error()}
+				}
+				if body["releaseId"] == 10000.0 {
+					return test.ResponseData{Status: 201, Body: "100002"}
+				}
+				return test.ResponseData{Status: 201, Body: "200002"}
+			}
+			return test.ResponseData{Status: 500, Body: fmt.Sprintf("Unhandled HTTP request %s", request.URL.Path)}
+		}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", 200, "100001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", 200, "200001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(100001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyProcess_Tests - 1.0.0",
+               "TestSetId":100002,
+               "StartTime":"2025-03-17T12:10:09.053Z",
+               "EndTime":"2025-03-17T12:10:18.183Z",
+               "Status":"Passed",
+               "Id":100001,
+               "TestCaseExecutions":[{
+                 "Id":100003,
+                 "TestCaseId":100004,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               }]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(200001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyWindowsProcess_Tests - 2.0.0",
+               "TestSetId":200002,
+               "StartTime":"2025-03-17T12:10:09.053Z",
+               "EndTime":"2025-03-17T12:10:18.183Z",
+               "Status":"Failed",
+               "Id":200001,
+               "TestCaseExecutions":[{
+                 "Id":200003,
+                 "TestCaseId":200004,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Failed"
+               }]
+             }`).
+		Build()
+
+	source1 := studioCrossPlatformProjectDirectory()
+	source2 := studioWindowsProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source1 + "," + source2, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := parseOutput(t, result.StdOut)
+	expected := map[string]interface{}{
+		"testSetExecutions": []interface{}{
+			map[string]interface{}{
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.183Z",
+				"failuresCount": 0.0,
+				"id":            100001.0,
+				"name":          "Automated - MyProcess_Tests - 1.0.0",
+				"passedCount":   1.0,
+				"startTime":     "2025-03-17T12:10:09.053Z",
+				"status":        "Passed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:18.083Z",
+						"error":      nil,
+						"id":         100003.0,
+						"name":       "TestCase.xaml",
+						"startTime":  "2025-03-17T12:10:09.087Z",
+						"status":     "Passed",
+						"testCaseId": 100004.0,
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      100002.0,
+			},
+			map[string]interface{}{
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.183Z",
+				"failuresCount": 1.0,
+				"id":            200001.0,
+				"name":          "Automated - MyWindowsProcess_Tests - 2.0.0",
+				"passedCount":   0.0,
+				"startTime":     "2025-03-17T12:10:09.053Z",
+				"status":        "Failed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:18.083Z",
+						"error":      nil,
+						"id":         200003.0,
+						"name":       "TestCase.xaml",
+						"startTime":  "2025-03-17T12:10:09.087Z",
+						"status":     "Failed",
+						"testCaseId": 200004.0,
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      200002.0,
+			},
+		},
 	}
 	if !reflect.DeepEqual(expected, stdout) {
 		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)

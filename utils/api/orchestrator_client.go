@@ -487,7 +487,7 @@ func (c OrchestratorClient) convertToTestCaseExecutions(json []testCaseExecution
 }
 
 func (c OrchestratorClient) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
-	if length < 10*1024*1024 {
+	if progressBar == nil || length < 10*1024*1024 {
 		return reader
 	}
 	return visualization.NewProgressReader(reader, func(progress visualization.Progress) {

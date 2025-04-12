@@ -1707,11 +1707,16 @@ paths:
       operationId: ping
 `
 
+	callCount := 0
 	context := NewContextBuilder().
 		WithDefinition("service", definition).
-		WithNextResponse(500, "Internal Server Error").
-		WithNextResponse(500, "Internal Server Error").
-		WithResponse(200, `{"hello":"world"}`).
+		WithResponseHandler(func(request RequestData) ResponseData {
+			callCount++
+			if callCount == 3 {
+				return ResponseData{Status: 200, Body: `{"hello":"world"}`}
+			}
+			return ResponseData{Status: 500, Body: "Internal Server Error"}
+		}).
 		Build()
 
 	result := RunCli([]string{"service", "ping", "--debug"}, context)

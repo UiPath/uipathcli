@@ -28,9 +28,8 @@ type ContextBuilder struct {
 func NewContextBuilder() *ContextBuilder {
 	return &ContextBuilder{
 		context: Context{
-			Definitions:   []commandline.DefinitionData{},
-			NextResponses: []ResponseData{},
-			Responses:     map[string]ResponseData{},
+			Definitions: []commandline.DefinitionData{},
+			Responses:   map[string]ResponseData{},
 		},
 	}
 }
@@ -62,11 +61,6 @@ func (b *ContextBuilder) WithStdIn(input bytes.Buffer) *ContextBuilder {
 	return b
 }
 
-func (b *ContextBuilder) WithNextResponse(statusCode int, body string) *ContextBuilder {
-	b.context.NextResponses = append(b.context.NextResponses, ResponseData{statusCode, body})
-	return b
-}
-
 func (b *ContextBuilder) WithResponse(statusCode int, body string) *ContextBuilder {
 	b.context.Responses["*"] = ResponseData{statusCode, body}
 	return b
@@ -74,6 +68,11 @@ func (b *ContextBuilder) WithResponse(statusCode int, body string) *ContextBuild
 
 func (b *ContextBuilder) WithUrlResponse(url string, statusCode int, body string) *ContextBuilder {
 	b.context.Responses[url] = ResponseData{statusCode, body}
+	return b
+}
+
+func (b *ContextBuilder) WithResponseHandler(handler func(RequestData) ResponseData) *ContextBuilder {
+	b.context.ResponseHandler = handler
 	return b
 }
 
@@ -91,6 +90,12 @@ func (b *ContextBuilder) Build() Context {
 	return b.context
 }
 
+type RequestData struct {
+	URL    url.URL
+	Header map[string]string
+	Body   []byte
+}
+
 type ResponseData struct {
 	Status int
 	Body   string
@@ -101,8 +106,8 @@ type Context struct {
 	ConfigFile       string
 	StdIn            *bytes.Buffer
 	Definitions      []commandline.DefinitionData
-	NextResponses    []ResponseData
 	Responses        map[string]ResponseData
+	ResponseHandler  func(RequestData) ResponseData
 	IdentityResponse ResponseData
 	CommandPlugin    plugin.CommandPlugin
 }
@@ -144,7 +149,7 @@ func RunCli(args []string, context Context) Result {
 	requestHeader := map[string]string{}
 	requestBody := ""
 
-	if len(context.Responses) > 0 {
+	if len(context.Responses) > 0 || context.ResponseHandler != nil {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestUrl = r.URL.String()
 			if requestUrl == "/identity_/connect/token" {
@@ -162,12 +167,20 @@ func RunCli(args []string, context Context) Result {
 
 			response, found := context.Responses[requestUrl]
 			if !found {
-				response = context.Responses["*"]
+				response, found = context.Responses["*"]
 			}
-			nextResponses := context.NextResponses
-			if len(nextResponses) > 0 {
-				response = nextResponses[0]
-				context.NextResponses = nextResponses[1:]
+			if found {
+				w.WriteHeader(response.Status)
+				_, _ = w.Write([]byte(response.Body))
+				return
+			}
+
+			if context.ResponseHandler != nil {
+				response = context.ResponseHandler(RequestData{
+					URL:    *r.URL,
+					Header: requestHeader,
+					Body:   body,
+				})
 			}
 			w.WriteHeader(response.Status)
 			_, _ = w.Write([]byte(response.Body))

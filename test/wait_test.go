@@ -1,6 +1,7 @@
 package test
 
 import (
+	"strconv"
 	"testing"
 )
 
@@ -82,20 +83,22 @@ paths:
       summary: Simple ping
 `
 
+	callCount := 0
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithNextResponse(200, `{"version":1}`).
-		WithNextResponse(200, `{"version":1}`).
-		WithResponse(200, `{"version":2}`).
+		WithResponseHandler(func(request RequestData) ResponseData {
+			callCount++
+			return ResponseData{Status: 200, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
+		}).
 		Build()
 
-	result := RunCli([]string{"myservice", "ping", "--wait", "version == `2`"}, context)
+	result := RunCli([]string{"myservice", "ping", "--wait", "version == `3`"}, context)
 
 	if result.Error != nil {
 		t.Errorf("Unexpected error, got: %v", result.Error)
 	}
 	expectedOutput := `{
-  "version": 2
+  "version": 3
 }
 `
 	if result.StdOut != expectedOutput {
@@ -112,14 +115,16 @@ paths:
       summary: Simple ping
 `
 
+	callCount := 0
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithNextResponse(200, `{"version":1}`).
-		WithNextResponse(200, `{"version":1}`).
-		WithResponse(200, `{"version":2}`).
+		WithResponseHandler(func(request RequestData) ResponseData {
+			callCount++
+			return ResponseData{Status: 200, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
+		}).
 		Build()
 
-	result := RunCli([]string{"myservice", "ping", "--wait", "version == `2`"}, context)
+	result := RunCli([]string{"myservice", "ping", "--wait", "version == `3`"}, context)
 
 	if result.Error != nil {
 		t.Errorf("Unexpected error, got: %v", result.Error)

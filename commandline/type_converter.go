@@ -267,7 +267,10 @@ func (c typeConverter) splitEscapedMaxCount(str string, separator byte, maxCount
 				}
 				break
 			}
-
+		} else if char != separator && escaping {
+			escaping = false
+			item = append(item, '\\')
+			item = append(item, char)
 		} else {
 			escaping = false
 			item = append(item, char)

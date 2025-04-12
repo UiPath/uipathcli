@@ -97,9 +97,9 @@ func (c uipcli) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
 func (c uipcli) readOutput(output io.Reader, wg *sync.WaitGroup) {
 	defer wg.Done()
 	scanner := bufio.NewScanner(output)
-	scanner.Split(bufio.ScanRunes)
+	scanner.Split(bufio.ScanLines)
 	for scanner.Scan() {
-		c.Logger.Log(scanner.Text())
+		c.Logger.Log(scanner.Text() + "\n")
 	}
 }
 
