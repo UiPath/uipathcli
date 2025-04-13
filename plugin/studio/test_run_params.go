@@ -1,18 +1,26 @@
 package studio
 
-import "time"
+import (
+	"time"
+
+	"github.com/UiPath/uipathcli/log"
+)
 
 type testRunParams struct {
-	NupkgPath      string
-	ProcessKey     string
-	ProcessVersion string
-	Timeout        time.Duration
+	ExecutionId int
+	Uipcli      *uipcli
+	Logger      log.Logger
+	Source      string
+	Destination string
+	Timeout     time.Duration
 }
 
 func newTestRunParams(
-	nupkgPath string,
-	processKey string,
-	processVersion string,
+	executionId int,
+	uipcli *uipcli,
+	logger log.Logger,
+	source string,
+	destination string,
 	timeout time.Duration) *testRunParams {
-	return &testRunParams{nupkgPath, processKey, processVersion, timeout}
+	return &testRunParams{executionId, uipcli, logger, source, destination, timeout}
 }

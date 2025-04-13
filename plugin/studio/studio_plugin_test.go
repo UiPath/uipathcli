@@ -818,27 +818,31 @@ func TestRunPassed(t *testing.T) {
 
 	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
-		"canceledCount": 0.0,
-		"endTime":       "2025-03-17T12:10:18.183Z",
-		"failuresCount": 0.0,
-		"id":            349562.0,
-		"name":          "Automated - MyProcess_Tests - 1.0.195912597",
-		"passedCount":   1.0,
-		"startTime":     "2025-03-17T12:10:09.053Z",
-		"status":        "Passed",
-		"testCaseExecutions": []interface{}{
+		"testSetExecutions": []interface{}{
 			map[string]interface{}{
-				"endTime":    "2025-03-17T12:10:18.083Z",
-				"error":      nil,
-				"id":         704170.0,
-				"name":       "TestCase.xaml",
-				"startTime":  "2025-03-17T12:10:09.087Z",
-				"status":     "Passed",
-				"testCaseId": 169537.0,
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.183Z",
+				"failuresCount": 0.0,
+				"id":            349562.0,
+				"name":          "Automated - MyProcess_Tests - 1.0.195912597",
+				"passedCount":   1.0,
+				"startTime":     "2025-03-17T12:10:09.053Z",
+				"status":        "Passed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:18.083Z",
+						"error":      nil,
+						"id":         704170.0,
+						"name":       "TestCase.xaml",
+						"startTime":  "2025-03-17T12:10:09.087Z",
+						"status":     "Passed",
+						"testCaseId": 169537.0,
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      25819.0,
 			},
 		},
-		"testCasesCount": 1.0,
-		"testSetId":      25819.0,
 	}
 	if !reflect.DeepEqual(expected, stdout) {
 		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
@@ -891,36 +895,40 @@ func TestRunFailed(t *testing.T) {
 
 	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
-		"canceledCount": 0.0,
-		"endTime":       "2025-03-17T12:10:25.058Z",
-		"failuresCount": 1.0,
-		"id":            349001.0,
-		"name":          "Automated - MyLibrary - 1.0.195912597",
-		"passedCount":   1.0,
-		"startTime":     "2025-03-17T12:10:09.087Z",
-		"status":        "Failed",
-		"testCaseExecutions": []interface{}{
+		"testSetExecutions": []interface{}{
 			map[string]interface{}{
-				"endTime":    "2025-03-17T12:10:18.083Z",
-				"error":      nil,
-				"id":         704123.0,
-				"name":       "TestCase.xaml",
-				"startTime":  "2025-03-17T12:10:09.087Z",
-				"status":     "Passed",
-				"testCaseId": 169537.0,
-			},
-			map[string]interface{}{
-				"endTime":    "2025-03-17T12:10:25.058Z",
-				"error":      "There was an error",
-				"id":         704124.0,
-				"name":       "TestCase2.xaml",
-				"startTime":  "2025-03-17T12:10:21.015Z",
-				"status":     "Failed",
-				"testCaseId": 169538.0,
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:25.058Z",
+				"failuresCount": 1.0,
+				"id":            349001.0,
+				"name":          "Automated - MyLibrary - 1.0.195912597",
+				"passedCount":   1.0,
+				"startTime":     "2025-03-17T12:10:09.087Z",
+				"status":        "Failed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:18.083Z",
+						"error":      nil,
+						"id":         704123.0,
+						"name":       "TestCase.xaml",
+						"startTime":  "2025-03-17T12:10:09.087Z",
+						"status":     "Passed",
+						"testCaseId": 169537.0,
+					},
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:25.058Z",
+						"error":      "There was an error",
+						"id":         704124.0,
+						"name":       "TestCase2.xaml",
+						"startTime":  "2025-03-17T12:10:21.015Z",
+						"status":     "Failed",
+						"testCaseId": 169538.0,
+					},
+				},
+				"testCasesCount": 2.0,
+				"testSetId":      29991.0,
 			},
 		},
-		"testCasesCount": 2.0,
-		"testSetId":      29991.0,
 	}
 	if !reflect.DeepEqual(expected, stdout) {
 		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
@@ -965,27 +973,31 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 
 	stdout := parseOutput(t, result.StdOut)
 	expected := map[string]interface{}{
-		"canceledCount": 0.0,
-		"endTime":       "2025-03-17T12:10:18.083Z",
-		"failuresCount": 0.0,
-		"id":            349001.0,
-		"name":          "Automated - MyLibrary - 1.0.195912597",
-		"passedCount":   1.0,
-		"startTime":     "2025-03-17T12:10:09.087Z",
-		"status":        "Passed",
-		"testCaseExecutions": []interface{}{
+		"testSetExecutions": []interface{}{
 			map[string]interface{}{
-				"endTime":    "2025-03-17T12:10:18.083Z",
-				"error":      nil,
-				"id":         704123.0,
-				"name":       "TestCase.xaml",
-				"startTime":  "2025-03-17T12:10:09.087Z",
-				"status":     "Passed",
-				"testCaseId": 169537.0,
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.083Z",
+				"failuresCount": 0.0,
+				"id":            349001.0,
+				"name":          "Automated - MyLibrary - 1.0.195912597",
+				"passedCount":   1.0,
+				"startTime":     "2025-03-17T12:10:09.087Z",
+				"status":        "Passed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"endTime":    "2025-03-17T12:10:18.083Z",
+						"error":      nil,
+						"id":         704123.0,
+						"name":       "TestCase.xaml",
+						"startTime":  "2025-03-17T12:10:09.087Z",
+						"status":     "Passed",
+						"testCaseId": 169537.0,
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      29991.0,
 			},
 		},
-		"testCasesCount": 1.0,
-		"testSetId":      29991.0,
 	}
 	if !reflect.DeepEqual(expected, stdout) {
 		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)

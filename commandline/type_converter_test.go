@@ -198,6 +198,24 @@ func TestConvertStringAvoidEscapeEqualSign(t *testing.T) {
 	}
 }
 
+func TestConvertPreserveEscapeCharacter(t *testing.T) {
+	converter := newTypeConverter()
+
+	parameter := newParameter("values", parser.ParameterTypeStringArray, []parser.Parameter{})
+	result, _ := converter.Convert("..\\path\\myfile.txt,..\\path\\myfile2.txt", parameter)
+
+	values := result.([]string)
+	if len(values) != 2 {
+		t.Errorf("values array should contain two entries, but got: %v", len(values))
+	}
+	if values[0] != "..\\path\\myfile.txt" {
+		t.Errorf("values array should contain first path, but got: %v", values[0])
+	}
+	if values[1] != "..\\path\\myfile2.txt" {
+		t.Errorf("values array should contain second path, but got: %v", values[1])
+	}
+}
+
 func getValue(result interface{}, key string) interface{} {
 	return result.(map[string]interface{})[key]
 }
