@@ -2,8 +2,6 @@ package digitzer
 
 import (
 	"bytes"
-	"fmt"
-	"os"
 	"strings"
 	"testing"
 
@@ -98,8 +96,7 @@ paths:
 }
 
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -129,8 +126,7 @@ paths:
 }
 
 func TestDigitizeWithFailedResultResponseReturnsError(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -161,8 +157,7 @@ paths:
 }
 
 func TestDigitizeWithoutProjectIdUsesDefaultProject(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -207,8 +202,7 @@ paths:
 }
 
 func TestDigitizeSuccessfully(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -253,8 +247,7 @@ paths:
 }
 
 func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -331,8 +324,7 @@ paths:
 }
 
 func TestDigitizeLargeFileSuccessfully(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, make([]byte, 10*1024*1024))
+	path := test.CreateFileWithBinaryContent(t, make([]byte, 10*1024*1024))
 
 	config := `profiles:
 - name: default
@@ -373,27 +365,5 @@ paths:
 `
 	if result.StdOut != expectedResult {
 		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
-	}
-}
-
-func createFile(t *testing.T) string {
-	tempFile, err := os.CreateTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
-}
-
-func writeFile(name string, data []byte) {
-	err := os.WriteFile(name, data, 0600)
-	if err != nil {
-		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
 	}
 }

@@ -24,8 +24,9 @@ func TestPackOnLinuxWithCorrectArguments(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	if !strings.HasSuffix(commandName, "dotnet") {
@@ -61,7 +62,8 @@ func TestAnalyzeOnLinuxWithCorrectArguments(t *testing.T) {
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	if !strings.HasSuffix(commandName, "dotnet") {
@@ -91,7 +93,8 @@ func TestAnalyzeWindowsProjectOnLinuxReturnsCompatibilityError(t *testing.T) {
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 
-	source := studioWindowsProjectDirectory()
+	source := test.NewWindowsProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	if called {
@@ -112,8 +115,9 @@ func TestPackWindowsProjectOnLinuxReturnsCompatibilityError(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioWindowsProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewWindowsProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	if called {
@@ -136,7 +140,8 @@ func TestRunOnLinuxWithCorrectPackArguments(t *testing.T) {
 		WithCommandPlugin(TestRunCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if !strings.HasSuffix(commandName, "dotnet") {

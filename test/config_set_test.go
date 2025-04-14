@@ -18,7 +18,7 @@ func TestConfigSetUnknownKey(t *testing.T) {
 }
 
 func TestConfigSetCreatesNewProfile(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	existingConfig := `profiles:
 - name: default
   organization: initial-org
@@ -46,7 +46,7 @@ func TestConfigSetCreatesNewProfile(t *testing.T) {
 }
 
 func TestConfigSetUpdatesExistingProfile(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	existingConfig := `profiles:
 - name: existing
   organization: initial-org
@@ -72,7 +72,7 @@ func TestConfigSetUpdatesExistingProfile(t *testing.T) {
 }
 
 func TestConfigSetOrganization(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -93,7 +93,7 @@ func TestConfigSetOrganization(t *testing.T) {
 }
 
 func TestConfigSetTenant(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -114,7 +114,7 @@ func TestConfigSetTenant(t *testing.T) {
 }
 
 func TestConfigSetUri(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -146,7 +146,7 @@ func TestConfigInvalidUri(t *testing.T) {
 }
 
 func TestConfigSetInsecure(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -167,7 +167,7 @@ func TestConfigSetInsecure(t *testing.T) {
 }
 
 func TestConfigSetDebug(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -210,7 +210,7 @@ func TestConfigInvalidDebug(t *testing.T) {
 }
 
 func TestConfigSetHeader(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -232,7 +232,7 @@ func TestConfigSetHeader(t *testing.T) {
 }
 
 func TestConfigSetParameter(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -254,7 +254,7 @@ func TestConfigSetParameter(t *testing.T) {
 }
 
 func TestConfigSetAuthGrantType(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -276,7 +276,7 @@ func TestConfigSetAuthGrantType(t *testing.T) {
 }
 
 func TestConfigSetAuthScopes(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -298,7 +298,7 @@ func TestConfigSetAuthScopes(t *testing.T) {
 }
 
 func TestConfigSetAuthProperties(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()
@@ -321,7 +321,7 @@ func TestConfigSetAuthProperties(t *testing.T) {
 }
 
 func TestConfigSetServiceVersion(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	context := NewContextBuilder().
 		WithConfigFile(configFile).
 		Build()

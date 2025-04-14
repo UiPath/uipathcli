@@ -3,13 +3,13 @@ package studio
 import (
 	"archive/zip"
 	"encoding/json"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 	"slices"
 	"testing"
+
+	"github.com/UiPath/uipathcli/test"
 )
 
 const studioDefinition = `
@@ -39,41 +39,54 @@ const nuspecContent = `
   </metadata>
 </package>`
 
-func writeFile(t *testing.T, data string) string {
-	path := createFile(t)
-	err := os.WriteFile(path, []byte(data), 0600)
+func findViolation(violations []interface{}, errorCode string) map[string]interface{} {
+	var violation map[string]interface{}
+	for _, v := range violations {
+		vMap := v.(map[string]interface{})
+		if vMap["errorCode"] == errorCode {
+			violation = vMap
+		}
+	}
+	return violation
+}
+
+func createLargeNupkgArchive(t *testing.T, size int) string {
+	path := test.CreateFile(t)
+	archive, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		panic(fmt.Errorf("Error writing file '%s': %w", path, err))
+		t.Fatal(err)
+	}
+	defer archive.Close()
+	zipWriter := zip.NewWriter(archive)
+	nuspecWriter, err := zipWriter.Create("MyProcess.nuspec")
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = io.WriteString(nuspecWriter, nuspecContent)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	content, err := zipWriter.CreateHeader(&zip.FileHeader{
+		Name:   "Content.txt",
+		Method: zip.Store,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = content.Write(make([]byte, size))
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		t.Fatal(err)
 	}
 	return path
 }
 
-func createFile(t *testing.T) string {
-	tempFile, err := os.CreateTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
-}
-
-func createDirectory(t *testing.T) string {
-	tmp, err := os.MkdirTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { os.RemoveAll(tmp) })
-	return tmp
-}
-
 func createNupkgArchive(t *testing.T, nuspec string) string {
-	path := createFile(t)
+	path := test.CreateFile(t)
 	writeNupkgArchive(t, path, nuspec)
 	return path
 }
@@ -115,14 +128,4 @@ func getArgumentValue(args []string, name string) string {
 		return ""
 	}
 	return args[index+1]
-}
-
-func studioCrossPlatformProjectDirectory() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "projects", "crossplatform")
-}
-
-func studioWindowsProjectDirectory() string {
-	_, filename, _, _ := runtime.Caller(0)
-	return filepath.Join(filepath.Dir(filename), "projects", "windows")
 }
