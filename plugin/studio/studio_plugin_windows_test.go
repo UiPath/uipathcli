@@ -305,6 +305,28 @@ func TestParallelRunPassed(t *testing.T) {
 		}).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", 200, "100001").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", 200, "200001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(100002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":100004,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(200002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":200004,
+                 "Definition":{
+                   "Name":"MySecondTestCase",
+                   "PackageIdentifier":"2.2.2"
+                 }
+               }],
+               "Packages":[]
+             }`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(100001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
 			`{
                "Name":"Automated - MyProcess_Tests - 1.0.0",
@@ -354,18 +376,27 @@ func TestParallelRunPassed(t *testing.T) {
 				"failuresCount": 0.0,
 				"id":            100001.0,
 				"name":          "Automated - MyProcess_Tests - 1.0.0",
+				"packages":      []interface{}{},
 				"passedCount":   1.0,
 				"startTime":     "2025-03-17T12:10:09.053Z",
 				"status":        "Passed",
 				"testCaseExecutions": []interface{}{
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:18.083Z",
-						"error":      nil,
-						"id":         100003.0,
-						"name":       "TestCase.xaml",
-						"startTime":  "2025-03-17T12:10:09.087Z",
-						"status":     "Passed",
-						"testCaseId": 100004.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      100003.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Passed",
+						"testCaseId":              100004.0,
+						"versionNumber":           "",
 					},
 				},
 				"testCasesCount": 1.0,
@@ -377,18 +408,27 @@ func TestParallelRunPassed(t *testing.T) {
 				"failuresCount": 1.0,
 				"id":            200001.0,
 				"name":          "Automated - MyWindowsProcess_Tests - 2.0.0",
+				"packages":      []interface{}{},
 				"passedCount":   0.0,
 				"startTime":     "2025-03-17T12:10:09.053Z",
 				"status":        "Failed",
 				"testCaseExecutions": []interface{}{
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:18.083Z",
-						"error":      nil,
-						"id":         200003.0,
-						"name":       "TestCase.xaml",
-						"startTime":  "2025-03-17T12:10:09.087Z",
-						"status":     "Failed",
-						"testCaseId": 200004.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      200003.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MySecondTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "2.2.2",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Failed",
+						"testCaseId":              200004.0,
+						"versionNumber":           "",
 					},
 				},
 				"testCasesCount": 1.0,

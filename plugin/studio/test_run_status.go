@@ -1,5 +1,7 @@
 package studio
 
+import "github.com/UiPath/uipathcli/utils/api"
+
 const (
 	TestRunStatusPackaging = "packaging"
 	TestRunStatusUploading = "uploading"
@@ -11,24 +13,26 @@ const (
 type testRunStatus struct {
 	ExecutionId    int
 	State          string
+	FolderId       int
 	TotalTests     int
 	CompletedTests int
-	Result         *testRunResult
+	TestSet        *api.TestSet
+	Execution      *api.TestExecution
 	Err            error
 }
 
 func newTestRunStatusUploading(executionId int) *testRunStatus {
-	return &testRunStatus{executionId, TestRunStatusUploading, 0, 0, nil, nil}
+	return &testRunStatus{executionId, TestRunStatusUploading, -1, 0, 0, nil, nil, nil}
 }
 
-func newTestRunStatusRunning(executionId int, totalTests int, completedTests int) *testRunStatus {
-	return &testRunStatus{executionId, TestRunStatusRunning, totalTests, completedTests, nil, nil}
+func newTestRunStatusRunning(executionId int, folderId int, totalTests int, completedTests int) *testRunStatus {
+	return &testRunStatus{executionId, TestRunStatusRunning, folderId, totalTests, completedTests, nil, nil, nil}
 }
 
-func newTestRunStatusDone(executionId int, totalTests int, result *testRunResult) *testRunStatus {
-	return &testRunStatus{executionId, TestRunStatusDone, totalTests, totalTests, result, nil}
+func newTestRunStatusDone(executionId int, folderId int, totalTests int, testSet *api.TestSet, result *api.TestExecution) *testRunStatus {
+	return &testRunStatus{executionId, TestRunStatusDone, folderId, totalTests, totalTests, testSet, result, nil}
 }
 
 func newTestRunStatusError(executionId int, err error) *testRunStatus {
-	return &testRunStatus{executionId, TestRunStatusError, 0, 0, nil, err}
+	return &testRunStatus{executionId, TestRunStatusError, -1, 0, 0, nil, nil, err}
 }

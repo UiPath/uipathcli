@@ -794,6 +794,20 @@ func TestRunPassed(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "25819").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=25819&triggerType=ExternalTool", 200, "349562").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(25819)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[{
+                 "PackageIdentifier":"MyTestPackage",
+                 "VersionMask":"1.2.3"
+               }]
+             }`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349562)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
 			`{
                "Name":"Automated - MyProcess_Tests - 1.0.195912597",
@@ -808,7 +822,13 @@ func TestRunPassed(t *testing.T) {
                  "EntryPointPath":"TestCase.xaml",
                  "StartTime":"2025-03-17T12:10:09.087Z",
                  "EndTime":"2025-03-17T12:10:18.083Z",
-                 "Status":"Passed"
+                 "Status":"Passed",
+                 "JobId":12345,
+                 "JobKey":"b6dd3f45-03c6-46c2-98ad-95a05f59905d",
+                 "DataVariationIdentifier":"1",
+                 "VersionNumber":"2.2.2",
+                 "InputArguments":"{}",
+                 "OutputArguments":"{}"
                }]
              }`).
 		Build()
@@ -825,18 +845,32 @@ func TestRunPassed(t *testing.T) {
 				"failuresCount": 0.0,
 				"id":            349562.0,
 				"name":          "Automated - MyProcess_Tests - 1.0.195912597",
-				"passedCount":   1.0,
-				"startTime":     "2025-03-17T12:10:09.053Z",
-				"status":        "Passed",
+				"packages": []interface{}{
+					map[string]interface{}{
+						"name":    "MyTestPackage",
+						"version": "1.2.3",
+					},
+				},
+				"passedCount": 1.0,
+				"startTime":   "2025-03-17T12:10:09.053Z",
+				"status":      "Passed",
 				"testCaseExecutions": []interface{}{
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:18.083Z",
-						"error":      nil,
-						"id":         704170.0,
-						"name":       "TestCase.xaml",
-						"startTime":  "2025-03-17T12:10:09.087Z",
-						"status":     "Passed",
-						"testCaseId": 169537.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "1",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      704170.0,
+						"inputArguments":          "{}",
+						"jobId":                   12345.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "{}",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Passed",
+						"testCaseId":              169537.0,
+						"versionNumber":           "2.2.2",
 					},
 				},
 				"testCasesCount": 1.0,
@@ -863,6 +897,24 @@ func TestRunFailed(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               },
+               {
+                 "Id":169538,
+                 "Definition":{
+                   "Name":"MyTestCase2",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[]
+             }`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
@@ -902,30 +954,240 @@ func TestRunFailed(t *testing.T) {
 				"failuresCount": 1.0,
 				"id":            349001.0,
 				"name":          "Automated - MyLibrary - 1.0.195912597",
+				"packages":      []interface{}{},
 				"passedCount":   1.0,
 				"startTime":     "2025-03-17T12:10:09.087Z",
 				"status":        "Failed",
 				"testCaseExecutions": []interface{}{
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:18.083Z",
-						"error":      nil,
-						"id":         704123.0,
-						"name":       "TestCase.xaml",
-						"startTime":  "2025-03-17T12:10:09.087Z",
-						"status":     "Passed",
-						"testCaseId": 169537.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      704123.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Passed",
+						"testCaseId":              169537.0,
+						"versionNumber":           "",
 					},
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:25.058Z",
-						"error":      "There was an error",
-						"id":         704124.0,
-						"name":       "TestCase2.xaml",
-						"startTime":  "2025-03-17T12:10:21.015Z",
-						"status":     "Failed",
-						"testCaseId": 169538.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:25.058Z",
+						"entryPointPath":          "TestCase2.xaml",
+						"error":                   "There was an error",
+						"id":                      704124.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MyTestCase2",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:21.015Z",
+						"status":                  "Failed",
+						"testCaseId":              169538.0,
+						"versionNumber":           "",
 					},
 				},
 				"testCasesCount": 2.0,
+				"testSetId":      29991.0,
+			},
+		},
+	}
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
+func TestRunGeneratesJUnitReport(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := getArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[{
+                 "PackageIdentifier":"MyTestPackage",
+                 "VersionMask":"1.2.3"
+               }]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyLibrary - 1.0.195912597",
+               "TestSetId":29991,
+               "StartTime":"2025-03-17T12:10:09.087Z",
+               "EndTime":"2025-03-17T12:10:18.083Z",
+               "Status":"Passed",
+               "Id":349001,
+               "TestCaseExecutions":[{
+                 "Id":704123,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--results-output", "junit", "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	expected := `<testsuites>
+  <testsuite id="349001" name="Automated - MyLibrary - 1.0.195912597" time="8.996" package="MyTestPackage-1.2.3" tests="1" failures="0" errors="0" cancelled="0">
+    <system-out>Test set execution Automated - MyLibrary - 1.0.195912597 took 8996ms.&#xA;Test set execution url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001?fid=938064&#xA;</system-out>
+    <testcase name="MyTestCase" time="8.996" status="Passed" classname="1.1.1">
+      <system-out>Test case MyTestCase (v) executed as job 0 and took 8996ms.&#xA;Test case logs url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001/logs/0?fid=938064&#xA;Test case execution url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001?search=MyTestCase&amp;fid=938064&#xA;Input arguments: &#xA;Output arguments: &#xA;</system-out>
+    </testcase>
+  </testsuite>
+</testsuites>`
+	if result.StdOut != expected {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, result.StdOut)
+	}
+}
+
+func TestRunAttachesRobotLogs(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := getArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"), nuspecContent)
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[{
+                 "PackageIdentifier":"MyTestPackage",
+                 "VersionMask":"1.2.3"
+               }]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/RobotLogs?$filter=JobKey%20eq%20b6dd3f45-03c6-46c2-98ad-95a05f59905d", 200,
+			`{
+                "value":[{
+                  "Level":"Info",
+                  "WindowsIdentity":"7b0afa98-bfe6-2500-1a91-0b481a664e06\\robotuser",
+                  "ProcessName":"MyLibrary_Tests",
+                  "TimeStamp":"2025-04-14T12:12:34.6730769Z",
+                  "Message":"Verification passed.",
+                  "RobotName":"myrobot-unattended",
+                  "HostMachineName":"7b0afa98-bfe6-2500-1a91-0b481a664e06",
+                  "MachineId":617182,
+                  "MachineKey":"958977df-9af4-4b5d-b6b0-4bfbd5b2f514",
+                  "RuntimeType":null,
+                  "Id":0
+                }]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyLibrary - 1.0.195912597",
+               "TestSetId":29991,
+               "StartTime":"2025-03-17T12:10:09.087Z",
+               "EndTime":"2025-03-17T12:10:18.083Z",
+               "Status":"Passed",
+               "Id":349001,
+               "TestCaseExecutions":[{
+                 "Id":704123,
+                 "TestCaseId":169537,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed",
+                 "JobId":111111,
+                 "JobKey":"b6dd3f45-03c6-46c2-98ad-95a05f59905d"
+               }]
+             }`).
+		Build()
+
+	source := studioCrossPlatformProjectDirectory()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--attach-robot-logs", "true", "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := parseOutput(t, result.StdOut)
+	expected := map[string]interface{}{
+		"testSetExecutions": []interface{}{
+			map[string]interface{}{
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.083Z",
+				"failuresCount": 0.0,
+				"id":            349001.0,
+				"name":          "Automated - MyLibrary - 1.0.195912597",
+				"packages": []interface{}{
+					map[string]interface{}{
+						"name":    "MyTestPackage",
+						"version": "1.2.3",
+					},
+				},
+				"passedCount": 1.0,
+				"startTime":   "2025-03-17T12:10:09.087Z",
+				"status":      "Passed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      704123.0,
+						"inputArguments":          "",
+						"jobId":                   111111.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"robotLogs": []interface{}{
+							map[string]interface{}{
+								"hostMachineName": "7b0afa98-bfe6-2500-1a91-0b481a664e06",
+								"id":              0.0,
+								"level":           "Info",
+								"machineId":       617182.0,
+								"machineKey":      "958977df-9af4-4b5d-b6b0-4bfbd5b2f514",
+								"message":         "Verification passed.",
+								"processName":     "MyLibrary_Tests",
+								"robotName":       "myrobot-unattended",
+								"runtimeType":     "",
+								"timeStamp":       "2025-04-14T12:12:34.6730769Z",
+								"windowsIdentity": "7b0afa98-bfe6-2500-1a91-0b481a664e06\\robotuser",
+							},
+						},
+						"startTime":     "2025-03-17T12:10:09.087Z",
+						"status":        "Passed",
+						"testCaseId":    169537.0,
+						"versionNumber": "",
+					},
+				},
+				"testCasesCount": 1.0,
 				"testSetId":      29991.0,
 			},
 		},
@@ -949,6 +1211,17 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[]
+             }`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
@@ -980,18 +1253,27 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 				"failuresCount": 0.0,
 				"id":            349001.0,
 				"name":          "Automated - MyLibrary - 1.0.195912597",
+				"packages":      []interface{}{},
 				"passedCount":   1.0,
 				"startTime":     "2025-03-17T12:10:09.087Z",
 				"status":        "Passed",
 				"testCaseExecutions": []interface{}{
 					map[string]interface{}{
-						"endTime":    "2025-03-17T12:10:18.083Z",
-						"error":      nil,
-						"id":         704123.0,
-						"name":       "TestCase.xaml",
-						"startTime":  "2025-03-17T12:10:09.087Z",
-						"status":     "Passed",
-						"testCaseId": 169537.0,
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      704123.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Passed",
+						"testCaseId":              169537.0,
+						"versionNumber":           "",
 					},
 				},
 				"testCasesCount": 1.0,
@@ -1018,6 +1300,17 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":169537,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[]
+             }`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",

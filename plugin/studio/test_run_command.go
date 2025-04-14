@@ -4,12 +4,14 @@ import (
 	"bytes"
 	"crypto/rand"
 	"encoding/json"
+	"encoding/xml"
 	"fmt"
 	"math"
 	"math/big"
 	"net/url"
 	"os"
 	"path/filepath"
+	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -25,6 +27,8 @@ import (
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
+var resultsOutputAllowedValues = []string{"uipath", "junit"}
+
 // The TestRunCommand packs a project as a test package,
 // uploads it to the connected Orchestrator instances
 // and runs the tests.
@@ -37,7 +41,9 @@ func (c TestRunCommand) Command() plugin.Command {
 		WithCategory("test", "Test", "Tests your UiPath studio packages").
 		WithOperation("run", "Run Tests", "Tests a given package").
 		WithParameter("source", plugin.ParameterTypeStringArray, "Path to one or more project.json files or folders containing project.json files (default: .)", false).
-		WithParameter("timeout", plugin.ParameterTypeInteger, "Time to wait in seconds for tests to finish (default: 3600)", false)
+		WithParameter("timeout", plugin.ParameterTypeInteger, "Time to wait in seconds for tests to finish (default: 3600)", false).
+		WithParameter("results-output", plugin.ParameterTypeString, "Output type for the test results report (default: uipath)"+c.formatAllowedValues(resultsOutputAllowedValues), false).
+		WithParameter("attach-robot-logs", plugin.ParameterTypeBoolean, "Attaches Robot Logs for each testcases along with Test Report.", false)
 }
 
 func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -46,8 +52,13 @@ func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.Outpu
 		return err
 	}
 	timeout := time.Duration(c.getIntParameter("timeout", 3600, ctx.Parameters)) * time.Second
+	resultsOutput := c.getParameter("results-output", "uipath", ctx.Parameters)
+	if resultsOutput != "" && !slices.Contains(resultsOutputAllowedValues, resultsOutput) {
+		return fmt.Errorf("Invalid output type '%s', allowed values: %s", resultsOutput, strings.Join(resultsOutputAllowedValues, ", "))
+	}
+	attachRobotLogs := c.getBoolParameter("attach-robot-logs", false, ctx.Parameters)
 
-	params, err := c.prepareExecution(sources, timeout, logger)
+	params, err := c.prepareExecution(sources, timeout, attachRobotLogs, logger)
 	if err != nil {
 		return err
 	}
@@ -55,15 +66,32 @@ func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.Outpu
 	if err != nil {
 		return err
 	}
-
-	json, err := json.Marshal(result)
-	if err != nil {
-		return fmt.Errorf("pack command failed: %v", err)
-	}
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
+	return c.writeOutput(ctx, result, resultsOutput, writer)
 }
 
-func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration, logger log.Logger) ([]testRunParams, error) {
+func (c TestRunCommand) writeOutput(ctx plugin.ExecutionContext, results []testRunStatus, resultsOutput string, writer output.OutputWriter) error {
+	var data []byte
+	var err error
+	if resultsOutput == "uipath" {
+		converter := newUiPathReportConverter()
+		report := converter.Convert(results)
+		data, err = json.Marshal(report)
+		if err != nil {
+			return fmt.Errorf("run command failed: %v", err)
+		}
+	} else {
+		baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
+		converter := newJUnitReportConverter(baseUri)
+		report := converter.Convert(results)
+		data, err = xml.MarshalIndent(report, "", "  ")
+		if err != nil {
+			return fmt.Errorf("run command failed: %v", err)
+		}
+	}
+	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(data)))
+}
+
+func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration, attachRobotLogs bool, logger log.Logger) ([]testRunParams, error) {
 	tmp, err := directories.Temp()
 	if err != nil {
 		return nil, err
@@ -91,12 +119,12 @@ func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration
 			return nil, err
 		}
 		destination := filepath.Join(tmp, c.randomTestRunFolderName())
-		params = append(params, *newTestRunParams(i, uipcli, executionLogger, source, destination, timeout))
+		params = append(params, *newTestRunParams(i, uipcli, executionLogger, source, destination, timeout, attachRobotLogs))
 	}
 	return params, nil
 }
 
-func (c TestRunCommand) executeAll(params []testRunParams, ctx plugin.ExecutionContext, logger log.Logger) (*testRunReport, error) {
+func (c TestRunCommand) executeAll(params []testRunParams, ctx plugin.ExecutionContext, logger log.Logger) ([]testRunStatus, error) {
 	statusChannel := make(chan testRunStatus)
 	var wg sync.WaitGroup
 	for _, p := range params {
@@ -125,14 +153,14 @@ func (c TestRunCommand) executeAll(params []testRunParams, ctx plugin.ExecutionC
 		c.updateProgressBar(progressBar, status)
 	}
 
-	results := []testRunResult{}
+	results := []testRunStatus{}
 	for _, s := range status {
 		if s.Err != nil {
 			return nil, s.Err
 		}
-		results = append(results, *s.Result)
+		results = append(results, s)
 	}
-	return newTestRunReport(results), nil
+	return results, nil
 }
 
 func (c TestRunCommand) updateProgressBar(progressBar *visualization.ProgressBar, status []testRunStatus) {
@@ -197,41 +225,44 @@ func (c TestRunCommand) execute(params testRunParams, ctx plugin.ExecutionContex
 		return
 	}
 
-	execution, err := c.runTests(params.ExecutionId, nupkgPath, nuspec.Id, nuspec.Version, params.Timeout, ctx, logger, status)
+	folderId, testSet, execution, err := c.runTests(params.ExecutionId, nupkgPath, nuspec.Id, nuspec.Version, params.Timeout, params.AttachRobotLogs, ctx, logger, status)
 	if err != nil {
 		status <- *newTestRunStatusError(params.ExecutionId, err)
 		return
 	}
-	result := newTestRunResult(*execution)
-	status <- *newTestRunStatusDone(params.ExecutionId, result.TestCasesCount, result)
+	status <- *newTestRunStatusDone(params.ExecutionId, folderId, len(execution.TestCaseExecutions), testSet, execution)
 }
 
-func (c TestRunCommand) runTests(executionId int, nupkgPath string, processKey string, processVersion string, timeout time.Duration, ctx plugin.ExecutionContext, logger log.Logger, status chan<- testRunStatus) (*api.TestExecution, error) {
+func (c TestRunCommand) runTests(executionId int, nupkgPath string, processKey string, processVersion string, timeout time.Duration, attachRobotLogs bool, ctx plugin.ExecutionContext, logger log.Logger, status chan<- testRunStatus) (int, *api.TestSet, *api.TestExecution, error) {
 	status <- *newTestRunStatusUploading(executionId)
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
 	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	folderId, err := client.GetSharedFolderId()
 	if err != nil {
-		return nil, err
+		return -1, nil, nil, err
 	}
 	file := stream.NewFileStream(nupkgPath)
 	err = client.Upload(file, nil)
 	if err != nil {
-		return nil, err
+		return -1, nil, nil, err
 	}
 	releaseId, err := client.CreateOrUpdateRelease(folderId, processKey, processVersion)
 	if err != nil {
-		return nil, err
+		return -1, nil, nil, err
 	}
 	testSetId, err := client.CreateTestSet(folderId, releaseId, processVersion)
 	if err != nil {
-		return nil, err
+		return -1, nil, nil, err
 	}
 	testExecutionId, err := client.ExecuteTestSet(folderId, testSetId)
 	if err != nil {
-		return nil, err
+		return -1, nil, nil, err
 	}
-	return client.WaitForTestExecutionToFinish(folderId, testExecutionId, timeout, func(execution api.TestExecution) {
+	testSet, err := client.GetTestSet(folderId, testSetId)
+	if err != nil {
+		return -1, nil, nil, err
+	}
+	testExecution, err := client.WaitForTestExecutionToFinish(folderId, testExecutionId, timeout, func(execution api.TestExecution) {
 		total := len(execution.TestCaseExecutions)
 		completed := 0
 		for _, testCase := range execution.TestCaseExecutions {
@@ -239,8 +270,19 @@ func (c TestRunCommand) runTests(executionId int, nupkgPath string, processKey s
 				completed++
 			}
 		}
-		status <- *newTestRunStatusRunning(executionId, total, completed)
+		status <- *newTestRunStatusRunning(executionId, folderId, total, completed)
 	})
+
+	if testExecution != nil && attachRobotLogs {
+		for idx, testCase := range testExecution.TestCaseExecutions {
+			robotLogs, err := client.GetRobotLogs(folderId, testCase.JobKey)
+			if err != nil {
+				return -1, nil, nil, err
+			}
+			testExecution.TestCaseExecutions[idx].SetRobotLogs(robotLogs)
+		}
+	}
+	return folderId, testSet, testExecution, err
 }
 
 func (c TestRunCommand) preparePackArguments(params packagePackParams) []string {
@@ -327,11 +369,37 @@ func (c TestRunCommand) getIntParameter(name string, defaultValue int, parameter
 	return result
 }
 
+func (c TestRunCommand) getBoolParameter(name string, defaultValue bool, parameters []plugin.ExecutionParameter) bool {
+	result := defaultValue
+	for _, p := range parameters {
+		if p.Name == name {
+			if data, ok := p.Value.(bool); ok {
+				result = data
+				break
+			}
+		}
+	}
+	return result
+}
+
 func (c TestRunCommand) getStringArrayParameter(name string, defaultValue []string, parameters []plugin.ExecutionParameter) []string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.([]string); ok {
+				result = data
+				break
+			}
+		}
+	}
+	return result
+}
+
+func (c TestRunCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+	result := defaultValue
+	for _, p := range parameters {
+		if p.Name == name {
+			if data, ok := p.Value.(string); ok {
 				result = data
 				break
 			}
@@ -354,6 +422,10 @@ func (c TestRunCommand) formatUri(baseUri url.URL, org string, tenant string) st
 func (c TestRunCommand) randomTestRunFolderName() string {
 	value, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	return "testrun-" + value.String()
+}
+
+func (c TestRunCommand) formatAllowedValues(allowed []string) string {
+	return "\n\nAllowed Values:\n- " + strings.Join(allowed, "\n- ")
 }
 
 func NewTestRunCommand() *TestRunCommand {
