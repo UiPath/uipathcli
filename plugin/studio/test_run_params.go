@@ -7,12 +7,13 @@ import (
 )
 
 type testRunParams struct {
-	ExecutionId int
-	Uipcli      *uipcli
-	Logger      log.Logger
-	Source      string
-	Destination string
-	Timeout     time.Duration
+	ExecutionId     int
+	Uipcli          *uipcli
+	Logger          log.Logger
+	Source          string
+	Destination     string
+	Timeout         time.Duration
+	AttachRobotLogs bool
 }
 
 func newTestRunParams(
@@ -21,6 +22,7 @@ func newTestRunParams(
 	logger log.Logger,
 	source string,
 	destination string,
-	timeout time.Duration) *testRunParams {
-	return &testRunParams{executionId, uipcli, logger, source, destination, timeout}
+	timeout time.Duration,
+	attachRobotLogs bool) *testRunParams {
+	return &testRunParams{executionId, uipcli, logger, source, destination, timeout, attachRobotLogs}
 }

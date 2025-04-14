@@ -116,6 +116,7 @@ type Result struct {
 	Error         error
 	StdOut        string
 	StdErr        string
+	BaseUrl       string
 	RequestUrl    string
 	RequestHeader map[string]string
 	RequestBody   string
@@ -145,6 +146,7 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 }
 
 func RunCli(args []string, context Context) Result {
+	baseUrl := ""
 	requestUrl := ""
 	requestHeader := map[string]string{}
 	requestBody := ""
@@ -181,12 +183,15 @@ func RunCli(args []string, context Context) Result {
 					Header: requestHeader,
 					Body:   body,
 				})
+				w.WriteHeader(response.Status)
+				_, _ = w.Write([]byte(response.Body))
+				return
 			}
-			w.WriteHeader(response.Status)
-			_, _ = w.Write([]byte(response.Body))
+			panic(fmt.Sprintf("Request Url has not been handled '%s'", requestUrl))
 		}))
 		defer srv.Close()
 		args = append(args, "--uri", srv.URL)
+		baseUrl = srv.URL
 	}
 
 	if context.ConfigFile != "" && context.Config != "" {
@@ -235,6 +240,7 @@ func RunCli(args []string, context Context) Result {
 		Error:         err,
 		StdOut:        stdout.String(),
 		StdErr:        stderr.String(),
+		BaseUrl:       baseUrl,
 		RequestUrl:    requestUrl,
 		RequestHeader: requestHeader,
 		RequestBody:   requestBody,

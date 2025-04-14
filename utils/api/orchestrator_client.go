@@ -364,6 +364,39 @@ func (c OrchestratorClient) WaitForTestExecutionToFinish(folderId int, execution
 	}
 }
 
+func (c OrchestratorClient) GetTestSet(folderId int, testSetId int) (*TestSet, error) {
+	request := c.createGetTestSetRequest(folderId, testSetId)
+	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	response, err := client.Send(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return nil, fmt.Errorf("Error reading response: %w", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	}
+
+	var result getTestSetResponseJson
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return nil, fmt.Errorf("Orchestrator returned invalid response body '%v'", string(body))
+	}
+	return c.convertToTestSet(result), nil
+}
+
+func (c OrchestratorClient) createGetTestSetRequest(folderId int, testSetId int) *network.HttpRequest {
+	uri := c.baseUri + fmt.Sprintf("/odata/TestSets(%d)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", testSetId)
+	header := http.Header{
+		"Content-Type":                {"application/json"},
+		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
+	}
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
+}
+
 func (c OrchestratorClient) GetTestExecution(folderId int, executionId int) (*TestExecution, error) {
 	request := c.createGetTestExecutionRequest(folderId, executionId)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
@@ -392,6 +425,38 @@ func (c OrchestratorClient) createGetTestExecutionRequest(folderId int, executio
 	uri := c.baseUri + fmt.Sprintf("/odata/TestSetExecutions(%d)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", executionId)
 	header := http.Header{
 		"Content-Type":                {"application/json"},
+		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
+	}
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
+}
+
+func (c OrchestratorClient) GetRobotLogs(folderId int, jobKey string) ([]RobotLog, error) {
+	request := c.createGetRobotLogsRequest(folderId, jobKey)
+	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	response, err := client.Send(request)
+	if err != nil {
+		return []RobotLog{}, err
+	}
+	defer response.Body.Close()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return []RobotLog{}, fmt.Errorf("Error reading response: %w", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return []RobotLog{}, fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	}
+
+	var result getRobotLogsResponseJson
+	err = json.Unmarshal(body, &result)
+	if err != nil {
+		return []RobotLog{}, fmt.Errorf("Orchestrator returned invalid response body '%v'", string(body))
+	}
+	return c.convertToRobotLogs(result), nil
+}
+
+func (c OrchestratorClient) createGetRobotLogsRequest(folderId int, jobKey string) *network.HttpRequest {
+	uri := c.baseUri + "/odata/RobotLogs?$filter=JobKey%20eq%20" + jobKey
+	header := http.Header{
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
 	}
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
@@ -459,6 +524,51 @@ func (c OrchestratorClient) createWriteUrlRequest(folderId int, bucketId int, pa
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }
 
+func (c OrchestratorClient) convertToRobotLogs(json getRobotLogsResponseJson) []RobotLog {
+	logs := []RobotLog{}
+	for _, l := range json.Value {
+		logs = append(logs, c.convertToRobotLog(l))
+	}
+	return logs
+}
+
+func (c OrchestratorClient) convertToRobotLog(json getRobotLogJson) RobotLog {
+	return *NewRobotLog(
+		json.Id,
+		json.Level,
+		json.WindowsIdentity,
+		json.ProcessName,
+		json.TimeStamp,
+		json.Message,
+		json.RobotName,
+		json.HostMachineName,
+		json.MachineId,
+		json.MachineKey,
+		json.RuntimeType,
+	)
+}
+
+func (c OrchestratorClient) convertToTestSet(json getTestSetResponseJson) *TestSet {
+	testCases := []TestCase{}
+	for _, c := range json.TestCases {
+		testCase := NewTestCase(
+			c.Id,
+			c.Definition.Name,
+			c.Definition.PackageIdentifier,
+		)
+		testCases = append(testCases, *testCase)
+	}
+	testPackages := []TestPackage{}
+	for _, p := range json.Packages {
+		testPackage := NewTestPackage(
+			p.PackageIdentifier,
+			p.VersionMask,
+		)
+		testPackages = append(testPackages, *testPackage)
+	}
+	return NewTestSet(json.Id, testCases, testPackages)
+}
+
 func (c OrchestratorClient) convertToTestExecution(json getTestExecutionResponseJson) *TestExecution {
 	return NewTestExecution(
 		json.Id,
@@ -467,7 +577,8 @@ func (c OrchestratorClient) convertToTestExecution(json getTestExecutionResponse
 		json.Name,
 		json.StartTime,
 		json.EndTime,
-		c.convertToTestCaseExecutions(json.TestCaseExecutions))
+		c.convertToTestCaseExecutions(json.TestCaseExecutions),
+	)
 }
 
 func (c OrchestratorClient) convertToTestCaseExecutions(json []testCaseExecutionJson) []TestCaseExecution {
@@ -477,13 +588,31 @@ func (c OrchestratorClient) convertToTestCaseExecutions(json []testCaseExecution
 			v.Id,
 			v.Status,
 			v.TestCaseId,
+			v.VersionNumber,
 			v.EntryPointPath,
 			v.Info,
 			v.StartTime,
-			v.EndTime)
+			v.EndTime,
+			v.JobId,
+			v.JobKey,
+			v.InputArguments,
+			v.OutputArguments,
+			v.DataVariationIdentifier,
+			c.convertToTestCaseAssertions(v.TestCaseAssertions),
+			nil,
+		)
 		executions = append(executions, *execution)
 	}
 	return executions
+}
+
+func (c OrchestratorClient) convertToTestCaseAssertions(json []testCaseExecutionAssertionJson) []TestCaseAssertion {
+	assertions := []TestCaseAssertion{}
+	for _, v := range json {
+		assertion := NewTestCaseAssertion(v.Message, v.Succeeded)
+		assertions = append(assertions, *assertion)
+	}
+	return assertions
 }
 
 func (c OrchestratorClient) progressReader(text string, completedText string, reader io.Reader, length int64, progressBar *visualization.ProgressBar) io.Reader {
@@ -548,6 +677,27 @@ type createReleaseResponseJson struct {
 	Id int `json:"id"`
 }
 
+type getTestSetResponseJson struct {
+	Id        int                      `json:"Id"`
+	TestCases []getTestSetTestCaseJson `json:"TestCases"`
+	Packages  []getTestSetPackagesJson `json:"Packages"`
+}
+
+type getTestSetTestCaseJson struct {
+	Id         int                              `json:"Id"`
+	Definition getTestSetTestCaseDefinitionJson `json:"Definition"`
+}
+
+type getTestSetPackagesJson struct {
+	PackageIdentifier string `json:"PackageIdentifier"`
+	VersionMask       string `json:"VersionMask"`
+}
+
+type getTestSetTestCaseDefinitionJson struct {
+	Name              string `json:"Name"`
+	PackageIdentifier string `json:"PackageIdentifier"`
+}
+
 type getTestExecutionResponseJson struct {
 	Id                 int                     `json:"Id"`
 	Status             string                  `json:"Status"`
@@ -559,13 +709,43 @@ type getTestExecutionResponseJson struct {
 }
 
 type testCaseExecutionJson struct {
-	Id             int       `json:"Id"`
-	Status         string    `json:"Status"`
-	TestCaseId     int       `json:"TestCaseId"`
-	EntryPointPath string    `json:"EntryPointPath"`
-	Info           string    `json:"Info"`
-	StartTime      time.Time `json:"StartTime"`
-	EndTime        time.Time `json:"EndTime"`
+	Id                      int                              `json:"Id"`
+	Status                  string                           `json:"Status"`
+	TestCaseId              int                              `json:"TestCaseId"`
+	VersionNumber           string                           `json:"VersionNumber"`
+	EntryPointPath          string                           `json:"EntryPointPath"`
+	Info                    string                           `json:"Info"`
+	StartTime               time.Time                        `json:"StartTime"`
+	EndTime                 time.Time                        `json:"EndTime"`
+	JobId                   int                              `json:"JobId"`
+	JobKey                  string                           `json:"JobKey"`
+	InputArguments          string                           `json:"InputArguments"`
+	OutputArguments         string                           `json:"OutputArguments"`
+	DataVariationIdentifier string                           `json:"DataVariationIdentifier"`
+	TestCaseAssertions      []testCaseExecutionAssertionJson `json:"TestCaseAssertions"`
+}
+
+type testCaseExecutionAssertionJson struct {
+	Message   string `json:"Message"`
+	Succeeded bool   `json:"Succeeded"`
+}
+
+type getRobotLogsResponseJson struct {
+	Value []getRobotLogJson `json:"value"`
+}
+
+type getRobotLogJson struct {
+	Id              int       `json:"Id"`
+	Level           string    `json:"Level"`
+	WindowsIdentity string    `json:"WindowsIdentity"`
+	ProcessName     string    `json:"ProcessName"`
+	TimeStamp       time.Time `json:"TimeStamp"`
+	Message         string    `json:"Message"`
+	RobotName       string    `json:"RobotName"`
+	HostMachineName string    `json:"HostMachineName"`
+	MachineId       int       `json:"MachineId"`
+	MachineKey      string    `json:"MachineKey"`
+	RuntimeType     string    `json:"RuntimeType"`
 }
 
 type urlResponse struct {
