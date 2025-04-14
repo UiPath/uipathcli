@@ -11,6 +11,7 @@ type packagePackParams struct {
 	Tenant         string
 	BaseUri        url.URL
 	AuthToken      *auth.AuthToken
+	IdentityUri    url.URL
 	Source         string
 	Destination    string
 	PackageVersion string
@@ -25,12 +26,27 @@ func newPackagePackParams(
 	tenant string,
 	baseUri url.URL,
 	authToken *auth.AuthToken,
+	identityUri url.URL,
 	source string,
 	destination string,
 	packageVersion string,
 	autoVersion bool,
 	outputType string,
 	splitOutput bool,
-	releaseNotes string) *packagePackParams {
-	return &packagePackParams{organization, tenant, baseUri, authToken, source, destination, packageVersion, autoVersion, outputType, splitOutput, releaseNotes}
+	releaseNotes string,
+) *packagePackParams {
+	return &packagePackParams{
+		organization,
+		tenant,
+		baseUri,
+		authToken,
+		identityUri,
+		source,
+		destination,
+		packageVersion,
+		autoVersion,
+		outputType,
+		splitOutput,
+		releaseNotes,
+	}
 }

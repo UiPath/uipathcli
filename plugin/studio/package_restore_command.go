@@ -41,6 +41,7 @@ func (c PackageRestoreCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 		ctx.Tenant,
 		ctx.BaseUri,
 		ctx.Auth.Token,
+		ctx.IdentityUri,
 		source,
 		destination)
 
@@ -107,6 +108,7 @@ func (c PackageRestoreCommand) prepareRestoreArguments(params packageRestorePara
 	source, _ := strings.CutSuffix(params.Source, defaultProjectJson)
 	args := []string{"package", "restore", source, "--restoreFolder", params.Destination}
 	if params.AuthToken != nil && params.Organization != "" {
+		args = append(args, "--libraryIdentityUrl", params.IdentityUri.String())
 		args = append(args, "--libraryOrchestratorUrl", params.BaseUri.String())
 		args = append(args, "--libraryOrchestratorAuthToken", params.AuthToken.Value)
 		args = append(args, "--libraryOrchestratorAccountName", params.Organization)

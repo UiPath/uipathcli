@@ -71,6 +71,7 @@ func (e PluginExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, l
 		ctx.Tenant,
 		ctx.BaseUri,
 		pluginAuth,
+		ctx.IdentityUri,
 		ctx.Input,
 		pluginParams,
 		ctx.Debug,

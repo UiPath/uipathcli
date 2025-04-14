@@ -213,10 +213,15 @@ profiles:
 	source := test.NewCrossPlatformProject(t).
 		Build()
 	destination := test.CreateDirectory(t)
-	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+
+	identityUrl := getArgumentValue(commandArgs, "--libraryIdentityUrl")
+	if identityUrl != result.BaseUrl+"/identity_" {
+		t.Errorf("Expected identity url as argument, but got: %v", commandArgs)
+	}
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
-	if !strings.HasPrefix(orchestratorUrl, "http") {
+	if orchestratorUrl != result.BaseUrl {
 		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
 	}
 
@@ -260,10 +265,15 @@ profiles:
 	source := test.NewCrossPlatformProject(t).
 		Build()
 	destination := test.CreateDirectory(t)
-	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
+
+	identityUrl := getArgumentValue(commandArgs, "--libraryIdentityUrl")
+	if identityUrl != result.BaseUrl+"/identity_" {
+		t.Errorf("Expected identity url as argument, but got: %v", commandArgs)
+	}
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
-	if !strings.HasPrefix(orchestratorUrl, "http") {
+	if orchestratorUrl != result.BaseUrl {
 		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
 	}
 
@@ -1522,10 +1532,15 @@ profiles:
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	test.RunCli([]string{"studio", "test", "run", "--source", source}, context)
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source}, context)
+
+	identityUrl := getArgumentValue(commandArgs, "--libraryIdentityUrl")
+	if identityUrl != result.BaseUrl+"/identity_" {
+		t.Errorf("Expected identity url as argument, but got: %v", commandArgs)
+	}
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
-	if !strings.HasPrefix(orchestratorUrl, "http") {
+	if orchestratorUrl != result.BaseUrl {
 		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
 	}
 
@@ -1782,10 +1797,15 @@ profiles:
 	source := test.NewCrossPlatformProject(t).
 		Build()
 	destination := test.CreateDirectory(t)
-	test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
+	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
+
+	identityUrl := getArgumentValue(commandArgs, "--libraryIdentityUrl")
+	if identityUrl != result.BaseUrl+"/identity_" {
+		t.Errorf("Expected identity url as argument, but got: %v", commandArgs)
+	}
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
-	if !strings.HasPrefix(orchestratorUrl, "http") {
+	if orchestratorUrl != result.BaseUrl {
 		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
 	}
 
