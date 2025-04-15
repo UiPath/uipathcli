@@ -2,33 +2,21 @@ package studio
 
 import (
 	"archive/zip"
+	"encoding/xml"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 )
 
-const nuspecTemplate = `
-<?xml version="1.0" encoding="utf-8"?>
-<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
-  <metadata minClientVersion="3.3">
-    <id>%s</id>
-    <title>%s</title>
-    <version>%s</version>
-  </metadata>
-</package>`
-
 type NupkgWriter struct {
-	Path          string
-	nuspecName    string
-	nuspecContent string
-	fileName      string
-	fileContent   []byte
+	Path        string
+	nuspec      *Nuspec
+	fileName    string
+	fileContent []byte
 }
 
 func (w *NupkgWriter) WithNuspec(nuspec Nuspec) *NupkgWriter {
-	w.nuspecName = nuspec.Id + ".nuspec"
-	w.nuspecContent = fmt.Sprintf(nuspecTemplate, nuspec.Id, nuspec.Title, nuspec.Version)
+	w.nuspec = &nuspec
 	return w
 }
 
@@ -38,12 +26,18 @@ func (w *NupkgWriter) WithFile(name string, content []byte) *NupkgWriter {
 	return w
 }
 
-func (w NupkgWriter) writeNuspec(zipWriter *zip.Writer, name string, content string) error {
+func (w NupkgWriter) writeNuspec(zipWriter *zip.Writer, nuspec Nuspec) error {
+	name := nuspec.Id + ".nuspec"
+	nuspecXml := nuspecXml{Metadata: nuspecPackageMetadataXml(nuspec)}
+	content, err := xml.MarshalIndent(nuspecXml, "", "  ")
+	if err != nil {
+		return err
+	}
 	nuspecWriter, err := zipWriter.Create(name)
 	if err != nil {
 		return err
 	}
-	_, err = io.WriteString(nuspecWriter, content)
+	_, err = nuspecWriter.Write(content)
 	if err != nil {
 		return err
 	}
@@ -74,10 +68,10 @@ func (w NupkgWriter) Write() error {
 	defer archive.Close()
 	zipWriter := zip.NewWriter(archive)
 
-	if w.nuspecName != "" {
-		err = w.writeNuspec(zipWriter, w.nuspecName, w.nuspecContent)
+	if w.nuspec != nil {
+		err = w.writeNuspec(zipWriter, *w.nuspec)
 		if err != nil {
-			return fmt.Errorf("Could not write nuspec file content '%s': %v", w.nuspecName, err)
+			return fmt.Errorf("Could not write nuspec file content '%s': %v", w.nuspec.Id, err)
 		}
 	}
 
