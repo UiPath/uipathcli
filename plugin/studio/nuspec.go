@@ -1,11 +1,11 @@
 package studio
 
-type nuspec struct {
+type Nuspec struct {
 	Id      string
 	Title   string
 	Version string
 }
 
-func newNuspec(id string, title string, version string) *nuspec {
-	return &nuspec{id, title, version}
+func NewNuspec(id string, title string, version string) *Nuspec {
+	return &Nuspec{id, title, version}
 }

@@ -25,14 +25,14 @@ const dotnetLinuxArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-linux-arm6
 const dotnetMacOsArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-osx-arm64.tar.gz"
 const dotnetWindowsArm64Url = "https://aka.ms/dotnet/8.0/dotnet-runtime-win-arm64.zip"
 
-type uipcli struct {
+type Uipcli struct {
 	Exec   process.ExecProcess
 	Logger log.Logger
 	path   string
 	args   []string
 }
 
-func (c *uipcli) Initialize(targetFramework TargetFramework) error {
+func (c *Uipcli) Initialize(targetFramework TargetFramework) error {
 	uipcliPath, err := c.getUipcliPath(targetFramework)
 	if err != nil {
 		return err
@@ -50,13 +50,13 @@ func (c *uipcli) Initialize(targetFramework TargetFramework) error {
 	return nil
 }
 
-func (c uipcli) Execute(args ...string) (process.ExecCmd, error) {
+func (c Uipcli) Execute(args ...string) (process.ExecCmd, error) {
 	args = append(c.args, args...)
 	cmd := c.Exec.Command(c.path, args...)
 	return cmd, nil
 }
 
-func (c uipcli) ExecuteAndWait(args ...string) (int, string, error) {
+func (c Uipcli) ExecuteAndWait(args ...string) (int, string, error) {
 	cmd, err := c.Execute(args...)
 	if err != nil {
 		return 1, "", err
@@ -89,12 +89,12 @@ func (c uipcli) ExecuteAndWait(args ...string) (int, string, error) {
 	return cmd.ExitCode(), stderrOutputBuilder.String(), nil
 }
 
-func (c uipcli) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
+func (c Uipcli) wait(cmd process.ExecCmd, wg *sync.WaitGroup) {
 	defer wg.Done()
 	_ = cmd.Wait()
 }
 
-func (c uipcli) readOutput(output io.Reader, wg *sync.WaitGroup) {
+func (c Uipcli) readOutput(output io.Reader, wg *sync.WaitGroup) {
 	defer wg.Done()
 	scanner := bufio.NewScanner(output)
 	scanner.Split(bufio.ScanLines)
@@ -103,7 +103,7 @@ func (c uipcli) readOutput(output io.Reader, wg *sync.WaitGroup) {
 	}
 }
 
-func (c uipcli) getUipcliPath(targetFramework TargetFramework) (string, error) {
+func (c Uipcli) getUipcliPath(targetFramework TargetFramework) (string, error) {
 	externalPlugin := plugin.NewExternalPlugin(c.Logger)
 	name := "uipcli"
 	url := uipcliCrossPlatformUrl
@@ -116,14 +116,14 @@ func (c uipcli) getUipcliPath(targetFramework TargetFramework) (string, error) {
 	return externalPlugin.GetTool(name, url, plugin.ArchiveTypeZip, executable)
 }
 
-func (c uipcli) getDotnetPath() (string, error) {
+func (c Uipcli) getDotnetPath() (string, error) {
 	externalPlugin := plugin.NewExternalPlugin(c.Logger)
 	name := fmt.Sprintf("dotnet8-%s-%s", runtime.GOOS, runtime.GOARCH)
 	url, archiveType, executable := c.dotnetUrl()
 	return externalPlugin.GetTool(name, url, archiveType, executable)
 }
 
-func (c uipcli) dotnetUrl() (string, plugin.ArchiveType, string) {
+func (c Uipcli) dotnetUrl() (string, plugin.ArchiveType, string) {
 	if c.isArm() {
 		switch runtime.GOOS {
 		case "windows":
@@ -144,10 +144,10 @@ func (c uipcli) dotnetUrl() (string, plugin.ArchiveType, string) {
 	}
 }
 
-func (c uipcli) isArm() bool {
+func (c Uipcli) isArm() bool {
 	return strings.HasPrefix(strings.ToLower(runtime.GOARCH), "arm")
 }
 
-func newUipcli(exec process.ExecProcess, logger log.Logger) *uipcli {
-	return &uipcli{exec, logger, "", []string{}}
+func NewUipcli(exec process.ExecProcess, logger log.Logger) *Uipcli {
+	return &Uipcli{exec, logger, "", []string{}}
 }

@@ -8,21 +8,23 @@ import (
 	"strings"
 )
 
-type studioProjectReader struct {
+const DefaultProjectJson = "project.json"
+
+type StudioProjectReader struct {
 	Path string
 }
 
-func (r studioProjectReader) ReadMetadata() (studioProject, error) {
+func (r StudioProjectReader) ReadMetadata() (StudioProject, error) {
 	data, err := r.readProjectJson()
 	if err != nil {
-		return studioProject{}, err
+		return StudioProject{}, err
 	}
 	var projectJson studioProjectJson
 	err = json.Unmarshal(data, &projectJson)
 	if err != nil {
-		return studioProject{}, fmt.Errorf("Error parsing %s file: %v", defaultProjectJson, err)
+		return StudioProject{}, fmt.Errorf("Error parsing %s file: %v", DefaultProjectJson, err)
 	}
-	project := newStudioProject(
+	project := NewStudioProject(
 		projectJson.Name,
 		projectJson.Description,
 		projectJson.ProjectId,
@@ -30,7 +32,7 @@ func (r studioProjectReader) ReadMetadata() (studioProject, error) {
 	return *project, nil
 }
 
-func (r studioProjectReader) convertToTargetFramework(targetFramework string) TargetFramework {
+func (r StudioProjectReader) convertToTargetFramework(targetFramework string) TargetFramework {
 	if strings.EqualFold(targetFramework, "legacy") {
 		return TargetFrameworkLegacy
 	}
@@ -40,7 +42,7 @@ func (r studioProjectReader) convertToTargetFramework(targetFramework string) Ta
 	return TargetFrameworkCrossPlatform
 }
 
-func (r studioProjectReader) AddToIgnoredFiles(fileName string) error {
+func (r StudioProjectReader) AddToIgnoredFiles(fileName string) error {
 	data, err := r.readProjectJson()
 	if err != nil {
 		return err
@@ -48,12 +50,12 @@ func (r studioProjectReader) AddToIgnoredFiles(fileName string) error {
 	var result interface{}
 	err = json.Unmarshal(data, &result)
 	if err != nil {
-		return fmt.Errorf("Error parsing %s file: %v", defaultProjectJson, err)
+		return fmt.Errorf("Error parsing %s file: %v", DefaultProjectJson, err)
 	}
 
 	changed, err := r.addToIgnoredFiles(result.(map[string]interface{}), fileName)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", defaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
 	}
 	if !changed {
 		return nil
@@ -61,36 +63,36 @@ func (r studioProjectReader) AddToIgnoredFiles(fileName string) error {
 	return r.updateProjectJson(result)
 }
 
-func (r studioProjectReader) readProjectJson() ([]byte, error) {
+func (r StudioProjectReader) readProjectJson() ([]byte, error) {
 	file, err := os.Open(r.Path)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading %s file: %v", defaultProjectJson, err)
+		return nil, fmt.Errorf("Error reading %s file: %v", DefaultProjectJson, err)
 	}
 	defer file.Close()
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading %s file: %v", defaultProjectJson, err)
+		return nil, fmt.Errorf("Error reading %s file: %v", DefaultProjectJson, err)
 	}
 	return data, err
 }
 
-func (r studioProjectReader) updateProjectJson(result interface{}) error {
+func (r StudioProjectReader) updateProjectJson(result interface{}) error {
 	updated, err := json.Marshal(result)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", defaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
 	}
 	fileInfo, err := os.Stat(r.Path)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", defaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
 	}
 	err = os.WriteFile(r.Path, updated, fileInfo.Mode())
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", defaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
 	}
 	return nil
 }
 
-func (r studioProjectReader) addToIgnoredFiles(result map[string]interface{}, fileName string) (bool, error) {
+func (r StudioProjectReader) addToIgnoredFiles(result map[string]interface{}, fileName string) (bool, error) {
 	designOptions, err := r.createObjectField(result, "designOptions")
 	if err != nil {
 		return false, err
@@ -110,7 +112,7 @@ func (r studioProjectReader) addToIgnoredFiles(result map[string]interface{}, fi
 	return true, nil
 }
 
-func (r studioProjectReader) createObjectField(result map[string]interface{}, fieldName string) (map[string]interface{}, error) {
+func (r StudioProjectReader) createObjectField(result map[string]interface{}, fieldName string) (map[string]interface{}, error) {
 	if _, ok := result[fieldName]; !ok {
 		result[fieldName] = map[string]interface{}{}
 	}
@@ -121,7 +123,7 @@ func (r studioProjectReader) createObjectField(result map[string]interface{}, fi
 	return field, nil
 }
 
-func (r studioProjectReader) createArrayField(result map[string]interface{}, fieldName string) ([]interface{}, error) {
+func (r StudioProjectReader) createArrayField(result map[string]interface{}, fieldName string) ([]interface{}, error) {
 	if _, ok := result[fieldName]; !ok {
 		result[fieldName] = []interface{}{}
 	}
@@ -132,7 +134,7 @@ func (r studioProjectReader) createArrayField(result map[string]interface{}, fie
 	return field, nil
 }
 
-func (r studioProjectReader) isFileNameIgnored(ignoredFiles []interface{}, fileName string) bool {
+func (r StudioProjectReader) isFileNameIgnored(ignoredFiles []interface{}, fileName string) bool {
 	for _, ignoredFile := range ignoredFiles {
 		if ignoredFile == fileName {
 			return true
@@ -141,6 +143,6 @@ func (r studioProjectReader) isFileNameIgnored(ignoredFiles []interface{}, fileN
 	return false
 }
 
-func newStudioProjectReader(path string) *studioProjectReader {
-	return &studioProjectReader{path}
+func NewStudioProjectReader(path string) *StudioProjectReader {
+	return &StudioProjectReader{path}
 }

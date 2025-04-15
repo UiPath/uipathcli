@@ -11,11 +11,11 @@ import (
 	"time"
 )
 
-type nupkgReader struct {
+type NupkgReader struct {
 	Path string
 }
 
-func (r nupkgReader) ReadNuspec() (*nuspec, error) {
+func (r NupkgReader) ReadNuspec() (*Nuspec, error) {
 	zip, err := zip.OpenReader(r.Path)
 	if err != nil {
 		return nil, fmt.Errorf("Could not read package '%s': %v", r.Path, err)
@@ -29,7 +29,7 @@ func (r nupkgReader) ReadNuspec() (*nuspec, error) {
 	return nil, fmt.Errorf("Could not find nuspec in package '%s'", r.Path)
 }
 
-func (r nupkgReader) readNuspec(source string, file *zip.File) (*nuspec, error) {
+func (r NupkgReader) readNuspec(source string, file *zip.File) (*Nuspec, error) {
 	reader, err := file.Open()
 	if err != nil {
 		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
@@ -44,10 +44,10 @@ func (r nupkgReader) readNuspec(source string, file *zip.File) (*nuspec, error) 
 	if err != nil {
 		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
 	}
-	return newNuspec(nuspec.Metadata.Id, nuspec.Metadata.Title, nuspec.Metadata.Version), nil
+	return NewNuspec(nuspec.Metadata.Id, nuspec.Metadata.Title, nuspec.Metadata.Version), nil
 }
 
-func findLatestNupkg(directory string) string {
+func FindLatestNupkg(directory string) string {
 	newestFile := ""
 	newestTime := time.Time{}
 
@@ -66,6 +66,6 @@ func findLatestNupkg(directory string) string {
 	return newestFile
 }
 
-func newNupkgReader(path string) *nupkgReader {
-	return &nupkgReader{path}
+func NewNupkgReader(path string) *NupkgReader {
+	return &NupkgReader{path}
 }
