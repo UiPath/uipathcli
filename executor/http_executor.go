@@ -273,6 +273,7 @@ func (e HttpExecutor) httpClientSettings(ctx ExecutionContext) network.HttpClien
 	return *network.NewHttpClientSettings(
 		ctx.Debug,
 		ctx.Settings.OperationId,
+		ctx.Settings.Header,
 		ctx.Settings.Timeout,
 		ctx.Settings.MaxAttempts,
 		ctx.Settings.Insecure)

@@ -53,7 +53,7 @@ func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operatio
 	}
 	request := network.NewHttpPostRequest(uri.String(), nil, header, strings.NewReader(form.Encode()), -1)
 
-	clientSettings := network.NewHttpClientSettings(false, operationId, time.Duration(60)*time.Second, 3, insecure)
+	clientSettings := network.NewHttpClientSettings(false, operationId, map[string]string{}, time.Duration(60)*time.Second, 3, insecure)
 	client := network.NewHttpClient(nil, *clientSettings)
 	response, err := client.Send(request)
 	if err != nil {

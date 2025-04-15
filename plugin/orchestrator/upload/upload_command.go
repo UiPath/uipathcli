@@ -180,6 +180,7 @@ func (c UploadCommand) httpClientSettings(ctx plugin.ExecutionContext) network.H
 	return *network.NewHttpClientSettings(
 		ctx.Debug,
 		ctx.Settings.OperationId,
+		ctx.Settings.Header,
 		ctx.Settings.Timeout,
 		ctx.Settings.MaxAttempts,
 		ctx.Settings.Insecure)

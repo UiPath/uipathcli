@@ -75,7 +75,7 @@ func (e PluginExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, l
 		ctx.Input,
 		pluginParams,
 		ctx.Debug,
-		*plugin.NewExecutionSettings(ctx.Settings.OperationId, ctx.Settings.Timeout, ctx.Settings.MaxAttempts, ctx.Settings.Insecure))
+		*plugin.NewExecutionSettings(ctx.Settings.OperationId, ctx.Settings.Header, ctx.Settings.Timeout, ctx.Settings.MaxAttempts, ctx.Settings.Insecure))
 	return ctx.Plugin.Execute(*pluginContext, writer, logger)
 }
 
