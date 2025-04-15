@@ -1,11 +1,11 @@
 {
-  "name": "MyWindowsProcess",
-  "projectId": "94c4c9c1-68c3-45d4-be14-d4427f17eddd",
-  "description": "Blank Process",
+  "name": "Calculator",
+  "projectId": "9011ee47-8dd4-4726-8850-299bd6ef057c",
+  "description": "A simple calculator",
   "main": "Main.xaml",
   "dependencies": {
     "UiPath.System.Activities": "[24.10.3]",
-    "UiPath.Testing.Activities": "[24.10.0]",
+    "UiPath.Testing.Activities": "[24.10.1]",
     "UiPath.UIAutomation.Activities": "[24.10.0]"
   },
   "webServices": [],
@@ -41,17 +41,26 @@
     },
     "processOptions": {
       "ignoredFiles": [
-        "MyWindowsProcess.*.nupkg"
+        "Calculator.*.nupkg"
       ]
     },
-    "fileInfoCollection": [],
+    "fileInfoCollection": [
+      {
+        "editingStatus": "Publishable",
+        "testCaseId": "866e55af-8005-464c-a1b5-7c51d10c2be3",
+        "dataVariationFilePath": "Main.TestData.json",
+        "testCaseType": "TestCase",
+        "executionTemplateInvokeIsolated": false,
+        "fileName": "AddTwoNumbersTest.xaml"
+      }
+    ],
     "saveToCloud": false
   },
   "expressionLanguage": "CSharp",
   "entryPoints": [
     {
       "filePath": "Main.xaml",
-      "uniqueId": "657507a4-4df3-47eb-810e-2548d3a59824",
+      "uniqueId": "ac610120-f85b-4ed4-a014-05dca3380186",
       "input": [],
       "output": []
     }
@@ -59,5 +68,5 @@
   "isTemplate": false,
   "templateProjectData": {},
   "publishData": {},
-  "targetFramework": "Windows"
+  "targetFramework": "Portable"
 }
