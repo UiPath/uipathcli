@@ -19,7 +19,7 @@ func TestEnableAutocompleteInvalidShellShowsError(t *testing.T) {
 }
 
 func TestEnableAutocompletePowershellShowsSuccessOutput(t *testing.T) {
-	profilePath := createFile(t)
+	profilePath := CreateFile(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -38,7 +38,7 @@ Successfully enabled command completion! Restart your shell for the changes to t
 }
 
 func TestEnableAutocompletePowershellCreatesProfileFile(t *testing.T) {
-	profilePath := createFile(t)
+	profilePath := CreateFile(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -66,8 +66,7 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 }
 
 func TestEnableAutocompletePowershellUpdatesExistingProfileFile(t *testing.T) {
-	profilePath := createFile(t)
-	writeFile(t, profilePath, []byte("existing content\nshould not change"))
+	profilePath := CreateFileWithContent(t, "existing content\nshould not change")
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -96,7 +95,6 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 }
 
 func TestEnableAutocompletePowershellNoChangesIfEnabledAlready(t *testing.T) {
-	profilePath := createFile(t)
 	initialContent := `
 $uipath_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -107,7 +105,7 @@ $uipath_auto_complete = {
 }
 Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto_complete
 `
-	writeFile(t, profilePath, []byte(initialContent))
+	profilePath := CreateFileWithContent(t, initialContent)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -122,7 +120,6 @@ Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto
 }
 
 func TestEnableAutocompletePowershellShowsAlreadyEnabledOutput(t *testing.T) {
-	profilePath := createFile(t)
 	initialContent := `
 $uipath_auto_complete = {
     param($wordToComplete, $commandAst, $cursorPosition)
@@ -133,7 +130,7 @@ $uipath_auto_complete = {
 }
 Register-ArgumentCompleter -Native -CommandName uipath -ScriptBlock $uipath_auto_complete
 `
-	writeFile(t, profilePath, []byte(initialContent))
+	profilePath := CreateFileWithContent(t, initialContent)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -152,7 +149,7 @@ Command completion is already enabled.
 }
 
 func TestEnableAutocompleteBashShowsSuccessOutput(t *testing.T) {
-	profilePath := createFile(t)
+	profilePath := CreateFile(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -171,7 +168,7 @@ Successfully enabled command completion! Restart your shell for the changes to t
 }
 
 func TestEnableAutocompleteBashCreatesProfileFile(t *testing.T) {
-	profilePath := createFile(t)
+	profilePath := CreateFile(t)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -198,8 +195,7 @@ complete -f -F _uipath_auto_complete uipath
 }
 
 func TestEnableAutocompleteBashUpdatesExistingProfileFile(t *testing.T) {
-	profilePath := createFile(t)
-	writeFile(t, profilePath, []byte("\nexisting content\nshould not change\n"))
+	profilePath := CreateFileWithContent(t, "\nexisting content\nshould not change\n")
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -229,7 +225,6 @@ complete -f -F _uipath_auto_complete uipath
 }
 
 func TestEnableAutocompleteBashNoChangesIfEnabledAlready(t *testing.T) {
-	profilePath := createFile(t)
 	initialContent := `
 function _uipath_auto_complete()
 {
@@ -241,7 +236,7 @@ function _uipath_auto_complete()
 }
 complete -f -F _uipath_auto_complete uipath
 `
-	writeFile(t, profilePath, []byte(initialContent))
+	profilePath := CreateFileWithContent(t, initialContent)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").
@@ -256,7 +251,6 @@ complete -f -F _uipath_auto_complete uipath
 }
 
 func TestEnableAutocompleteBashShowsAlreadyEnabledOutput(t *testing.T) {
-	profilePath := createFile(t)
 	initialContent := `
 function _uipath_auto_complete()
 {
@@ -268,7 +262,7 @@ function _uipath_auto_complete()
 }
 complete -f -F _uipath_auto_complete uipath
 `
-	writeFile(t, profilePath, []byte(initialContent))
+	profilePath := CreateFileWithContent(t, initialContent)
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", "").

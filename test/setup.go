@@ -247,11 +247,20 @@ func RunCli(args []string, context Context) Result {
 	}
 }
 
-func createFile(t *testing.T) string {
-	return createFileInFolder(t, "")
+func CreateDirectory(t *testing.T) string {
+	tmp, err := os.MkdirTemp("", "uipath-test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.RemoveAll(tmp) })
+	return tmp
 }
 
-func createFileInFolder(t *testing.T, path string) string {
+func CreateFile(t *testing.T) string {
+	return CreateFileInDirectory(t, "")
+}
+
+func CreateFileInDirectory(t *testing.T, path string) string {
 	if path != "" {
 		err := os.MkdirAll(path, 0700)
 		if err != nil {
@@ -272,9 +281,15 @@ func createFileInFolder(t *testing.T, path string) string {
 	return tempFile.Name()
 }
 
-func writeFile(t *testing.T, name string, data []byte) {
-	err := os.WriteFile(name, data, 0600)
+func CreateFileWithContent(t *testing.T, data string) string {
+	return CreateFileWithBinaryContent(t, []byte(data))
+}
+
+func CreateFileWithBinaryContent(t *testing.T, data []byte) string {
+	path := CreateFile(t)
+	err := os.WriteFile(path, data, 0600)
 	if err != nil {
-		t.Fatalf("Error writing file '%s': %v", name, err)
+		t.Fatalf("Error writing file '%s': %v", path, err)
 	}
+	return path
 }

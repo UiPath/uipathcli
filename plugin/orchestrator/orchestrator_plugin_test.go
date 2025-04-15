@@ -1,11 +1,9 @@
 package orchestrator
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -126,8 +124,7 @@ func TestUploadWithoutTenantShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithFailedResponseReturnsError(t *testing.T) {
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -172,8 +169,7 @@ func TestUploadSuccessfully(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -224,8 +220,7 @@ func TestUploadLargeFile(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	path := createFile(t)
-	writeFile(path, make([]byte, size))
+	path := test.CreateFileWithBinaryContent(t, make([]byte, size))
 
 	definition := `
 servers:
@@ -259,8 +254,7 @@ func TestUploadWithDebugOutput(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	path := createFile(t)
-	writeFile(path, []byte("hello-world"))
+	path := test.CreateFileWithContent(t, "hello-world")
 
 	definition := `
 servers:
@@ -496,27 +490,5 @@ servers:
 	}
 	if !strings.Contains(result.StdErr, "GET "+srv.URL+"/download/file.txt") {
 		t.Errorf("Expected stderr to contain download request, but got: %v", result.StdErr)
-	}
-}
-
-func createFile(t *testing.T) string {
-	tempFile, err := os.CreateTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
-}
-
-func writeFile(name string, data []byte) {
-	err := os.WriteFile(name, data, 0600)
-	if err != nil {
-		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
 	}
 }

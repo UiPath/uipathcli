@@ -950,8 +950,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := createFile(t)
-	writeFile(t, path, []byte("hello-world"))
+	path := CreateFileWithContent(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -993,8 +992,7 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := createFile(t)
-	writeFile(t, path, []byte("hello-world"))
+	path := CreateFileWithContent(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := fmt.Sprintf(`Content-Disposition: form-data; name="File"; filename="%s"`, filepath.Base(path))
@@ -1022,8 +1020,7 @@ paths:
 		WithResponse(200, "{}").
 		WithDefinition("myservice", definition).
 		Build()
-	path := createFile(t)
-	writeFile(t, path, []byte("hello-world"))
+	path := CreateFileWithContent(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
@@ -1060,8 +1057,8 @@ paths:
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := createFile(t)
-	writeFile(t, path, make([]byte, 10*1024*1024))
+	path := CreateFileWithBinaryContent(t, make([]byte, 10*1024*1024))
+
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	if len(result.RequestBody) < 10*1024*1024 {
@@ -1279,8 +1276,7 @@ paths:
 		WithResponse(200, "").
 		Build()
 
-	path := createFile(t)
-	writeFile(t, path, []byte("hello-world"))
+	path := CreateFileWithContent(t, "hello-world")
 	result := RunCli([]string{"myservice", "upload", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -1316,8 +1312,11 @@ paths:
 		Build()
 
 	currentPath, _ := os.Getwd()
-	path := createFileInFolder(t, filepath.Join(currentPath, "tmp"))
-	writeFile(t, path, []byte("hello-world"))
+	path := CreateFileInDirectory(t, filepath.Join(currentPath, "tmp"))
+	err := os.WriteFile(path, []byte("hello-world"), 0600)
+	if err != nil {
+		t.Fatalf("Error writing file '%s': %v", path, err)
+	}
 
 	relativePath, _ := filepath.Rel(currentPath, path)
 	result := RunCli([]string{"myservice", "upload", "--file", relativePath}, context)

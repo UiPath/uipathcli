@@ -1,7 +1,7 @@
 package studio
 
 import (
-	"archive/zip"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -36,8 +36,9 @@ func TestInvalidOutputTypeShowsValidationError(t *testing.T) {
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(NewPackagePackCommand()).
 		Build()
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "unknown"}, context)
 
 	if !strings.Contains(result.StdErr, "Invalid output type 'unknown', allowed values: Process, Library, Tests, Objects") {
@@ -52,8 +53,9 @@ func TestFailedPackagingReturnsFailureStatus(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -71,8 +73,9 @@ func TestPackCrossPlatformSuccessfully(t *testing.T) {
 		WithCommandPlugin(NewPackagePackCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -113,8 +116,9 @@ func TestPackWithAutoVersionArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--auto-version", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--autoVersion") {
@@ -132,8 +136,9 @@ func TestPackWithOutputTypeArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "Process"}, context)
 
 	outputType := getArgumentValue(commandArgs, "--outputType")
@@ -152,8 +157,9 @@ func TestPackWithSplitOutputArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--split-output", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--splitOutput") {
@@ -171,8 +177,9 @@ func TestPackWithReleaseNotesArgument(t *testing.T) {
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--release-notes", "These are release notes."}, context)
 
 	releaseNotes := getArgumentValue(commandArgs, "--releaseNotes")
@@ -203,8 +210,9 @@ profiles:
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
@@ -249,8 +257,9 @@ profiles:
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
@@ -293,28 +302,9 @@ func TestAnalyzeCrossPlatformSuccessfully(t *testing.T) {
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
-
-	if result.Error != nil {
-		t.Errorf("Expected error to be nil, but got: %v", result.Error)
-	}
-	stdout := parseOutput(t, result.StdOut)
-	if stdout["status"] != "Succeeded" {
-		t.Errorf("Expected status to be Succeeded, but got: %v", result.StdOut)
-	}
-	if stdout["error"] != nil {
-		t.Errorf("Expected no error message, but got: %v", result.StdOut)
-	}
-}
-
-func TestAnalyzeCrossPlatformWithViolations(t *testing.T) {
-	context := test.NewContextBuilder().
-		WithDefinition("studio", studioDefinition).
-		WithCommandPlugin(NewPackageAnalyzeCommand()).
+	source := test.NewCrossPlatformProject(t).
+		WithDefaultGovernanceFile().
 		Build()
-
-	source := studioCrossPlatformProjectDirectory()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	if result.Error != nil {
@@ -355,7 +345,8 @@ func TestAnalyzeCrossPlatformWithTreatWarningAsErrors(t *testing.T) {
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--treat-warnings-as-errors", "true"}, context)
 
 	if result.Error == nil {
@@ -377,7 +368,8 @@ func TestAnalyzeReturnsErrorStatus(t *testing.T) {
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -390,7 +382,7 @@ func TestAnalyzeReturnsErrorStatus(t *testing.T) {
 }
 
 func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
-	governanceFile := writeFile(t, `
+	governanceFile := test.CreateFileWithContent(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -412,7 +404,8 @@ func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
 	if result.Error != nil {
@@ -428,7 +421,7 @@ func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
 }
 
 func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
-	governanceFile := writeFile(t, `
+	governanceFile := test.CreateFileWithContent(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -450,7 +443,8 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile}, context)
 
 	if result.Error == nil {
@@ -489,7 +483,7 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 }
 
 func TestAnalyzeGovernanceFileViolationsWithoutStopOnRuleViolationReturnsNoError(t *testing.T) {
-	governanceFile := writeFile(t, `
+	governanceFile := test.CreateFileWithContent(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -511,7 +505,8 @@ func TestAnalyzeGovernanceFileViolationsWithoutStopOnRuleViolationReturnsNoError
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", governanceFile, "--stop-on-rule-violation", "false"}, context)
 
 	if result.Error != nil {
@@ -529,7 +524,8 @@ func TestAnalyzeUnknownGovernanceReturnsError(t *testing.T) {
 		WithCommandPlugin(NewPackageAnalyzeCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source, "--governance-file", "unknown-governance-file"}, context)
 
 	if result.Error == nil || result.Error.Error() != "unknown-governance-file not found" {
@@ -577,7 +573,7 @@ func TestPublishMissingTenantReturnsError(t *testing.T) {
 }
 
 func TestPublishInvalidPackageReturnsError(t *testing.T) {
-	path := createFile(t)
+	path := test.CreateFile(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
 		WithCommandPlugin(NewPackagePublishCommand()).
@@ -648,7 +644,7 @@ func TestPublishUploadsPackageToOrchestrator(t *testing.T) {
 }
 
 func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
-	dir := createDirectory(t)
+	dir := test.CreateDirectory(t)
 	archive1Path := filepath.Join(dir, "archive1.nupkg")
 	archive2Path := filepath.Join(dir, "archive2.nupkg")
 	writeNupkgArchive(t, archive1Path, nuspecContent)
@@ -833,7 +829,8 @@ func TestRunPassed(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -942,7 +939,8 @@ func TestRunFailed(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -1051,7 +1049,8 @@ func TestRunGeneratesJUnitReport(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--results-output", "junit", "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	expected := `<testsuites>
@@ -1132,7 +1131,8 @@ func TestRunAttachesRobotLogs(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--attach-robot-logs", "true", "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -1241,7 +1241,8 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -1330,7 +1331,8 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
              }`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--timeout", "3", "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Timeout waiting for test execution '349001' to finish." {
@@ -1350,7 +1352,8 @@ func TestRunFailsWithMissingFolder(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--timeout", "3", "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Could not find 'Shared' orchestrator folder." {
@@ -1374,7 +1377,8 @@ func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 500, "{}").
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Service returned status code '500' and body '{}'" {
@@ -1397,7 +1401,8 @@ func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 500, "{}").
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Service returned status code '500' and body '{}'" {
@@ -1419,7 +1424,8 @@ func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, "invalid { json }").
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Orchestrator returned invalid response body 'invalid { json }'" {
@@ -1440,7 +1446,8 @@ func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 400, `{"value":[]}`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != `Orchestrator returned status code '400' and body '{"value":[]}'` {
@@ -1460,7 +1467,8 @@ func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 400, `Bad Request`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '400' and body 'Bad Request'" {
@@ -1479,7 +1487,8 @@ func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 401, `{}`).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
 	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '401' and body '{}'" {
@@ -1511,7 +1520,8 @@ profiles:
 		WithCommandPlugin(TestRunCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
+	source := test.NewCrossPlatformProject(t).
+		Build()
 	test.RunCli([]string{"studio", "test", "run", "--source", source}, context)
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
@@ -1535,6 +1545,173 @@ profiles:
 	}
 }
 
+func TestParallelRunPassed(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studioDefinition).
+		WithCommandPlugin(NewTestRunCommand()).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyFirstProcess_Tests'", 200, `{"value":[{"id":10000,"name":"MyFirstProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MySecondProcess_Tests'", 200, `{"value":[{"id":20000,"name":"MySecondProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(10000)", 200, `{"name":"MyFirstProcess_Tests","processKey":"MyFirstProcess_Tests","processVersion":"1.0.0"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(20000)", 200, `{"name":"MySecondProcess_Tests","processKey":"MySecondProcess_Tests","processVersion":"2.0.0"}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			if request.URL.Path == "/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion" {
+				body := map[string]interface{}{}
+				err := json.Unmarshal(request.Body, &body)
+				if err != nil {
+					return test.ResponseData{Status: 500, Body: err.Error()}
+				}
+				if body["releaseId"] == 10000.0 {
+					return test.ResponseData{Status: 201, Body: "100002"}
+				}
+				return test.ResponseData{Status: 201, Body: "200002"}
+			}
+			return test.ResponseData{Status: 500, Body: fmt.Sprintf("Unhandled HTTP request %s", request.URL.Path)}
+		}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", 200, "100001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", 200, "200001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(100002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":100004,
+                 "Definition":{
+                   "Name":"MyTestCase",
+                   "PackageIdentifier":"1.1.1"
+                 }
+               }],
+               "Packages":[]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(200002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+			`{
+               "TestCases":[{
+                 "Id":200004,
+                 "Definition":{
+                   "Name":"MySecondTestCase",
+                   "PackageIdentifier":"2.2.2"
+                 }
+               }],
+               "Packages":[]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(100001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MyFirstProcess_Tests - 1.0.0",
+               "TestSetId":100002,
+               "StartTime":"2025-03-17T12:10:09.053Z",
+               "EndTime":"2025-03-17T12:10:18.183Z",
+               "Status":"Passed",
+               "Id":100001,
+               "TestCaseExecutions":[{
+                 "Id":100003,
+                 "TestCaseId":100004,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Passed"
+               }]
+             }`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(200001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+			`{
+               "Name":"Automated - MySecondProcess_Tests - 2.0.0",
+               "TestSetId":200002,
+               "StartTime":"2025-03-17T12:10:09.053Z",
+               "EndTime":"2025-03-17T12:10:18.183Z",
+               "Status":"Failed",
+               "Id":200001,
+               "TestCaseExecutions":[{
+                 "Id":200003,
+                 "TestCaseId":200004,
+                 "EntryPointPath":"TestCase.xaml",
+                 "StartTime":"2025-03-17T12:10:09.087Z",
+                 "EndTime":"2025-03-17T12:10:18.083Z",
+                 "Status":"Failed"
+               }]
+             }`).
+		Build()
+
+	source1 := test.NewCrossPlatformProject(t).
+		WithProjectName("MyFirstProcess").
+		Build()
+	source2 := test.NewCrossPlatformProject(t).
+		WithProjectName("MySecondProcess").
+		Build()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source1 + "," + source2, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	stdout := parseOutput(t, result.StdOut)
+	expected := map[string]interface{}{
+		"testSetExecutions": []interface{}{
+			map[string]interface{}{
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.183Z",
+				"failuresCount": 0.0,
+				"id":            100001.0,
+				"name":          "Automated - MyFirstProcess_Tests - 1.0.0",
+				"packages":      []interface{}{},
+				"passedCount":   1.0,
+				"startTime":     "2025-03-17T12:10:09.053Z",
+				"status":        "Passed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      100003.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MyTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "1.1.1",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Passed",
+						"testCaseId":              100004.0,
+						"versionNumber":           "",
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      100002.0,
+			},
+			map[string]interface{}{
+				"canceledCount": 0.0,
+				"endTime":       "2025-03-17T12:10:18.183Z",
+				"failuresCount": 1.0,
+				"id":            200001.0,
+				"name":          "Automated - MySecondProcess_Tests - 2.0.0",
+				"packages":      []interface{}{},
+				"passedCount":   0.0,
+				"startTime":     "2025-03-17T12:10:09.053Z",
+				"status":        "Failed",
+				"testCaseExecutions": []interface{}{
+					map[string]interface{}{
+						"assertions":              []interface{}{},
+						"dataVariationIdentifier": "",
+						"endTime":                 "2025-03-17T12:10:18.083Z",
+						"entryPointPath":          "TestCase.xaml",
+						"error":                   nil,
+						"id":                      200003.0,
+						"inputArguments":          "",
+						"jobId":                   0.0,
+						"name":                    "MySecondTestCase",
+						"outputArguments":         "",
+						"packageIdentifier":       "2.2.2",
+						"startTime":               "2025-03-17T12:10:09.087Z",
+						"status":                  "Failed",
+						"testCaseId":              200004.0,
+						"versionNumber":           "",
+					},
+				},
+				"testCasesCount": 1.0,
+				"testSetId":      200002.0,
+			},
+		},
+	}
+
+	if !reflect.DeepEqual(expected, stdout) {
+		t.Errorf("Expected output '%v', but got: '%v'", expected, stdout)
+	}
+}
+
 func TestRestoreNonExistentProjectShowsProjectJsonNotFound(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studioDefinition).
@@ -1554,8 +1731,9 @@ func TestRestoreCrossPlatformSuccessfully(t *testing.T) {
 		WithCommandPlugin(NewPackageRestoreCommand()).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -1601,8 +1779,9 @@ profiles:
 		WithCommandPlugin(PackageRestoreCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	orchestratorUrl := getArgumentValue(commandArgs, "--libraryOrchestratorUrl")
@@ -1633,8 +1812,9 @@ func TestFailedRestoreReturnsFailureStatus(t *testing.T) {
 		WithCommandPlugin(PackageRestoreCommand{exec}).
 		Build()
 
-	source := studioCrossPlatformProjectDirectory()
-	destination := createDirectory(t)
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	destination := test.CreateDirectory(t)
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	stdout := parseOutput(t, result.StdOut)
@@ -1644,50 +1824,4 @@ func TestFailedRestoreReturnsFailureStatus(t *testing.T) {
 	if stdout["error"] != "There was an error" {
 		t.Errorf("Expected error to be set, but got: %v", result.StdOut)
 	}
-}
-
-func findViolation(violations []interface{}, errorCode string) map[string]interface{} {
-	var violation map[string]interface{}
-	for _, v := range violations {
-		vMap := v.(map[string]interface{})
-		if vMap["errorCode"] == errorCode {
-			violation = vMap
-		}
-	}
-	return violation
-}
-
-func createLargeNupkgArchive(t *testing.T, size int) string {
-	path := createFile(t)
-	archive, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer archive.Close()
-	zipWriter := zip.NewWriter(archive)
-	nuspecWriter, err := zipWriter.Create("MyProcess.nuspec")
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = io.WriteString(nuspecWriter, nuspecContent)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	content, err := zipWriter.CreateHeader(&zip.FileHeader{
-		Name:   "Content.txt",
-		Method: zip.Store,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = content.Write(make([]byte, size))
-	if err != nil {
-		t.Fatal(err)
-	}
-	err = zipWriter.Close()
-	if err != nil {
-		t.Fatal(err)
-	}
-	return path
 }

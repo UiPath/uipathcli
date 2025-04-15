@@ -30,7 +30,7 @@ func TestConfigCommandDescriptionIsShown(t *testing.T) {
 }
 
 func TestConfiguresCredentialsAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\nclient-id\nclient-secret\n"))
@@ -59,7 +59,7 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 }
 
 func TestConfiguresLoginAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n"))
@@ -89,7 +89,7 @@ func TestConfiguresLoginAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
@@ -117,7 +117,7 @@ func TestConfiguresPatAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuthDoesNotChangeExistingConfigValues(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -154,7 +154,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -191,7 +191,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuthPartially(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -228,7 +228,7 @@ profiles:
 }
 
 func TestConfiguresNewProfile(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -266,7 +266,7 @@ profiles:
 }
 
 func TestReconfiguresExistingProfile(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -322,7 +322,7 @@ func TestCredentialsAuthOutputNotSet(t *testing.T) {
 }
 
 func TestCredentialsAuthMasksSecrets(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -350,7 +350,7 @@ profiles:
 }
 
 func TestCredentialsAuthMasksShortSecretsCompletely(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -378,7 +378,7 @@ profiles:
 }
 
 func TestPatAuthMasksSecrets(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -405,7 +405,7 @@ profiles:
 }
 
 func TestLoginAuthMasksSecrets(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -434,7 +434,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\n1\nclient-id\nclient-secret\n"))
@@ -463,7 +463,7 @@ func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthLoginAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n"))
@@ -493,7 +493,7 @@ func TestConfigureMultiAuthLoginAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthPatAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 
 	stdIn := bytes.Buffer{}
 	stdIn.Write([]byte("my-org\nmy-tenant\n3\nrt_mypersonalaccesstoken\n"))
@@ -521,7 +521,7 @@ func TestConfigureMultiAuthPatAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthShowsExistingCredentialsAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -548,7 +548,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsExistingLoginAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -576,7 +576,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsExistingPatAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -602,7 +602,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsNoAuthSet(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	config := `
 profiles:
 - name: default
@@ -626,7 +626,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingPatAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	existingConfig := `
 profiles:
 - name: default
@@ -663,7 +663,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingCredentialsAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	existingConfig := `
 profiles:
 - name: default
@@ -702,7 +702,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingLoginAuth(t *testing.T) {
-	configFile := createFile(t)
+	configFile := CreateFile(t)
 	existingConfig := `
 profiles:
 - name: default

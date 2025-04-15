@@ -52,43 +52,8 @@
     "preview-packages-enabled-allow-edit": true,
     "default-package-source": [
       {
-        "default-package-source-name": "Local",
-        "default-package-source-source": "C:\\Users\\thomas.schmitt\\AppData\\Local\\Programs\\UiPath\\Studio\\Packages",
-        "is-enabled-default-package-source": true
-      },
-      {
-        "default-package-source-name": "Official",
-        "default-package-source-source": "https://pkgs.dev.azure.com/uipath/Public.Feeds/_packaging/UiPath-Official/nuget/v3/index.json",
-        "is-enabled-default-package-source": false
-      },
-      {
-        "default-package-source-name": "Connect",
-        "default-package-source-source": "https://gallery.uipath.com/api/v3/index.json",
-        "is-enabled-default-package-source": true
-      },
-      {
-        "default-package-source-name": "Marketplace",
-        "default-package-source-source": "https://gallery.uipath.com/api/v2",
-        "is-enabled-default-package-source": true
-      },
-      {
-        "default-package-source-name": "Nuget",
-        "default-package-source-source": "https://api.nuget.org/v3/index.json",
-        "is-enabled-default-package-source": true
-      },
-      {
         "default-package-source-name": "nuget.org",
         "default-package-source-source": "https://api.nuget.org/v3/index.json",
-        "is-enabled-default-package-source": true
-      },
-      {
-        "default-package-source-name": "du-feed",
-        "default-package-source-source": "https://uipath.pkgs.visualstudio.com/DocumentUnderstanding/_packaging/du-feed/nuget/v3/index.json",
-        "is-enabled-default-package-source": true
-      },
-      {
-        "default-package-source-name": "Microsoft Visual Studio Offline Packages",
-        "default-package-source-source": "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\",
         "is-enabled-default-package-source": true
       }
     ],
@@ -134,7 +99,7 @@
     "publish-process-url-allow-edit": true,
     "publish-library-url": null,
     "publish-library-url-allow-edit": true,
-    "publish-templates-url": "C:\\Users\\thomas.schmitt\\OneDrive - UiPath\\Documents\\UiPath\\.templates",
+    "publish-templates-url": null,
     "publish-templates-url-allow-edit": true,
     "export-analyzer-results": false,
     "export-analyzer-results-allow-edit": true,
