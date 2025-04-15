@@ -354,6 +354,22 @@ TA-DBP-002      Workflow Main.xaml does not have any assigned Test Cases.
 ST-USG-034      Your organization requires your project to have an Automation Hub URL defined.
 ```
 
+## Run tests
+
+Run your tests in UiPath Orchestrator by executing the following command from your UiPath Studio Project directory:
+
+```bash
+uipath studio test run
+```
+
+The test run command has multi-project support allowing for builds and tests to be executed in parallel. Additionally, it also provides the option of generating JUnit test reports. In order to improve test failure troubleshooting, robot logs can be automatically retrieved for every test case executed.
+
+The following command runs the tests for two projects in parallel, attaches the robot logs and outputs the test results in the JUnit XML format:
+
+```bash
+uipath studio test run --source "./projects/MyProject1,./projects/MyProject2" --attach-robot-logs "true" --results-output "junit"
+```
+
 ## Manage Orchestrator Resources
 
 There are various UiPath Orchestrator resources which you can manage through the CLI. This example shows how to create new assets and query for the existing ones:
