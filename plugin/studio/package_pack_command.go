@@ -58,6 +58,7 @@ func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.O
 		ctx.Tenant,
 		ctx.BaseUri,
 		ctx.Auth.Token,
+		ctx.IdentityUri,
 		source,
 		destination,
 		packageVersion,
@@ -152,6 +153,7 @@ func (c PackagePackCommand) preparePackArguments(params packagePackParams) []str
 		args = append(args, "--releaseNotes", params.ReleaseNotes)
 	}
 	if params.AuthToken != nil && params.Organization != "" {
+		args = append(args, "--libraryIdentityUrl", params.IdentityUri.String())
 		args = append(args, "--libraryOrchestratorUrl", params.BaseUri.String())
 		args = append(args, "--libraryOrchestratorAuthToken", params.AuthToken.Value)
 		args = append(args, "--libraryOrchestratorAccountName", params.Organization)

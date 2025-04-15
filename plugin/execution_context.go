@@ -12,6 +12,7 @@ type ExecutionContext struct {
 	Tenant       string
 	BaseUri      url.URL
 	Auth         AuthResult
+	IdentityUri  url.URL
 	Input        stream.Stream
 	Parameters   []ExecutionParameter
 	Debug        bool
@@ -23,9 +24,21 @@ func NewExecutionContext(
 	tenant string,
 	baseUri url.URL,
 	auth AuthResult,
+	identityUri url.URL,
 	input stream.Stream,
 	parameters []ExecutionParameter,
 	debug bool,
-	settings ExecutionSettings) *ExecutionContext {
-	return &ExecutionContext{organization, tenant, baseUri, auth, input, parameters, debug, settings}
+	settings ExecutionSettings,
+) *ExecutionContext {
+	return &ExecutionContext{
+		organization,
+		tenant,
+		baseUri,
+		auth,
+		identityUri,
+		input,
+		parameters,
+		debug,
+		settings,
+	}
 }
