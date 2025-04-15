@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-const ProjectJsonTemplate = `
+const projectJsonTemplate = `
 {
   "name": "%s",
   "projectId": "%s",
@@ -73,7 +73,7 @@ const ProjectJsonTemplate = `
 }
 `
 
-const MainXaml = `
+const mainXaml = `
 <Activity mc:Ignorable="sap sap2010" x:Class="Main" sap2010:ExpressionActivityEditor.ExpressionActivityEditor="C#" sap:VirtualizedContainerService.HintSize="1088.8,636.8" sap2010:WorkflowViewState.IdRef="ActivityBuilder_1" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <TextExpression.NamespacesForImplementation>
     <sco:Collection x:TypeArguments="x:String">
@@ -163,7 +163,7 @@ const MainXaml = `
 </Activity>
 `
 
-const DefaultGovernanceFile = `
+const defaultGovernanceFile = `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -968,7 +968,7 @@ type ProjectBuilder struct {
 }
 
 func (b ProjectBuilder) buildProjectJson() string {
-	return fmt.Sprintf(ProjectJsonTemplate, b.projectName, b.projectId, b.targetFramework)
+	return fmt.Sprintf(projectJsonTemplate, b.projectName, b.projectId, b.targetFramework)
 }
 
 func (b *ProjectBuilder) WithProjectName(name string) *ProjectBuilder {
@@ -977,7 +977,7 @@ func (b *ProjectBuilder) WithProjectName(name string) *ProjectBuilder {
 }
 
 func (b *ProjectBuilder) WithDefaultGovernanceFile() *ProjectBuilder {
-	b.defaultGovernanceFile = DefaultGovernanceFile
+	b.defaultGovernanceFile = defaultGovernanceFile
 	return b
 }
 
@@ -993,7 +993,7 @@ func (b ProjectBuilder) Build() string {
 
 	projectJson := b.buildProjectJson()
 	b.writeFileContent(directory, "project.json", projectJson)
-	b.writeFileContent(directory, "Main.xaml", MainXaml)
+	b.writeFileContent(directory, "Main.xaml", mainXaml)
 	if b.defaultGovernanceFile != "" {
 		b.writeFileContent(directory, "uipath.policy.default.json", b.defaultGovernanceFile)
 	}

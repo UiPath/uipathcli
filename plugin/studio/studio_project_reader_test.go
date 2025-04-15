@@ -9,7 +9,7 @@ import (
 )
 
 func TestStudioProjectReader_FileNotFound_ReturnsError(t *testing.T) {
-	studioProjectReader := newStudioProjectReader("not-found")
+	studioProjectReader := NewStudioProjectReader("not-found")
 	_, err := studioProjectReader.ReadMetadata()
 	if !strings.HasPrefix(err.Error(), "Error reading project.json file") {
 		t.Errorf("Should return reading error, but got: %v", err)
@@ -19,7 +19,7 @@ func TestStudioProjectReader_FileNotFound_ReturnsError(t *testing.T) {
 func TestStudioProjectReaderInvalidJsonReturnsError(t *testing.T) {
 	path := test.CreateFileWithContent(t, "INVALID")
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	_, err := studioProjectReader.ReadMetadata()
 	if !strings.HasPrefix(err.Error(), "Error parsing project.json file") {
 		t.Errorf("Should return parsing error, but got: %v", err)
@@ -36,7 +36,7 @@ func TestStudioProjectReaderReturnsMetadata(t *testing.T) {
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	project, err := studioProjectReader.ReadMetadata()
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -62,7 +62,7 @@ func TestStudioProjectReaderReturnsTargetFrameworkWindows(t *testing.T) {
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	project, err := studioProjectReader.ReadMetadata()
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -79,7 +79,7 @@ func TestStudioProjectReaderReturnsTargetFrameworkLegacy(t *testing.T) {
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	project, err := studioProjectReader.ReadMetadata()
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -96,7 +96,7 @@ func TestStudioProjectReaderUnknownTargetFrameworkDefaultsToCrossPlatform(t *tes
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	project, err := studioProjectReader.ReadMetadata()
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -116,7 +116,7 @@ func TestStudioProjectReaderAddToIgnoredFilesCreatesNewSection(t *testing.T) {
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -145,7 +145,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingDesignOptions(t *test
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -176,7 +176,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingProcessOptions(t *tes
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -207,7 +207,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingIgnoredFiles(t *testi
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)
@@ -224,7 +224,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingIgnoredFiles(t *testi
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesFileNotFoundReturnsError(t *testing.T) {
-	studioProjectReader := newStudioProjectReader("not-found")
+	studioProjectReader := NewStudioProjectReader("not-found")
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if !strings.HasPrefix(err.Error(), "Error reading project.json file") {
 		t.Errorf("Should return reading error, but got: %v", err)
@@ -234,7 +234,7 @@ func TestStudioProjectReaderAddToIgnoredFilesFileNotFoundReturnsError(t *testing
 func TestStudioProjectReaderAddToIgnoredFilesInvalidJsonReturnsError(t *testing.T) {
 	path := test.CreateFileWithContent(t, "INVALID")
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if !strings.HasPrefix(err.Error(), "Error parsing project.json file") {
 		t.Errorf("Should return parsing error, but got: %v", err)
@@ -256,7 +256,7 @@ func TestStudioProjectReaderAddToIgnoredFilesInvalidIgnoredFilesReturnsError(t *
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err.Error() != "Error updating project.json file: Unexpected type for field 'ignoredFiles'" {
 		t.Errorf("Should return updating error, but got: %v", err)
@@ -278,7 +278,7 @@ func TestStudioProjectReaderAddToIgnoredFilesFilePatternExistsNoOp(t *testing.T)
 }
 `)
 
-	studioProjectReader := newStudioProjectReader(path)
+	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
 	if err != nil {
 		t.Errorf("Should not return error, but got: %v", err)

@@ -2,12 +2,14 @@ package test
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"slices"
 	"strings"
 	"testing"
 
@@ -292,4 +294,21 @@ func CreateFileWithBinaryContent(t *testing.T, data []byte) string {
 		t.Fatalf("Error writing file '%s': %v", path, err)
 	}
 	return path
+}
+
+func ParseOutput(t *testing.T, output string) map[string]interface{} {
+	stdout := map[string]interface{}{}
+	err := json.Unmarshal([]byte(output), &stdout)
+	if err != nil {
+		t.Errorf("Failed to deserialize command output: %v", err)
+	}
+	return stdout
+}
+
+func GetArgumentValue(args []string, name string) string {
+	index := slices.Index(args, name)
+	if index == -1 {
+		return ""
+	}
+	return args[index+1]
 }
