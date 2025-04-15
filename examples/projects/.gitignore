@@ -1,0 +1,6 @@
+calculator/*
+!calculator/AddTwoNumbersTest.xaml
+!calculator/Main.xaml
+!calculator/Main.TestData.json
+!calculator/project.json
+!calculator/uipath.policy.default.json

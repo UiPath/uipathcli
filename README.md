@@ -305,9 +305,9 @@ The CLI makes it very easy to package and upload studio projects. You can create
 
 ```bash
 # Download example project
-projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/plugin/studio/projects/crossplatform"
-curl --remote-name "$projectUrl/Main.xaml" \
-     --remote-name "$projectUrl/project.json"
+projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/examples/projects/calculator"
+curl --remote-name "$projectUrl/project.json" \
+     --remote-name "$projectUrl/Main.xaml"
 
 # Build and package project
 uipath studio package pack
@@ -337,9 +337,9 @@ The following command is analyzing a UiPath Studio package using the default gov
 
 ```bash
 # Download example project
-projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/plugin/studio/projects/crossplatform"
-curl --remote-name "$projectUrl/Main.xaml" \
-     --remote-name "$projectUrl/project.json" \
+projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/examples/projects/calculator"
+curl --remote-name "$projectUrl/project.json" \
+     --remote-name "$projectUrl/Main.xaml" \
      --remote-name "$projectUrl/uipath.policy.default.json"
 
 # Analyze project using the uipath.policy.default.json governance file and output all Warnings and Errors
@@ -354,11 +354,19 @@ TA-DBP-002      Workflow Main.xaml does not have any assigned Test Cases.
 ST-USG-034      Your organization requires your project to have an Automation Hub URL defined.
 ```
 
-## Run tests
+## Run Tests
 
 Run your tests in UiPath Orchestrator by executing the following command from your UiPath Studio Project directory:
 
 ```bash
+# Download example project
+projectUrl="https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/examples/projects/calculator"
+curl --remote-name "$projectUrl/Main.xaml" \
+     --remote-name "$projectUrl/project.json" \
+     --remote-name "$projectUrl/AddTwoNumbersTest.xaml" \
+     --remote-name "$projectUrl/Main.TestData.json"
+
+# Run test cases on the connected UiPath Orchestrator instance
 uipath studio test run
 ```
 
@@ -394,7 +402,7 @@ You can use the CLI to upload a document and classify it using UiPath Document U
 
 ```bash
 # Download example invoice
-curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
+curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/examples/documents/invoice.jpg"
 
 # Start digitization and classification using the default project
 uipath du digitization start --file invoice.jpg | uipath du classification classify --query "classificationResults[0].DocumentTypeId" --file -
@@ -410,7 +418,7 @@ This snippet shows how to upload a document and extract data using UiPath Docume
 
 ```bash
 # Download example invoice
-curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/documentation/examples/invoice.jpg"
+curl --remote-name "https://raw.githubusercontent.com/UiPath/uipathcli/refs/heads/main/examples/documents/invoice.jpg"
 
 # Digitize the file and extract using the default project
 uipath du digitization start --file "invoice.jpg" | uipath du extraction extract --query "extractionResult.ResultsDocument.Fields[?not_null(Values)].{field: FieldId, value: Values[0].Value, confidence: Values[0].Confidence}" --file - 
