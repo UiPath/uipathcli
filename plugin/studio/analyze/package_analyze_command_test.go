@@ -261,6 +261,58 @@ func TestAnalyzeUnknownGovernanceReturnsError(t *testing.T) {
 	}
 }
 
+func TestAnalyzeWithLibraryAuthentication(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    tenant: my-tenant
+    auth:
+      clientId: success-client-id
+      clientSecret: success-client-secret
+`
+	commandArgs := []string{}
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		commandArgs = args
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithConfig(config).
+		WithResponse(200, "").
+		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithCommandPlugin(PackageAnalyzeCommand{exec}).
+		Build()
+
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	result := test.RunCli([]string{"studio", "package", "analyze", "--source", source}, context)
+
+	identityUrl := test.GetArgumentValue(commandArgs, "--identityUrl")
+	if identityUrl != result.BaseUrl+"/identity_" {
+		t.Errorf("Expected identity url as argument, but got: %v", commandArgs)
+	}
+
+	orchestratorUrl := test.GetArgumentValue(commandArgs, "--orchestratorUrl")
+	if orchestratorUrl != result.BaseUrl {
+		t.Errorf("Expected orchestrator url as argument, but got: %v", commandArgs)
+	}
+
+	authToken := test.GetArgumentValue(commandArgs, "--orchestratorAuthToken")
+	if authToken != "my-jwt-access-token" {
+		t.Errorf("Expected jwt bearer token as argument, but got: %v", commandArgs)
+	}
+
+	organization := test.GetArgumentValue(commandArgs, "--orchestratorAccountName")
+	if organization != "my-org" {
+		t.Errorf("Expected organization as argument, but got: %v", commandArgs)
+	}
+
+	tenant := test.GetArgumentValue(commandArgs, "--orchestratorTenant")
+	if tenant != "my-tenant" {
+		t.Errorf("Expected tenant as argument, but got: %v", commandArgs)
+	}
+}
+
 func findViolation(violations []interface{}, errorCode string) map[string]interface{} {
 	var violation map[string]interface{}
 	for _, v := range violations {

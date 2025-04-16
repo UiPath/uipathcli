@@ -50,7 +50,18 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 		return err
 	}
 
-	exitCode, result, err := c.execute(source, stopOnRuleViolation, treatWarningsAsErrors, governanceFile, ctx.Debug, logger)
+	params := newPackageAnalyzeParams(
+		ctx.Organization,
+		ctx.Tenant,
+		ctx.BaseUri,
+		ctx.Auth.Token,
+		ctx.IdentityUri,
+		source,
+		stopOnRuleViolation,
+		treatWarningsAsErrors,
+		governanceFile,
+	)
+	exitCode, result, err := c.execute(*params, ctx.Debug, logger)
 	if err != nil {
 		return err
 	}
@@ -69,14 +80,14 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	return nil
 }
 
-func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, treatWarningsAsErrors bool, governanceFile string, debug bool, logger log.Logger) (int, *packageAnalyzeResult, error) {
+func (c PackageAnalyzeCommand) execute(params packageAnalyzeParams, debug bool, logger log.Logger) (int, *packageAnalyzeResult, error) {
 	jsonResultFilePath, err := c.getTemporaryJsonResultFilePath()
 	if err != nil {
 		return 1, nil, err
 	}
 	defer os.Remove(jsonResultFilePath)
 
-	projectReader := studio.NewStudioProjectReader(source)
+	projectReader := studio.NewStudioProjectReader(params.Source)
 	project, err := projectReader.ReadMetadata()
 	if err != nil {
 		return 1, nil, err
@@ -96,7 +107,7 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 		bar := c.newAnalyzingProgressBar(logger)
 		defer close(bar)
 	}
-	args := c.prepareAnalyzeArguments(source, jsonResultFilePath, governanceFile)
+	args := c.prepareAnalyzeArguments(params, jsonResultFilePath)
 	exitCode, stdErr, err := uipcli.ExecuteAndWait(args...)
 	if err != nil {
 		return exitCode, nil, err
@@ -106,11 +117,11 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 	if err != nil {
 		return 1, nil, err
 	}
-	errorViolationsFound := c.hasErrorViolations(violations, treatWarningsAsErrors)
+	errorViolationsFound := c.hasErrorViolations(violations, params.TreatWarningsAsErrors)
 
 	if exitCode != 0 {
 		return exitCode, newErrorPackageAnalyzeResult(violations, stdErr), nil
-	} else if stopOnRuleViolation && errorViolationsFound {
+	} else if params.StopOnRuleViolation && errorViolationsFound {
 		return 1, newFailedPackageAnalyzeResult(violations), nil
 	} else if errorViolationsFound {
 		return 0, newFailedPackageAnalyzeResult(violations), nil
@@ -118,10 +129,19 @@ func (c PackageAnalyzeCommand) execute(source string, stopOnRuleViolation bool, 
 	return 0, newSucceededPackageAnalyzeResult(violations), nil
 }
 
-func (c PackageAnalyzeCommand) prepareAnalyzeArguments(source string, jsonResultFilePath string, governanceFile string) []string {
-	args := []string{"package", "analyze", source, "--resultPath", jsonResultFilePath}
-	if governanceFile != "" {
-		args = append(args, "--governanceFilePath", governanceFile)
+func (c PackageAnalyzeCommand) prepareAnalyzeArguments(params packageAnalyzeParams, jsonResultFilePath string) []string {
+	args := []string{"package", "analyze", params.Source, "--resultPath", jsonResultFilePath}
+	if params.GovernanceFile != "" {
+		args = append(args, "--governanceFilePath", params.GovernanceFile)
+	}
+	if params.AuthToken != nil && params.Organization != "" {
+		args = append(args, "--identityUrl", params.IdentityUri.String())
+		args = append(args, "--orchestratorUrl", params.BaseUri.String())
+		args = append(args, "--orchestratorAuthToken", params.AuthToken.Value)
+		args = append(args, "--orchestratorAccountName", params.Organization)
+		if params.Tenant != "" {
+			args = append(args, "--orchestratorTenant", params.Tenant)
+		}
 	}
 	return args
 }
