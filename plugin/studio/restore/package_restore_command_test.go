@@ -1,6 +1,7 @@
 package restore
 
 import (
+	"net/http"
 	"strings"
 	"testing"
 
@@ -30,7 +31,7 @@ func TestRestoreCrossPlatformSuccessfully(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	stdout := test.ParseOutput(t, result.StdOut)
@@ -71,14 +72,14 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackageRestoreCommand{exec}).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	identityUrl := test.GetArgumentValue(commandArgs, "--libraryIdentityUrl")
@@ -116,7 +117,7 @@ func TestRestoreFailedReturnsFailureStatus(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	stdout := test.ParseOutput(t, result.StdOut)

@@ -26,7 +26,7 @@ func TestPackOnLinuxWithCorrectArguments(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	if !strings.HasSuffix(commandName, "dotnet") {
@@ -62,7 +62,7 @@ func TestPackWindowsProjectOnLinuxReturnsCompatibilityError(t *testing.T) {
 
 	source := test.NewWindowsProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	if called {

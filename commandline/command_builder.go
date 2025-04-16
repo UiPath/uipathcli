@@ -54,34 +54,40 @@ func (b CommandBuilder) fileInput(context *CommandExecContext, parameters []pars
 	return stream.NewFileStream(value)
 }
 
-func (b CommandBuilder) createExecutionParameters(context *CommandExecContext, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
+func (b CommandBuilder) createExecutionParameter(context *CommandExecContext, config *config.Config, param parser.Parameter) (*executor.ExecutionParameter, error) {
 	typeConverter := newTypeConverter()
+	if context.IsSet(param.Name) && param.IsArray() {
+		value, err := typeConverter.ConvertArray(context.StringSlice(param.Name), param)
+		if err != nil {
+			return nil, err
+		}
+		return executor.NewExecutionParameter(param.FieldName, value, param.In), nil
+	} else if context.IsSet(param.Name) {
+		value, err := typeConverter.Convert(context.String(param.Name), param)
+		if err != nil {
+			return nil, err
+		}
+		return executor.NewExecutionParameter(param.FieldName, value, param.In), nil
+	} else if configValue, ok := config.Parameter[param.Name]; ok {
+		value, err := typeConverter.Convert(configValue, param)
+		if err != nil {
+			return nil, err
+		}
+		return executor.NewExecutionParameter(param.FieldName, value, param.In), nil
+	} else if param.Required && param.DefaultValue != nil {
+		return executor.NewExecutionParameter(param.FieldName, param.DefaultValue, param.In), nil
+	}
+	return nil, nil
+}
 
+func (b CommandBuilder) createExecutionParameters(context *CommandExecContext, config *config.Config, operation parser.Operation) (executor.ExecutionParameters, error) {
 	parameters := []executor.ExecutionParameter{}
 	for _, param := range operation.Parameters {
-		if context.IsSet(param.Name) && param.IsArray() {
-			value, err := typeConverter.ConvertArray(context.StringSlice(param.Name), param)
-			if err != nil {
-				return nil, err
-			}
-			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
-			parameters = append(parameters, *parameter)
-		} else if context.IsSet(param.Name) {
-			value, err := typeConverter.Convert(context.String(param.Name), param)
-			if err != nil {
-				return nil, err
-			}
-			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
-			parameters = append(parameters, *parameter)
-		} else if configValue, ok := config.Parameter[param.Name]; ok {
-			value, err := typeConverter.Convert(configValue, param)
-			if err != nil {
-				return nil, err
-			}
-			parameter := executor.NewExecutionParameter(param.FieldName, value, param.In)
-			parameters = append(parameters, *parameter)
-		} else if param.Required && param.DefaultValue != nil {
-			parameter := executor.NewExecutionParameter(param.FieldName, param.DefaultValue, param.In)
+		parameter, err := b.createExecutionParameter(context, config, param)
+		if err != nil {
+			return nil, err
+		}
+		if parameter != nil {
 			parameters = append(parameters, *parameter)
 		}
 	}
@@ -394,7 +400,7 @@ func (b CommandBuilder) evaluateWaitCondition(response output.ResponseInfo, wait
 	}
 	value, ok := result.(bool)
 	if !ok {
-		return false, fmt.Errorf("Error in wait condition: JMESPath expression needs to return boolean")
+		return false, errors.New("Error in wait condition: JMESPath expression needs to return boolean")
 	}
 	return value, nil
 }
@@ -405,21 +411,21 @@ func (b CommandBuilder) execute(ctx executor.ExecutionContext, outputFormat stri
 	reader, writer := io.Pipe()
 	go func() {
 		defer wg.Done()
-		defer reader.Close()
+		defer func() { _ = reader.Close() }()
 		_, _ = io.Copy(b.StdOut, reader)
 	}()
 	errorReader, errorWriter := io.Pipe()
 	go func() {
 		defer wg.Done()
-		defer errorReader.Close()
+		defer func() { _ = errorReader.Close() }()
 		_, _ = io.Copy(b.StdErr, errorReader)
 	}()
 
 	var err error
 	go func() {
 		defer wg.Done()
-		defer writer.Close()
-		defer errorWriter.Close()
+		defer func() { _ = writer.Close() }()
+		defer func() { _ = errorWriter.Close() }()
 		if outputWriter == nil {
 			outputWriter = b.outputWriter(writer, outputFormat, query)
 		}
@@ -505,8 +511,8 @@ func (b CommandBuilder) createAutoCompleteEnableCommand() *CommandDefinition {
 			if err != nil {
 				return err
 			}
-			fmt.Fprintln(b.StdOut, output)
-			return nil
+			_, err = fmt.Fprintln(b.StdOut, output)
+			return err
 		})
 }
 
@@ -538,7 +544,7 @@ func (b CommandBuilder) createAutoCompleteCompleteCommand(serviceVersion string)
 			handler := newAutoCompleteHandler()
 			words := handler.Find(commandText, command, exclude)
 			for _, word := range words {
-				fmt.Fprintln(b.StdOut, word)
+				_, _ = fmt.Fprintln(b.StdOut, word)
 			}
 			return nil
 		})
@@ -712,8 +718,8 @@ func (b CommandBuilder) createShowCommand(definitions []parser.Definition) *Comm
 			if err != nil {
 				return err
 			}
-			fmt.Fprintln(b.StdOut, output)
-			return nil
+			_, err = fmt.Fprintln(b.StdOut, output)
+			return err
 		})
 }
 

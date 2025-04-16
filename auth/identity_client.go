@@ -59,13 +59,13 @@ func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operatio
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	bytes, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading response: %w", err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Token service returned status code '%v' and body '%v'", response.StatusCode, string(bytes))
+		return nil, fmt.Errorf("Token service returned status code '%d' and body '%s'", response.StatusCode, string(bytes))
 	}
 
 	var result tokenResponse

@@ -127,7 +127,7 @@ func (a autoCompleteHandler) writeCompleterHandler(filePath string, completerHan
 	if err != nil {
 		return fmt.Errorf("Error opening profile file: %w", err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	if _, err := file.WriteString(completerHandler); err != nil {
 		return fmt.Errorf("Error writing profile file: %w", err)
 	}

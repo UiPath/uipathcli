@@ -26,6 +26,10 @@ func (e *TestCaseExecution) SetRobotLogs(logs []RobotLog) {
 	e.RobotLogs = logs
 }
 
+func (e *TestCaseExecution) IsCompleted() bool {
+	return e.Status == "Passed" || e.Status == "Failed" || e.Status == "Cancelled"
+}
+
 func NewTestCaseExecution(
 	id int,
 	status string,
@@ -59,8 +63,4 @@ func NewTestCaseExecution(
 		assertions,
 		robotLogs,
 	}
-}
-
-func (e TestCaseExecution) IsCompleted() bool {
-	return e.Status == "Passed" || e.Status == "Failed" || e.Status == "Cancelled"
 }

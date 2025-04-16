@@ -62,7 +62,7 @@ func (c HttpClient) sendWithRetries(request *HttpRequest, ctx context.Context) (
 		}
 
 		if response.StatusCode == 0 || response.StatusCode >= 500 {
-			defer response.Body.Close()
+			defer func() { _ = response.Body.Close() }()
 			body, err := io.ReadAll(response.Body)
 			if err != nil {
 				return resiliency.Retryable(fmt.Errorf("Error reading response: %w", err))
@@ -84,7 +84,7 @@ func (c HttpClient) resetReader(reader io.Reader) bool {
 
 func (c HttpClient) send(request *HttpRequest, ctx context.Context) (*HttpResponse, error) {
 	transport := &http.Transport{
-		TLSClientConfig:       &tls.Config{InsecureSkipVerify: c.settings.Insecure}, //nolint // This is user configurable and disabled by default
+		TLSClientConfig:       &tls.Config{InsecureSkipVerify: c.settings.Insecure}, //nolint:gosec // This is user configurable and disabled by default
 		ResponseHeaderTimeout: c.settings.Timeout,
 	}
 	client := &http.Client{Transport: transport}
@@ -92,7 +92,7 @@ func (c HttpClient) send(request *HttpRequest, ctx context.Context) (*HttpRespon
 	responseChan := make(chan *HttpResponse)
 	ctx, cancel := context.WithCancelCause(ctx)
 	go func(client *http.Client, request *HttpRequest) {
-		req, err := http.NewRequest(request.Method, request.URL, request.Body)
+		req, err := http.NewRequestWithContext(ctx, request.Method, request.URL, request.Body)
 		if err != nil {
 			cancel(fmt.Errorf("Error preparing request: %w", err))
 			return
@@ -103,7 +103,7 @@ func (c HttpClient) send(request *HttpRequest, ctx context.Context) (*HttpRespon
 		}
 		req.ContentLength = request.ContentLength
 
-		resp, err := client.Do(req)
+		resp, err := client.Do(req) //nolint:bodyclose // The response body needs to be closed by the caller to support streaming
 		if err != nil {
 			cancel(fmt.Errorf("Error sending request: %w", err))
 			return

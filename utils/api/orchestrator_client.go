@@ -38,7 +38,7 @@ func (c OrchestratorClient) GetSharedFolderId() (int, error) {
 	if err != nil {
 		return -1, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return -1, fmt.Errorf("Error reading response: %w", err)
@@ -54,7 +54,7 @@ func (c OrchestratorClient) GetSharedFolderId() (int, error) {
 	}
 	folderId := c.findFolderId(result)
 	if folderId == nil {
-		return -1, fmt.Errorf("Could not find 'Shared' orchestrator folder.")
+		return -1, errors.New("Could not find 'Shared' orchestrator folder.")
 	}
 	return *folderId, nil
 }
@@ -87,7 +87,7 @@ func (c OrchestratorClient) Upload(file stream.Stream, uploadBar *visualization.
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return fmt.Errorf("Error reading response: %w", err)
@@ -117,8 +117,8 @@ func (c OrchestratorClient) createUploadRequest(file stream.Stream, uploadBar *v
 func (c OrchestratorClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
-		defer bodyWriter.Close()
-		defer formWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
+		defer func() { _ = formWriter.Close() }()
 		err := c.writeMultipartForm(formWriter, stream, contentType)
 		if err != nil {
 			cancel(err)
@@ -140,7 +140,7 @@ func (c OrchestratorClient) writeMultipartForm(writer *multipart.Writer, stream 
 	if err != nil {
 		return err
 	}
-	defer data.Close()
+	defer func() { _ = data.Close() }()
 	_, err = io.Copy(w, data)
 	if err != nil {
 		return fmt.Errorf("Error writing form field 'file': %w", err)
@@ -155,7 +155,7 @@ func (c OrchestratorClient) GetReleases(folderId int, processKey string) ([]Rele
 	if err != nil {
 		return []Release{}, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []Release{}, fmt.Errorf("Error reading response: %w", err)
@@ -210,7 +210,7 @@ func (c OrchestratorClient) CreateRelease(folderId int, processKey string, proce
 	if err != nil {
 		return -1, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return -1, fmt.Errorf("Error reading response: %w", err)
@@ -254,7 +254,7 @@ func (c OrchestratorClient) UpdateRelease(folderId int, releaseId int, processKe
 	if err != nil {
 		return -1, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return -1, fmt.Errorf("Error reading response: %w", err)
@@ -292,7 +292,7 @@ func (c OrchestratorClient) CreateTestSet(folderId int, releaseId int, processVe
 	if err != nil {
 		return -1, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return -1, fmt.Errorf("Error reading response: %w", err)
@@ -326,7 +326,7 @@ func (c OrchestratorClient) ExecuteTestSet(folderId int, testSetId int) (int, er
 	if err != nil {
 		return -1, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return -1, fmt.Errorf("Error reading response: %w", err)
@@ -371,7 +371,7 @@ func (c OrchestratorClient) GetTestSet(folderId int, testSetId int) (*TestSet, e
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading response: %w", err)
@@ -404,7 +404,7 @@ func (c OrchestratorClient) GetTestExecution(folderId int, executionId int) (*Te
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading response: %w", err)
@@ -437,7 +437,7 @@ func (c OrchestratorClient) GetRobotLogs(folderId int, jobKey string) ([]RobotLo
 	if err != nil {
 		return []RobotLog{}, err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return []RobotLog{}, fmt.Errorf("Error reading response: %w", err)
@@ -469,7 +469,7 @@ func (c OrchestratorClient) GetReadUrl(folderId int, bucketId int, path string) 
 	if err != nil {
 		return "", fmt.Errorf("Error sending request: %w", err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
@@ -488,7 +488,7 @@ func (c OrchestratorClient) GetReadUrl(folderId int, bucketId int, path string) 
 func (c OrchestratorClient) createReadUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
 	uri := c.baseUri + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetReadUri?path=%s", bucketId, path)
 	header := http.Header{
-		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
+		"X-UiPath-OrganizationUnitId": {strconv.Itoa(folderId)},
 	}
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }
@@ -500,7 +500,7 @@ func (c OrchestratorClient) GetWriteUrl(folderId int, bucketId int, path string)
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
@@ -519,7 +519,7 @@ func (c OrchestratorClient) GetWriteUrl(folderId int, bucketId int, path string)
 func (c OrchestratorClient) createWriteUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
 	uri := c.baseUri + fmt.Sprintf("/odata/Buckets(%d)/UiPath.Server.Configuration.OData.GetWriteUri?path=%s", bucketId, path)
 	header := http.Header{
-		"X-UiPath-OrganizationUnitId": {fmt.Sprintf("%d", folderId)},
+		"X-UiPath-OrganizationUnitId": {strconv.Itoa(folderId)},
 	}
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }

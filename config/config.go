@@ -33,7 +33,7 @@ const redirectUriKey = "redirectUri"
 const scopesKey = "scopes"
 const patKey = "pat"
 
-func (c Config) ClientId() string {
+func (c *Config) ClientId() string {
 	clientId := c.Auth.Config[clientIdKey]
 	if clientId == nil {
 		return ""
@@ -41,7 +41,7 @@ func (c Config) ClientId() string {
 	return fmt.Sprintf("%v", clientId)
 }
 
-func (c Config) ClientSecret() string {
+func (c *Config) ClientSecret() string {
 	clientSecret := c.Auth.Config[clientSecretKey]
 	if clientSecret == nil {
 		return ""
@@ -49,7 +49,7 @@ func (c Config) ClientSecret() string {
 	return fmt.Sprintf("%v", clientSecret)
 }
 
-func (c Config) RedirectUri() string {
+func (c *Config) RedirectUri() string {
 	redirectUri := c.Auth.Config[redirectUriKey]
 	if redirectUri == nil {
 		return ""
@@ -57,7 +57,7 @@ func (c Config) RedirectUri() string {
 	return fmt.Sprintf("%v", redirectUri)
 }
 
-func (c Config) Scopes() string {
+func (c *Config) Scopes() string {
 	scopes := c.Auth.Config[scopesKey]
 	if scopes == nil {
 		return ""
@@ -65,7 +65,7 @@ func (c Config) Scopes() string {
 	return fmt.Sprintf("%v", scopes)
 }
 
-func (c Config) Pat() string {
+func (c *Config) Pat() string {
 	pat := c.Auth.Config[patKey]
 	if pat == nil {
 		return ""
@@ -84,7 +84,7 @@ func (c *Config) ConfigureOrgTenant(organization string, tenant string) bool {
 	return organization != "" || tenant != ""
 }
 
-func (c Config) ConfigurePatAuth(pat string) bool {
+func (c *Config) ConfigurePatAuth(pat string) bool {
 	delete(c.Auth.Config, clientIdKey)
 	delete(c.Auth.Config, clientSecretKey)
 	delete(c.Auth.Config, redirectUriKey)
@@ -96,7 +96,7 @@ func (c Config) ConfigurePatAuth(pat string) bool {
 	return pat != ""
 }
 
-func (c Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes string) bool {
+func (c *Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes string) bool {
 	delete(c.Auth.Config, clientSecretKey)
 	delete(c.Auth.Config, patKey)
 
@@ -113,7 +113,7 @@ func (c Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes s
 	return clientId != "" || redirectUri != "" || scopes != ""
 }
 
-func (c Config) ConfigureCredentialsAuth(clientId string, clientSecret string) bool {
+func (c *Config) ConfigureCredentialsAuth(clientId string, clientSecret string) bool {
 	delete(c.Auth.Config, redirectUriKey)
 	delete(c.Auth.Config, scopesKey)
 	delete(c.Auth.Config, patKey)
@@ -144,23 +144,23 @@ func (c *Config) SetDebug(debug bool) {
 	c.Debug = debug
 }
 
-func (c Config) SetHeader(key string, value string) {
+func (c *Config) SetHeader(key string, value string) {
 	c.Header[key] = value
 }
 
-func (c Config) SetParameter(key string, value string) {
+func (c *Config) SetParameter(key string, value string) {
 	c.Parameter[key] = value
 }
 
-func (c Config) SetAuthGrantType(grantType string) {
+func (c *Config) SetAuthGrantType(grantType string) {
 	c.Auth.Config["grantType"] = grantType
 }
 
-func (c Config) SetAuthScopes(scopes string) {
+func (c *Config) SetAuthScopes(scopes string) {
 	c.Auth.Config["scopes"] = scopes
 }
 
-func (c Config) SetAuthProperty(key string, value string) {
+func (c *Config) SetAuthProperty(key string, value string) {
 	properties, ok := c.Auth.Config["properties"].(map[interface{}]interface{})
 	if properties == nil || !ok {
 		properties = map[interface{}]interface{}{}

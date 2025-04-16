@@ -1,6 +1,7 @@
 package pack
 
 import (
+	"net/http"
 	"os"
 	"path/filepath"
 	"slices"
@@ -32,7 +33,7 @@ func TestPackInvalidOutputTypeShowsValidationError(t *testing.T) {
 		Build()
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "unknown"}, context)
 
 	if !strings.Contains(result.StdErr, "Invalid output type 'unknown', allowed values: Process, Library, Tests, Objects") {
@@ -49,7 +50,7 @@ func TestPackFailedReturnsFailureStatus(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	stdout := test.ParseOutput(t, result.StdOut)
@@ -69,7 +70,7 @@ func TestPackCrossPlatformSuccessfully(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	stdout := test.ParseOutput(t, result.StdOut)
@@ -112,7 +113,7 @@ func TestPackWithAutoVersionArgument(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--auto-version", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--autoVersion") {
@@ -132,7 +133,7 @@ func TestPackWithOutputTypeArgument(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "Process"}, context)
 
 	outputType := test.GetArgumentValue(commandArgs, "--outputType")
@@ -153,7 +154,7 @@ func TestPackWithSplitOutputArgument(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--split-output", "true"}, context)
 
 	if !slices.Contains(commandArgs, "--splitOutput") {
@@ -173,7 +174,7 @@ func TestPackWithReleaseNotesArgument(t *testing.T) {
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--release-notes", "These are release notes."}, context)
 
 	releaseNotes := test.GetArgumentValue(commandArgs, "--releaseNotes")
@@ -199,14 +200,14 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	identityUrl := test.GetArgumentValue(commandArgs, "--libraryIdentityUrl")
@@ -251,14 +252,14 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination}, context)
 
 	identityUrl := test.GetArgumentValue(commandArgs, "--libraryIdentityUrl")

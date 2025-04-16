@@ -2,6 +2,7 @@ package digitzer
 
 import (
 	"bytes"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -96,7 +97,7 @@ paths:
 }
 
 func TestDigitizeWithFailedResponseReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -115,7 +116,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(400, "validation error").
+		WithResponse(http.StatusBadRequest, "validation error").
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
@@ -126,7 +127,7 @@ paths:
 }
 
 func TestDigitizeWithFailedResultResponseReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -145,7 +146,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"04908673-2b65-4647-8ab3-dde8a3aa7885"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"04908673-2b65-4647-8ab3-dde8a3aa7885"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/04908673-2b65-4647-8ab3-dde8a3aa7885?api-version=1", 400, `validation error`).
 		Build()
 
@@ -157,7 +158,7 @@ paths:
 }
 
 func TestDigitizeWithoutProjectIdUsesDefaultProject(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -186,7 +187,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"648ea1c2-7dbe-42a8-b112-6474d07e61c1"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"648ea1c2-7dbe-42a8-b112-6474d07e61c1"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/00000000-0000-0000-0000-000000000000/digitization/result/648ea1c2-7dbe-42a8-b112-6474d07e61c1?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
@@ -202,7 +203,7 @@ paths:
 }
 
 func TestDigitizeSuccessfully(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -231,7 +232,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
@@ -247,7 +248,7 @@ paths:
 }
 
 func TestDigitizeSuccessfullyWithDebugFlag(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -266,7 +267,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
 		Build()
 
@@ -302,13 +303,13 @@ paths:
       operationId: digitize
 `
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("hello-world"))
+	stdIn.WriteString("hello-world")
 	context := test.NewContextBuilder().
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithStdIn(stdIn).
-		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
@@ -324,7 +325,7 @@ paths:
 }
 
 func TestDigitizeLargeFileSuccessfully(t *testing.T) {
-	path := test.CreateFileWithBinaryContent(t, make([]byte, 10*1024*1024))
+	path := test.CreateTempFileBinary(t, make([]byte, 10*1024*1024))
 
 	config := `profiles:
 - name: default
@@ -353,7 +354,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 
@@ -369,7 +370,7 @@ paths:
 }
 
 func TestDigitizeSuccessfullyWithCustomHeader(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -400,7 +401,7 @@ paths:
 		WithDefinition("du", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
-		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
 		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
 		Build()
 

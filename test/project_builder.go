@@ -46,15 +46,15 @@ func (b *ProjectBuilder) WithDefaultGovernanceFile() *ProjectBuilder {
 	return b
 }
 
-func (b ProjectBuilder) writeFileContent(directory string, fileName string, content string) {
+func (b *ProjectBuilder) writeFileContent(directory string, fileName string, content string) {
 	err := os.WriteFile(filepath.Join(directory, fileName), []byte(content), 0600)
 	if err != nil {
 		b.t.Fatal(err)
 	}
 }
 
-func (b ProjectBuilder) Build() string {
-	directory := CreateDirectory(b.t)
+func (b *ProjectBuilder) Build() string {
+	directory := b.t.TempDir()
 
 	projectJson := b.buildProjectJson()
 	b.writeFileContent(directory, "project.json", projectJson)
@@ -66,7 +66,7 @@ func (b ProjectBuilder) Build() string {
 	return directory
 }
 
-func (b ProjectBuilder) buildProjectJson() string {
+func (b *ProjectBuilder) buildProjectJson() string {
 	projectJson := b.formatTemplate(projectJsonTemplate, map[string]string{
 		"PROJECT_ID":       b.projectId,
 		"PROJECT_NAME":     b.projectName,
@@ -75,7 +75,7 @@ func (b ProjectBuilder) buildProjectJson() string {
 	return projectJson
 }
 
-func (b ProjectBuilder) formatTemplate(template string, values map[string]string) string {
+func (b *ProjectBuilder) formatTemplate(template string, values map[string]string) string {
 	result := template
 	for key, value := range values {
 		result = strings.ReplaceAll(result, "{{"+key+"}}", value)

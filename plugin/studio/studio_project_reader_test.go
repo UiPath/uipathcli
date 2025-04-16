@@ -17,7 +17,7 @@ func TestStudioProjectReader_FileNotFound_ReturnsError(t *testing.T) {
 }
 
 func TestStudioProjectReaderInvalidJsonReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, "INVALID")
+	path := test.CreateTempFile(t, "INVALID")
 
 	studioProjectReader := NewStudioProjectReader(path)
 	_, err := studioProjectReader.ReadMetadata()
@@ -27,7 +27,7 @@ func TestStudioProjectReaderInvalidJsonReturnsError(t *testing.T) {
 }
 
 func TestStudioProjectReaderReturnsMetadata(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -56,7 +56,7 @@ func TestStudioProjectReaderReturnsMetadata(t *testing.T) {
 }
 
 func TestStudioProjectReaderReturnsTargetFrameworkWindows(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "targetFramework": "windows"
 }
@@ -73,7 +73,7 @@ func TestStudioProjectReaderReturnsTargetFrameworkWindows(t *testing.T) {
 }
 
 func TestStudioProjectReaderReturnsTargetFrameworkLegacy(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "targetFramework": "Legacy"
 }
@@ -90,7 +90,7 @@ func TestStudioProjectReaderReturnsTargetFrameworkLegacy(t *testing.T) {
 }
 
 func TestStudioProjectReaderUnknownTargetFrameworkDefaultsToCrossPlatform(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "targetFramework": "Unknown"
 }
@@ -107,7 +107,7 @@ func TestStudioProjectReaderUnknownTargetFrameworkDefaultsToCrossPlatform(t *tes
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesCreatesNewSection(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -133,7 +133,7 @@ func TestStudioProjectReaderAddToIgnoredFilesCreatesNewSection(t *testing.T) {
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingDesignOptions(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -162,7 +162,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingDesignOptions(t *test
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingProcessOptions(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -193,7 +193,7 @@ func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingProcessOptions(t *tes
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesAddsToExistingIgnoredFiles(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -232,7 +232,7 @@ func TestStudioProjectReaderAddToIgnoredFilesFileNotFoundReturnsError(t *testing
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesInvalidJsonReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, "INVALID")
+	path := test.CreateTempFile(t, "INVALID")
 
 	studioProjectReader := NewStudioProjectReader(path)
 	err := studioProjectReader.AddToIgnoredFiles("*.nupkg")
@@ -242,7 +242,7 @@ func TestStudioProjectReaderAddToIgnoredFilesInvalidJsonReturnsError(t *testing.
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesInvalidIgnoredFilesReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",
@@ -264,7 +264,7 @@ func TestStudioProjectReaderAddToIgnoredFilesInvalidIgnoredFilesReturnsError(t *
 }
 
 func TestStudioProjectReaderAddToIgnoredFilesFilePatternExistsNoOp(t *testing.T) {
-	path := test.CreateFileWithContent(t, `
+	path := test.CreateTempFile(t, `
 {
   "name": "My Process",
   "projectId": "5fe987d1-7495-4dc7-bc4c-feaf08600b95",

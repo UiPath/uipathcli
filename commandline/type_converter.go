@@ -53,7 +53,7 @@ func (c typeConverter) convertToBoolean(value string, parameter parser.Parameter
 	return false, fmt.Errorf("Cannot convert '%s' value '%s' to boolean", parameter.Name, value)
 }
 
-func (c typeConverter) convertToBinary(value string, parameter parser.Parameter) (stream.Stream, error) {
+func (c typeConverter) convertToBinary(value string) (stream.Stream, error) {
 	return stream.NewFileStream(value), nil
 }
 
@@ -96,7 +96,7 @@ func (c typeConverter) isArray(key string) (bool, string, int) {
 func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string, value string, parameter parser.Parameter) error {
 	current := obj
 	currentParameter := &parameter
-	for i := 0; i < len(keys); i++ {
+	for i := range keys {
 		key := keys[i]
 		lastKey := i == len(keys)-1
 		if lastKey && current[key] != nil {
@@ -105,7 +105,7 @@ func (c typeConverter) assignToObject(obj map[string]interface{}, keys []string,
 
 		isArray, arrayKey, index := c.isArray(key)
 		if isArray {
-			array, item := c.initArray(parameter.Name, current[arrayKey], index)
+			array, item := c.initArray(current[arrayKey], index)
 			if array == nil || item == nil {
 				return fmt.Errorf("Cannot convert '%s' value because object key '%s' is already defined", parameter.Name, arrayKey)
 			}
@@ -153,7 +153,7 @@ func (c typeConverter) initArrayItem(array []interface{}, index int) ([]interfac
 	return array, item
 }
 
-func (c typeConverter) initArray(name string, value interface{}, index int) ([]interface{}, map[string]interface{}) {
+func (c typeConverter) initArray(value interface{}, index int) ([]interface{}, map[string]interface{}) {
 	if value == nil {
 		value = []interface{}{}
 	}
@@ -196,7 +196,7 @@ func (c typeConverter) convertToObject(value string, parameter parser.Parameter)
 	return obj, nil
 }
 
-func (c typeConverter) convertValueToStringArray(value string, parameter parser.Parameter) ([]string, error) {
+func (c typeConverter) convertValueToStringArray(value string) ([]string, error) {
 	return c.splitEscaped(value, ','), nil
 }
 
@@ -250,7 +250,7 @@ func (c typeConverter) splitEscapedMaxCount(str string, separator byte, maxCount
 	result := []string{}
 	item := []byte{}
 	escaping := false
-	for i := 0; i < len(str); i++ {
+	for i := range len(str) {
 		char := str[i]
 		if char == '\\' && !escaping {
 			escaping = true
@@ -291,11 +291,11 @@ func (c typeConverter) Convert(value string, parameter parser.Parameter) (interf
 	case parser.ParameterTypeBoolean:
 		return c.convertToBoolean(value, parameter)
 	case parser.ParameterTypeBinary:
-		return c.convertToBinary(value, parameter)
+		return c.convertToBinary(value)
 	case parser.ParameterTypeObject:
 		return c.convertToObject(value, parameter)
 	case parser.ParameterTypeStringArray:
-		return c.convertValueToStringArray(value, parameter)
+		return c.convertValueToStringArray(value)
 	case parser.ParameterTypeIntegerArray:
 		return c.convertValueToIntegerArray(value, parameter)
 	case parser.ParameterTypeNumberArray:
@@ -321,10 +321,10 @@ func (c typeConverter) convertToObjectArray(values []string, parameter parser.Pa
 	return result, nil
 }
 
-func (c typeConverter) convertToStringArray(values []string, parameter parser.Parameter) ([]string, error) {
+func (c typeConverter) convertToStringArray(values []string) ([]string, error) {
 	result := []string{}
 	for _, value := range values {
-		items, err := c.convertValueToStringArray(value, parameter)
+		items, err := c.convertValueToStringArray(value)
 		if err != nil {
 			return nil, err
 		}
@@ -374,7 +374,7 @@ func (c typeConverter) ConvertArray(values []string, parameter parser.Parameter)
 	case parser.ParameterTypeObjectArray:
 		return c.convertToObjectArray(values, parameter)
 	case parser.ParameterTypeStringArray:
-		return c.convertToStringArray(values, parameter)
+		return c.convertToStringArray(values)
 	case parser.ParameterTypeIntegerArray:
 		return c.convertToIntegerArray(values, parameter)
 	case parser.ParameterTypeNumberArray:

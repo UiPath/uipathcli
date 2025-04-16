@@ -46,7 +46,7 @@ func (c DownloadCommand) download(ctx plugin.ExecutionContext, writer output.Out
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	downloadBar := visualization.NewProgressBar(logger)
 	downloadReader := c.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()

@@ -1,8 +1,10 @@
 package stream
 
 import (
+	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
@@ -17,14 +19,8 @@ func TestFileStreamName(t *testing.T) {
 }
 
 func TestFileStreamSize(t *testing.T) {
-	tempFile, _ := os.CreateTemp("", "uipath-test")
-	defer tempFile.Close()
-	t.Cleanup(func() { os.Remove(tempFile.Name()) })
-	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
-	if err != nil {
-		t.Fatalf("Error writing file '%s': %v", tempFile.Name(), err)
-	}
-	param := NewFileStream(tempFile.Name())
+	path := createFile(t, "my-file.txt", "hello-world")
+	param := NewFileStream(path)
 
 	size, err := param.Size()
 
@@ -37,17 +33,17 @@ func TestFileStreamSize(t *testing.T) {
 }
 
 func TestFileStreamData(t *testing.T) {
-	tempFile, _ := os.CreateTemp("", "uipath-test")
-	defer tempFile.Close()
-	t.Cleanup(func() { os.Remove(tempFile.Name()) })
-	err := os.WriteFile(tempFile.Name(), []byte("hello-world"), 0600)
-	if err != nil {
-		t.Fatalf("Error writing file '%s': %v", tempFile.Name(), err)
-	}
-	param := NewFileStream(tempFile.Name())
+	path := createFile(t, "my-file.txt", "hello-world")
+	stream := NewFileStream(path)
 
-	reader, err := param.Data()
+	reader, err := stream.Data()
 	data, _ := io.ReadAll(reader)
+	defer func() {
+		err := reader.Close()
+		if err != nil {
+			t.Errorf("Should not return error when closing reader, but got: %v", err)
+		}
+	}()
 
 	if string(data) != "hello-world" {
 		t.Errorf("Did not return provided data, but got: %v", string(data))
@@ -58,11 +54,20 @@ func TestFileStreamData(t *testing.T) {
 }
 
 func TestFileStreamFileNotFound(t *testing.T) {
-	param := NewFileStream("unknown-path/my-file.txt")
+	stream := NewFileStream("unknown-path/my-file.txt")
 
-	_, err := param.Data()
+	_, err := stream.Data()
 
 	if err.Error() != "File 'unknown-path/my-file.txt' not found" {
 		t.Errorf("Should return file not found error, but got: %v", err)
 	}
+}
+
+func createFile(t *testing.T, name string, content string) string {
+	path := filepath.Join(t.TempDir(), name)
+	err := os.WriteFile(path, []byte(content), 0600)
+	if err != nil {
+		t.Fatal(fmt.Errorf("Error writing file '%s': %w", path, err))
+	}
+	return path
 }

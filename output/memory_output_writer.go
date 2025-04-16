@@ -28,7 +28,7 @@ func (w *MemoryOutputWriter) WriteResponse(response ResponseInfo) error {
 	return nil
 }
 
-func (w MemoryOutputWriter) Response() ResponseInfo {
+func (w *MemoryOutputWriter) Response() ResponseInfo {
 	return *NewResponseInfo(w.statusCode, w.status, w.protocol, w.header, bytes.NewReader(w.body))
 }
 

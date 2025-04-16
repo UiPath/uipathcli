@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"hello":"world"}`).
+		WithResponse(http.StatusOK, `{"hello":"world"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--query", "hello"}, context)
@@ -37,7 +38,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"myfield":"foo","otherfield":"bar"}`).
+		WithResponse(http.StatusOK, `{"myfield":"foo","otherfield":"bar"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--query", "{a:myfield, b:otherfield}"}, context)
@@ -63,7 +64,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{}`).
+		WithResponse(http.StatusOK, `{}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--query", ";"}, context)
@@ -85,7 +86,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"results":[{"a": 1}, {"a": 2}]}`).
+		WithResponse(http.StatusOK, `{"results":[{"a": 1}, {"a": 2}]}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--query", "results[].a"}, context)

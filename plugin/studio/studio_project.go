@@ -1,7 +1,6 @@
 package studio
 
 import (
-	"fmt"
 	"strings"
 )
 
@@ -14,7 +13,7 @@ type StudioProject struct {
 
 func (p StudioProject) NupkgIgnoreFilePattern() string {
 	id := strings.ReplaceAll(p.Name, " ", ".")
-	return fmt.Sprintf("%s.*.nupkg", id)
+	return id + ".*.nupkg"
 }
 
 func NewStudioProject(name string, description string, projectId string, targetFramework TargetFramework) *StudioProject {

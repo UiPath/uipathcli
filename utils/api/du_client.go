@@ -33,7 +33,7 @@ func (c DuClient) StartDigitization(projectId string, file stream.Stream, conten
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
@@ -69,7 +69,7 @@ func (c DuClient) GetDigitizationResult(projectId string, documentId string) (st
 	if err != nil {
 		return "", err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", fmt.Errorf("Error reading response: %w", err)
@@ -96,8 +96,8 @@ func (c DuClient) createDigitizeStatusRequest(projectId string, documentId strin
 func (c DuClient) writeMultipartBody(bodyWriter *io.PipeWriter, stream stream.Stream, contentType string, cancel context.CancelCauseFunc) string {
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
-		defer bodyWriter.Close()
-		defer formWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
+		defer func() { _ = formWriter.Close() }()
 		err := c.writeMultipartForm(formWriter, stream, contentType)
 		if err != nil {
 			cancel(err)
@@ -119,7 +119,7 @@ func (c DuClient) writeMultipartForm(writer *multipart.Writer, stream stream.Str
 	if err != nil {
 		return err
 	}
-	defer data.Close()
+	defer func() { _ = data.Close() }()
 	_, err = io.Copy(w, data)
 	if err != nil {
 		return fmt.Errorf("Error writing form field 'file': %w", err)

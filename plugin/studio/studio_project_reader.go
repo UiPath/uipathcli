@@ -22,7 +22,7 @@ func (r StudioProjectReader) ReadMetadata() (StudioProject, error) {
 	var projectJson studioProjectJson
 	err = json.Unmarshal(data, &projectJson)
 	if err != nil {
-		return StudioProject{}, fmt.Errorf("Error parsing %s file: %v", DefaultProjectJson, err)
+		return StudioProject{}, fmt.Errorf("Error parsing %s file: %w", DefaultProjectJson, err)
 	}
 	project := NewStudioProject(
 		projectJson.Name,
@@ -50,12 +50,12 @@ func (r StudioProjectReader) AddToIgnoredFiles(fileName string) error {
 	var result interface{}
 	err = json.Unmarshal(data, &result)
 	if err != nil {
-		return fmt.Errorf("Error parsing %s file: %v", DefaultProjectJson, err)
+		return fmt.Errorf("Error parsing %s file: %w", DefaultProjectJson, err)
 	}
 
 	changed, err := r.addToIgnoredFiles(result.(map[string]interface{}), fileName)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %w", DefaultProjectJson, err)
 	}
 	if !changed {
 		return nil
@@ -66,12 +66,12 @@ func (r StudioProjectReader) AddToIgnoredFiles(fileName string) error {
 func (r StudioProjectReader) readProjectJson() ([]byte, error) {
 	file, err := os.Open(r.Path)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading %s file: %v", DefaultProjectJson, err)
+		return nil, fmt.Errorf("Error reading %s file: %w", DefaultProjectJson, err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	data, err := io.ReadAll(file)
 	if err != nil {
-		return nil, fmt.Errorf("Error reading %s file: %v", DefaultProjectJson, err)
+		return nil, fmt.Errorf("Error reading %s file: %w", DefaultProjectJson, err)
 	}
 	return data, err
 }
@@ -79,15 +79,15 @@ func (r StudioProjectReader) readProjectJson() ([]byte, error) {
 func (r StudioProjectReader) updateProjectJson(result interface{}) error {
 	updated, err := json.Marshal(result)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %w", DefaultProjectJson, err)
 	}
 	fileInfo, err := os.Stat(r.Path)
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %w", DefaultProjectJson, err)
 	}
 	err = os.WriteFile(r.Path, updated, fileInfo.Mode())
 	if err != nil {
-		return fmt.Errorf("Error updating %s file: %v", DefaultProjectJson, err)
+		return fmt.Errorf("Error updating %s file: %w", DefaultProjectJson, err)
 	}
 	return nil
 }

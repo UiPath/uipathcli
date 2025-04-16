@@ -12,7 +12,7 @@ type DefaultLogger struct {
 	writer io.Writer
 }
 
-func (l *DefaultLogger) LogRequest(request RequestInfo) {
+func (l DefaultLogger) LogRequest(request RequestInfo) {
 }
 
 func (l DefaultLogger) LogResponse(response ResponseInfo) {
@@ -22,7 +22,7 @@ func (l DefaultLogger) Log(message string) {
 }
 
 func (l DefaultLogger) LogError(message string) {
-	fmt.Fprint(l.writer, message)
+	_, _ = fmt.Fprint(l.writer, message)
 }
 
 func NewDefaultLogger(writer io.Writer) *DefaultLogger {

@@ -2,6 +2,7 @@ package cache
 
 import (
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"os"
@@ -68,7 +69,7 @@ func (c FileCache) cacheFilePath(key string) (string, error) {
 		return "", err
 	}
 	hash := sha256.Sum256([]byte(key))
-	fileName := fmt.Sprintf("%x", hash)
+	fileName := hex.EncodeToString(hash[:])
 	return filepath.Join(cacheDirectory, fileName), nil
 }
 

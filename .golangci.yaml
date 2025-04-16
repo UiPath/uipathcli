@@ -1,14 +1,38 @@
+version: "2"
 linters:
   enable:
-    - errcheck
-    - gocyclo
-    - gosec
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
-linters-settings:
-  gocyclo:
-    min-complexity: 15
+    - asasalint       # Validates that there are no invocations of variadic functions using slices.
+    - asciicheck      # Verifies that the source code does not include non-ASCII identifiers.
+    - bidichk         # Checks for the presence of potentially hazardous unicode character sequences.
+    - bodyclose       # Inspects if the HTTP response bodies are being closed correctly.
+    - canonicalheader # Verifies that the net/http.Header is utilized with canonical headers.
+    - copyloopvar     # Looks for instances where loop variables are being duplicated (this linter requires Go 1.22 or later).
+    - errname         # Ensures that sentinel errors start with 'Err' and error types end with 'Error'.
+    - errorlint       # Detects source code that could interfere with error wrapping
+    - cyclop          # Evaluates and checks cyclomatic complexity of functions.
+    - gosec           # Inspects source code for potential security vulnerabilities.
+    - govet           # Identifies suspicious constructs, such as Printf calls where arguments don't align with the format string.
+    - iface           # Checks for improper use of interfaces, aiding in avoiding interface pollution.
+    - ineffassign     # Detects instances where assignments to existing variables are not utilized.
+    - intrange        # Identifies places where 'for' loops could utilize an integer range.
+    - mirror          # Suggests using the correct function to avoid []byte/string conversion.
+    - nilnesserr      # Reports instances where it checks for 'err != nil' but returns a different 'nil' value error.
+    - noctx           # Finds instances where http requests are sent without a context.Context.
+    - perfsprint      # Verifies if 'fmt.Sprintf' can be replaced with a faster alternative.
+    - recvcheck       # Checks for consistent receiver type.
+    - staticcheck     # Performs robust static analysis checks.
+    - unused          # Checks for unused constants, variables, functions, and types.
+    - usestdlibvars   # Verifies if there's an opportunity to use variables/constants from the Go standard library.
+    - usetesting      # Verifies if there's an opportunity to use testing functions from the Go test library.
+  settings:
+    cyclop:
+      max-complexity: 15
+    gosec:
+      excludes:
+        - G304
+    staticcheck:
+      checks:
+        - all
+        - -ST1000     # Incorrect or missing package comment.
+        - -ST1005     # Error strings should not end with punctuation or newlines.
+        - -ST1003     # Poorly chosen identifier.

@@ -95,7 +95,7 @@ func (s *DefinitionFileStore) discoverDefinitions(serviceVersion string) ([]stri
 	return result, nil
 }
 
-func (s DefinitionFileStore) discoverDefinitionsEmbedded() []string {
+func (s *DefinitionFileStore) discoverDefinitionsEmbedded() []string {
 	definitionFiles := []string{}
 	embeddedDir, err := s.embedded.ReadDir(DefinitionsDirectory)
 	if err == nil {
@@ -106,7 +106,7 @@ func (s DefinitionFileStore) discoverDefinitionsEmbedded() []string {
 	return definitionFiles
 }
 
-func (s DefinitionFileStore) discoverDefinitionsDirectory(serviceVersion string) []string {
+func (s *DefinitionFileStore) discoverDefinitionsDirectory(serviceVersion string) []string {
 	definitionFiles := []string{}
 	definitionsDirectory := s.definitionsPath(serviceVersion)
 	files, err := os.ReadDir(definitionsDirectory)
@@ -121,7 +121,7 @@ func (s DefinitionFileStore) discoverDefinitionsDirectory(serviceVersion string)
 	return definitionFiles
 }
 
-func (s DefinitionFileStore) definitionsPath(serviceVersion string) string {
+func (s *DefinitionFileStore) definitionsPath(serviceVersion string) string {
 	if s.directory != "" {
 		return s.directory
 	}
@@ -132,11 +132,11 @@ func (s DefinitionFileStore) definitionsPath(serviceVersion string) string {
 	return filepath.Join(filepath.Dir(currentDirectory), DefinitionsDirectory, serviceVersion)
 }
 
-func (s DefinitionFileStore) definitionName(path string) string {
+func (s *DefinitionFileStore) definitionName(path string) string {
 	return strings.TrimSuffix(filepath.Base(path), filepath.Ext(path))
 }
 
-func (s DefinitionFileStore) definitionNames(paths []string) []string {
+func (s *DefinitionFileStore) definitionNames(paths []string) []string {
 	names := []string{}
 	for _, path := range paths {
 		names = append(names, s.definitionName(path))
@@ -144,7 +144,7 @@ func (s DefinitionFileStore) definitionNames(paths []string) []string {
 	return names
 }
 
-func (s DefinitionFileStore) readDefinitionData(serviceVersion string, fileName string) ([]byte, error) {
+func (s *DefinitionFileStore) readDefinitionData(serviceVersion string, fileName string) ([]byte, error) {
 	definitionsFilePath := filepath.Join(s.definitionsPath(serviceVersion), fileName)
 	data, err := os.ReadFile(definitionsFilePath)
 	if err != nil {

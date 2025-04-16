@@ -18,9 +18,9 @@ type NupkgReader struct {
 func (r NupkgReader) ReadNuspec() (*Nuspec, error) {
 	zip, err := zip.OpenReader(r.Path)
 	if err != nil {
-		return nil, fmt.Errorf("Could not read package '%s': %v", r.Path, err)
+		return nil, fmt.Errorf("Could not read package '%s': %w", r.Path, err)
 	}
-	defer zip.Close()
+	defer func() { _ = zip.Close() }()
 	for _, file := range zip.File {
 		if strings.HasSuffix(file.Name, ".nuspec") {
 			return r.readNuspec(r.Path, file)
@@ -32,17 +32,17 @@ func (r NupkgReader) ReadNuspec() (*Nuspec, error) {
 func (r NupkgReader) readNuspec(source string, file *zip.File) (*Nuspec, error) {
 	reader, err := file.Open()
 	if err != nil {
-		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
+		return nil, fmt.Errorf("Could not read nuspec in package '%s': %w", source, err)
 	}
-	defer reader.Close()
+	defer func() { _ = reader.Close() }()
 	data, err := io.ReadAll(reader)
 	if err != nil {
-		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
+		return nil, fmt.Errorf("Could not read nuspec in package '%s': %w", source, err)
 	}
 	var nuspec nuspecXml
 	err = xml.Unmarshal(data, &nuspec)
 	if err != nil {
-		return nil, fmt.Errorf("Could not read nuspec in package '%s': %v", source, err)
+		return nil, fmt.Errorf("Could not read nuspec in package '%s': %w", source, err)
 	}
 	return NewNuspec(nuspec.Metadata.Id, nuspec.Metadata.Title, nuspec.Metadata.Version), nil
 }

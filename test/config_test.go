@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"strings"
 	"testing"
 )
@@ -20,7 +21,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -44,7 +45,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -70,7 +71,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -95,7 +96,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -129,7 +130,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -163,7 +164,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -197,7 +198,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -233,7 +234,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--id", "my-id"}, context)
@@ -269,7 +270,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -296,7 +297,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -326,7 +327,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping", "--profile", "myprofile"}, context)
@@ -388,7 +389,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -422,7 +423,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -455,7 +456,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -481,7 +482,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -508,7 +509,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(200, `{"a":"foo","b":1.1}`).
+		WithResponse(http.StatusOK, `{"a":"foo","b":1.1}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)

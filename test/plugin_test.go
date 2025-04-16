@@ -2,7 +2,8 @@ package test
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -166,8 +167,8 @@ paths:
 		WithDefinition("mypluginservice", definition).
 		WithConfig(config).
 		WithCommandPlugin(&pluginCommand).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	RunCli([]string{"mypluginservice", "my-plugin-command"}, context)
@@ -201,8 +202,8 @@ profiles:
 		WithDefinition("mypluginservice", "").
 		WithConfig(config).
 		WithCommandPlugin(&pluginCommand).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	RunCli([]string{"mypluginservice", "my-plugin-command"}, context)
@@ -297,7 +298,7 @@ type ContextPluginCommand struct {
 	Context plugin.ExecutionContext
 }
 
-func (c ContextPluginCommand) Command() plugin.Command {
+func (c *ContextPluginCommand) Command() plugin.Command {
 	return *plugin.NewCommand("mypluginservice").
 		WithOperation("my-plugin-command", "Simple Command", "This is a simple plugin command").
 		WithParameter("filter", plugin.ParameterTypeString, "This is a filter", false)
@@ -316,7 +317,7 @@ func (c ErrorPluginCommand) Command() plugin.Command {
 }
 
 func (c ErrorPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	return fmt.Errorf("Internal server error when calling mypluginservice")
+	return errors.New("Internal server error when calling mypluginservice")
 }
 
 type HideOperationPluginCommand struct{}
@@ -328,7 +329,7 @@ func (c HideOperationPluginCommand) Command() plugin.Command {
 }
 
 func (c HideOperationPluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	return fmt.Errorf("my-hidden-command is not supported")
+	return errors.New("my-hidden-command is not supported")
 }
 
 type ParametrizedPluginCommand struct{}

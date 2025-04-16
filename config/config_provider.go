@@ -62,7 +62,7 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 	return p.store.Write(data)
 }
 
-func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
+func (p *ConfigProvider) convertToConfig(profile profileYaml) Config {
 	if profile.Auth == nil {
 		profile.Auth = map[string]interface{}{}
 	}
@@ -89,12 +89,12 @@ func (p ConfigProvider) convertToConfig(profile profileYaml) Config {
 	}
 }
 
-func (p ConfigProvider) New() Config {
+func (p *ConfigProvider) New() Config {
 	profile := profileYaml{}
 	return p.convertToConfig(profile)
 }
 
-func (p ConfigProvider) Config(name string) *Config {
+func (p *ConfigProvider) Config(name string) *Config {
 	for _, profile := range p.profiles {
 		if profile.Name == name {
 			config := p.convertToConfig(profile)

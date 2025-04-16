@@ -81,7 +81,7 @@ func (e HttpExecutor) writeMultipartForm(writer *multipart.Writer, parameters []
 			if err != nil {
 				return err
 			}
-			defer data.Close()
+			defer func() { _ = data.Close() }()
 			_, err = io.Copy(w, data)
 			if err != nil {
 				return fmt.Errorf("Error writing form file '%s': %w", parameter.Name, err)
@@ -176,8 +176,8 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 	multipartSize := e.calculateMultipartSize(parameters)
 	formWriter := multipart.NewWriter(bodyWriter)
 	go func() {
-		defer bodyWriter.Close()
-		defer formWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
+		defer func() { _ = formWriter.Close() }()
 		err := e.writeMultipartForm(formWriter, parameters)
 		if err != nil {
 			cancel(err)
@@ -189,13 +189,13 @@ func (e HttpExecutor) writeMultipartBody(bodyWriter *io.PipeWriter, parameters [
 
 func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input stream.Stream, cancel context.CancelCauseFunc) {
 	go func() {
-		defer bodyWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
 		data, err := input.Data()
 		if err != nil {
 			cancel(err)
 			return
 		}
-		defer data.Close()
+		defer func() { _ = data.Close() }()
 		_, err = io.Copy(bodyWriter, data)
 		if err != nil {
 			cancel(err)
@@ -206,7 +206,7 @@ func (e HttpExecutor) writeInputBody(bodyWriter *io.PipeWriter, input stream.Str
 
 func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, cancel context.CancelCauseFunc) {
 	go func() {
-		defer bodyWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
 		queryStringBuilder := converter.NewQueryStringBuilder()
 		for _, parameter := range parameters {
 			queryStringBuilder.Add(parameter.Name, parameter.Value)
@@ -222,7 +222,7 @@ func (e HttpExecutor) writeUrlEncodedBody(bodyWriter *io.PipeWriter, parameters 
 
 func (e HttpExecutor) writeJsonBody(bodyWriter *io.PipeWriter, parameters []ExecutionParameter, cancel context.CancelCauseFunc) {
 	go func() {
-		defer bodyWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
 		err := e.serializeJson(bodyWriter, parameters)
 		if err != nil {
 			cancel(err)
@@ -314,7 +314,7 @@ func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, log
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	downloadBar := visualization.NewProgressBar(logger)
 	downloadReader := e.progressReader("downloading...", "completing    ", response.Body, response.ContentLength, downloadBar)
 	defer downloadBar.Remove()

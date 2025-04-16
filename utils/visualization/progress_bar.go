@@ -3,6 +3,7 @@ package visualization
 import (
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -53,12 +54,12 @@ func (b *ProgressBar) UpdateProgress(text string, current int64, total int64, by
 
 func (b *ProgressBar) Remove() {
 	if b.renderedLength > 0 {
-		clear := fmt.Sprintf("\r%s\r", strings.Repeat(" ", b.renderedLength))
-		b.logger.LogError(clear)
+		clearScreen := fmt.Sprintf("\r%s\r", strings.Repeat(" ", b.renderedLength))
+		b.logger.LogError(clearScreen)
 	}
 }
 
-func (b ProgressBar) renderTick(text string, percent float64, info string) int {
+func (b *ProgressBar) renderTick(text string, percent float64, info string) int {
 	bar := b.createBar(percent)
 	output := fmt.Sprintf("%s      |%s|%s",
 		text,
@@ -68,7 +69,7 @@ func (b ProgressBar) renderTick(text string, percent float64, info string) int {
 	return utf8.RuneCountInString(output)
 }
 
-func (b ProgressBar) renderProgress(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
+func (b *ProgressBar) renderProgress(text string, currentBytes int64, totalBytes int64, bytesPerSecond int64) int {
 	percent := math.Min(float64(currentBytes)/float64(totalBytes)*100.0, 100.0)
 	bar := b.createBar(percent)
 	totalBytesFormatted, unit := b.formatBytes(totalBytes)
@@ -87,7 +88,7 @@ func (b ProgressBar) renderProgress(text string, currentBytes int64, totalBytes 
 	return utf8.RuneCountInString(output)
 }
 
-func (b ProgressBar) createBar(percent float64) string {
+func (b *ProgressBar) createBar(percent float64) string {
 	barCount := int(percent / 5.0)
 	if barCount > 20 {
 		barCount = 20
@@ -95,7 +96,7 @@ func (b ProgressBar) createBar(percent float64) string {
 	return strings.Repeat("█", barCount) + strings.Repeat(" ", 20-barCount)
 }
 
-func (b ProgressBar) formatBytes(count int64) (string, string) {
+func (b *ProgressBar) formatBytes(count int64) (string, string) {
 	if count < 1000 {
 		return b.formatBytesInUnit(count, "B")
 	}
@@ -108,9 +109,9 @@ func (b ProgressBar) formatBytes(count int64) (string, string) {
 	return b.formatBytesInUnit(count, "GB")
 }
 
-func (b ProgressBar) formatBytesInUnit(count int64, unit string) (string, string) {
+func (b *ProgressBar) formatBytesInUnit(count int64, unit string) (string, string) {
 	if unit == "B" {
-		return fmt.Sprintf("%d", count), unit
+		return strconv.FormatInt(count, 10), unit
 	}
 	if unit == "kB" {
 		return fmt.Sprintf("%0.1f", float64(count)/1_000), unit

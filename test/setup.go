@@ -2,6 +2,8 @@ package test
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,6 +11,7 @@ import (
 	"net/http/httptest"
 	"net/url"
 	"os"
+	"path/filepath"
 	"slices"
 	"strings"
 	"testing"
@@ -129,17 +132,17 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 	requestBody := string(body)
 	data, _ := url.ParseQuery(requestBody)
 	if len(data["client_id"]) != 1 || data["client_id"][0] == "" {
-		response.WriteHeader(400)
+		response.WriteHeader(http.StatusBadRequest)
 		_, _ = response.Write([]byte("client_id is missing"))
 		return
 	}
 	if len(data["client_secret"]) != 1 || data["client_secret"][0] == "" {
-		response.WriteHeader(400)
+		response.WriteHeader(http.StatusBadRequest)
 		_, _ = response.Write([]byte("client_secret is missing"))
 		return
 	}
 	if len(data["grant_type"]) != 1 || data["grant_type"][0] != "client_credentials" {
-		response.WriteHeader(400)
+		response.WriteHeader(http.StatusBadRequest)
 		_, _ = response.Write([]byte("Invalid grant_type"))
 		return
 	}
@@ -249,46 +252,17 @@ func RunCli(args []string, context Context) Result {
 	}
 }
 
-func CreateDirectory(t *testing.T) string {
-	tmp, err := os.MkdirTemp("", "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Cleanup(func() { os.RemoveAll(tmp) })
-	return tmp
+func TempFile(t *testing.T) string {
+	directory := t.TempDir()
+	return filepath.Join(directory, RandomString(50))
 }
 
-func CreateFile(t *testing.T) string {
-	return CreateFileInDirectory(t, "")
+func CreateTempFile(t *testing.T, data string) string {
+	return CreateTempFileBinary(t, []byte(data))
 }
 
-func CreateFileInDirectory(t *testing.T, path string) string {
-	if path != "" {
-		err := os.MkdirAll(path, 0700)
-		if err != nil {
-			t.Fatal(err)
-		}
-	}
-	tempFile, err := os.CreateTemp(path, "uipath-test")
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
-}
-
-func CreateFileWithContent(t *testing.T, data string) string {
-	return CreateFileWithBinaryContent(t, []byte(data))
-}
-
-func CreateFileWithBinaryContent(t *testing.T, data []byte) string {
-	path := CreateFile(t)
+func CreateTempFileBinary(t *testing.T, data []byte) string {
+	path := TempFile(t)
 	err := os.WriteFile(path, data, 0600)
 	if err != nil {
 		t.Fatalf("Error writing file '%s': %v", path, err)
@@ -311,4 +285,13 @@ func GetArgumentValue(args []string, name string) string {
 		return ""
 	}
 	return args[index+1]
+}
+
+func RandomString(length int) string {
+	randBytes := make([]byte, length)
+	_, err := rand.Read(randBytes)
+	if err != nil {
+		panic(fmt.Errorf("Error generating random string: %w", err))
+	}
+	return hex.EncodeToString(randBytes)[:length]
 }
