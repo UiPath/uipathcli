@@ -632,6 +632,7 @@ func (c OrchestratorClient) httpClientSettings() network.HttpClientSettings {
 	return *network.NewHttpClientSettings(
 		c.debug,
 		c.settings.OperationId,
+		c.settings.Header,
 		c.settings.Timeout,
 		c.settings.MaxAttempts,
 		c.settings.Insecure)

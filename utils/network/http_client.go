@@ -98,6 +98,9 @@ func (c HttpClient) send(request *HttpRequest, ctx context.Context) (*HttpRespon
 			return
 		}
 		req.Header = request.Header
+		for k, v := range c.settings.Header {
+			req.Header.Set(k, v)
+		}
 		req.ContentLength = request.ContentLength
 
 		resp, err := client.Do(req)

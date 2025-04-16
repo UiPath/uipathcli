@@ -85,17 +85,7 @@ func (b CommandBuilder) createExecutionParameters(context *CommandExecContext, c
 			parameters = append(parameters, *parameter)
 		}
 	}
-	parameters = append(parameters, b.createExecutionParametersFromConfigMap(config.Header, parser.ParameterInHeader)...)
 	return parameters, nil
-}
-
-func (b CommandBuilder) createExecutionParametersFromConfigMap(params map[string]string, in string) executor.ExecutionParameters {
-	parameters := []executor.ExecutionParameter{}
-	for key, value := range params {
-		parameter := executor.NewExecutionParameter(key, value, in)
-		parameters = append(parameters, *parameter)
-	}
-	return parameters
 }
 
 func (b CommandBuilder) formatAllowedValues(values []interface{}) string {
@@ -204,10 +194,6 @@ func (b CommandBuilder) getValue(parameter parser.Parameter, context *CommandExe
 		return value
 	}
 	value = config.Parameter[parameter.Name]
-	if value != "" {
-		return value
-	}
-	value = config.Header[parameter.Name]
 	if value != "" {
 		return value
 	}
@@ -361,7 +347,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 				*identityUri,
 				operation.Plugin,
 				debug,
-				*executor.NewExecutionSettings(operationId, timeout, maxAttempts, insecure),
+				*executor.NewExecutionSettings(operationId, config.Header, timeout, maxAttempts, insecure),
 			)
 
 			if wait != "" {

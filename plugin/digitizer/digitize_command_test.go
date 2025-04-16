@@ -367,3 +367,46 @@ paths:
 		t.Errorf("Expected stdout to show the digitize result, but got: %v", result.StdOut)
 	}
 }
+
+func TestDigitizeSuccessfullyWithCustomHeader(t *testing.T) {
+	path := test.CreateFileWithContent(t, "hello-world")
+
+	config := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  header:
+    x-custom-header: my-custom-value
+`
+
+	definition := `
+servers:
+- url: https://cloud.uipath.com/{organization}/{tenant}/du_/api/framework
+  description: The production url
+  variables:
+    organization:
+      description: The organization name (or id)
+      default: my-org
+    tenant:
+      description: The tenant name (or id)
+      default: my-tenant
+paths:
+  /digitize:
+    get:
+      operationId: digitize
+`
+
+	context := test.NewContextBuilder().
+		WithDefinition("du", definition).
+		WithConfig(config).
+		WithCommandPlugin(NewDigitizeCommand()).
+		WithResponse(202, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		Build()
+
+	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
+
+	if result.RequestHeader["x-custom-header"] != "my-custom-value" {
+		t.Errorf("Expected HTTP calls to contain custom config header, but got: %v", result.RequestHeader)
+	}
+}
