@@ -963,6 +963,33 @@ func TestRunParallelPassed(t *testing.T) {
 	}
 }
 
+func TestRunUsesProvidedFolderId(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		outputDirectory := test.GetArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"))
+	})
+	header := map[string]string{}
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", 200, `{"value":[]}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			header = request.Header
+			return test.ResponseData{Status: 200, Body: ""}
+		}).
+		Build()
+
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant", "--folder-id", "12345"}, context)
+
+	folderId := header["x-uipath-organizationunitid"]
+	if folderId != "12345" {
+		t.Errorf("Expected x-uipath-organizationunitid header from argument, but got: '%s'", folderId)
+	}
+}
+
 func writeNupkgArchive(t *testing.T, fileName string) {
 	err := studio.NewNupkgWriter(fileName).
 		WithNuspec(*studio.NewNuspec("MyLibrary", "My Library", "1.0.0")).

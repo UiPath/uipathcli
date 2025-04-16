@@ -15,6 +15,7 @@ type testRunParams struct {
 	Destination     string
 	Timeout         time.Duration
 	AttachRobotLogs bool
+	FolderId        int
 }
 
 func newTestRunParams(
@@ -24,6 +25,17 @@ func newTestRunParams(
 	source string,
 	destination string,
 	timeout time.Duration,
-	attachRobotLogs bool) *testRunParams {
-	return &testRunParams{executionId, uipcli, logger, source, destination, timeout, attachRobotLogs}
+	attachRobotLogs bool,
+	folderId int,
+) *testRunParams {
+	return &testRunParams{
+		executionId,
+		uipcli,
+		logger,
+		source,
+		destination,
+		timeout,
+		attachRobotLogs,
+		folderId,
+	}
 }
