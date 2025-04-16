@@ -233,8 +233,8 @@ func (b CommandBuilder) validateArguments(context *CommandExecContext, parameter
 	return err
 }
 
-func (b CommandBuilder) logger(ctx executor.ExecutionContext, writer io.Writer) log.Logger {
-	if ctx.Debug {
+func (b CommandBuilder) logger(debug bool, writer io.Writer) log.Logger {
+	if debug {
 		return log.NewDebugLogger(writer)
 	}
 	return log.NewDefaultLogger(writer)
@@ -423,7 +423,7 @@ func (b CommandBuilder) execute(ctx executor.ExecutionContext, outputFormat stri
 		if outputWriter == nil {
 			outputWriter = b.outputWriter(writer, outputFormat, query)
 		}
-		logger := b.logger(ctx, errorWriter)
+		logger := b.logger(ctx.Debug, errorWriter)
 		err = b.executeCommand(ctx, outputWriter, logger)
 	}()
 
@@ -573,6 +573,7 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 	subcommands := []*CommandDefinition{
 		b.createConfigSetCommand(),
 		b.createCacheCommand(),
+		b.createOfflineCommand(),
 	}
 
 	return NewCommand("config", "Interactive Configuration", "Interactive command to configure the CLI").
@@ -637,6 +638,20 @@ func (b CommandBuilder) createCacheCommand() *CommandDefinition {
 	return NewCommand("cache", "Caching-related commands", "Caching-related commands").
 		WithFlags(flags).
 		WithSubcommands(subcommands)
+}
+
+func (b CommandBuilder) createOfflineCommand() *CommandDefinition {
+	flags := NewFlagBuilder().
+		AddHelpFlag().
+		Build()
+
+	return NewCommand("offline", "Downloads external dependencies", "Downloads external dependencies for offline mode").
+		WithFlags(flags).
+		WithAction(func(context *CommandExecContext) error {
+			logger := b.logger(false, b.StdErr)
+			handler := newOfflineCommandHandler(b.StdOut, logger)
+			return handler.Execute()
+		})
 }
 
 func (b CommandBuilder) loadDefinitions(args []string, serviceVersion string) ([]parser.Definition, error) {
