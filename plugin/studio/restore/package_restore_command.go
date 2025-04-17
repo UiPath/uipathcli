@@ -1,3 +1,5 @@
+// Package restore implements the command plugin for restoring dependencies
+// of a UiPath Studio project.
 package restore
 
 import (
@@ -25,7 +27,7 @@ type PackageRestoreCommand struct {
 
 func (c PackageRestoreCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
-		WithCategory("package", "Package", "UiPath Studio package-related actions").
+		WithCategory("package", "UiPath Studio project packaging", "Restore, analyze, package and publish your UiPath studio projects.").
 		WithOperation("restore", "Package Project", "Restores the packages of the project").
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
 			WithRequired(true).

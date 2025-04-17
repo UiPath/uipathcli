@@ -1,3 +1,5 @@
+// Package directories provides common directory paths for
+// temporary files, caching, modules, etc...
 package directories
 
 import (

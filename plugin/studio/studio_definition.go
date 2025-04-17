@@ -1,3 +1,6 @@
+// Package studio defines the common functionality required by each
+// of the UiPath Studio command plugins like analyze, pack, publish
+// restore and test run.
 package studio
 
 const StudioDefinition = `

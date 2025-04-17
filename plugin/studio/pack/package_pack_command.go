@@ -1,3 +1,5 @@
+// Package pack implements the command plugin for packaging
+// UiPath Studio projects as NuGet packages.
 package pack
 
 import (
@@ -24,7 +26,7 @@ type PackagePackCommand struct {
 
 func (c PackagePackCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
-		WithCategory("package", "Package", "UiPath Studio package-related actions").
+		WithCategory("package", "UiPath Studio project packaging", "Restore, analyze, package and publish your UiPath studio projects.").
 		WithOperation("pack", "Package Project", "Packs a project into a single package").
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
 			WithRequired(true).

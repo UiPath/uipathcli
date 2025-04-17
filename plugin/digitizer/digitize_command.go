@@ -1,3 +1,5 @@
+// Package digitzer implements a plugin for digitizing files
+// using Document Understanding.
 package digitzer
 
 import (

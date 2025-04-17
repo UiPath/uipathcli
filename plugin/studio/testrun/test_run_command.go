@@ -1,3 +1,5 @@
+// Package testrun implements the command plugin for running tests
+// defined in UiPath Studio projects on orchestrator instances.
 package testrun
 
 import (
@@ -35,7 +37,7 @@ type TestRunCommand struct {
 
 func (c TestRunCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
-		WithCategory("test", "Test", "Tests your UiPath studio packages").
+		WithCategory("test", "Run workflow tests", "Tests your UiPath studio packages").
 		WithOperation("run", "Run Tests", "Tests a given package").
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeStringArray, "Path to one or more project.json files or folders containing project.json files").
 			WithRequired(true).
