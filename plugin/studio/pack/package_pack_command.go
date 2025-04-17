@@ -1,3 +1,5 @@
+// Package pack implements the command plugin for packaging
+// UiPath Studio projects as NuGet packages.
 package pack
 
 import (

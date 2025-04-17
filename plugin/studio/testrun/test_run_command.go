@@ -1,3 +1,5 @@
+// Package testrun implements the command plugin for running tests
+// defined in UiPath Studio projects on orchestrator instances.
 package testrun
 
 import (

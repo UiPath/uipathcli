@@ -1,3 +1,5 @@
+// Package restore implements the command plugin for restoring dependencies
+// of a UiPath Studio project.
 package restore
 
 import (

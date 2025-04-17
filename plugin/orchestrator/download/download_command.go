@@ -1,3 +1,6 @@
+// Package download implements a plugin for downloading files from orchestractor
+// buckets. It makes the download more convienient through streaming support
+// and progress indicators.
 package download
 
 import (

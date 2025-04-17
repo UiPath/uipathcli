@@ -1,3 +1,5 @@
+// Package publish implements the command plugin for publishing a NuGet package
+// to orchestrator so that it can be executed.
 package publish
 
 import (

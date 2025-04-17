@@ -1,3 +1,5 @@
+// Package analyze implements the command plugin for analyzing
+// UiPath Studio projects.
 package analyze
 
 import (

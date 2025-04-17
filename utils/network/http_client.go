@@ -1,3 +1,6 @@
+// Package network is an abstraction over the net/http client
+// which adds resiliency through retries and makes sure every
+// request contains the common headers
 package network
 
 import (
