@@ -1,6 +1,6 @@
 package network
 
-// Authorization represents the values of the http authorization header
+// Authorization represents the values of the http authorization header.
 //
 // Example:
 // Authorization.Type: "Bearer"

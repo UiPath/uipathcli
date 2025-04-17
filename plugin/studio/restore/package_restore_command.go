@@ -53,7 +53,7 @@ func (c PackageRestoreCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 
 	json, err := json.Marshal(result)
 	if err != nil {
-		return fmt.Errorf("restore command failed: %v", err)
+		return fmt.Errorf("restore command failed: %w", err)
 	}
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 }

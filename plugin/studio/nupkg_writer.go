@@ -26,7 +26,7 @@ func (w *NupkgWriter) WithFile(name string, content []byte) *NupkgWriter {
 	return w
 }
 
-func (w NupkgWriter) writeNuspec(zipWriter *zip.Writer, nuspec Nuspec) error {
+func (w *NupkgWriter) writeNuspec(zipWriter *zip.Writer, nuspec Nuspec) error {
 	name := nuspec.Id + ".nuspec"
 	nuspecXml := nuspecXml{Metadata: nuspecPackageMetadataXml(nuspec)}
 	content, err := xml.MarshalIndent(nuspecXml, "", "  ")
@@ -44,7 +44,7 @@ func (w NupkgWriter) writeNuspec(zipWriter *zip.Writer, nuspec Nuspec) error {
 	return nil
 }
 
-func (w NupkgWriter) writeFile(zipWriter *zip.Writer, name string, content []byte) error {
+func (w *NupkgWriter) writeFile(zipWriter *zip.Writer, name string, content []byte) error {
 	writer, err := zipWriter.CreateHeader(&zip.FileHeader{
 		Name:   name,
 		Method: zip.Store,
@@ -59,32 +59,32 @@ func (w NupkgWriter) writeFile(zipWriter *zip.Writer, name string, content []byt
 	return nil
 }
 
-func (w NupkgWriter) Write() error {
+func (w *NupkgWriter) Write() error {
 	_ = os.MkdirAll(filepath.Dir(w.Path), 0700)
 	archive, err := os.OpenFile(w.Path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0600)
 	if err != nil {
-		return fmt.Errorf("Could not create nupkg file '%s': %v", w.Path, err)
+		return fmt.Errorf("Could not create nupkg file '%s': %w", w.Path, err)
 	}
-	defer archive.Close()
+	defer func() { _ = archive.Close() }()
 	zipWriter := zip.NewWriter(archive)
 
 	if w.nuspec != nil {
 		err = w.writeNuspec(zipWriter, *w.nuspec)
 		if err != nil {
-			return fmt.Errorf("Could not write nuspec file content '%s': %v", w.nuspec.Id, err)
+			return fmt.Errorf("Could not write nuspec file content '%s': %w", w.nuspec.Id, err)
 		}
 	}
 
 	if w.fileName != "" {
 		err = w.writeFile(zipWriter, w.fileName, w.fileContent)
 		if err != nil {
-			return fmt.Errorf("Could not write file '%s': %v", w.fileName, err)
+			return fmt.Errorf("Could not write file '%s': %w", w.fileName, err)
 		}
 	}
 
 	err = zipWriter.Close()
 	if err != nil {
-		return fmt.Errorf("Could not close nupkg file '%s': %v", w.Path, err)
+		return fmt.Errorf("Could not close nupkg file '%s': %w", w.Path, err)
 	}
 	return nil
 }

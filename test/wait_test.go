@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"strconv"
 	"testing"
 )
@@ -16,7 +17,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"version":1}`).
+		WithResponse(http.StatusOK, `{"version":1}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--wait", "version"}, context)
@@ -36,7 +37,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"version":1}`).
+		WithResponse(http.StatusOK, `{"version":1}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--wait", "invalid 2& expression"}, context)
@@ -57,7 +58,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"version":1}`).
+		WithResponse(http.StatusOK, `{"version":1}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--wait", "version == `1`"}, context)
@@ -148,7 +149,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"version":1}`).
+		WithResponse(http.StatusOK, `{"version":1}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--wait", "version == `2`", "--wait-timeout", "3"}, context)

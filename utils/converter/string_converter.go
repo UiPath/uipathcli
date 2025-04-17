@@ -1,3 +1,5 @@
+// Package converter provides helper classes for transformating data
+// from one representation to another.
 package converter
 
 import (

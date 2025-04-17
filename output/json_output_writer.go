@@ -23,7 +23,7 @@ func (w JsonOutputWriter) writeBody(body []byte) error {
 	var data interface{}
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Fprint(w.output, string(body))
+		_, _ = fmt.Fprint(w.output, string(body))
 		return nil
 	}
 
@@ -36,7 +36,7 @@ func (w JsonOutputWriter) writeBody(body []byte) error {
 		return err
 	}
 	_, _ = w.output.Write(result)
-	fmt.Fprint(w.output, "\n")
+	_, _ = fmt.Fprint(w.output, "\n")
 	return nil
 }
 
@@ -46,7 +46,7 @@ func (w JsonOutputWriter) WriteResponse(response ResponseInfo) error {
 		return err
 	}
 	if len(body) == 0 && response.StatusCode >= 400 {
-		fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
+		_, _ = fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
 		return nil
 	}
 	return w.writeBody(body)

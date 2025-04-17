@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"a":"foo","b":"bar"}`).
+		WithResponse(http.StatusOK, `{"a":"foo","b":"bar"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -37,7 +38,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"b":"bar","a":"foo","c":"baz"}`).
+		WithResponse(http.StatusOK, `{"b":"bar","a":"foo","c":"baz"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -59,7 +60,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `[{"a":"foo1","b":"bar1"}, {"a":"foo2","b":"bar2"}]`).
+		WithResponse(http.StatusOK, `[{"a":"foo1","b":"bar1"}, {"a":"foo2","b":"bar2"}]`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -81,7 +82,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `[1, 2, 3]`).
+		WithResponse(http.StatusOK, `[1, 2, 3]`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -103,7 +104,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `[{"a":"foo1","b":"bar1"}, {"b":"bar2"}]`).
+		WithResponse(http.StatusOK, `[{"a":"foo1","b":"bar1"}, {"b":"bar2"}]`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -125,7 +126,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"outer":{"inner":"value"}}`).
+		WithResponse(http.StatusOK, `{"outer":{"inner":"value"}}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -147,7 +148,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"a":"my-value","outer":{"inner":"value"},"z":"my-last-value"}`).
+		WithResponse(http.StatusOK, `{"a":"my-value","outer":{"inner":"value"},"z":"my-last-value"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -169,7 +170,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"a":null,"z":"my-last-value"}`).
+		WithResponse(http.StatusOK, `{"a":null,"z":"my-last-value"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -191,7 +192,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"results":[{"id":1,"name":"test"},{"id":2,"name":"test2"}]}`).
+		WithResponse(http.StatusOK, `{"results":[{"id":1,"name":"test"},{"id":2,"name":"test2"}]}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text", "--query", "results[]"}, context)
@@ -213,7 +214,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `[[1, "my-name"], [2, "other-name"]]`).
+		WithResponse(http.StatusOK, `[[1, "my-name"], [2, "other-name"]]`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--output", "text"}, context)
@@ -234,7 +235,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"id":2600000584}`).
+		WithResponse(http.StatusOK, `{"id":2600000584}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "list", "--output", "text"}, context)
@@ -255,7 +256,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"active":true}`).
+		WithResponse(http.StatusOK, `{"active":true}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "list", "--output", "text"}, context)

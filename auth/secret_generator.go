@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 	"strings"
 )
@@ -37,7 +38,7 @@ func (g secretGenerator) randomString(length int) string {
 	if err != nil {
 		panic(fmt.Errorf("Could not get cryptographically secure random numbers: %w", err))
 	}
-	return fmt.Sprintf("%x", b)[:length]
+	return hex.EncodeToString(b)[:length]
 }
 
 func newSecretGenerator() *secretGenerator {

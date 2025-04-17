@@ -30,10 +30,10 @@ func TestConfigCommandDescriptionIsShown(t *testing.T) {
 }
 
 func TestConfiguresCredentialsAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\nclient-id\nclient-secret\n"))
+	stdIn.WriteString("my-org\nmy-tenant\nclient-id\nclient-secret\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -59,10 +59,10 @@ func TestConfiguresCredentialsAuth(t *testing.T) {
 }
 
 func TestConfiguresLoginAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n"))
+	stdIn.WriteString("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -89,10 +89,10 @@ func TestConfiguresLoginAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
+	stdIn.WriteString("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -117,7 +117,7 @@ func TestConfiguresPatAuth(t *testing.T) {
 }
 
 func TestConfiguresPatAuthDoesNotChangeExistingConfigValues(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -126,7 +126,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
+	stdIn.WriteString("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -154,7 +154,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -165,7 +165,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-updated-org\nmy-updated-tenant\nupdated-token\n"))
+	stdIn.WriteString("my-updated-org\nmy-updated-tenant\nupdated-token\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -191,7 +191,7 @@ profiles:
 }
 
 func TestReconfiguresPatAuthPartially(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -202,7 +202,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-updated-org\n\n\n"))
+	stdIn.WriteString("my-updated-org\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -228,7 +228,7 @@ profiles:
 }
 
 func TestConfiguresNewProfile(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -237,7 +237,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n"))
+	stdIn.WriteString("my-org\nmy-tenant\nrt_mypersonalaccesstoken\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -266,7 +266,7 @@ profiles:
 }
 
 func TestReconfiguresExistingProfile(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -279,7 +279,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\nmy-new-token\n"))
+	stdIn.WriteString("\n\nmy-new-token\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -308,7 +308,7 @@ profiles:
 
 func TestCredentialsAuthOutputNotSet(t *testing.T) {
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
@@ -322,7 +322,7 @@ func TestCredentialsAuthOutputNotSet(t *testing.T) {
 }
 
 func TestCredentialsAuthMasksSecrets(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -334,7 +334,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -350,7 +350,7 @@ profiles:
 }
 
 func TestCredentialsAuthMasksShortSecretsCompletely(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -362,7 +362,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -378,7 +378,7 @@ profiles:
 }
 
 func TestPatAuthMasksSecrets(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -389,7 +389,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n"))
+	stdIn.WriteString("\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -405,7 +405,7 @@ profiles:
 }
 
 func TestLoginAuthMasksSecrets(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -418,7 +418,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -434,10 +434,10 @@ profiles:
 }
 
 func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\n1\nclient-id\nclient-secret\n"))
+	stdIn.WriteString("my-org\nmy-tenant\n1\nclient-id\nclient-secret\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -463,10 +463,10 @@ func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthLoginAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n"))
+	stdIn.WriteString("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -493,10 +493,10 @@ func TestConfigureMultiAuthLoginAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthPatAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("my-org\nmy-tenant\n3\nrt_mypersonalaccesstoken\n"))
+	stdIn.WriteString("my-org\nmy-tenant\n3\nrt_mypersonalaccesstoken\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -521,7 +521,7 @@ func TestConfigureMultiAuthPatAuth(t *testing.T) {
 }
 
 func TestConfigureMultiAuthShowsExistingCredentialsAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -533,7 +533,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -548,7 +548,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsExistingLoginAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -561,7 +561,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n\n\n"))
+	stdIn.WriteString("\n\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -576,7 +576,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsExistingPatAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -587,7 +587,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n"))
+	stdIn.WriteString("\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -602,7 +602,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthShowsNoAuthSet(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	config := `
 profiles:
 - name: default
@@ -611,7 +611,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\n"))
+	stdIn.WriteString("\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -626,7 +626,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingPatAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	existingConfig := `
 profiles:
 - name: default
@@ -637,7 +637,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\nnew-pat\n"))
+	stdIn.WriteString("\n\n\nnew-pat\n")
 
 	context := NewContextBuilder().
 		WithConfig(existingConfig).
@@ -663,7 +663,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingCredentialsAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	existingConfig := `
 profiles:
 - name: default
@@ -675,7 +675,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\nnew-client-id\nnew-client-secret\n"))
+	stdIn.WriteString("\n\n\nnew-client-id\nnew-client-secret\n")
 
 	context := NewContextBuilder().
 		WithConfig(existingConfig).
@@ -702,7 +702,7 @@ profiles:
 }
 
 func TestConfigureMultiAuthModifiesExistingLoginAuth(t *testing.T) {
-	configFile := CreateFile(t)
+	configFile := TempFile(t)
 	existingConfig := `
 profiles:
 - name: default
@@ -715,7 +715,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte("\n\n\nb2f0fa8a-8a79-4733-b810-fe9989e39334\nhttp://new-url:8080\nOR.Machines\n"))
+	stdIn.WriteString("\n\n\nb2f0fa8a-8a79-4733-b810-fe9989e39334\nhttp://new-url:8080\nOR.Machines\n")
 
 	context := NewContextBuilder().
 		WithConfig(existingConfig).

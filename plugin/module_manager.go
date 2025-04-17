@@ -94,7 +94,7 @@ func (m ModuleManager) Get(name string) (string, error) {
 func (m ModuleManager) getDefinition(name string) ModuleDefinition {
 	definition, ok := AvailableModules[name]
 	if !ok {
-		panic(fmt.Sprintf("Could not find module: %s", name))
+		panic("Could not find module: " + name)
 	}
 	return definition
 }
@@ -114,7 +114,7 @@ func (m ModuleManager) findLocalModule(module ModuleDefinition) string {
 func (m ModuleManager) getModule(definition ModuleDefinition) (string, error) {
 	moduleDirectory, err := m.moduleDirectory(definition)
 	if err != nil {
-		return "", fmt.Errorf("Could not download %s: %v", definition.Name, err)
+		return "", fmt.Errorf("Could not download %s: %w", definition.Name, err)
 	}
 	path := filepath.Join(moduleDirectory, definition.Executable)
 	if _, err := os.Stat(path); err == nil {
@@ -135,7 +135,7 @@ func (m ModuleManager) getModule(definition ModuleDefinition) (string, error) {
 
 	if archivePath == "" {
 		archivePath = filepath.Join(tmpModuleDirectory, definition.ArchiveName)
-		defer os.Remove(archivePath)
+		defer func() { _ = os.Remove(archivePath) }()
 		err = m.download(definition, archivePath, progressBar)
 		if err != nil {
 			return "", err
@@ -145,11 +145,11 @@ func (m ModuleManager) getModule(definition ModuleDefinition) (string, error) {
 	archive := newArchive(definition.ArchiveType)
 	err = archive.Extract(archivePath, tmpModuleDirectory, directoryPermissions)
 	if err != nil {
-		return "", fmt.Errorf("Could not extract %s archive: %v", definition.Name, err)
+		return "", fmt.Errorf("Could not extract %s archive: %w", definition.Name, err)
 	}
 	err = m.rename(tmpModuleDirectory, moduleDirectory)
 	if err != nil {
-		return "", fmt.Errorf("Could not install %s: %v", definition.Name, err)
+		return "", fmt.Errorf("Could not install %s: %w", definition.Name, err)
 	}
 	return path, nil
 }
@@ -167,22 +167,22 @@ func (m ModuleManager) rename(source string, target string) error {
 func (m ModuleManager) download(definition ModuleDefinition, destination string, progressBar *visualization.ProgressBar) error {
 	out, err := os.Create(destination)
 	if err != nil {
-		return fmt.Errorf("Could not download %s: %v", definition.Name, err)
+		return fmt.Errorf("Could not download %s: %w", definition.Name, err)
 	}
-	defer out.Close()
+	defer func() { _ = out.Close() }()
 
 	request := network.NewHttpGetRequest(definition.Url, nil, http.Header{})
 	clientSettings := network.NewHttpClientSettings(false, "", map[string]string{}, 0, 1, false)
 	client := network.NewHttpClient(nil, *clientSettings)
 	response, err := client.Send(request)
 	if err != nil {
-		return fmt.Errorf("Could not download %s: %v", definition.Name, err)
+		return fmt.Errorf("Could not download %s: %w", definition.Name, err)
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	downloadReader := m.progressReader("downloading...", "installing... ", response.Body, response.ContentLength, progressBar)
 	_, err = io.Copy(out, downloadReader)
 	if err != nil {
-		return fmt.Errorf("Could not download %s: %v", definition.Name, err)
+		return fmt.Errorf("Could not download %s: %w", definition.Name, err)
 	}
 	return nil
 }

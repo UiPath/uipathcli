@@ -3,7 +3,7 @@ package config
 import "net/url"
 
 type urlYaml struct {
-	*url.URL
+	URL *url.URL
 }
 
 func (u urlYaml) MarshalYAML() (interface{}, error) {

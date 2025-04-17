@@ -1,6 +1,7 @@
 package analyze
 
 import (
+	"net/http"
 	"reflect"
 	"strings"
 	"testing"
@@ -109,7 +110,7 @@ func TestAnalyzeReturnsErrorStatus(t *testing.T) {
 }
 
 func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
-	governanceFile := test.CreateFileWithContent(t, `
+	governanceFile := test.CreateTempFile(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -149,7 +150,7 @@ func TestAnalyzeCrossPlatformWithGovernanceFileSuccessfully(t *testing.T) {
 }
 
 func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
-	governanceFile := test.CreateFileWithContent(t, `
+	governanceFile := test.CreateTempFile(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -211,7 +212,7 @@ func TestAnalyzeCrossPlatformWithGovernanceFileViolations(t *testing.T) {
 }
 
 func TestAnalyzeGovernanceFileViolationsWithoutStopOnRuleViolationReturnsNoError(t *testing.T) {
-	governanceFile := test.CreateFileWithContent(t, `
+	governanceFile := test.CreateTempFile(t, `
 {
   "product-name": "Development",
   "policy-name": "Modern Policy - Development",
@@ -278,8 +279,8 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackageAnalyzeCommand{exec}).
 		Build()
 

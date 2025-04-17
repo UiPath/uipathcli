@@ -41,7 +41,7 @@ func (h configCommandHandler) Set(key string, value string, profileName string) 
 	if err != nil {
 		return err
 	}
-	fmt.Fprintln(h.StdOut, successfullySetMessage)
+	_, _ = fmt.Fprintln(h.StdOut, successfullySetMessage)
 	return nil
 }
 
@@ -144,7 +144,7 @@ func (h configCommandHandler) configure(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
+		_, _ = fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -196,7 +196,7 @@ func (h configCommandHandler) configureCredentials(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
+		_, _ = fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -222,7 +222,7 @@ func (h configCommandHandler) configureLogin(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
+		_, _ = fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -248,7 +248,7 @@ func (h configCommandHandler) configurePat(profileName string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
+		_, _ = fmt.Fprintln(h.StdOut, successfullyConfiguredMessage)
 	}
 	return nil
 }
@@ -292,7 +292,10 @@ func (h configCommandHandler) maskValue(value string) string {
 }
 
 func (h configCommandHandler) readUserInput(message string, reader *bufio.Reader) (string, error) {
-	fmt.Fprint(h.StdOut, message+" ")
+	_, err := fmt.Fprint(h.StdOut, message+" ")
+	if err != nil {
+		return "", err
+	}
 	value, err := reader.ReadString('\n')
 	if err != nil {
 		return "", err

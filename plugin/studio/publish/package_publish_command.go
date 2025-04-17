@@ -55,7 +55,7 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 
 	json, err := json.Marshal(result)
 	if err != nil {
-		return fmt.Errorf("Publish command failed: %v", err)
+		return fmt.Errorf("Publish command failed: %w", err)
 	}
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 }
@@ -82,7 +82,7 @@ func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, e
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
-		return "", fmt.Errorf("Package not found.")
+		return "", errors.New("Package not found.")
 	}
 	if fileInfo.IsDir() {
 		source = studio.FindLatestNupkg(source)

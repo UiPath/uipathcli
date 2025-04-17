@@ -68,7 +68,7 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 
 	json, err := json.Marshal(result)
 	if err != nil {
-		return fmt.Errorf("analyze command failed: %v", err)
+		return fmt.Errorf("analyze command failed: %w", err)
 	}
 	err = writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 	if err != nil {
@@ -85,7 +85,7 @@ func (c PackageAnalyzeCommand) execute(params packageAnalyzeParams, debug bool, 
 	if err != nil {
 		return 1, nil, err
 	}
-	defer os.Remove(jsonResultFilePath)
+	defer func() { _ = os.Remove(jsonResultFilePath) }()
 
 	projectReader := studio.NewStudioProjectReader(params.Source)
 	project, err := projectReader.ReadMetadata()
@@ -178,18 +178,18 @@ func (c PackageAnalyzeCommand) readAnalyzeResult(path string) ([]packageAnalyzeV
 		return []packageAnalyzeViolation{}, nil
 	}
 	if err != nil {
-		return []packageAnalyzeViolation{}, fmt.Errorf("Error reading %s file: %v", filepath.Base(path), err)
+		return []packageAnalyzeViolation{}, fmt.Errorf("Error reading %s file: %w", filepath.Base(path), err)
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 	byteValue, err := io.ReadAll(file)
 	if err != nil {
-		return []packageAnalyzeViolation{}, fmt.Errorf("Error reading %s file: %v", filepath.Base(path), err)
+		return []packageAnalyzeViolation{}, fmt.Errorf("Error reading %s file: %w", filepath.Base(path), err)
 	}
 
 	var result analyzeResultJson
 	err = json.Unmarshal(byteValue, &result)
 	if err != nil {
-		return []packageAnalyzeViolation{}, fmt.Errorf("Error parsing %s file: %v", filepath.Base(path), err)
+		return []packageAnalyzeViolation{}, fmt.Errorf("Error parsing %s file: %w", filepath.Base(path), err)
 	}
 	return c.convertToViolations(result), nil
 }

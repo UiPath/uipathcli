@@ -25,21 +25,21 @@ type UriBuilder struct {
 	queryStringBuilder *QueryStringBuilder
 }
 
-func (f *UriBuilder) FormatPath(name string, value interface{}) {
-	valueString := f.converter.ToString(value)
-	f.uri = strings.ReplaceAll(f.uri, "{"+name+"}", valueString)
+func (b *UriBuilder) FormatPath(name string, value interface{}) {
+	valueString := b.converter.ToString(value)
+	b.uri = strings.ReplaceAll(b.uri, "{"+name+"}", valueString)
 }
 
-func (f *UriBuilder) AddQueryString(name string, value interface{}) {
-	f.queryStringBuilder.Add(name, value)
+func (b *UriBuilder) AddQueryString(name string, value interface{}) {
+	b.queryStringBuilder.Add(name, value)
 }
 
-func (f UriBuilder) Build() string {
-	queryString := f.queryStringBuilder.Build()
+func (b *UriBuilder) Build() string {
+	queryString := b.queryStringBuilder.Build()
 	if queryString == "" {
-		return f.uri
+		return b.uri
 	}
-	return f.uri + "?" + queryString
+	return b.uri + "?" + queryString
 }
 
 func NewUriBuilder(baseUri url.URL, route string) *UriBuilder {

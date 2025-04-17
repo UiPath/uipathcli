@@ -86,7 +86,7 @@ func TestDownloadWithFailedResponseReturnsError(t *testing.T) {
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
 		WithCommandPlugin(NewDownloadCommand()).
-		WithResponse(400, "validation error").
+		WithResponse(http.StatusBadRequest, "validation error").
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -98,12 +98,12 @@ func TestDownloadWithFailedResponseReturnsError(t *testing.T) {
 
 func TestDownloadSuccessfully(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "GET" {
-			w.WriteHeader(500)
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("Wrong http method"))
 			return
 		}
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("hello-world"))
 	}))
 	defer srv.Close()
@@ -131,7 +131,7 @@ servers:
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewDownloadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -150,8 +150,8 @@ servers:
 func TestDownloadLargeFile(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		size := 10 * 1024 * 1024
-		w.Header().Add("content-length", strconv.Itoa(size))
-		w.WriteHeader(200)
+		w.Header().Set("Content-Length", strconv.Itoa(size))
+		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write(make([]byte, size))
 	}))
 	defer srv.Close()
@@ -172,7 +172,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithCommandPlugin(NewDownloadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--organization", "myorg", "--tenant", "mytenant", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)
@@ -184,7 +184,7 @@ servers:
 
 func TestDownloadWithDebugOutput(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte("hello-world"))
 	}))
 	defer srv.Close()
@@ -205,7 +205,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithCommandPlugin(NewDownloadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+`/download/file.txt"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`/download/file.txt"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "download", "--debug", "--organization", "myorg", "--tenant", "mytenant", "--folder-id", "1", "--key", "2", "--path", "file.txt"}, context)

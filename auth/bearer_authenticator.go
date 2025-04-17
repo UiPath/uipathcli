@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -8,7 +9,7 @@ import (
 )
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
-const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint // This is not a secret but just the env variable name
+const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint:gosec // This is not a secret but just the env variable name
 
 // The BearerAuthenticator calls the identity token-endpoint to retrieve a JWT bearer token.
 // It requires clientId and clientSecret.
@@ -82,7 +83,7 @@ func (a BearerAuthenticator) parseProperties(config map[string]interface{}) (map
 	}
 	properties, valid := value.(map[interface{}]interface{})
 	if !valid {
-		return result, fmt.Errorf("Invalid key 'properties' in auth")
+		return result, errors.New("Invalid key 'properties' in auth")
 	}
 
 	for k, v := range properties {

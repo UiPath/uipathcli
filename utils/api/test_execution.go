@@ -31,11 +31,14 @@ func NewTestExecution(
 
 	for _, execution := range testCaseExecutions {
 		testCasesCount++
-		if execution.Status == "Passed" {
+		switch execution.Status {
+		case "Passed":
 			passedCount++
-		} else if execution.Status == "Failed" {
+		case "Failed":
 			failuresCount++
-		} else if execution.Status == "Cancelling" || execution.Status == "Cancelled" {
+		case "Cancelling":
+			canceledCount++
+		case "Cancelled":
 			canceledCount++
 		}
 	}

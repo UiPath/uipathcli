@@ -86,10 +86,10 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 		query := r.URL.Query()
 		code = query.Get("code")
 		if code == "" {
-			err = fmt.Errorf("Could not find query string 'code' in redirect_url")
+			err = errors.New("Could not find query string 'code' in redirect_url")
 			a.writeErrorPage(w, err)
 		} else if query.Get("state") != state {
-			err = fmt.Errorf("The query string 'state' in the redirect_url did not match")
+			err = errors.New("The query string 'state' in the redirect_url did not match")
 			a.writeErrorPage(w, err)
 		} else {
 			a.writeHtmlPage(w, LOGGED_IN_PAGE_HTML)
@@ -100,13 +100,13 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 	if err != nil {
 		return "", fmt.Errorf("Error starting listener on address %s and wait for oauth redirect: %w", config.RedirectUrl.Host, err)
 	}
-	defer listener.Close()
+	defer func() { _ = listener.Close() }()
 
 	server := &http.Server{
 		Handler:           mux,
 		ReadHeaderTimeout: 30 * time.Second,
 	}
-	defer server.Close()
+	defer func() { _ = server.Close() }()
 
 	go func(listener net.Listener) {
 		listenErr := server.Serve(listener)
@@ -136,7 +136,7 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 	<-ctx.Done()
 
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		return "", fmt.Errorf("OAuth Login expired")
+		return "", errors.New("OAuth Login expired")
 	}
 	if err != nil {
 		return "", err
@@ -182,12 +182,12 @@ func (a OAuthAuthenticator) showBrowserLink(url string) {
 }
 
 func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
-	w.Header().Add("content-type", "text/html")
+	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(err.Error()))
 }
 
 func (a OAuthAuthenticator) writeHtmlPage(w http.ResponseWriter, html string) {
-	w.Header().Add("content-type", "text/html")
+	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(html))
 }
 

@@ -3,6 +3,7 @@ package plugin
 import (
 	"archive/tar"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -17,18 +18,18 @@ func (t tarGzArchive) Extract(filePath string, destinationFolder string, permiss
 	if err != nil {
 		return err
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	gzipReader, err := gzip.NewReader(file)
 	if err != nil {
 		return err
 	}
-	defer gzipReader.Close()
+	defer func() { _ = gzipReader.Close() }()
 
 	tarReader := tar.NewReader(gzipReader)
 	for {
 		header, err := tarReader.Next()
-		if err == io.EOF {
+		if errors.Is(err, io.EOF) {
 			break
 		}
 		if err != nil {
@@ -62,10 +63,10 @@ func (t tarGzArchive) extractFile(header *tar.Header, reader *tar.Reader, destin
 	if err != nil {
 		return err
 	}
-	defer destinationFile.Close()
+	defer func() { _ = destinationFile.Close() }()
 
 	_, err = io.CopyN(destinationFile, reader, MaxArchiveSize)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return err
 	}
 	return nil

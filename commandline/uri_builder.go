@@ -34,7 +34,7 @@ func (b *UriBuilder) OverrideUri(overrideUri *url.URL) {
 	b.uri = *uri
 }
 
-func (b UriBuilder) Uri() url.URL {
+func (b *UriBuilder) Uri() url.URL {
 	return b.uri
 }
 

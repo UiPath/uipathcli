@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -16,7 +17,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping", "--call-timeout", "-1"}, context)
@@ -37,7 +38,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping", "--max-attempts", "0"}, context)

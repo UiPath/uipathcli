@@ -1,6 +1,7 @@
 package test
 
 import (
+	"net/http"
 	"strings"
 	"testing"
 )
@@ -488,7 +489,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
@@ -515,7 +516,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)

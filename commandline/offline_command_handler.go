@@ -19,10 +19,10 @@ type offlineCommandHandler struct {
 func (h offlineCommandHandler) Execute() error {
 	moduleManager := plugin.NewModuleManager(h.Logger)
 	status, err := moduleManager.Offline()
-	fmt.Fprint(h.StdOut, status+"\n\n")
+	_, _ = fmt.Fprint(h.StdOut, status+"\n\n")
 	if err == nil {
-		fmt.Fprint(h.StdOut, "Successfully downloaded all modules for offline mode!")
-		return nil
+		_, err := fmt.Fprint(h.StdOut, "Successfully downloaded all modules for offline mode!")
+		return err
 	}
 	return fmt.Errorf("Failed to download modules required for offline mode: %w", err)
 }

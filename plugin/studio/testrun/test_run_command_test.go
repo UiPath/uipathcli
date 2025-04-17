@@ -2,7 +2,7 @@ package testrun
 
 import (
 	"encoding/json"
-	"fmt"
+	"net/http"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -761,8 +761,8 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(200, "").
-		WithIdentityResponse(200, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "").
+		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(TestRunCommand{exec}).
 		Build()
 
@@ -818,7 +818,7 @@ func TestRunParallelPassed(t *testing.T) {
 				}
 				return test.ResponseData{Status: 201, Body: "200002"}
 			}
-			return test.ResponseData{Status: 500, Body: fmt.Sprintf("Unhandled HTTP request %s", request.URL.Path)}
+			return test.ResponseData{Status: 500, Body: "Unhandled HTTP request " + request.URL.Path}
 		}).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", 200, "100001").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", 200, "200001").

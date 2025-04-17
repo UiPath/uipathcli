@@ -46,9 +46,9 @@ func (w TextOutputWriter) writeValue(value interface{}) {
 	if w.supportedValue(value) {
 		switch v := value.(type) {
 		case float64:
-			fmt.Fprint(w.output, strconv.FormatFloat(v, 'f', -1, 64))
+			_, _ = fmt.Fprint(w.output, strconv.FormatFloat(v, 'f', -1, 64))
 		default:
-			fmt.Fprintf(w.output, "%v", value)
+			_, _ = fmt.Fprintf(w.output, "%v", value)
 		}
 	}
 }
@@ -64,7 +64,7 @@ func (w TextOutputWriter) write(value interface{}, sortedBy []string) {
 		w.writeArray(result)
 	default:
 		w.writeValue(result)
-		fmt.Fprint(w.output, ObjectSeparator)
+		_, _ = fmt.Fprint(w.output, ObjectSeparator)
 	}
 }
 
@@ -85,12 +85,12 @@ func (w TextOutputWriter) writeRow(array []interface{}) {
 	printTab := false
 	for _, value := range array {
 		if printTab {
-			fmt.Fprint(w.output, FieldSeparator)
+			_, _ = fmt.Fprint(w.output, FieldSeparator)
 		}
 		printTab = true
 		w.writeValue(value)
 	}
-	fmt.Fprint(w.output, ObjectSeparator)
+	_, _ = fmt.Fprint(w.output, ObjectSeparator)
 }
 
 func (w TextOutputWriter) writeArray(array []interface{}) {
@@ -123,7 +123,7 @@ func (w TextOutputWriter) writeBody(body []byte) error {
 	var data interface{}
 	err := json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Fprint(w.output, string(body))
+		_, _ = fmt.Fprint(w.output, string(body))
 		return nil
 	}
 
@@ -141,7 +141,7 @@ func (w TextOutputWriter) WriteResponse(response ResponseInfo) error {
 		return err
 	}
 	if len(body) == 0 && response.StatusCode >= 400 {
-		fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
+		_, _ = fmt.Fprintf(w.output, "%s %s\n", response.Protocol, response.Status)
 		return nil
 	}
 	return w.writeBody(body)

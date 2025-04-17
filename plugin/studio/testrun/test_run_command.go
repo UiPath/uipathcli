@@ -80,7 +80,7 @@ func (c TestRunCommand) writeOutput(ctx plugin.ExecutionContext, results []testR
 		report := converter.Convert(results)
 		data, err = json.Marshal(report)
 		if err != nil {
-			return fmt.Errorf("run command failed: %v", err)
+			return fmt.Errorf("run command failed: %w", err)
 		}
 	} else {
 		baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
@@ -88,7 +88,7 @@ func (c TestRunCommand) writeOutput(ctx plugin.ExecutionContext, results []testR
 		report := converter.Convert(results)
 		data, err = xml.MarshalIndent(report, "", "  ")
 		if err != nil {
-			return fmt.Errorf("run command failed: %v", err)
+			return fmt.Errorf("run command failed: %w", err)
 		}
 	}
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(data)))
@@ -196,7 +196,7 @@ func (c TestRunCommand) calculateOverallProgress(status []testRunStatus) (state 
 
 func (c TestRunCommand) execute(params testRunParams, ctx plugin.ExecutionContext, logger log.Logger, wg *sync.WaitGroup, status chan<- testRunStatus) {
 	defer wg.Done()
-	defer os.RemoveAll(params.Destination)
+	defer func() { _ = os.RemoveAll(params.Destination) }()
 	args := c.preparePackArguments(params, ctx)
 	exitCode, stdErr, err := params.Uipcli.ExecuteAndWait(args...)
 	if err != nil {

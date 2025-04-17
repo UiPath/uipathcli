@@ -55,7 +55,7 @@ func TestPublishMissingTenantReturnsError(t *testing.T) {
 }
 
 func TestPublishInvalidPackageReturnsError(t *testing.T) {
-	path := test.CreateFile(t)
+	path := test.CreateTempFile(t, "invalid")
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(NewPackagePublishCommand()).
@@ -72,7 +72,7 @@ func TestPublishReturnsPackageMetadata(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(200, `{}`).
+		WithResponse(http.StatusOK, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -100,7 +100,7 @@ func TestPublishUploadsPackageToOrchestrator(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(200, `{}`).
+		WithResponse(http.StatusOK, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -126,7 +126,7 @@ func TestPublishUploadsPackageToOrchestrator(t *testing.T) {
 }
 
 func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
-	dir := test.CreateDirectory(t)
+	dir := t.TempDir()
 	archive1Path := filepath.Join(dir, "archive1.nupkg")
 	archive2Path := filepath.Join(dir, "archive2.nupkg")
 
@@ -154,7 +154,7 @@ func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
 
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(200, `{}`).
+		WithResponse(http.StatusOK, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -171,18 +171,18 @@ func TestPublishLargeFile(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		if len(body) != size {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("Invalid size"))
 			return
 		}
-		w.WriteHeader(201)
+		w.WriteHeader(http.StatusCreated)
 	}))
 	defer srv.Close()
 
 	nupkgPath := createLargeNupkgArchive(t, size)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -197,7 +197,7 @@ func TestPublishWithDebugFlagOutputsRequestData(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(200, `{}`).
+		WithResponse(http.StatusOK, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -212,7 +212,7 @@ func TestPublishPackageAlreadyExistsReturnsFailed(t *testing.T) {
 	nupkgPath := createNupkgArchive(t, *studio.NewNuspec("MyProcess", "My Process", "2.0.0"))
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(409, `{}`).
+		WithResponse(http.StatusConflict, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -241,7 +241,7 @@ func TestPublishOrchestratorErrorReturnsError(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithResponse(503, `{}`).
+		WithResponse(http.StatusServiceUnavailable, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 
@@ -257,7 +257,7 @@ func createDefaultNupkgArchive(t *testing.T) string {
 }
 
 func createNupkgArchive(t *testing.T, nuspec studio.Nuspec) string {
-	path := test.CreateFile(t)
+	path := test.TempFile(t)
 	err := studio.NewNupkgWriter(path).
 		WithNuspec(nuspec).
 		Write()
@@ -268,7 +268,7 @@ func createNupkgArchive(t *testing.T, nuspec studio.Nuspec) string {
 }
 
 func createLargeNupkgArchive(t *testing.T, size int) string {
-	path := test.CreateFile(t)
+	path := test.TempFile(t)
 	err := studio.NewNupkgWriter(path).
 		WithNuspec(*studio.NewNuspec("MyProcess", "My Process", "1.0.0")).
 		WithFile("Content.txt", make([]byte, size)).

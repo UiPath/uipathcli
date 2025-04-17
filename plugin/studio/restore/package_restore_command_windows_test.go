@@ -18,7 +18,7 @@ func TestRestoreWindowsSuccessfully(t *testing.T) {
 
 	source := test.NewWindowsProject(t).
 		Build()
-	destination := test.CreateDirectory(t)
+	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "restore", "--source", source, "--destination", destination}, context)
 
 	stdout := test.ParseOutput(t, result.StdOut)

@@ -91,7 +91,7 @@ func (b *FlagBuilder) AddServiceVersionFlag(hidden bool) *FlagBuilder {
 	return b
 }
 
-func (b FlagBuilder) Build() []*FlagDefinition {
+func (b *FlagBuilder) Build() []*FlagDefinition {
 	flags := []*FlagDefinition{}
 	for _, name := range b.order {
 		flags = append(flags, b.flags[name])
@@ -99,7 +99,7 @@ func (b FlagBuilder) Build() []*FlagDefinition {
 	return flags
 }
 
-func (b FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
+func (b *FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 	return []*FlagDefinition{
 		NewFlag(FlagNameDebug, "Enable debug output", FlagTypeBoolean).
 			WithEnvVarName("UIPATH_DEBUG").
@@ -153,19 +153,19 @@ func (b FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 	}
 }
 
-func (b FlagBuilder) versionFlag() *FlagDefinition {
+func (b *FlagBuilder) versionFlag() *FlagDefinition {
 	return NewFlag(FlagNameVersion, "Display the build version", FlagTypeBoolean).
 		WithHidden(true)
 }
 
-func (b FlagBuilder) serviceVersionFlag(hidden bool) *FlagDefinition {
+func (b *FlagBuilder) serviceVersionFlag(hidden bool) *FlagDefinition {
 	return NewFlag(FlagNameServiceVersion, "Specific service version", FlagTypeString).
 		WithEnvVarName("UIPATH_SERVICE_VERSION").
 		WithDefaultValue("").
 		WithHidden(hidden)
 }
 
-func (b FlagBuilder) helpFlag() *FlagDefinition {
+func (b *FlagBuilder) helpFlag() *FlagDefinition {
 	return NewFlag(FlagNameHelp, "Show help", FlagTypeBoolean).
 		WithDefaultValue(false).
 		WithHidden(true)

@@ -20,10 +20,10 @@ func (h cacheClearCommandHandler) Clear() error {
 	}
 	err = os.RemoveAll(cacheDirectory)
 	if err != nil {
-		return fmt.Errorf("Could not clear cache: %v", err)
+		return fmt.Errorf("Could not clear cache: %w", err)
 	}
-	fmt.Fprintln(h.StdOut, "Cache has been successfully cleared")
-	return nil
+	_, err = fmt.Fprintln(h.StdOut, "Cache has been successfully cleared")
+	return err
 }
 
 func newCacheClearCommandHandler(stdOut io.Writer) *cacheClearCommandHandler {

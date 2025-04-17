@@ -19,75 +19,75 @@ type QueryStringBuilder struct {
 	querystring string
 }
 
-func (f *QueryStringBuilder) Add(name string, value interface{}) {
-	param := f.formatQueryStringParam(name, value)
-	if f.querystring == "" {
-		f.querystring = param
+func (b *QueryStringBuilder) Add(name string, value interface{}) {
+	param := b.formatQueryStringParam(name, value)
+	if b.querystring == "" {
+		b.querystring = param
 	} else {
-		f.querystring = f.querystring + "&" + param
+		b.querystring = b.querystring + "&" + param
 	}
 }
 
-func (f QueryStringBuilder) Build() string {
-	return f.querystring
+func (b *QueryStringBuilder) Build() string {
+	return b.querystring
 }
 
-func (f QueryStringBuilder) formatQueryStringParam(name string, value interface{}) string {
+func (b *QueryStringBuilder) formatQueryStringParam(name string, value interface{}) string {
 	switch value := value.(type) {
 	case []int:
-		return f.integerArrayToQueryString(name, value)
+		return b.integerArrayToQueryString(name, value)
 	case []float64:
-		return f.numberArrayToQueryString(name, value)
+		return b.numberArrayToQueryString(name, value)
 	case []bool:
-		return f.booleanArrayToQueryString(name, value)
+		return b.booleanArrayToQueryString(name, value)
 	case []string:
-		return f.stringArrayToQueryString(name, value)
+		return b.stringArrayToQueryString(name, value)
 	default:
-		return f.toQueryString(name, value)
+		return b.toQueryString(name, value)
 	}
 }
 
-func (f QueryStringBuilder) integerArrayToQueryString(key string, value []int) string {
+func (b *QueryStringBuilder) integerArrayToQueryString(key string, value []int) string {
 	result := make([]interface{}, len(value))
 	for i, v := range value {
 		result[i] = v
 	}
-	return f.arrayToQueryString(key, result)
+	return b.arrayToQueryString(key, result)
 }
 
-func (f QueryStringBuilder) numberArrayToQueryString(key string, value []float64) string {
+func (b *QueryStringBuilder) numberArrayToQueryString(key string, value []float64) string {
 	result := make([]interface{}, len(value))
 	for i, v := range value {
 		result[i] = v
 	}
-	return f.arrayToQueryString(key, result)
+	return b.arrayToQueryString(key, result)
 }
 
-func (f QueryStringBuilder) booleanArrayToQueryString(key string, value []bool) string {
+func (b *QueryStringBuilder) booleanArrayToQueryString(key string, value []bool) string {
 	result := make([]interface{}, len(value))
 	for i, v := range value {
 		result[i] = v
 	}
-	return f.arrayToQueryString(key, result)
+	return b.arrayToQueryString(key, result)
 }
 
-func (f QueryStringBuilder) stringArrayToQueryString(key string, value []string) string {
+func (b *QueryStringBuilder) stringArrayToQueryString(key string, value []string) string {
 	result := make([]interface{}, len(value))
 	for i, v := range value {
 		result[i] = v
 	}
-	return f.arrayToQueryString(key, result)
+	return b.arrayToQueryString(key, result)
 }
 
-func (f QueryStringBuilder) arrayToQueryString(key string, value []interface{}) string {
+func (b *QueryStringBuilder) arrayToQueryString(key string, value []interface{}) string {
 	result := make([]string, len(value))
 	for i, v := range value {
-		result[i] = f.toQueryString(key, v)
+		result[i] = b.toQueryString(key, v)
 	}
 	return strings.Join(result, "&")
 }
 
-func (f QueryStringBuilder) toQueryString(key string, value interface{}) string {
+func (b *QueryStringBuilder) toQueryString(key string, value interface{}) string {
 	stringValue := fmt.Sprintf("%v", value)
 	return fmt.Sprintf("%s=%v", key, url.QueryEscape(stringValue))
 }

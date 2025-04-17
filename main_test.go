@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/rand"
-	"encoding/hex"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,8 +12,8 @@ import (
 )
 
 func TestMainReadsDefinitions(t *testing.T) {
-	config := createFile(t, ".uipath", "config")
-	definition := createFile(t, "definitions", "service-a.yaml")
+	config := createFile(t, "config", "")
+	definition := createFile(t, "service-a.yaml", "")
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -32,8 +30,8 @@ func TestMainReadsDefinitions(t *testing.T) {
 }
 
 func TestHelpReadsDefinitions(t *testing.T) {
-	config := createFile(t, ".uipath", "config")
-	definition := createFile(t, "definitions", "service-a.yaml")
+	config := createFile(t, "config", "")
+	definition := createFile(t, "service-a.yaml", "")
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -50,15 +48,14 @@ func TestHelpReadsDefinitions(t *testing.T) {
 }
 
 func TestMainParsesDefinition(t *testing.T) {
-	config := createFile(t, ".uipath", "config")
-	definition := createFile(t, "definitions", "service-a.yaml")
-	writeFile(definition, []byte(`
+	config := createFile(t, "config", "")
+	definition := createFile(t, "service-a.yaml", `
 paths:
   /ping:
     get:
       summary: This is a simple get operation
       operationId: ping
-`))
+`)
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -81,17 +78,16 @@ paths:
 func TestMainCallsService(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.String() == "/identity_/connect/token" {
-			w.WriteHeader(200)
+			w.WriteHeader(http.StatusOK)
 			_, _ = w.Write([]byte(`{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`))
 			return
 		}
-		w.WriteHeader(200)
+		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"id":1234}`))
 	}))
 	defer srv.Close()
 
-	config := createFile(t, ".uipath", "config")
-	writeFile(config, []byte(`
+	config := createFile(t, "config", `
 profiles:
 - name: default
   uri: `+srv.URL+`
@@ -100,16 +96,15 @@ profiles:
   auth:
     clientId: 71b784bc-3f7b-4e5a-a731-db25bb829025
     clientSecret: NGI&4b(chsHcsX^C
-`))
+`)
 
-	definition := createFile(t, "definitions", "service-a.yaml")
-	writeFile(definition, []byte(`
+	definition := createFile(t, "service-a.yaml", `
 paths:
   /ping:
     get:
       summary: Simple ping
       operationId: ping
-`))
+`)
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -128,15 +123,14 @@ paths:
 }
 
 func TestMainAutocompletesCommand(t *testing.T) {
-	config := createFile(t, ".uipath", "config")
-	definition := createFile(t, "definitions", "service-a.yaml")
-	writeFile(definition, []byte(`
+	config := createFile(t, "config", "")
+	definition := createFile(t, "service-a.yaml", `
 paths:
   /ping:
     get:
       summary: This is a simple get operation
       operationId: ping
-`))
+`)
 
 	t.Setenv("UIPATH_CONFIGURATION_PATH", config)
 	t.Setenv("UIPATH_DEFINITIONS_PATH", filepath.Dir(definition))
@@ -184,7 +178,7 @@ func captureOutput(t *testing.T, runnable func()) string {
 
 	output := make(chan []byte)
 	go func(reader *os.File) {
-		defer reader.Close()
+		defer func() { _ = reader.Close() }()
 		data, err := io.ReadAll(reader)
 		if err != nil {
 			panic(err)
@@ -201,40 +195,11 @@ func captureOutput(t *testing.T, runnable func()) string {
 	return string(<-output)
 }
 
-func createFile(t *testing.T, directory string, name string) string {
-	extensions := strings.TrimPrefix(filepath.Ext(name), ".")
-	filename := strings.TrimSuffix(name, filepath.Ext(name)) + ".*" + extensions
-	path := filepath.Join(os.TempDir(), randomDirectoryName(), directory, filename)
-	err := os.MkdirAll(filepath.Dir(path), 0700)
+func createFile(t *testing.T, name string, content string) string {
+	path := filepath.Join(t.TempDir(), name)
+	err := os.WriteFile(path, []byte(content), 0600)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatal(fmt.Errorf("Error writing file '%s': %w", path, err))
 	}
-	tempFile, err := os.CreateTemp(filepath.Dir(path), filename)
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer tempFile.Close()
-	t.Cleanup(func() {
-		err := os.Remove(tempFile.Name())
-		if err != nil {
-			t.Fatal(err)
-		}
-	})
-	return tempFile.Name()
-}
-
-func randomDirectoryName() string {
-	randBytes := make([]byte, 16)
-	_, err := rand.Read(randBytes)
-	if err != nil {
-		panic(fmt.Errorf("Error generating random directory name: %w", err))
-	}
-	return hex.EncodeToString(randBytes)
-}
-
-func writeFile(name string, data []byte) {
-	err := os.WriteFile(name, data, 0600)
-	if err != nil {
-		panic(fmt.Errorf("Error writing file '%s': %w", name, err))
-	}
+	return path
 }

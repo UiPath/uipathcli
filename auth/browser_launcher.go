@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"fmt"
+	"errors"
 	"time"
 
 	"github.com/UiPath/uipathcli/utils/process"
@@ -27,7 +27,7 @@ func (l BrowserLauncher) Open(url string) error {
 	case err := <-done:
 		return err
 	case <-time.After(5 * time.Second):
-		return fmt.Errorf("Timed out waiting for browser to start")
+		return errors.New("Timed out waiting for browser to start")
 	}
 }
 

@@ -66,8 +66,7 @@ func (c Cli) run(args []string, input stream.Stream) error {
 		Action: func(context *cli.Context) error {
 			if context.IsSet(FlagNameVersion) {
 				handler := newVersionCommandHandler(c.stdOut)
-				handler.Execute()
-				return nil
+				return handler.Execute()
 			}
 			return cli.ShowAppHelp(context)
 		},
@@ -85,7 +84,7 @@ func (c Cli) Run(args []string, input stream.Stream) error {
 		if c.coloredOutput {
 			message = colorRed + err.Error() + colorReset
 		}
-		fmt.Fprintln(c.stdErr, message)
+		_, _ = fmt.Fprintln(c.stdErr, message)
 	}
 	return err
 }
@@ -217,7 +216,7 @@ func (c Cli) convertFlag(flag *FlagDefinition) cli.Flag {
 	case FlagTypeString:
 		return c.convertStringFlag(flag)
 	}
-	panic(fmt.Sprintf("Unknown flag type: %s", flag.Type.String()))
+	panic("Unknown flag type: " + flag.Type.String())
 }
 
 func (c Cli) convertFlags(flags ...*FlagDefinition) []cli.Flag {

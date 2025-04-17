@@ -86,7 +86,7 @@ func TestUploadFileDoesNotExistShowsValidationError(t *testing.T) {
 		WithConfig(config).
 		WithDefinition("orchestrator", "").
 		WithCommandPlugin(NewUploadCommand()).
-		WithResponse(200, `{"Uri":"http://localhost"}`).
+		WithResponse(http.StatusOK, `{"Uri":"http://localhost"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", "does-not-exist"}, context)
@@ -123,7 +123,7 @@ func TestUploadWithoutTenantShowsValidationError(t *testing.T) {
 }
 
 func TestUploadWithFailedResponseReturnsError(t *testing.T) {
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -135,7 +135,7 @@ func TestUploadWithFailedResponseReturnsError(t *testing.T) {
 		WithDefinition("orchestrator", "").
 		WithConfig(config).
 		WithCommandPlugin(NewUploadCommand()).
-		WithResponse(400, "validation error").
+		WithResponse(http.StatusBadRequest, "validation error").
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
@@ -147,28 +147,28 @@ func TestUploadWithFailedResponseReturnsError(t *testing.T) {
 
 func TestUploadSuccessfully(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != "PUT" {
-			w.WriteHeader(500)
+		if r.Method != http.MethodPut {
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("Wrong http method"))
 			return
 		}
 		if r.Header["X-Ms-Blob-Type"][0] != "BlockBlob" {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("Missing header x-ms-blob-type"))
 			return
 		}
 		body, _ := io.ReadAll(r.Body)
 		requestBody := string(body)
 		if requestBody != "hello-world" {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("File content not found"))
 			return
 		}
-		w.WriteHeader(201)
+		w.WriteHeader(http.StatusCreated)
 	}))
 	defer srv.Close()
 
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	config := `profiles:
 - name: default
@@ -193,7 +193,7 @@ servers:
 		WithDefinition("orchestrator", definition).
 		WithConfig(config).
 		WithCommandPlugin(NewUploadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
@@ -211,15 +211,15 @@ func TestUploadLargeFile(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		body, _ := io.ReadAll(r.Body)
 		if len(body) != size {
-			w.WriteHeader(500)
+			w.WriteHeader(http.StatusInternalServerError)
 			_, _ = w.Write([]byte("Invalid size"))
 			return
 		}
-		w.WriteHeader(201)
+		w.WriteHeader(http.StatusCreated)
 	}))
 	defer srv.Close()
 
-	path := test.CreateFileWithBinaryContent(t, make([]byte, size))
+	path := test.CreateTempFileBinary(t, make([]byte, size))
 
 	definition := `
 servers:
@@ -237,7 +237,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithCommandPlugin(NewUploadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+`"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--organization", "myorg", "--tenant", "mytenant", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)
@@ -249,11 +249,11 @@ servers:
 
 func TestUploadWithDebugOutput(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(201)
+		w.WriteHeader(http.StatusCreated)
 	}))
 	defer srv.Close()
 
-	path := test.CreateFileWithContent(t, "hello-world")
+	path := test.CreateTempFile(t, "hello-world")
 
 	definition := `
 servers:
@@ -271,7 +271,7 @@ servers:
 	context := test.NewContextBuilder().
 		WithDefinition("orchestrator", definition).
 		WithCommandPlugin(NewUploadCommand()).
-		WithResponse(200, `{"Uri":"`+srv.URL+"/upload/file.txt"+`"}`).
+		WithResponse(http.StatusOK, `{"Uri":"`+srv.URL+"/upload/file.txt"+`"}`).
 		Build()
 
 	result := test.RunCli([]string{"orchestrator", "buckets", "upload", "--debug", "--organization", "myorg", "--tenant", "mytenant", "--folder-id", "1", "--key", "2", "--path", "file.txt", "--file", path}, context)

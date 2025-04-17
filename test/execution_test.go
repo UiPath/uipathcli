@@ -3,7 +3,7 @@ package test
 import (
 	"bytes"
 	"fmt"
-	"os"
+	"net/http"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -20,7 +20,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -43,7 +43,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"hello":"world"}`).
+		WithResponse(http.StatusOK, `{"hello":"world"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -67,7 +67,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"hello":"world"}`).
+		WithResponse(http.StatusOK, `{"hello":"world"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping", "--debug"}, context)
@@ -117,7 +117,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, `{"hello":"world"}`).
+		WithResponse(http.StatusOK, `{"hello":"world"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping", "--debug"}, context)
@@ -141,7 +141,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -163,7 +163,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "get-ping"}, context)
@@ -191,7 +191,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "post-ping", "--first-name", "Thomas"}, context)
@@ -226,7 +226,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--id", "my-id"}, context)
@@ -257,7 +257,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "my-category", "ping", "--id", "my-id"}, context)
@@ -286,7 +286,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--filter", "my-filter"}, context)
@@ -315,7 +315,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--filter", "my&filter"}, context)
@@ -344,7 +344,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--x-uipath-myvalue", "custom-value"}, context)
@@ -389,7 +389,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -434,7 +434,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -483,7 +483,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -528,7 +528,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -563,7 +563,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -598,7 +598,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -633,7 +633,7 @@ paths:
       summary: Simple ping
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -666,7 +666,7 @@ paths:
                   type: ` + datatype + `
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -730,7 +730,7 @@ paths:
                     type: ` + datatype + `
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -756,7 +756,7 @@ paths:
                   type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -782,7 +782,7 @@ paths:
                   type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -835,7 +835,7 @@ components:
           type: ` + datatype + `
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -890,7 +890,7 @@ components:
             type: ` + datatype + `
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -918,7 +918,7 @@ paths:
                     type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -946,11 +946,11 @@ paths:
                   description: The file to upload
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := CreateFileWithContent(t, "hello-world")
+	path := CreateTempFile(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -988,11 +988,11 @@ paths:
                   description: The file to upload
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := CreateFileWithContent(t, "hello-world")
+	path := CreateTempFile(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := fmt.Sprintf(`Content-Disposition: form-data; name="File"; filename="%s"`, filepath.Base(path))
@@ -1017,10 +1017,10 @@ paths:
                   description: The file to upload
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
-	path := CreateFileWithContent(t, "hello-world")
+	path := CreateTempFile(t, "hello-world")
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
 	expected := `Content-Disposition: form-data; name="file"; filename="` + filepath.Base(path) + `"`
@@ -1053,11 +1053,11 @@ paths:
                   description: The file to upload
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
-	path := CreateFileWithBinaryContent(t, make([]byte, 10*1024*1024))
+	path := CreateTempFileBinary(t, make([]byte, 10*1024*1024))
 
 	result := RunCli([]string{"myservice", "post-validate", "--file", path}, context)
 
@@ -1086,7 +1086,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create"}, context)
@@ -1117,7 +1117,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--last-name", "last-name"}, context)
@@ -1148,7 +1148,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--first-name", "provided-name"}, context)
@@ -1177,11 +1177,11 @@ paths:
                 - firstName
 `
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte(`{"firstName":"foo"}`))
+	stdIn.WriteString(`{"firstName":"foo"}`)
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithStdIn(stdIn).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--file", "-"}, context)
@@ -1206,11 +1206,11 @@ paths:
           type: string
 `
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte(`{"foo":"bar"}`))
+	stdIn.WriteString(`{"foo":"bar"}`)
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithStdIn(stdIn).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--x-uipath-myvalue", "test-value", "--file", "-"}, context)
@@ -1242,11 +1242,11 @@ paths:
                   type: string
 `
 	stdIn := bytes.Buffer{}
-	stdIn.Write([]byte(`{"foo":"bar"}`))
+	stdIn.WriteString(`{"foo":"bar"}`)
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithStdIn(stdIn).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--first-name", "test-value"}, context)
@@ -1273,10 +1273,10 @@ paths:
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
-	path := CreateFileWithContent(t, "hello-world")
+	path := CreateTempFile(t, "hello-world")
 	result := RunCli([]string{"myservice", "upload", "--file", path}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -1308,17 +1308,13 @@ paths:
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
-	currentPath, _ := os.Getwd()
-	path := CreateFileInDirectory(t, filepath.Join(currentPath, "tmp"))
-	err := os.WriteFile(path, []byte("hello-world"), 0600)
-	if err != nil {
-		t.Fatalf("Error writing file '%s': %v", path, err)
-	}
-
-	relativePath, _ := filepath.Rel(currentPath, path)
+	workingDirectory := t.TempDir()
+	t.Chdir(workingDirectory)
+	path := CreateTempFile(t, "hello-world")
+	relativePath, _ := filepath.Rel(workingDirectory, path)
 	result := RunCli([]string{"myservice", "upload", "--file", relativePath}, context)
 
 	contentType := result.RequestHeader["content-type"]
@@ -1350,7 +1346,7 @@ components:
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "post-validate", "--filter", "my-filter"}, context)
@@ -1377,7 +1373,7 @@ paths:
 `
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "post-validate", "--type", "username"}, context)
@@ -1407,7 +1403,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create-user", "--region", "2"}, context)
@@ -1441,7 +1437,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create-user"}, context)
@@ -1471,7 +1467,7 @@ paths:
                   description: The client secret
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1502,7 +1498,7 @@ paths:
                   type: string
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1536,7 +1532,7 @@ paths:
                   type: ` + datatype + `
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1570,7 +1566,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
-		WithResponse(200, "").
+		WithResponse(http.StatusOK, "").
 		Build()
 
 	result := RunCli([]string{"myservice", "create", "--my-param", "my-value"}, context)
@@ -1597,7 +1593,7 @@ paths:
                   type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1631,7 +1627,7 @@ components:
           type: number
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1657,7 +1653,7 @@ paths:
                   type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1685,7 +1681,7 @@ paths:
                     type: object
 `
 	context := NewContextBuilder().
-		WithResponse(200, "{}").
+		WithResponse(http.StatusOK, "{}").
 		WithDefinition("myservice", definition).
 		Build()
 
@@ -1753,7 +1749,7 @@ paths:
 
 	context := NewContextBuilder().
 		WithDefinition("service", definition).
-		WithResponse(500, "Internal Server Error").
+		WithResponse(http.StatusInternalServerError, "Internal Server Error").
 		Build()
 
 	result := RunCli([]string{"service", "ping", "--debug"}, context)

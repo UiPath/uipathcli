@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"archive/zip"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -18,7 +19,7 @@ func (z zipArchive) Extract(filePath string, destinationFolder string, permissio
 	if err != nil {
 		return err
 	}
-	defer archive.Close()
+	defer func() { _ = archive.Close() }()
 
 	for _, file := range archive.File {
 		err := z.extractFile(file, destinationFolder, permissions)
@@ -47,16 +48,16 @@ func (z zipArchive) extractFile(zipFile *zip.File, destinationFolder string, per
 	if err != nil {
 		return err
 	}
-	defer zipFileReader.Close()
+	defer func() { _ = zipFileReader.Close() }()
 
 	destinationFile, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, zipFile.Mode())
 	if err != nil {
 		return err
 	}
-	defer destinationFile.Close()
+	defer func() { _ = destinationFile.Close() }()
 
 	_, err = io.CopyN(destinationFile, zipFileReader, MaxArchiveSize)
-	if err != nil && err != io.EOF {
+	if err != nil && !errors.Is(err, io.EOF) {
 		return err
 	}
 	return nil

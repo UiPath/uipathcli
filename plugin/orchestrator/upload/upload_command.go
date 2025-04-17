@@ -51,7 +51,7 @@ func (c UploadCommand) upload(ctx plugin.ExecutionContext, logger log.Logger, ur
 	if err != nil {
 		return err
 	}
-	defer response.Body.Close()
+	defer func() { _ = response.Body.Close() }()
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return fmt.Errorf("Error reading response: %w", err)
@@ -80,13 +80,13 @@ func (c UploadCommand) createUploadRequest(ctx plugin.ExecutionContext, url stri
 
 func (c UploadCommand) writeBody(bodyWriter *io.PipeWriter, input stream.Stream, cancel context.CancelCauseFunc) (string, int64) {
 	go func() {
-		defer bodyWriter.Close()
+		defer func() { _ = bodyWriter.Close() }()
 		data, err := input.Data()
 		if err != nil {
 			cancel(err)
 			return
 		}
-		defer data.Close()
+		defer func() { _ = data.Close() }()
 		_, err = io.Copy(bodyWriter, data)
 		if err != nil {
 			cancel(err)

@@ -81,11 +81,12 @@ func (f parameterFormatter) usageExample(parameter parser.Parameter) string {
 func (f parameterFormatter) collectUsageParameters(parameter parser.Parameter, prefix string) []string {
 	result := []string{}
 	for _, p := range parameter.Parameters {
-		if p.Type == parser.ParameterTypeObjectArray {
+		switch p.Type {
+		case parser.ParameterTypeObjectArray:
 			result = append(result, f.collectUsageParameters(p, prefix+p.FieldName+"[0].")...)
-		} else if p.Type == parser.ParameterTypeObject {
+		case parser.ParameterTypeObject:
 			result = append(result, f.collectUsageParameters(p, prefix+p.FieldName+".")...)
-		} else {
+		default:
 			field := prefix + p.FieldName
 			fieldType := f.humanReadableType(p.Type)
 			result = append(result, fmt.Sprintf("%s=%s", field, fieldType))

@@ -170,16 +170,20 @@ func TestInvalidStateShowsErrorMessage(t *testing.T) {
 
 func TestMissingCodeShowsErrorMessage(t *testing.T) {
 	identityUrl, _ := url.Parse("http://localhost")
-	context := createAuthContext(*identityUrl)
-	loginUrl, _ := callAuthenticator(context)
+	ctx := createAuthContext(*identityUrl)
+	loginUrl, _ := callAuthenticator(ctx)
 
 	redirectUri := loginUrl.Query().Get("redirect_uri")
 	state := loginUrl.Query().Get("state")
-	response, err := http.Get(redirectUri + "?code=&state=" + state)
+	request, err := http.NewRequestWithContext(t.Context(), http.MethodGet, redirectUri+"?code=&state="+state, nil)
 	if err != nil {
 		t.Fatalf("Unexpected error calling login url: %v", err)
 	}
-	defer response.Body.Close()
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Fatalf("Unexpected error calling login url: %v", err)
+	}
+	defer func() { _ = response.Body.Close() }()
 
 	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
@@ -238,11 +242,15 @@ func createIdentityUrl(hostName string) url.URL {
 func performLogin(loginUrl url.URL, t *testing.T) string {
 	redirectUri := loginUrl.Query().Get("redirect_uri")
 	state := loginUrl.Query().Get("state")
-	response, err := http.Get(redirectUri + "?code=testcode&state=" + state)
+	request, err := http.NewRequestWithContext(t.Context(), http.MethodGet, redirectUri+"?code=testcode&state="+state, nil)
 	if err != nil {
 		t.Fatalf("Unexpected error calling login url: %v", err)
 	}
-	defer response.Body.Close()
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		t.Fatalf("Unexpected error calling login url: %v", err)
+	}
+	defer func() { _ = response.Body.Close() }()
 	data, err := io.ReadAll(response.Body)
 	if err != nil {
 		t.Fatalf("Login url response body cannot be read: %v", err)
@@ -303,7 +311,7 @@ func (i *identityServerFake) handleIdentityTokenRequest(request *http.Request, r
 	}
 }
 
-func (i identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge string) bool {
+func (i *identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge string) bool {
 	hash := sha256.Sum256([]byte(codeVerifier))
 	codeChallenge := base64.StdEncoding.WithPadding(base64.NoPadding).EncodeToString(hash[:])
 	codeChallenge = strings.ReplaceAll(codeChallenge, "+", "-")
@@ -311,7 +319,7 @@ func (i identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge
 	return codeChallenge == expectedCodeChallenge
 }
 
-func (i identityServerFake) writeValidationErrorResponse(response http.ResponseWriter, message string) {
-	response.WriteHeader(400)
+func (i *identityServerFake) writeValidationErrorResponse(response http.ResponseWriter, message string) {
+	response.WriteHeader(http.StatusBadRequest)
 	_, _ = response.Write([]byte(message))
 }
