@@ -27,7 +27,8 @@ func (c PackagePublishCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("publish", "Publish Package", "Publishes the package to orchestrator").
-		WithParameter("source", plugin.ParameterTypeString, "Path to package (default: .)", false)
+		WithParameter("source", plugin.ParameterTypeString, "Path to package (default: .)", false).
+		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", false)
 }
 
 func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -41,13 +42,15 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return err
 	}
+	folderId := c.getIntParameter("folder-id", 0, ctx.Parameters)
+
 	nupkgReader := studio.NewNupkgReader(source)
 	nuspec, err := nupkgReader.ReadNuspec()
 	if err != nil {
 		return err
 	}
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	params := newPackagePublishParams(source, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
+	params := newPackagePublishParams(source, folderId, nuspec.Id, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
 	result, err := c.publish(*params, logger)
 	if err != nil {
 		return err
@@ -66,15 +69,31 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	defer uploadBar.Remove()
 
 	client := api.NewOrchestratorClient(params.BaseUri, params.Auth.Token, params.Debug, params.Settings, logger)
-	err := client.Upload(file, uploadBar)
+	folderId := params.FolderId
+	if folderId == 0 {
+		sharedFolderId, err := client.GetSharedFolderId()
+		if err != nil {
+			return nil, err
+		}
+		folderId = sharedFolderId
+	}
+	feedId, err := client.GetFolderFeed(folderId)
+	if err != nil {
+		return nil, err
+	}
+	err = client.Upload(file, feedId, uploadBar)
 	if errors.Is(err, api.ErrPackageAlreadyExists) {
 		errorMessage := fmt.Sprintf("Package '%s' already exists", filepath.Base(params.Source))
-		return newFailedPackagePublishResult(errorMessage, params.Source, params.Name, params.Version), nil
+		return newFailedPackagePublishResult(errorMessage, params.Source, params.Name, params.Description, params.Version), nil
 	}
 	if err != nil {
 		return nil, err
 	}
-	return newSucceededPackagePublishResult(params.Source, params.Name, params.Version), nil
+	releaseId, err := client.CreateOrUpdateRelease(folderId, params.Name, params.Version)
+	if err != nil {
+		return nil, err
+	}
+	return newSucceededPackagePublishResult(params.Source, params.Name, params.Description, params.Version, releaseId), nil
 }
 
 func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
@@ -98,6 +117,19 @@ func (c PackagePublishCommand) getParameter(name string, defaultValue string, pa
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {
+				result = data
+				break
+			}
+		}
+	}
+	return result
+}
+
+func (c PackagePublishCommand) getIntParameter(name string, defaultValue int, parameters []plugin.ExecutionParameter) int {
+	result := defaultValue
+	for _, p := range parameters {
+		if p.Name == name {
+			if data, ok := p.Value.(int); ok {
 				result = data
 				break
 			}

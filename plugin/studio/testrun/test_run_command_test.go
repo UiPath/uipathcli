@@ -30,13 +30,14 @@ func TestRunPassed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(NewTestRunCommand()).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "25819").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=25819&triggerType=ExternalTool", 200, "349562").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(25819)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "25819").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=25819&triggerType=ExternalTool", http.StatusOK, "349562").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(25819)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -50,7 +51,7 @@ func TestRunPassed(t *testing.T) {
                  "VersionMask":"1.2.3"
                }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349562)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349562)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyProcess_Tests - 1.0.195912597",
                "TestSetId":25819,
@@ -134,13 +135,14 @@ func TestRunFailed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -158,7 +160,7 @@ func TestRunFailed(t *testing.T) {
                }],
                "Packages":[]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
                "TestSetId":29991,
@@ -256,13 +258,14 @@ func TestRunGeneratesJUnitReport(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -276,7 +279,7 @@ func TestRunGeneratesJUnitReport(t *testing.T) {
                  "VersionMask":"1.2.3"
                }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
                "TestSetId":29991,
@@ -320,13 +323,14 @@ func TestRunAttachesRobotLogs(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -340,7 +344,7 @@ func TestRunAttachesRobotLogs(t *testing.T) {
                  "VersionMask":"1.2.3"
                }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/RobotLogs?$filter=JobKey%20eq%20b6dd3f45-03c6-46c2-98ad-95a05f59905d", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/RobotLogs?$filter=JobKey%20eq%20b6dd3f45-03c6-46c2-98ad-95a05f59905d", http.StatusOK,
 			`{
                 "value":[{
                   "Level":"Info",
@@ -356,7 +360,7 @@ func TestRunAttachesRobotLogs(t *testing.T) {
                   "Id":0
                 }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
                "TestSetId":29991,
@@ -451,13 +455,14 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", 200, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -468,7 +473,7 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
                }],
                "Packages":[]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
                "TestSetId":29991,
@@ -541,13 +546,14 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 200, "349001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(29991)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":169537,
@@ -558,7 +564,7 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
                }],
                "Packages":[]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(349001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyLibrary - 1.0.195912597",
                "TestSetId":29991,
@@ -594,8 +600,8 @@ func TestRunFailsWithMissingFolder(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -615,12 +621,13 @@ func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 201, "29991").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", 500, "{}").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusInternalServerError, "{}").
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -640,11 +647,12 @@ func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", 500, "{}").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusInternalServerError, "{}").
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -664,10 +672,11 @@ func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 200, `{"value":[]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", 201, "invalid { json }").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, "invalid { json }").
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -687,8 +696,9 @@ func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 400, `{"value":[]}`).
 		Build()
 
@@ -709,8 +719,30 @@ func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 400, `Bad Request`).
+		Build()
+
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant"}, context)
+
+	if result.Error == nil || result.Error.Error() != "Orchestrator returned status code '400' and body 'Bad Request'" {
+		t.Errorf("Expected server error, but got: %v", result.Error)
+	}
+}
+
+func TestRunFailsWithBadRequestOnGetFolderFeed(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "Done", "", func(name string, args []string) {
+		outputDirectory := test.GetArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"))
+	})
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusBadRequest, `Bad Request`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -730,7 +762,7 @@ func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 401, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusUnauthorized, `{}`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -800,29 +832,30 @@ func TestRunParallelPassed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(NewTestRunCommand()).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", 200, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyFirstProcess_Tests'", 200, `{"value":[{"id":10000,"name":"MyFirstProcess_Tests"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MySecondProcess_Tests'", 200, `{"value":[{"id":20000,"name":"MySecondProcess_Tests"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(10000)", 200, `{"name":"MyFirstProcess_Tests","processKey":"MyFirstProcess_Tests","processVersion":"1.0.0"}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(20000)", 200, `{"name":"MySecondProcess_Tests","processKey":"MySecondProcess_Tests","processVersion":"2.0.0"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyFirstProcess_Tests'", http.StatusOK, `{"value":[{"id":10000,"name":"MyFirstProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MySecondProcess_Tests'", http.StatusOK, `{"value":[{"id":20000,"name":"MySecondProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(10000)", http.StatusOK, `{"name":"MyFirstProcess_Tests","processKey":"MyFirstProcess_Tests","processVersion":"1.0.0"}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(20000)", http.StatusOK, `{"name":"MySecondProcess_Tests","processKey":"MySecondProcess_Tests","processVersion":"2.0.0"}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			if request.URL.Path == "/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion" {
 				body := map[string]interface{}{}
 				err := json.Unmarshal(request.Body, &body)
 				if err != nil {
-					return test.ResponseData{Status: 500, Body: err.Error()}
+					return test.ResponseData{Status: http.StatusInternalServerError, Body: err.Error()}
 				}
 				if body["releaseId"] == 10000.0 {
-					return test.ResponseData{Status: 201, Body: "100002"}
+					return test.ResponseData{Status: http.StatusCreated, Body: "100002"}
 				}
-				return test.ResponseData{Status: 201, Body: "200002"}
+				return test.ResponseData{Status: http.StatusCreated, Body: "200002"}
 			}
-			return test.ResponseData{Status: 500, Body: "Unhandled HTTP request " + request.URL.Path}
+			return test.ResponseData{Status: http.StatusInternalServerError, Body: "Unhandled HTTP request " + request.URL.Path}
 		}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", 200, "100001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", 200, "200001").
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(100002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=100002&triggerType=ExternalTool", http.StatusOK, "100001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=200002&triggerType=ExternalTool", http.StatusOK, "200001").
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(100002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":100004,
@@ -833,7 +866,7 @@ func TestRunParallelPassed(t *testing.T) {
                }],
                "Packages":[]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(200002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSets(200002)?$expand=TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages&$select=TestCases,Name", http.StatusOK,
 			`{
                "TestCases":[{
                  "Id":200004,
@@ -844,7 +877,7 @@ func TestRunParallelPassed(t *testing.T) {
                }],
                "Packages":[]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(100001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(100001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MyFirstProcess_Tests - 1.0.0",
                "TestSetId":100002,
@@ -861,7 +894,7 @@ func TestRunParallelPassed(t *testing.T) {
                  "Status":"Passed"
                }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(200001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", 200,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/TestSetExecutions(200001)?$expand=TestCaseExecutions($expand=TestCaseAssertions)", http.StatusOK,
 			`{
                "Name":"Automated - MySecondProcess_Tests - 2.0.0",
                "TestSetId":200002,
@@ -972,11 +1005,40 @@ func TestRunUsesProvidedFolderId(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 200, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", 200, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			header = request.Header
-			return test.ResponseData{Status: 200, Body: ""}
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
+		}).
+		Build()
+
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant", "--folder-id", "12345"}, context)
+
+	folderId := header["x-uipath-organizationunitid"]
+	if folderId != "12345" {
+		t.Errorf("Expected x-uipath-organizationunitid header from argument, but got: '%s'", folderId)
+	}
+}
+
+func TestRunUsesFolderFeedWhenAvailable(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		outputDirectory := test.GetArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"))
+	})
+	header := map[string]string{}
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `8e00fda5-6124-43ca-b8c8-5d812589e567`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage?feedId=8e00fda5-6124-43ca-b8c8-5d812589e567", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			header = request.Header
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
 		}).
 		Build()
 

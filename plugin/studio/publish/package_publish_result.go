@@ -1,17 +1,19 @@
 package publish
 
 type packagePublishResult struct {
-	Status  string  `json:"status"`
-	Package string  `json:"package"`
-	Name    string  `json:"name"`
-	Version string  `json:"version"`
-	Error   *string `json:"error"`
+	Status      string  `json:"status"`
+	Package     string  `json:"package"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Version     string  `json:"version"`
+	ReleaseId   *int    `json:"releaseId"`
+	Error       *string `json:"error"`
 }
 
-func newSucceededPackagePublishResult(packagePath string, name string, version string) *packagePublishResult {
-	return &packagePublishResult{"Succeeded", packagePath, name, version, nil}
+func newSucceededPackagePublishResult(packagePath string, name string, description string, version string, releaseId int) *packagePublishResult {
+	return &packagePublishResult{"Succeeded", packagePath, name, description, version, &releaseId, nil}
 }
 
-func newFailedPackagePublishResult(err string, packagePath string, processKey string, processVersion string) *packagePublishResult {
-	return &packagePublishResult{"Failed", packagePath, processKey, processVersion, &err}
+func newFailedPackagePublishResult(err string, packagePath string, name string, description string, version string) *packagePublishResult {
+	return &packagePublishResult{"Failed", packagePath, name, description, version, nil, &err}
 }
