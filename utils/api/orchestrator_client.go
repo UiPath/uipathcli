@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/textproto"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/UiPath/uipathcli/auth"
@@ -79,9 +80,9 @@ func (c OrchestratorClient) findFolderId(result getFoldersResponseJson) *int {
 	return nil
 }
 
-func (c OrchestratorClient) Upload(file stream.Stream, uploadBar *visualization.ProgressBar) error {
+func (c OrchestratorClient) Upload(file stream.Stream, feedId string, uploadBar *visualization.ProgressBar) error {
 	context, cancel := context.WithCancelCause(context.Background())
-	request := c.createUploadRequest(file, uploadBar, cancel)
+	request := c.createUploadRequest(file, feedId, uploadBar, cancel)
 	client := network.NewHttpClient(c.logger, c.httpClientSettings())
 	response, err := client.SendWithContext(request, context)
 	if err != nil {
@@ -101,13 +102,16 @@ func (c OrchestratorClient) Upload(file stream.Stream, uploadBar *visualization.
 	return nil
 }
 
-func (c OrchestratorClient) createUploadRequest(file stream.Stream, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
+func (c OrchestratorClient) createUploadRequest(file stream.Stream, feedId string, uploadBar *visualization.ProgressBar, cancel context.CancelCauseFunc) *network.HttpRequest {
 	bodyReader, bodyWriter := io.Pipe()
 	streamSize, _ := file.Size()
 	contentType := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", cancel)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
 
 	uri := c.baseUri + "/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage"
+	if feedId != "" {
+		uri = uri + "?feedId=" + feedId
+	}
 	header := http.Header{
 		"Content-Type": {contentType},
 	}
@@ -458,6 +462,36 @@ func (c OrchestratorClient) createGetRobotLogsRequest(folderId int, jobKey strin
 	uri := c.baseUri + "/odata/RobotLogs?$filter=JobKey%20eq%20" + jobKey
 	header := http.Header{
 		"X-Uipath-Organizationunitid": {strconv.Itoa(folderId)},
+	}
+	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
+}
+
+func (c OrchestratorClient) GetFolderFeed(folderId int) (string, error) {
+	request := c.createGetFolderFeedRequest(folderId)
+	client := network.NewHttpClient(c.logger, c.httpClientSettings())
+	response, err := client.Send(request)
+	if err != nil {
+		return "", err
+	}
+	defer func() { _ = response.Body.Close() }()
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		return "", fmt.Errorf("Error reading response: %w", err)
+	}
+	if response.StatusCode != http.StatusOK {
+		return "", fmt.Errorf("Orchestrator returned status code '%v' and body '%v'", response.StatusCode, string(body))
+	}
+	feedId := string(body)
+	if feedId == "null" {
+		return "", nil
+	}
+	return strings.Trim(feedId, "\""), nil
+}
+
+func (c OrchestratorClient) createGetFolderFeedRequest(folderId int) *network.HttpRequest {
+	uri := c.baseUri + fmt.Sprintf("/api/PackageFeeds/GetFolderFeed?folderId=%d", folderId)
+	header := http.Header{
+		"Content-Type": {"application/json"},
 	}
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), header)
 }

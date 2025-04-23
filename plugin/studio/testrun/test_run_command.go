@@ -229,6 +229,7 @@ func (c TestRunCommand) runTests(nupkgPath string, processKey string, processVer
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
 	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	folderId := params.FolderId
+	feedId := ""
 	if folderId == 0 {
 		sharedFolderId, err := client.GetSharedFolderId()
 		if err != nil {
@@ -236,8 +237,12 @@ func (c TestRunCommand) runTests(nupkgPath string, processKey string, processVer
 		}
 		folderId = sharedFolderId
 	}
+	feedId, err := client.GetFolderFeed(folderId)
+	if err != nil {
+		return -1, nil, nil, err
+	}
 	file := stream.NewFileStream(nupkgPath)
-	err := client.Upload(file, nil)
+	err = client.Upload(file, feedId, nil)
 	if err != nil {
 		return -1, nil, nil, err
 	}
