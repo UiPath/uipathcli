@@ -31,10 +31,14 @@ func (c PackageAnalyzeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("analyze", "Analyze Project", "Runs static code analysis on the project to detect common errors").
-		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
-		WithParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated (default: true)", false).
-		WithParameter("treat-warnings-as-errors", plugin.ParameterTypeBoolean, "Treat warnings as errors", false).
-		WithParameter("governance-file", plugin.ParameterTypeString, "Pass governance policies containing the Workflow Analyzer rules (default: uipath.policy.default.json)", false)
+		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("stop-on-rule-violation", plugin.ParameterTypeBoolean, "Fail when any rule is violated").
+			WithDefaultValue(true)).
+		WithParameter(plugin.NewParameter("treat-warnings-as-errors", plugin.ParameterTypeBoolean, "Treat warnings as errors")).
+		WithParameter(plugin.NewParameter("governance-file", plugin.ParameterTypeString, "Pass governance policies containing the Workflow Analyzer rules").
+			WithDefaultValue("uipath.policy.default.json"))
 }
 
 func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -270,7 +274,7 @@ func (c PackageAnalyzeCommand) newAnalyzingProgressBar(logger log.Logger) chan s
 }
 
 func (c PackageAnalyzeCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", ctx.Parameters)
+	source := c.getStringParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -293,7 +297,7 @@ func (c PackageAnalyzeCommand) defaultGovernanceFile(source string) string {
 }
 
 func (c PackageAnalyzeCommand) getGovernanceFile(context plugin.ExecutionContext, source string) (string, error) {
-	governanceFileParam := c.getParameter("governance-file", "", context.Parameters)
+	governanceFileParam := c.getStringParameter("governance-file", "", context.Parameters)
 	if governanceFileParam == "" {
 		return c.defaultGovernanceFile(source), nil
 	}
@@ -306,7 +310,7 @@ func (c PackageAnalyzeCommand) getGovernanceFile(context plugin.ExecutionContext
 	return file, nil
 }
 
-func (c PackageAnalyzeCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+func (c PackageAnalyzeCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {

@@ -10,6 +10,7 @@ type Parameter struct {
 	Required      bool
 	DefaultValue  interface{}
 	AllowedValues []interface{}
+	Hidden        bool
 	Parameters    []Parameter
 }
 
@@ -44,6 +45,6 @@ func (p Parameter) IsArray() bool {
 		p.Type == ParameterTypeStringArray
 }
 
-func NewParameter(name string, t string, description string, in string, fieldName string, required bool, defaultValue interface{}, allowedValues []interface{}, parameters []Parameter) *Parameter {
-	return &Parameter{name, t, description, in, fieldName, required, defaultValue, allowedValues, parameters}
+func NewParameter(name string, t string, description string, in string, fieldName string, required bool, defaultValue interface{}, allowedValues []interface{}, hidden bool, parameters []Parameter) *Parameter {
+	return &Parameter{name, t, description, in, fieldName, required, defaultValue, allowedValues, hidden, parameters}
 }

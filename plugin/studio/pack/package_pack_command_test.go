@@ -36,8 +36,9 @@ func TestPackInvalidOutputTypeShowsValidationError(t *testing.T) {
 	destination := t.TempDir()
 	result := test.RunCli([]string{"studio", "package", "pack", "--source", source, "--destination", destination, "--output-type", "unknown"}, context)
 
-	if !strings.Contains(result.StdErr, "Invalid output type 'unknown', allowed values: Process, Library, Tests, Objects") {
-		t.Errorf("Expected stderr to show output type is invalid, but got: %v", result.StdErr)
+	expected := "Argument value 'unknown' for --output-type is invalid, allowed values: Process, Library, Tests, Objects"
+	if !strings.Contains(result.StdErr, expected) {
+		t.Errorf("Expected stderr to show output type is invalid, got: %v", result.StdErr)
 	}
 }
 

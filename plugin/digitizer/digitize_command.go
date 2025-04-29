@@ -23,9 +23,10 @@ func (c DigitizeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("du").
 		WithCategory("digitization", "Document Digitization", "Digitizes a document, extracting its Document Object Model (DOM) and text.").
 		WithOperation("digitize", "Digitize file", "Digitize the given file").
-		WithParameter("project-id", plugin.ParameterTypeString, "The project id", false).
-		WithParameter("file", plugin.ParameterTypeBinary, "The file to digitize", true).
-		WithParameter("content-type", plugin.ParameterTypeString, "The content type", false)
+		WithParameter(plugin.NewParameter("project-id", plugin.ParameterTypeString, "The project id")).
+		WithParameter(plugin.NewParameter("file", plugin.ParameterTypeBinary, "The file to digitize").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("content-type", plugin.ParameterTypeString, "The content type"))
 }
 
 func (c DigitizeCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -62,10 +63,7 @@ func (c DigitizeCommand) startDigitization(ctx plugin.ExecutionContext, logger l
 	if file == nil {
 		file = c.getFileParameter(ctx.Parameters)
 	}
-	contentType := c.getParameter("content-type", ctx.Parameters)
-	if contentType == "" {
-		contentType = "application/octet-stream"
-	}
+	contentType := c.getStringParameter("content-type", "application/octet-stream", ctx.Parameters)
 
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
 	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
@@ -100,15 +98,11 @@ func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) s
 }
 
 func (c DigitizeCommand) getProjectId(parameters []plugin.ExecutionParameter) string {
-	projectId := c.getParameter("project-id", parameters)
-	if projectId == "" {
-		projectId = "00000000-0000-0000-0000-000000000000"
-	}
-	return projectId
+	return c.getStringParameter("project-id", "00000000-0000-0000-0000-000000000000", parameters)
 }
 
-func (c DigitizeCommand) getParameter(name string, parameters []plugin.ExecutionParameter) string {
-	result := ""
+func (c DigitizeCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
 			if data, ok := p.Value.(string); ok {

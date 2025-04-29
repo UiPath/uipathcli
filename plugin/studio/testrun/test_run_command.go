@@ -11,7 +11,6 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"slices"
 	"strconv"
 	"strings"
 	"sync"
@@ -28,8 +27,6 @@ import (
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
-var resultsOutputAllowedValues = []string{"uipath", "junit"}
-
 // The TestRunCommand packs a project as a test package,
 // uploads it to the connected Orchestrator instances
 // and runs the tests.
@@ -41,11 +38,16 @@ func (c TestRunCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("test", "Test", "Tests your UiPath studio packages").
 		WithOperation("run", "Run Tests", "Tests a given package").
-		WithParameter("source", plugin.ParameterTypeStringArray, "Path to one or more project.json files or folders containing project.json files (default: .)", false).
-		WithParameter("timeout", plugin.ParameterTypeInteger, "Time to wait in seconds for tests to finish (default: 3600)", false).
-		WithParameter("results-output", plugin.ParameterTypeString, "Output type for the test results report (default: uipath)"+c.formatAllowedValues(resultsOutputAllowedValues), false).
-		WithParameter("attach-robot-logs", plugin.ParameterTypeBoolean, "Attaches Robot Logs for each testcases along with Test Report.", false).
-		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", false)
+		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeStringArray, "Path to one or more project.json files or folders containing project.json files").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("timeout", plugin.ParameterTypeInteger, "Time to wait in seconds for tests to finish").
+			WithDefaultValue(3600)).
+		WithParameter(plugin.NewParameter("results-output", plugin.ParameterTypeString, "Output type for the test results report (default: uipath)").
+			WithDefaultValue("uipath").
+			WithAllowedValues([]interface{}{"uipath", "junit"})).
+		WithParameter(plugin.NewParameter("attach-robot-logs", plugin.ParameterTypeBoolean, "Attaches Robot Logs for each testcases along with Test Report.")).
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id"))
 }
 
 func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -54,10 +56,7 @@ func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.Outpu
 		return err
 	}
 	timeout := time.Duration(c.getIntParameter("timeout", 3600, ctx.Parameters)) * time.Second
-	resultsOutput := c.getParameter("results-output", "uipath", ctx.Parameters)
-	if resultsOutput != "" && !slices.Contains(resultsOutputAllowedValues, resultsOutput) {
-		return fmt.Errorf("Invalid output type '%s', allowed values: %s", resultsOutput, strings.Join(resultsOutputAllowedValues, ", "))
-	}
+	resultsOutput := c.getStringParameter("results-output", "uipath", ctx.Parameters)
 	attachRobotLogs := c.getBoolParameter("attach-robot-logs", false, ctx.Parameters)
 	folderId := c.getIntParameter("folder-id", 0, ctx.Parameters)
 
@@ -381,7 +380,7 @@ func (c TestRunCommand) getStringArrayParameter(name string, defaultValue []stri
 	return result
 }
 
-func (c TestRunCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+func (c TestRunCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {
@@ -408,10 +407,6 @@ func (c TestRunCommand) formatUri(baseUri url.URL, org string, tenant string) st
 func (c TestRunCommand) randomTestRunFolderName() string {
 	value, _ := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	return "testrun-" + value.String()
-}
-
-func (c TestRunCommand) formatAllowedValues(allowed []string) string {
-	return "\n\nAllowed Values:\n- " + strings.Join(allowed, "\n- ")
 }
 
 func NewTestRunCommand() *TestRunCommand {

@@ -27,8 +27,10 @@ func (c PackagePublishCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("publish", "Publish Package", "Publishes the package to orchestrator").
-		WithParameter("source", plugin.ParameterTypeString, "Path to package (default: .)", false).
-		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", false)
+		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to package").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id"))
 }
 
 func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -97,7 +99,7 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 }
 
 func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", ctx.Parameters)
+	source := c.getStringParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -112,7 +114,7 @@ func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, e
 	return source, nil
 }
 
-func (c PackagePublishCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+func (c PackagePublishCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {

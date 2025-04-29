@@ -112,7 +112,8 @@ func (b CommandBuilder) createFlags(parameters []parser.Parameter) []*FlagDefini
 		if parameter.IsArray() {
 			flagType = FlagTypeStringArray
 		}
-		flag := NewFlag(parameter.Name, formatter.Description(), flagType)
+		flag := NewFlag(parameter.Name, formatter.Description(), flagType).
+			WithHidden(parameter.Hidden)
 		flags = append(flags, flag)
 	}
 	return flags

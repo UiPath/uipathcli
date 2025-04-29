@@ -225,5 +225,5 @@ func getArrayValue(result interface{}, key string, index int) interface{} {
 }
 
 func newParameter(name string, t string, parameters []parser.Parameter) parser.Parameter {
-	return *parser.NewParameter(name, t, "", "", name, false, nil, []interface{}{}, parameters)
+	return *parser.NewParameter(name, t, "", "", name, false, nil, []interface{}{}, false, parameters)
 }

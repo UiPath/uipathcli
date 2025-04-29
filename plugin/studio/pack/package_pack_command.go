@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"slices"
-	"strings"
 	"time"
 
 	"github.com/UiPath/uipathcli/log"
@@ -18,8 +16,6 @@ import (
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
-var OutputTypeAllowedValues = []string{"Process", "Library", "Tests", "Objects"}
-
 // The PackagePackCommand packs a project into a single NuGet package
 type PackagePackCommand struct {
 	Exec process.ExecProcess
@@ -29,13 +25,18 @@ func (c PackagePackCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("pack", "Package Project", "Packs a project into a single package").
-		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
-		WithParameter("destination", plugin.ParameterTypeString, "The output folder (default .)", false).
-		WithParameter("package-version", plugin.ParameterTypeString, "The package version", false).
-		WithParameter("auto-version", plugin.ParameterTypeBoolean, "Auto-generate package version", false).
-		WithParameter("output-type", plugin.ParameterTypeString, "Force the output to a specific type."+c.formatAllowedValues(OutputTypeAllowedValues), false).
-		WithParameter("split-output", plugin.ParameterTypeBoolean, "Enables the output split to runtime and design libraries", false).
-		WithParameter("release-notes", plugin.ParameterTypeString, "Add release notes", false)
+		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("destination", plugin.ParameterTypeString, "The output folder").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("package-version", plugin.ParameterTypeString, "The package version")).
+		WithParameter(plugin.NewParameter("auto-version", plugin.ParameterTypeBoolean, "Auto-generate package version")).
+		WithParameter(plugin.NewParameter("output-type", plugin.ParameterTypeString, "Force the output to a specific type.").
+			WithAllowedValues([]interface{}{"Process", "Library", "Tests", "Objects"})).
+		WithParameter(plugin.NewParameter("split-output", plugin.ParameterTypeBoolean, "Enables the output split to runtime and design libraries")).
+		WithParameter(plugin.NewParameter("release-notes", plugin.ParameterTypeString, "Add release notes"))
 }
 
 func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -44,14 +45,11 @@ func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.O
 		return err
 	}
 	destination := c.getDestination(ctx)
-	packageVersion := c.getParameter("package-version", "", ctx.Parameters)
+	packageVersion := c.getStringParameter("package-version", "", ctx.Parameters)
 	autoVersion := c.getBoolParameter("auto-version", ctx.Parameters)
-	outputType := c.getParameter("output-type", "", ctx.Parameters)
-	if outputType != "" && !slices.Contains(OutputTypeAllowedValues, outputType) {
-		return fmt.Errorf("Invalid output type '%s', allowed values: %s", outputType, strings.Join(OutputTypeAllowedValues, ", "))
-	}
+	outputType := c.getStringParameter("output-type", "", ctx.Parameters)
 	splitOutput := c.getBoolParameter("split-output", ctx.Parameters)
-	releaseNotes := c.getParameter("release-notes", "", ctx.Parameters)
+	releaseNotes := c.getStringParameter("release-notes", "", ctx.Parameters)
 	params := newPackagePackParams(
 		ctx.Organization,
 		ctx.Tenant,
@@ -76,10 +74,6 @@ func (c PackagePackCommand) Execute(ctx plugin.ExecutionContext, writer output.O
 		return fmt.Errorf("pack command failed: %w", err)
 	}
 	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
-}
-
-func (c PackagePackCommand) formatAllowedValues(allowed []string) string {
-	return "\n\nAllowed Values:\n- " + strings.Join(allowed, "\n- ")
 }
 
 func (c PackagePackCommand) execute(params packagePackParams, debug bool, logger log.Logger) (*packagePackResult, error) {
@@ -188,7 +182,7 @@ func (c PackagePackCommand) newPackagingProgressBar(logger log.Logger) chan stru
 }
 
 func (c PackagePackCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", ctx.Parameters)
+	source := c.getStringParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -201,12 +195,12 @@ func (c PackagePackCommand) getSource(ctx plugin.ExecutionContext) (string, erro
 }
 
 func (c PackagePackCommand) getDestination(ctx plugin.ExecutionContext) string {
-	destination := c.getParameter("destination", ".", ctx.Parameters)
+	destination := c.getStringParameter("destination", ".", ctx.Parameters)
 	destination, _ = filepath.Abs(destination)
 	return destination
 }
 
-func (c PackagePackCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+func (c PackagePackCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {

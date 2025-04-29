@@ -14,7 +14,7 @@ type Command struct {
 }
 
 func (c *Command) WithCategory(name string, summary string, description string) *Command {
-	c.Category = NewCommandCategory(name, summary, description)
+	c.Category = NewCategory(name, summary, description)
 	return c
 }
 
@@ -25,8 +25,7 @@ func (c *Command) WithOperation(name string, summary string, description string)
 	return c
 }
 
-func (c *Command) WithParameter(name string, type_ string, description string, required bool) *Command {
-	parameter := NewCommandParameter(name, type_, description, required)
+func (c *Command) WithParameter(parameter *CommandParameter) *Command {
 	c.Parameters = append(c.Parameters, *parameter)
 	return c
 }

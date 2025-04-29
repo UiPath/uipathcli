@@ -114,7 +114,9 @@ func (h showCommandHandler) convertFlagsToCommandParameters(flags []*FlagDefinit
 func (h showCommandHandler) convertParametersToCommandParameters(parameters []parser.Parameter) []parameterJson {
 	result := []parameterJson{}
 	for _, p := range parameters {
-		result = append(result, h.convertParameterToCommandParameter(p))
+		if !p.Hidden {
+			result = append(result, h.convertParameterToCommandParameter(p))
+		}
 	}
 	return result
 }
