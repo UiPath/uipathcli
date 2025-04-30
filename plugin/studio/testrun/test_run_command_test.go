@@ -30,10 +30,10 @@ func TestRunPassed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(NewTestRunCommand()).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess_Tests","processKey":"MyProcess_Tests","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "25819").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=25819&triggerType=ExternalTool", http.StatusOK, "349562").
@@ -135,10 +135,10 @@ func TestRunFailed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
@@ -258,10 +258,10 @@ func TestRunGeneratesJUnitReport(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
@@ -323,10 +323,10 @@ func TestRunAttachesRobotLogs(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
@@ -344,7 +344,7 @@ func TestRunAttachesRobotLogs(t *testing.T) {
                  "VersionMask":"1.2.3"
                }]
              }`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/RobotLogs?$filter=JobKey%20eq%20b6dd3f45-03c6-46c2-98ad-95a05f59905d", http.StatusOK,
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/RobotLogs?$filter=JobKey eq b6dd3f45-03c6-46c2-98ad-95a05f59905d", http.StatusOK,
 			`{
                 "value":[{
                   "Level":"Info",
@@ -455,10 +455,10 @@ func TestRunUpdatesExistingRelease(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[{"id":12345,"name":"MyLibrary"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(12345)", http.StatusOK, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
@@ -546,10 +546,10 @@ func TestRunTimesOutWaitingForTestExecutionToFinish(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusOK, "349001").
@@ -600,7 +600,7 @@ func TestRunFailsWithMissingFolder(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
 		Build()
 
@@ -608,7 +608,7 @@ func TestRunFailsWithMissingFolder(t *testing.T) {
 		Build()
 	result := test.RunCli([]string{"studio", "test", "run", "--source", source, "--timeout", "3", "--organization", "my-org", "--tenant", "my-tenant"}, context)
 
-	if result.Error == nil || result.Error.Error() != "Could not find 'Shared' orchestrator folder." {
+	if result.Error == nil || result.Error.Error() != "Could not find orchestrator folder 'Shared'" {
 		t.Errorf("Expected missing folder error, but got: %v", result.Error)
 	}
 }
@@ -621,10 +621,10 @@ func TestRunFailsWithServerErrorOnStartExecution(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusCreated, "29991").
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/StartTestSetExecution?testSetId=29991&triggerType=ExternalTool", http.StatusInternalServerError, "{}").
@@ -647,10 +647,10 @@ func TestRunFailsWithServerErrorOnCreateTestSet(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyLibrary","processKey":"MyLibrary","processVersion":"1.0.195912597"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/TestAutomation/CreateTestSetForReleaseVersion", http.StatusInternalServerError, "{}").
 		Build()
@@ -672,10 +672,10 @@ func TestRunFailsWithInvalidJsonOnCreateRelease(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, "invalid { json }").
 		Build()
 
@@ -696,10 +696,10 @@ func TestRunFailsWithBadRequestOnGetReleases(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyLibrary'", 400, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyLibrary'", http.StatusBadRequest, `{"value":[]}`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -719,9 +719,9 @@ func TestRunFailsWithBadRequestOnUploadPackage(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", 400, `Bad Request`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusBadRequest, `Bad Request`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -741,7 +741,7 @@ func TestRunFailsWithBadRequestOnGetFolderFeed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusBadRequest, `Bad Request`).
 		Build()
 
@@ -762,7 +762,7 @@ func TestRunFailsWithUnauthorizedOnGetFolders(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusUnauthorized, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusUnauthorized, `{}`).
 		Build()
 
 	source := test.NewCrossPlatformProject(t).
@@ -832,11 +832,11 @@ func TestRunParallelPassed(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(NewTestRunCommand()).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyFirstProcess_Tests'", http.StatusOK, `{"value":[{"id":10000,"name":"MyFirstProcess_Tests"}]}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MySecondProcess_Tests'", http.StatusOK, `{"value":[{"id":20000,"name":"MySecondProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyFirstProcess_Tests'", http.StatusOK, `{"value":[{"id":10000,"name":"MyFirstProcess_Tests"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MySecondProcess_Tests'", http.StatusOK, `{"value":[{"id":20000,"name":"MySecondProcess_Tests"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(10000)", http.StatusOK, `{"name":"MyFirstProcess_Tests","processKey":"MyFirstProcess_Tests","processVersion":"1.0.0"}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases(20000)", http.StatusOK, `{"name":"MySecondProcess_Tests","processKey":"MySecondProcess_Tests","processVersion":"2.0.0"}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
@@ -1005,9 +1005,10 @@ func TestRunUsesProvidedFolderId(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq '12345' or Id eq 12345", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			header = request.Header
 			return test.ResponseData{Status: http.StatusOK, Body: ""}
@@ -1024,6 +1025,35 @@ func TestRunUsesProvidedFolderId(t *testing.T) {
 	}
 }
 
+func TestRunUsesProvidedFolder(t *testing.T) {
+	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+		outputDirectory := test.GetArgumentValue(args, "--output")
+		writeNupkgArchive(t, filepath.Join(outputDirectory, "MyLibrary_Tests.nupkg"))
+	})
+	header := map[string]string{}
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'MyFolder'", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			header = request.Header
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
+		}).
+		Build()
+
+	source := test.NewCrossPlatformProject(t).
+		Build()
+	test.RunCli([]string{"studio", "test", "run", "--source", source, "--organization", "my-org", "--tenant", "my-tenant", "--folder", "MyFolder"}, context)
+
+	folderId := header["x-uipath-organizationunitid"]
+	if folderId != "12345" {
+		t.Errorf("Expected x-uipath-organizationunitid header from argument, but got: '%s'", folderId)
+	}
+}
+
 func TestRunUsesFolderFeedWhenAvailable(t *testing.T) {
 	exec := process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
 		outputDirectory := test.GetArgumentValue(args, "--output")
@@ -1033,9 +1063,10 @@ func TestRunUsesFolderFeedWhenAvailable(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithCommandPlugin(TestRunCommand{exec}).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq '12345' or Id eq 12345", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `8e00fda5-6124-43ca-b8c8-5d812589e567`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage?feedId=8e00fda5-6124-43ca-b8c8-5d812589e567", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess_Tests'", http.StatusOK, `{"value":[]}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			header = request.Header
 			return test.ResponseData{Status: http.StatusOK, Body: ""}

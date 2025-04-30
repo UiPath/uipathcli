@@ -1708,9 +1708,9 @@ paths:
 		WithResponseHandler(func(request RequestData) ResponseData {
 			callCount++
 			if callCount == 3 {
-				return ResponseData{Status: 200, Body: `{"hello":"world"}`}
+				return ResponseData{Status: http.StatusOK, Body: `{"hello":"world"}`}
 			}
-			return ResponseData{Status: 500, Body: "Internal Server Error"}
+			return ResponseData{Status: http.StatusInternalServerError, Body: "Internal Server Error"}
 		}).
 		Build()
 

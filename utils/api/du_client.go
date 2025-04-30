@@ -12,6 +12,7 @@ import (
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/converter"
 	"github.com/UiPath/uipathcli/utils/network"
 	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
@@ -55,7 +56,10 @@ func (c DuClient) createStartDigitizationRequest(projectId string, file stream.S
 	formDataContentType := c.writeMultipartBody(bodyWriter, file, contentType, cancel)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
 
-	uri := c.baseUri + fmt.Sprintf("/api/framework/projects/%s/digitization/start?api-version=1", projectId)
+	uri := converter.NewUriBuilder(c.baseUri, "/api/framework/projects/{ProjectId}/digitization/start").
+		FormatPath("ProjectId", projectId).
+		AddQueryString("api-version", "1").
+		Build()
 	header := http.Header{
 		"Content-Type": {formDataContentType},
 	}
@@ -89,7 +93,11 @@ func (c DuClient) GetDigitizationResult(projectId string, documentId string) (st
 }
 
 func (c DuClient) createDigitizeStatusRequest(projectId string, documentId string) *network.HttpRequest {
-	uri := c.baseUri + fmt.Sprintf("/api/framework/projects/%s/digitization/result/%s?api-version=1", projectId, documentId)
+	uri := converter.NewUriBuilder(c.baseUri, "/api/framework/projects/{ProjectId}/digitization/result/{DocumentId}").
+		FormatPath("ProjectId", projectId).
+		FormatPath("DocumentId", documentId).
+		AddQueryString("api-version", "1").
+		Build()
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), http.Header{})
 }
 

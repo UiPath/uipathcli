@@ -89,7 +89,7 @@ paths:
 		WithDefinition("myservice", definition).
 		WithResponseHandler(func(request RequestData) ResponseData {
 			callCount++
-			return ResponseData{Status: 200, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
+			return ResponseData{Status: http.StatusOK, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
 		}).
 		Build()
 
@@ -121,7 +121,7 @@ paths:
 		WithDefinition("myservice", definition).
 		WithResponseHandler(func(request RequestData) ResponseData {
 			callCount++
-			return ResponseData{Status: 200, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
+			return ResponseData{Status: http.StatusOK, Body: `{"version":` + strconv.Itoa(callCount) + `}`}
 		}).
 		Build()
 

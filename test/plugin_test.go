@@ -339,7 +339,7 @@ func (c SimplePluginCommand) Command() plugin.Command {
 
 func (c SimplePluginCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	logger.LogError("Simple plugin logging output")
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "https", map[string][]string{}, bytes.NewReader([]byte("Simple plugin output"))))
+	return writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "https", map[string][]string{}, bytes.NewReader([]byte("Simple plugin output"))))
 }
 
 type ContextPluginCommand struct {

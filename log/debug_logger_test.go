@@ -2,6 +2,7 @@ package log
 
 import (
 	"bytes"
+	"net/http"
 	"testing"
 )
 
@@ -46,7 +47,7 @@ func TestLogResponseDisplaysResponseDetails(t *testing.T) {
 	header := map[string][]string{
 		"x-request-id": {"my-request-id"},
 	}
-	logger.LogResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", header, body))
+	logger.LogResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", header, body))
 
 	expectedOutput := `HTTP/1.1 200 OK
 x-request-id: my-request-id

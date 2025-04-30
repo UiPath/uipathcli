@@ -19,13 +19,14 @@ type QueryStringBuilder struct {
 	querystring string
 }
 
-func (b *QueryStringBuilder) Add(name string, value interface{}) {
+func (b *QueryStringBuilder) Add(name string, value interface{}) *QueryStringBuilder {
 	param := b.formatQueryStringParam(name, value)
 	if b.querystring == "" {
 		b.querystring = param
 	} else {
 		b.querystring = b.querystring + "&" + param
 	}
+	return b
 }
 
 func (b *QueryStringBuilder) Build() string {

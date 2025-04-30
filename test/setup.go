@@ -172,7 +172,12 @@ func RunCli(args []string, context Context) Result {
 				}
 			}
 
-			response, found := context.Responses[requestUrl]
+			decodedRequestUrl := r.URL.Path
+			query, _ := url.QueryUnescape(r.URL.RawQuery)
+			if query != "" {
+				decodedRequestUrl += "?" + query
+			}
+			response, found := context.Responses[decodedRequestUrl]
 			if !found {
 				response, found = context.Responses["*"]
 			}

@@ -147,7 +147,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"04908673-2b65-4647-8ab3-dde8a3aa7885"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/04908673-2b65-4647-8ab3-dde8a3aa7885?api-version=1", 400, `validation error`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/04908673-2b65-4647-8ab3-dde8a3aa7885?api-version=1", http.StatusBadRequest, `validation error`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
@@ -188,7 +188,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"648ea1c2-7dbe-42a8-b112-6474d07e61c1"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/00000000-0000-0000-0000-000000000000/digitization/result/648ea1c2-7dbe-42a8-b112-6474d07e61c1?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/00000000-0000-0000-0000-000000000000/digitization/result/648ea1c2-7dbe-42a8-b112-6474d07e61c1?api-version=1", http.StatusOK, `{"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--file", path}, context)
@@ -233,7 +233,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", http.StatusOK, `{"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
@@ -268,7 +268,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"pages":[],"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", http.StatusOK, `{"pages":[],"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path, "--debug"}, context)
@@ -310,7 +310,7 @@ paths:
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithStdIn(stdIn).
 		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", http.StatusOK, `{"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--content-type", "application/pdf", "--file", "-"}, context)
@@ -355,7 +355,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", http.StatusOK, `{"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)
@@ -402,7 +402,7 @@ paths:
 		WithConfig(config).
 		WithCommandPlugin(NewDigitizeCommand()).
 		WithResponse(http.StatusAccepted, `{"documentId":"eb80e441-05de-4a13-9aaa-f65b1babba05"}`).
-		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", 200, `{"status":"Done"}`).
+		WithUrlResponse("/my-org/my-tenant/du_/api/framework/projects/1234/digitization/result/eb80e441-05de-4a13-9aaa-f65b1babba05?api-version=1", http.StatusOK, `{"status":"Done"}`).
 		Build()
 
 	result := test.RunCli([]string{"du", "digitization", "digitize", "--project-id", "1234", "--file", path}, context)

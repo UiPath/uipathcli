@@ -3,6 +3,7 @@ package digitzer
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"strings"
 	"time"
@@ -82,7 +83,7 @@ func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.Execu
 		return false, nil
 	}
 
-	err = writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, strings.NewReader(result)))
+	err = writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, strings.NewReader(result)))
 	return true, err
 }
 

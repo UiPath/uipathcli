@@ -9,6 +9,7 @@ import (
 	"io"
 	"math"
 	"math/big"
+	"net/http"
 	"os"
 	"path/filepath"
 	"time"
@@ -74,7 +75,7 @@ func (c PackageAnalyzeCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return fmt.Errorf("analyze command failed: %w", err)
 	}
-	err = writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
+	err = writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 	if err != nil {
 		return err
 	}

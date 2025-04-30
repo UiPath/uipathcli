@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,7 +60,7 @@ func (c PackageRestoreCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return fmt.Errorf("restore command failed: %w", err)
 	}
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
+	return writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 }
 
 func (c PackageRestoreCommand) execute(params packageRestoreParams, debug bool, logger log.Logger) (*packageRestoreResult, error) {
