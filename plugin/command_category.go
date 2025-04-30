@@ -10,6 +10,6 @@ type CommandCategory struct {
 	Description string
 }
 
-func NewCommandCategory(name string, summary string, description string) *CommandCategory {
+func NewCategory(name string, summary string, description string) *CommandCategory {
 	return &CommandCategory{name, summary, description}
 }

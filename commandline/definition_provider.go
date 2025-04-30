@@ -145,8 +145,9 @@ func (p DefinitionProvider) convertToParameters(parameters []plugin.CommandParam
 			parser.ParameterInCustom,
 			p.Name,
 			p.Required,
-			nil,
-			nil,
+			p.DefaultValue,
+			p.AllowedValues,
+			p.Hidden,
 			[]parser.Parameter{})
 		result = append(result, parameter)
 	}

@@ -172,9 +172,11 @@ func (c CreateCommand) Execute(ctx plugin.ExecutionContext, writer output.Output
 func (c CreateCommand) Command() plugin.Command {
   return *plugin.NewCommand("myservice").
       WithOperation("create-product", "Create product", "Creates a new product in the store").
-      WithParameter("id", plugin.ParameterTypeInteger, "The product id", true).
-      WithParameter("name", plugin.ParameterTypeString, "The product name", true).
-      WithParameter("description", plugin.ParameterTypeString, "The product description", false)
+      WithParameter(plugin.NewParameter("id", plugin.ParameterTypeInteger, "The product id").
+          WithRequired(true)).
+      WithParameter(plugin.NewParameter("name", plugin.ParameterTypeString, "The product name").
+          WithRequired(true)).
+      WithParameter(plugin.NewParameter("description", plugin.ParameterTypeString, "The product description"))
 }
 ```
 

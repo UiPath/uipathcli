@@ -217,6 +217,8 @@ func TestPublishWithDebugFlagOutputsRequestData(t *testing.T) {
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess","processKey":"MyProcess","processVersion":"1.0.195912597"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
 

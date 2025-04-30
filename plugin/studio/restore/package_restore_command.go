@@ -26,8 +26,12 @@ func (c PackageRestoreCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
 		WithCategory("package", "Package", "UiPath Studio package-related actions").
 		WithOperation("restore", "Package Project", "Restores the packages of the project").
-		WithParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file (default: .)", false).
-		WithParameter("destination", plugin.ParameterTypeString, "The output folder (default ./packages)", false)
+		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
+			WithRequired(true).
+			WithDefaultValue(".")).
+		WithParameter(plugin.NewParameter("destination", plugin.ParameterTypeString, "The output folder").
+			WithRequired(true).
+			WithDefaultValue("./packages"))
 }
 
 func (c PackageRestoreCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -145,7 +149,7 @@ func (c PackageRestoreCommand) newProgressBar(logger log.Logger) chan struct{} {
 }
 
 func (c PackageRestoreCommand) getSource(ctx plugin.ExecutionContext) (string, error) {
-	source := c.getParameter("source", ".", ctx.Parameters)
+	source := c.getStringParameter("source", ".", ctx.Parameters)
 	source, _ = filepath.Abs(source)
 	fileInfo, err := os.Stat(source)
 	if err != nil {
@@ -158,12 +162,12 @@ func (c PackageRestoreCommand) getSource(ctx plugin.ExecutionContext) (string, e
 }
 
 func (c PackageRestoreCommand) getDestination(ctx plugin.ExecutionContext) string {
-	destination := c.getParameter("destination", "./packages/", ctx.Parameters)
+	destination := c.getStringParameter("destination", "./packages/", ctx.Parameters)
 	destination, _ = filepath.Abs(destination)
 	return destination
 }
 
-func (c PackageRestoreCommand) getParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
+func (c PackageRestoreCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {
 	result := defaultValue
 	for _, p := range parameters {
 		if p.Name == name {

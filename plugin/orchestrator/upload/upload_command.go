@@ -27,10 +27,14 @@ func (c UploadCommand) Command() plugin.Command {
 	return *plugin.NewCommand("orchestrator").
 		WithCategory("buckets", "Orchestrator Buckets", "Buckets provide a per-folder storage solution for RPA developers to leverage in creating automation projects.").
 		WithOperation("upload", "Upload file", "Uploads the provided file to the bucket").
-		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", true).
-		WithParameter("key", plugin.ParameterTypeInteger, "The Bucket Id", true).
-		WithParameter("path", plugin.ParameterTypeString, "The BlobFile full path", true).
-		WithParameter("file", plugin.ParameterTypeBinary, "The file to upload", true)
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("key", plugin.ParameterTypeInteger, "The Bucket Id").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("path", plugin.ParameterTypeString, "The BlobFile full path").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("file", plugin.ParameterTypeBinary, "The file to upload").
+			WithRequired(true))
 }
 
 func (c UploadCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {

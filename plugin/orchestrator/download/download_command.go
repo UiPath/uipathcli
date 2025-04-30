@@ -26,9 +26,12 @@ func (c DownloadCommand) Command() plugin.Command {
 	return *plugin.NewCommand("orchestrator").
 		WithCategory("buckets", "Orchestrator Buckets", "Buckets provide a per-folder storage solution for RPA developers to leverage in creating automation projects.").
 		WithOperation("download", "Download file", "Downloads the file with the given path from the bucket").
-		WithParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id", true).
-		WithParameter("key", plugin.ParameterTypeInteger, "The Bucket Id", true).
-		WithParameter("path", plugin.ParameterTypeString, "The BlobFile full path", true)
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("key", plugin.ParameterTypeInteger, "The Bucket Id").
+			WithRequired(true)).
+		WithParameter(plugin.NewParameter("path", plugin.ParameterTypeString, "The BlobFile full path").
+			WithRequired(true))
 }
 
 func (c DownloadCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {

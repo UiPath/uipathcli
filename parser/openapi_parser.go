@@ -180,7 +180,7 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 		propertiesSchemas := p.getPropertiesSchemas(schemaRef.Value)
 		parameters = p.parseSchemas(propertiesSchemas, in, schemaRef.Value.Required, visitedSchemas)
 	}
-	return NewParameter(name, _type, description, in, fieldName, required, defaultValue, allowedValues, parameters)
+	return NewParameter(name, _type, description, in, fieldName, required, defaultValue, allowedValues, false, parameters)
 }
 
 func (p OpenApiParser) parseSchemas(schemas openapi3.Schemas, in string, requiredFieldnames []string, visitedSchemas map[*openapi3.SchemaRef]bool) []Parameter {
@@ -298,7 +298,7 @@ func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 		propertiesSchemas := p.getPropertiesSchemas(param.Schema.Value)
 		parameters = p.parseSchemas(propertiesSchemas, param.In, param.Schema.Value.Required, map[*openapi3.SchemaRef]bool{})
 	}
-	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, allowedValues, parameters)
+	return *NewParameter(name, _type, param.Description, param.In, fieldName, required, defaultValue, allowedValues, false, parameters)
 }
 
 func (p OpenApiParser) parseParameters(params openapi3.Parameters) []Parameter {
