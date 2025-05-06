@@ -1,6 +1,9 @@
 package converter
 
 import (
+	"fmt"
+	"net/url"
+	"path"
 	"strings"
 )
 
@@ -47,5 +50,13 @@ func NewUriBuilder(baseUri string, route string) *UriBuilder {
 	if normalizedRoute != "" {
 		uri += "/" + normalizedRoute
 	}
+	return &UriBuilder{uri, NewStringConverter(), NewQueryStringBuilder()}
+}
+
+func NewUriBuilderFromUrl(baseUri url.URL, route string) *UriBuilder {
+	normalizedPath := strings.Trim(baseUri.Path, "/")
+	normalizedRoute := strings.Trim(route, "/")
+	path := path.Join(normalizedPath, normalizedRoute)
+	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
 	return &UriBuilder{uri, NewStringConverter(), NewQueryStringBuilder()}
 }
