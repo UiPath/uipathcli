@@ -72,10 +72,10 @@ func TestPublishReturnsPackageMetadata(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess","processKey":"MyProcess","processVersion":"1.0.195912597"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
@@ -107,7 +107,7 @@ func TestPublishUploadsPackageToOrchestrator(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusInternalServerError, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
@@ -163,10 +163,10 @@ func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
 
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess","processKey":"MyProcess","processVersion":"1.0.195912597"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
@@ -195,10 +195,10 @@ func TestPublishLargeFile(t *testing.T) {
 	nupkgPath := createLargeNupkgArchive(t, size)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess","processKey":"MyProcess","processVersion":"1.0.195912597"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
@@ -214,10 +214,10 @@ func TestPublishWithDebugFlagOutputsRequestData(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases", http.StatusCreated, `{"name":"MyProcess","processKey":"MyProcess","processVersion":"1.0.195912597"}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
@@ -233,7 +233,7 @@ func TestPublishPackageAlreadyExistsReturnsFailed(t *testing.T) {
 	nupkgPath := createNupkgArchive(t, *studio.NewNuspec("MyProcess", "My Process", "2.0.0"))
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'Shared'", http.StatusOK, `{"value":[{"Id":938064,"FullyQualifiedName":"Shared"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=938064", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusConflict, `{}`).
 		WithCommandPlugin(NewPackagePublishCommand()).
@@ -283,12 +283,13 @@ func TestPublishUsesProvidedFolderId(t *testing.T) {
 	header := map[string]string{}
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq '12345' or Id eq 12345", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `null`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			header = request.Header
-			return test.ResponseData{Status: 200, Body: ""}
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
 		}).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()
@@ -301,17 +302,42 @@ func TestPublishUsesProvidedFolderId(t *testing.T) {
 	}
 }
 
+func TestPublishUsesProvidedFolder(t *testing.T) {
+	nupkgPath := createDefaultNupkgArchive(t)
+	header := map[string]string{}
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq 'MyFolder'", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `null`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage", http.StatusOK, `{}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithResponseHandler(func(request test.RequestData) test.ResponseData {
+			header = request.Header
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
+		}).
+		WithCommandPlugin(NewPackagePublishCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "package", "publish", "--organization", "my-org", "--tenant", "my-tenant", "--source", nupkgPath, "--folder", "MyFolder"}, context)
+
+	folderId := header["x-uipath-organizationunitid"]
+	if folderId != "12345" {
+		t.Errorf("Expected x-uipath-organizationunitid header from argument, but got: '%s'", folderId)
+	}
+}
+
 func TestPublishUsesFolderFeedWhenAvailable(t *testing.T) {
 	nupkgPath := createDefaultNupkgArchive(t)
 	header := map[string]string{}
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Folders?$filter=FullyQualifiedName eq '12345' or Id eq 12345", http.StatusOK, `{"value":[{"Id":12345,"FullyQualifiedName":"MyFolder"}]}`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/api/PackageFeeds/GetFolderFeed?folderId=12345", http.StatusOK, `8e00fda5-6124-43ca-b8c8-5d812589e567`).
 		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage?feedId=8e00fda5-6124-43ca-b8c8-5d812589e567", http.StatusOK, `{}`).
-		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey%20eq%20'MyProcess'", http.StatusOK, `{"value":[]}`).
+		WithUrlResponse("/my-org/my-tenant/orchestrator_/odata/Releases?$filter=ProcessKey eq 'MyProcess'", http.StatusOK, `{"value":[]}`).
 		WithResponseHandler(func(request test.RequestData) test.ResponseData {
 			header = request.Header
-			return test.ResponseData{Status: 200, Body: ""}
+			return test.ResponseData{Status: http.StatusOK, Body: ""}
 		}).
 		WithCommandPlugin(NewPackagePublishCommand()).
 		Build()

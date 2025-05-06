@@ -55,7 +55,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 
 func TestOAuthFlowIdentityFails(t *testing.T) {
 	identityServerFake := identityServerFake{
-		ResponseStatus: 400,
+		ResponseStatus: http.StatusBadRequest,
 		ResponseBody:   "Invalid token request",
 	}
 	identityBaseUrl := identityServerFake.Start(t)
@@ -72,7 +72,7 @@ func TestOAuthFlowIdentityFails(t *testing.T) {
 
 func TestOAuthFlowSuccessful(t *testing.T) {
 	identityServerFake := identityServerFake{
-		ResponseStatus: 200,
+		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
 	identityBaseUrl := identityServerFake.Start(t)
@@ -95,7 +95,7 @@ func TestOAuthFlowSuccessful(t *testing.T) {
 
 func TestOAuthFlowIsCached(t *testing.T) {
 	identityServerFake := identityServerFake{
-		ResponseStatus: 200,
+		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
 	identityBaseUrl := identityServerFake.Start(t)
@@ -121,7 +121,7 @@ func TestOAuthFlowIsCached(t *testing.T) {
 
 func TestProvidesCorrectPkceCodes(t *testing.T) {
 	identityFake := identityServerFake{
-		ResponseStatus: 200,
+		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
 	identityUrl := identityFake.Start(t)
@@ -139,7 +139,7 @@ func TestProvidesCorrectPkceCodes(t *testing.T) {
 
 func TestShowsSuccessfullyLoggedInPage(t *testing.T) {
 	identityServerFake := identityServerFake{
-		ResponseStatus: 200,
+		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
 	identityBaseUrl := identityServerFake.Start(t)

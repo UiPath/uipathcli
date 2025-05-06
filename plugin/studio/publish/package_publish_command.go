@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/UiPath/uipathcli/log"
@@ -30,7 +32,10 @@ func (c PackagePublishCommand) Command() plugin.Command {
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to package").
 			WithRequired(true).
 			WithDefaultValue(".")).
-		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id"))
+		WithParameter(plugin.NewParameter("folder", plugin.ParameterTypeString, "The Orchestrator Folder").
+			WithDefaultValue("Shared")).
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id").
+			WithHidden(true))
 }
 
 func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -44,7 +49,7 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return err
 	}
-	folderId := c.getIntParameter("folder-id", 0, ctx.Parameters)
+	folder := c.getFolder(ctx.Parameters)
 
 	nupkgReader := studio.NewNupkgReader(source)
 	nuspec, err := nupkgReader.ReadNuspec()
@@ -52,7 +57,7 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 		return err
 	}
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	params := newPackagePublishParams(source, folderId, nuspec.Id, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
+	params := newPackagePublishParams(source, folder, nuspec.Id, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
 	result, err := c.publish(*params, logger)
 	if err != nil {
 		return err
@@ -62,7 +67,7 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return fmt.Errorf("Publish command failed: %w", err)
 	}
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
+	return writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(json)))
 }
 
 func (c PackagePublishCommand) publish(params packagePublishParams, logger log.Logger) (*packagePublishResult, error) {
@@ -71,13 +76,9 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	defer uploadBar.Remove()
 
 	client := api.NewOrchestratorClient(params.BaseUri, params.Auth.Token, params.Debug, params.Settings, logger)
-	folderId := params.FolderId
-	if folderId == 0 {
-		sharedFolderId, err := client.GetSharedFolderId()
-		if err != nil {
-			return nil, err
-		}
-		folderId = sharedFolderId
+	folderId, err := client.GetFolderId(params.Folder)
+	if err != nil {
+		return nil, err
 	}
 	feedId, err := client.GetFolderFeed(folderId)
 	if err != nil {
@@ -112,6 +113,14 @@ func (c PackagePublishCommand) getSource(ctx plugin.ExecutionContext) (string, e
 		return "", errors.New("Could not find package to publish")
 	}
 	return source, nil
+}
+
+func (c PackagePublishCommand) getFolder(parameters []plugin.ExecutionParameter) string {
+	folderId := c.getIntParameter("folder-id", 0, parameters)
+	if folderId != 0 {
+		return strconv.Itoa(folderId)
+	}
+	return c.getStringParameter("folder", "Shared", parameters)
 }
 
 func (c PackagePublishCommand) getStringParameter(name string, defaultValue string, parameters []plugin.ExecutionParameter) string {

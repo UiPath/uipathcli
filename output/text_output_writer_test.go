@@ -2,6 +2,7 @@ package output
 
 import (
 	"bytes"
+	"net/http"
 	"testing"
 )
 
@@ -9,7 +10,7 @@ func TestTextWriterOutputsErrorStatusWhenResponseIsFailure(t *testing.T) {
 	var output bytes.Buffer
 	writer := NewTextOutputWriter(&output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(400, "400 BadRequest", "HTTP/1.1", map[string][]string{}, bytes.NewReader([]byte{})))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusBadRequest, "400 BadRequest", "HTTP/1.1", map[string][]string{}, bytes.NewReader([]byte{})))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -23,7 +24,7 @@ func TestTextWriterOutputsResponseBody(t *testing.T) {
 	output := bytes.NewBufferString(`{"hello":"world"}`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -37,7 +38,7 @@ func TestTextWriterOutputsResponseBodySortedByKeys(t *testing.T) {
 	output := bytes.NewBufferString(`{"b":"world","a":"hello"}`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -51,7 +52,7 @@ func TestTextWriterOutputsResponseBodyArray(t *testing.T) {
 	output := bytes.NewBufferString(`["hello","world"]`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -65,7 +66,7 @@ func TestTextWriterOutputsResponseBodyObjectArray(t *testing.T) {
 	output := bytes.NewBufferString(`[{"a":"hello"},{"a":"world"}]`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -79,7 +80,7 @@ func TestTextWriterOutputsResponseBodyObjectArrayDifferentKeys(t *testing.T) {
 	output := bytes.NewBufferString(`[{"b":"foo","a":"hello"},{"b":"bar"}]`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)
@@ -93,7 +94,7 @@ func TestTextWriterOutputsPlainBodyOnJsonParsingError(t *testing.T) {
 	output := bytes.NewBufferString(`{invalid}`)
 	writer := NewTextOutputWriter(output, NewDefaultTransformer())
 
-	err := writer.WriteResponse(*NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, output))
+	err := writer.WriteResponse(*NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, output))
 
 	if err != nil {
 		t.Errorf("Writing response failed: %v", err)

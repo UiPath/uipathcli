@@ -4,7 +4,7 @@ import "github.com/UiPath/uipathcli/plugin"
 
 type packagePublishParams struct {
 	Source      string
-	FolderId    int
+	Folder      string
 	Name        string
 	Description string
 	Version     string
@@ -16,7 +16,7 @@ type packagePublishParams struct {
 
 func newPackagePublishParams(
 	source string,
-	folderId int,
+	folder string,
 	name string,
 	description string,
 	version string,
@@ -24,5 +24,5 @@ func newPackagePublishParams(
 	auth plugin.AuthResult,
 	debug bool,
 	settings plugin.ExecutionSettings) *packagePublishParams {
-	return &packagePublishParams{source, folderId, name, description, version, baseUri, auth, debug, settings}
+	return &packagePublishParams{source, folder, name, description, version, baseUri, auth, debug, settings}
 }

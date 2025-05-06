@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"math"
 	"math/big"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -47,7 +48,10 @@ func (c TestRunCommand) Command() plugin.Command {
 			WithDefaultValue("uipath").
 			WithAllowedValues([]interface{}{"uipath", "junit"})).
 		WithParameter(plugin.NewParameter("attach-robot-logs", plugin.ParameterTypeBoolean, "Attaches Robot Logs for each testcases along with Test Report.")).
-		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id"))
+		WithParameter(plugin.NewParameter("folder", plugin.ParameterTypeString, "The Orchestrator Folder").
+			WithDefaultValue("Shared")).
+		WithParameter(plugin.NewParameter("folder-id", plugin.ParameterTypeInteger, "Folder/OrganizationUnit Id").
+			WithHidden(true))
 }
 
 func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
@@ -58,9 +62,9 @@ func (c TestRunCommand) Execute(ctx plugin.ExecutionContext, writer output.Outpu
 	timeout := time.Duration(c.getIntParameter("timeout", 3600, ctx.Parameters)) * time.Second
 	resultsOutput := c.getStringParameter("results-output", "uipath", ctx.Parameters)
 	attachRobotLogs := c.getBoolParameter("attach-robot-logs", false, ctx.Parameters)
-	folderId := c.getIntParameter("folder-id", 0, ctx.Parameters)
+	folder := c.getFolder(ctx.Parameters)
 
-	params, err := c.prepareExecution(sources, timeout, attachRobotLogs, folderId, logger)
+	params, err := c.prepareExecution(sources, timeout, attachRobotLogs, folder, logger)
 	if err != nil {
 		return err
 	}
@@ -90,10 +94,10 @@ func (c TestRunCommand) writeOutput(ctx plugin.ExecutionContext, results []testR
 			return fmt.Errorf("run command failed: %w", err)
 		}
 	}
-	return writer.WriteResponse(*output.NewResponseInfo(200, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(data)))
+	return writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, bytes.NewReader(data)))
 }
 
-func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration, attachRobotLogs bool, folderId int, logger log.Logger) ([]testRunParams, error) {
+func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration, attachRobotLogs bool, folder string, logger log.Logger) ([]testRunParams, error) {
 	tmp, err := directories.Temp()
 	if err != nil {
 		return nil, err
@@ -121,7 +125,7 @@ func (c TestRunCommand) prepareExecution(sources []string, timeout time.Duration
 			return nil, err
 		}
 		destination := filepath.Join(tmp, c.randomTestRunFolderName())
-		params = append(params, *newTestRunParams(i, uipcli, executionLogger, source, destination, timeout, attachRobotLogs, folderId))
+		params = append(params, *newTestRunParams(i, uipcli, executionLogger, source, destination, timeout, attachRobotLogs, folder))
 	}
 	return params, nil
 }
@@ -227,14 +231,9 @@ func (c TestRunCommand) runTests(nupkgPath string, processKey string, processVer
 	status <- *newTestRunStatusUploading(params.ExecutionId)
 	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
 	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
-	folderId := params.FolderId
-	feedId := ""
-	if folderId == 0 {
-		sharedFolderId, err := client.GetSharedFolderId()
-		if err != nil {
-			return -1, nil, nil, err
-		}
-		folderId = sharedFolderId
+	folderId, err := client.GetFolderId(params.Folder)
+	if err != nil {
+		return -1, nil, nil, err
 	}
 	feedId, err := client.GetFolderFeed(folderId)
 	if err != nil {
@@ -339,6 +338,14 @@ func (c TestRunCommand) getSources(ctx plugin.ExecutionContext) ([]string, error
 		result = append(result, source)
 	}
 	return result, nil
+}
+
+func (c TestRunCommand) getFolder(parameters []plugin.ExecutionParameter) string {
+	folderId := c.getIntParameter("folder-id", 0, parameters)
+	if folderId != 0 {
+		return strconv.Itoa(folderId)
+	}
+	return c.getStringParameter("folder", "Shared", parameters)
 }
 
 func (c TestRunCommand) getIntParameter(name string, defaultValue int, parameters []plugin.ExecutionParameter) int {

@@ -1,9 +1,6 @@
 package converter
 
 import (
-	"fmt"
-	"net/url"
-	"path"
 	"strings"
 )
 
@@ -25,13 +22,15 @@ type UriBuilder struct {
 	queryStringBuilder *QueryStringBuilder
 }
 
-func (b *UriBuilder) FormatPath(name string, value interface{}) {
+func (b *UriBuilder) FormatPath(name string, value interface{}) *UriBuilder {
 	valueString := b.converter.ToString(value)
 	b.uri = strings.ReplaceAll(b.uri, "{"+name+"}", valueString)
+	return b
 }
 
-func (b *UriBuilder) AddQueryString(name string, value interface{}) {
+func (b *UriBuilder) AddQueryString(name string, value interface{}) *UriBuilder {
 	b.queryStringBuilder.Add(name, value)
+	return b
 }
 
 func (b *UriBuilder) Build() string {
@@ -42,10 +41,11 @@ func (b *UriBuilder) Build() string {
 	return b.uri + "?" + queryString
 }
 
-func NewUriBuilder(baseUri url.URL, route string) *UriBuilder {
-	normalizedPath := strings.Trim(baseUri.Path, "/")
+func NewUriBuilder(baseUri string, route string) *UriBuilder {
+	uri := strings.Trim(baseUri, "/")
 	normalizedRoute := strings.Trim(route, "/")
-	path := path.Join(normalizedPath, normalizedRoute)
-	uri := fmt.Sprintf("%s://%s/%s", baseUri.Scheme, baseUri.Host, path)
+	if normalizedRoute != "" {
+		uri += "/" + normalizedRoute
+	}
 	return &UriBuilder{uri, NewStringConverter(), NewQueryStringBuilder()}
 }
