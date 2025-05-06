@@ -81,6 +81,34 @@ paths:
 	}
 }
 
+func TestOrgTenantServerUrl(t *testing.T) {
+	config := `
+profiles:
+  - name: default
+    organization: my-org
+    tenant: my-tenant
+`
+	definition := `
+servers:
+  - url: https://cloud.uipath.com/{organization}/{tenant}/
+paths:
+  "/ping":
+    get:
+      operationId: ping
+`
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		WithConfig(config).
+		WithResponse(http.StatusOK, "").
+		Build()
+
+	result := RunCli([]string{"myservice", "ping"}, context)
+
+	if result.RequestUrl != "/my-org/my-tenant/ping" {
+		t.Errorf("Did not set tenant from config, got: %v", result.RequestUrl)
+	}
+}
+
 func TestMissingTenantConfigShowsError(t *testing.T) {
 	config := `
 profiles:
