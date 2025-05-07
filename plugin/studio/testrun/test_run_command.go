@@ -9,11 +9,9 @@ import (
 	"math"
 	"math/big"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 
@@ -86,8 +84,8 @@ func (c TestRunCommand) writeOutput(ctx plugin.ExecutionContext, results []testR
 			return fmt.Errorf("run command failed: %w", err)
 		}
 	} else {
-		baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-		converter := newJUnitReportConverter(baseUri)
+		client := api.NewOrchestratorClient(ctx.BaseUri, ctx.Organization, ctx.Tenant, nil, false, ctx.Settings, nil)
+		converter := newJUnitReportConverter(client)
 		report := converter.Convert(results)
 		data, err = xml.MarshalIndent(report, "", "  ")
 		if err != nil {
@@ -229,8 +227,7 @@ func (c TestRunCommand) execute(params testRunParams, ctx plugin.ExecutionContex
 
 func (c TestRunCommand) runTests(nupkgPath string, processKey string, processVersion string, params testRunParams, ctx plugin.ExecutionContext, logger log.Logger, status chan<- testRunStatus) (int, *api.TestSet, *api.TestExecution, error) {
 	status <- *newTestRunStatusUploading(params.ExecutionId)
-	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(ctx.BaseUri, ctx.Organization, ctx.Tenant, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	folderId, err := client.GetFolderId(params.Folder)
 	if err != nil {
 		return -1, nil, nil, err
@@ -398,17 +395,6 @@ func (c TestRunCommand) getStringParameter(name string, defaultValue string, par
 		}
 	}
 	return result
-}
-
-func (c TestRunCommand) formatUri(baseUri url.URL, org string, tenant string) string {
-	path := baseUri.Path
-	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/orchestrator_"
-	}
-	path = strings.ReplaceAll(path, "{organization}", org)
-	path = strings.ReplaceAll(path, "{tenant}", tenant)
-	path = strings.TrimSuffix(path, "/")
-	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
 func (c TestRunCommand) randomTestRunFolderName() string {

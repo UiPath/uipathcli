@@ -123,7 +123,7 @@ func (e HttpExecutor) validateUri(uri string) (*url.URL, error) {
 }
 
 func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []ExecutionParameter, queryParameters []ExecutionParameter) (*url.URL, error) {
-	uriBuilder := converter.NewUriBuilderFromUrl(baseUri, route)
+	uriBuilder := converter.NewUriBuilder(baseUri, route)
 	for _, parameter := range pathParameters {
 		uriBuilder.FormatPath(parameter.Name, parameter.Value)
 	}

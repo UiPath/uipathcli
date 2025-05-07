@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
@@ -125,20 +123,8 @@ func (c UploadCommand) getWriteUrl(ctx plugin.ExecutionContext, logger log.Logge
 	bucketId := c.getIntParameter("key", ctx.Parameters)
 	path := c.getStringParameter("path", ctx.Parameters)
 
-	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewOrchestratorClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewOrchestratorClient(ctx.BaseUri, ctx.Organization, ctx.Tenant, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	return client.GetWriteUrl(folderId, bucketId, path)
-}
-
-func (c UploadCommand) formatUri(baseUri url.URL, org string, tenant string) string {
-	path := baseUri.Path
-	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/orchestrator_"
-	}
-	path = strings.ReplaceAll(path, "{organization}", org)
-	path = strings.ReplaceAll(path, "{tenant}", tenant)
-	path = strings.TrimSuffix(path, "/")
-	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
 func (c UploadCommand) getStringParameter(name string, parameters []plugin.ExecutionParameter) string {

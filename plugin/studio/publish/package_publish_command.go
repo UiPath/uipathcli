@@ -6,11 +6,9 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strconv"
-	"strings"
 
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
@@ -56,8 +54,7 @@ func (c PackagePublishCommand) Execute(ctx plugin.ExecutionContext, writer outpu
 	if err != nil {
 		return err
 	}
-	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	params := newPackagePublishParams(source, folder, nuspec.Id, nuspec.Title, nuspec.Version, baseUri, ctx.Auth, ctx.Debug, ctx.Settings)
+	params := newPackagePublishParams(source, folder, nuspec.Id, nuspec.Title, nuspec.Version, ctx.BaseUri, ctx.Organization, ctx.Tenant, ctx.Auth, ctx.Debug, ctx.Settings)
 	result, err := c.publish(*params, logger)
 	if err != nil {
 		return err
@@ -75,7 +72,7 @@ func (c PackagePublishCommand) publish(params packagePublishParams, logger log.L
 	uploadBar := visualization.NewProgressBar(logger)
 	defer uploadBar.Remove()
 
-	client := api.NewOrchestratorClient(params.BaseUri, params.Auth.Token, params.Debug, params.Settings, logger)
+	client := api.NewOrchestratorClient(params.BaseUri, params.Organization, params.Tenant, params.Auth.Token, params.Debug, params.Settings, logger)
 	folderId, err := client.GetFolderId(params.Folder)
 	if err != nil {
 		return nil, err
@@ -147,17 +144,6 @@ func (c PackagePublishCommand) getIntParameter(name string, defaultValue int, pa
 		}
 	}
 	return result
-}
-
-func (c PackagePublishCommand) formatUri(baseUri url.URL, org string, tenant string) string {
-	path := baseUri.Path
-	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/orchestrator_"
-	}
-	path = strings.ReplaceAll(path, "{organization}", org)
-	path = strings.ReplaceAll(path, "{tenant}", tenant)
-	path = strings.TrimSuffix(path, "/")
-	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
 func NewPackagePublishCommand() *PackagePublishCommand {

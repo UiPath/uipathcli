@@ -306,7 +306,7 @@ func TestRunGeneratesJUnitReport(t *testing.T) {
   <testsuite id="349001" name="Automated - MyLibrary - 1.0.195912597" time="8.996" package="MyTestPackage-1.2.3" tests="1" failures="0" errors="0" cancelled="0">
     <system-out>Test set execution Automated - MyLibrary - 1.0.195912597 took 8996ms.&#xA;Test set execution url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001?fid=938064&#xA;</system-out>
     <testcase name="MyTestCase" time="8.996" status="Passed" classname="1.1.1">
-      <system-out>Test case MyTestCase (v) executed as job 0 and took 8996ms.&#xA;Test case logs url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001/logs/0?fid=938064&#xA;Test case execution url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001?search=MyTestCase&amp;fid=938064&#xA;Input arguments: &#xA;Output arguments: &#xA;</system-out>
+      <system-out>Test case MyTestCase (v) executed as job 0 and took 8996ms.&#xA;Test case logs url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001/logs/0?fid=938064&#xA;Test case execution url: ` + result.BaseUrl + `/my-org/my-tenant/orchestrator_/test/executions/349001?fid=938064&amp;search=MyTestCase&#xA;Input arguments: &#xA;Output arguments: &#xA;</system-out>
     </testcase>
   </testsuite>
 </testsuites>`

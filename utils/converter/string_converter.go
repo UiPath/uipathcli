@@ -4,11 +4,12 @@ package converter
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 )
 
 // StringConverter converts interface{} values into a string.
-// Depending on the type of the parameter, the formatter converts the value to
+// Depending on the type of the parameter, it converts the value to
 // the proper format:
 // - Integers, Float, etc.. are simply converted to a string
 // - Arrays are formatted comma-separated
@@ -16,31 +17,60 @@ import (
 type StringConverter struct{}
 
 func (c StringConverter) ToString(value interface{}) string {
-	return c.formatParameter(value)
+	switch value := value.(type) {
+	case []int, []float64, []bool, []string:
+		array := c.ToStringArray(value)
+		return strings.Join(array, ",")
+	case int:
+		return strconv.Itoa(value)
+	case float64:
+		return strconv.FormatFloat(value, 'f', -1, 64)
+	case bool:
+		return strconv.FormatBool(value)
+	case string:
+		return value
+	default:
+		return fmt.Sprint(value)
+	}
 }
 
-func (c StringConverter) formatParameter(value interface{}) string {
+func (c StringConverter) ToStringArray(value interface{}) []string {
 	switch value := value.(type) {
 	case []int:
-		return c.arrayToCommaSeparatedString(value)
+		return c.intArrayToStringArray(value)
 	case []float64:
-		return c.arrayToCommaSeparatedString(value)
+		return c.floatArrayToStringArray(value)
 	case []bool:
-		return c.arrayToCommaSeparatedString(value)
+		return c.boolArrayToStringArray(value)
 	case []string:
-		return c.arrayToCommaSeparatedString(value)
+		return value
 	default:
-		return fmt.Sprintf("%v", value)
+		return strings.Fields(fmt.Sprint(value))
 	}
 }
 
-func (c StringConverter) arrayToCommaSeparatedString(array interface{}) string {
-	switch value := array.(type) {
-	case []string:
-		return strings.Join(value, ",")
-	default:
-		return strings.Trim(strings.Join(strings.Fields(fmt.Sprint(value)), ","), "[]")
+func (c StringConverter) intArrayToStringArray(array []int) []string {
+	result := make([]string, len(array))
+	for i, value := range array {
+		result[i] = strconv.Itoa(value)
 	}
+	return result
+}
+
+func (c StringConverter) floatArrayToStringArray(array []float64) []string {
+	result := make([]string, len(array))
+	for i, value := range array {
+		result[i] = strconv.FormatFloat(value, 'f', -1, 64)
+	}
+	return result
+}
+
+func (c StringConverter) boolArrayToStringArray(array []bool) []string {
+	result := make([]string, len(array))
+	for i, value := range array {
+		result[i] = strconv.FormatBool(value)
+	}
+	return result
 }
 
 func NewStringConverter() *StringConverter {

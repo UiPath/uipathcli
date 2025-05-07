@@ -38,7 +38,7 @@ func (c *Config) ClientId() string {
 	if clientId == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", clientId)
+	return fmt.Sprint(clientId)
 }
 
 func (c *Config) ClientSecret() string {
@@ -46,7 +46,7 @@ func (c *Config) ClientSecret() string {
 	if clientSecret == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", clientSecret)
+	return fmt.Sprint(clientSecret)
 }
 
 func (c *Config) RedirectUri() string {
@@ -54,7 +54,7 @@ func (c *Config) RedirectUri() string {
 	if redirectUri == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", redirectUri)
+	return fmt.Sprint(redirectUri)
 }
 
 func (c *Config) Scopes() string {
@@ -62,7 +62,7 @@ func (c *Config) Scopes() string {
 	if scopes == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", scopes)
+	return fmt.Sprint(scopes)
 }
 
 func (c *Config) Pat() string {
@@ -70,7 +70,7 @@ func (c *Config) Pat() string {
 	if pat == nil {
 		return ""
 	}
-	return fmt.Sprintf("%v", pat)
+	return fmt.Sprint(pat)
 }
 
 func (c *Config) ConfigureOrgTenant(organization string, tenant string) bool {

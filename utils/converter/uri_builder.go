@@ -26,9 +26,28 @@ type UriBuilder struct {
 }
 
 func (b *UriBuilder) FormatPath(name string, value interface{}) *UriBuilder {
-	valueString := b.converter.ToString(value)
+	valueString := b.formatPathValue(value)
 	b.uri = strings.ReplaceAll(b.uri, "{"+name+"}", valueString)
 	return b
+}
+
+func (b *UriBuilder) formatPathValue(value interface{}) string {
+	switch value := value.(type) {
+	case []int, []float64, []bool, []string:
+		array := b.converter.ToStringArray(value)
+		return b.toCommaSeparatedStringPathEscape(array)
+	default:
+		str := b.converter.ToString(value)
+		return url.PathEscape(str)
+	}
+}
+
+func (b *UriBuilder) toCommaSeparatedStringPathEscape(array []string) string {
+	result := make([]string, len(array))
+	for i, value := range array {
+		result[i] = url.PathEscape(value)
+	}
+	return strings.Join(result, ",")
 }
 
 func (b *UriBuilder) AddQueryString(name string, value interface{}) *UriBuilder {
@@ -44,16 +63,7 @@ func (b *UriBuilder) Build() string {
 	return b.uri + "?" + queryString
 }
 
-func NewUriBuilder(baseUri string, route string) *UriBuilder {
-	uri := strings.Trim(baseUri, "/")
-	normalizedRoute := strings.Trim(route, "/")
-	if normalizedRoute != "" {
-		uri += "/" + normalizedRoute
-	}
-	return &UriBuilder{uri, NewStringConverter(), NewQueryStringBuilder()}
-}
-
-func NewUriBuilderFromUrl(baseUri url.URL, route string) *UriBuilder {
+func NewUriBuilder(baseUri url.URL, route string) *UriBuilder {
 	normalizedPath := strings.Trim(baseUri.Path, "/")
 	normalizedRoute := strings.Trim(route, "/")
 	path := path.Join(normalizedPath, normalizedRoute)

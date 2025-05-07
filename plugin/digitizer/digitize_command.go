@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"strings"
 	"time"
 
@@ -66,15 +65,13 @@ func (c DigitizeCommand) startDigitization(ctx plugin.ExecutionContext, logger l
 	}
 	contentType := c.getStringParameter("content-type", "application/octet-stream", ctx.Parameters)
 
-	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewDuClient(ctx.BaseUri, ctx.Organization, ctx.Tenant, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	return client.StartDigitization(projectId, file, contentType, uploadBar)
 }
 
 func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) (bool, error) {
 	projectId := c.getProjectId(ctx.Parameters)
-	baseUri := c.formatUri(ctx.BaseUri, ctx.Organization, ctx.Tenant)
-	client := api.NewDuClient(baseUri, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
+	client := api.NewDuClient(ctx.BaseUri, ctx.Organization, ctx.Tenant, ctx.Auth.Token, ctx.Debug, ctx.Settings, logger)
 	result, err := client.GetDigitizationResult(projectId, documentId)
 	if err != nil {
 		return true, err
@@ -85,17 +82,6 @@ func (c DigitizeCommand) waitForDigitization(documentId string, ctx plugin.Execu
 
 	err = writer.WriteResponse(*output.NewResponseInfo(http.StatusOK, "200 OK", "HTTP/1.1", map[string][]string{}, strings.NewReader(result)))
 	return true, err
-}
-
-func (c DigitizeCommand) formatUri(baseUri url.URL, org string, tenant string) string {
-	path := baseUri.Path
-	if baseUri.Path == "" {
-		path = "/{organization}/{tenant}/du_"
-	}
-	path = strings.ReplaceAll(path, "{organization}", org)
-	path = strings.ReplaceAll(path, "{tenant}", tenant)
-	path = strings.TrimSuffix(path, "/")
-	return fmt.Sprintf("%s://%s%s", baseUri.Scheme, baseUri.Host, path)
 }
 
 func (c DigitizeCommand) getProjectId(parameters []plugin.ExecutionParameter) string {

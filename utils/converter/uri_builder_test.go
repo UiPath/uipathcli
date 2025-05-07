@@ -1,11 +1,12 @@
 package converter
 
 import (
+	"net/url"
 	"testing"
 )
 
 func TestRemovesTrailingSlash(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com/", "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/"), "/my-service")
 
 	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service" {
@@ -14,7 +15,7 @@ func TestRemovesTrailingSlash(t *testing.T) {
 }
 
 func TestAddsMissingSlashSeparator(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "my-service")
 
 	uri := builder.Build()
 	if uri != "https://cloud.uipath.com/my-service" {
@@ -23,7 +24,7 @@ func TestAddsMissingSlashSeparator(t *testing.T) {
 }
 
 func TestFormatPathReplacesPlaceholder(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/{organization}/{tenant}/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{organization}/{tenant}/my-service")
 
 	builder.FormatPath("organization", "my-org")
 
@@ -33,8 +34,54 @@ func TestFormatPathReplacesPlaceholder(t *testing.T) {
 	}
 }
 
+func TestFormatPathReplacesPlaceholderInBaseUri(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/{organization}/{tenant}/"), "/my-service")
+
+	builder.FormatPath("organization", "my-org")
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my-org/{tenant}/my-service" {
+		t.Errorf("Did not replace placeholder, got: %v", uri)
+	}
+}
+
+func TestFormatPathReplacesPlaceholderWithEscapedPathValue(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/{organization}/{tenant}/"), "/my-service")
+
+	builder.FormatPath("organization", "my org")
+	builder.FormatPath("tenant", "{my/tenant}")
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my%20org/%7Bmy%2Ftenant%7D/my-service" {
+		t.Errorf("Did not replace placeholder, got: %v", uri)
+	}
+}
+
+func TestFormatPathReplacesPlaceholderWithEscapedQueryStringKey(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
+
+	builder.AddQueryString("folder&", "Shared")
+	builder.AddQueryString("id?", 10)
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my-service?folder%26=Shared&id%3F=10" {
+		t.Errorf("Did not replace placeholder, got: %v", uri)
+	}
+}
+
+func TestFormatPathReplacesPlaceholderWithEscapedQueryStringValue(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
+
+	builder.AddQueryString("folder", "&Shared?")
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my-service?folder=%26Shared%3F" {
+		t.Errorf("Did not replace placeholder, got: %v", uri)
+	}
+}
+
 func TestFormatPathReplacesMultiplePlaceholders(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/{organization}/{tenant}/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/{organization}/{tenant}"), "/my-service")
 
 	builder.FormatPath("organization", "my-org")
 	builder.FormatPath("tenant", "my-tenant")
@@ -64,7 +111,7 @@ func TestFormatPathDataTypes(t *testing.T) {
 	})
 }
 func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/{param}")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
 
 	builder.FormatPath("param", value)
 
@@ -74,8 +121,30 @@ func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
 	}
 }
 
+func TestFormatPathEscapeStringValue(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
+
+	builder.FormatPath("param", "my/value")
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my%2Fvalue" {
+		t.Errorf("Did not escape path properly, got: %v", uri)
+	}
+}
+
+func TestFormatPathEscapeStringArrayValue(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
+
+	builder.FormatPath("param", []string{"my/value-1", "my-value-2"})
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my%2Fvalue-1,my-value-2" {
+		t.Errorf("Did not escape path properly, got: %v", uri)
+	}
+}
+
 func TestAddQueryString(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	builder.AddQueryString("filter", "my-value")
 
@@ -86,7 +155,7 @@ func TestAddQueryString(t *testing.T) {
 }
 
 func TestAddMultipleQueryStringParameters(t *testing.T) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	builder.AddQueryString("skip", 1)
 	builder.AddQueryString("take", 5)
@@ -116,7 +185,7 @@ func TestQueryStringDataTypes(t *testing.T) {
 	})
 }
 func QueryStringDataTypes(t *testing.T, value interface{}, expected string) {
-	builder := NewUriBuilder("https://cloud.uipath.com", "/my-service")
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/my-service")
 
 	builder.AddQueryString("param", value)
 
@@ -124,4 +193,9 @@ func QueryStringDataTypes(t *testing.T, value interface{}, expected string) {
 	if uri != "https://cloud.uipath.com/my-service"+expected {
 		t.Errorf("Did not format data type for query string properly, got: %v", uri)
 	}
+}
+
+func toUrl(uri string) url.URL {
+	result, _ := url.Parse(uri)
+	return *result
 }
