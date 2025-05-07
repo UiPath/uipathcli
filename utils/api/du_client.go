@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/log"
@@ -19,11 +20,13 @@ import (
 )
 
 type DuClient struct {
-	baseUri  string
-	token    *auth.AuthToken
-	debug    bool
-	settings plugin.ExecutionSettings
-	logger   log.Logger
+	baseUri      url.URL
+	organization string
+	tenant       string
+	token        *auth.AuthToken
+	debug        bool
+	settings     plugin.ExecutionSettings
+	logger       log.Logger
 }
 
 func (c DuClient) StartDigitization(projectId string, file stream.Stream, contentType string, uploadBar *visualization.ProgressBar) (string, error) {
@@ -56,8 +59,8 @@ func (c DuClient) createStartDigitizationRequest(projectId string, file stream.S
 	formDataContentType := c.writeMultipartBody(bodyWriter, file, contentType, cancel)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
 
-	uri := converter.NewUriBuilder(c.baseUri, "/api/framework/projects/{ProjectId}/digitization/start").
-		FormatPath("ProjectId", projectId).
+	uri := c.newUriBuilder("/api/framework/projects/{projectId}/digitization/start").
+		FormatPath("projectId", projectId).
 		AddQueryString("api-version", "1").
 		Build()
 	header := http.Header{
@@ -93,9 +96,9 @@ func (c DuClient) GetDigitizationResult(projectId string, documentId string) (st
 }
 
 func (c DuClient) createDigitizeStatusRequest(projectId string, documentId string) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/api/framework/projects/{ProjectId}/digitization/result/{DocumentId}").
-		FormatPath("ProjectId", projectId).
-		FormatPath("DocumentId", documentId).
+	uri := c.newUriBuilder("/api/framework/projects/{projectId}/digitization/result/{documentId}").
+		FormatPath("projectId", projectId).
+		FormatPath("documentId", documentId).
 		AddQueryString("api-version", "1").
 		Build()
 	return network.NewHttpGetRequest(uri, c.toAuthorization(c.token), http.Header{})
@@ -158,6 +161,16 @@ func (c DuClient) httpClientSettings() network.HttpClientSettings {
 		c.settings.Insecure)
 }
 
+func (c DuClient) newUriBuilder(path string) *converter.UriBuilder {
+	baseUri := c.baseUri
+	if baseUri.Path == "" {
+		baseUri.Path = "/{organization}/{tenant}/du_"
+	}
+	return converter.NewUriBuilder(baseUri, path).
+		FormatPath("organization", c.organization).
+		FormatPath("tenant", c.tenant)
+}
+
 func (c DuClient) toAuthorization(token *auth.AuthToken) *network.Authorization {
 	if token == nil {
 		return nil
@@ -165,8 +178,24 @@ func (c DuClient) toAuthorization(token *auth.AuthToken) *network.Authorization 
 	return network.NewAuthorization(token.Type, token.Value)
 }
 
-func NewDuClient(baseUri string, token *auth.AuthToken, debug bool, settings plugin.ExecutionSettings, logger log.Logger) *DuClient {
-	return &DuClient{baseUri, token, debug, settings, logger}
+func NewDuClient(
+	baseUri url.URL,
+	organization string,
+	tenant string,
+	token *auth.AuthToken,
+	debug bool,
+	settings plugin.ExecutionSettings,
+	logger log.Logger,
+) *DuClient {
+	return &DuClient{
+		baseUri,
+		organization,
+		tenant,
+		token,
+		debug,
+		settings,
+		logger,
+	}
 }
 
 type digitizeResponse struct {

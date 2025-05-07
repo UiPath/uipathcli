@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -26,11 +27,13 @@ import (
 var ErrPackageAlreadyExists = errors.New("Package already exists")
 
 type OrchestratorClient struct {
-	baseUri  string
-	token    *auth.AuthToken
-	debug    bool
-	settings plugin.ExecutionSettings
-	logger   log.Logger
+	baseUri      url.URL
+	organization string
+	tenant       string
+	token        *auth.AuthToken
+	debug        bool
+	settings     plugin.ExecutionSettings
+	logger       log.Logger
 }
 
 func (c OrchestratorClient) GetFolderId(filter string) (int, error) {
@@ -67,7 +70,7 @@ func (c OrchestratorClient) createGetFolderRequest(filter string) *network.HttpR
 		filterQuery += " or Id eq " + filter
 	}
 
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Folders").
+	uri := c.newUriBuilder("/odata/Folders").
 		AddQueryString("$filter", filterQuery).
 		Build()
 	header := http.Header{
@@ -104,7 +107,7 @@ func (c OrchestratorClient) createUploadRequest(file stream.Stream, feedId strin
 	contentType := c.writeMultipartBody(bodyWriter, file, "application/octet-stream", cancel)
 	uploadReader := c.progressReader("uploading...", "completing  ", bodyReader, streamSize, uploadBar)
 
-	uriBuilder := converter.NewUriBuilder(c.baseUri, "/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage")
+	uriBuilder := c.newUriBuilder("/odata/Processes/UiPath.Server.Configuration.OData.UploadPackage")
 	if feedId != "" {
 		uriBuilder.AddQueryString("feedId", feedId)
 	}
@@ -182,7 +185,7 @@ func (c OrchestratorClient) convertToReleases(json getReleasesResponseJson) []Re
 }
 
 func (c OrchestratorClient) createGetReleasesRequest(folderId int, processKey string) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Releases").
+	uri := c.newUriBuilder("/odata/Releases").
 		AddQueryString("$filter", "ProcessKey eq '"+processKey+"'").
 		Build()
 	header := http.Header{
@@ -240,7 +243,7 @@ func (c OrchestratorClient) createNewReleaseRequest(folderId int, processKey str
 		return nil, err
 	}
 
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Releases").
+	uri := c.newUriBuilder("/odata/Releases").
 		Build()
 	header := http.Header{
 		"Content-Type":                {"application/json"},
@@ -279,8 +282,8 @@ func (c OrchestratorClient) createUpdateReleaseRequest(folderId int, releaseId i
 	if err != nil {
 		return nil, err
 	}
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Releases({ReleaseId})").
-		FormatPath("ReleaseId", releaseId).
+	uri := c.newUriBuilder("/odata/Releases({releaseId})").
+		FormatPath("releaseId", releaseId).
 		Build()
 	header := http.Header{
 		"Content-Type":                {"application/json"},
@@ -319,7 +322,7 @@ func (c OrchestratorClient) createTestSetRequest(folderId int, releaseId int, pr
 		return nil, err
 	}
 
-	uri := converter.NewUriBuilder(c.baseUri, "/api/TestAutomation/CreateTestSetForReleaseVersion").
+	uri := c.newUriBuilder("/api/TestAutomation/CreateTestSetForReleaseVersion").
 		Build()
 	header := http.Header{
 		"Content-Type":                {"application/json"},
@@ -347,7 +350,7 @@ func (c OrchestratorClient) ExecuteTestSet(folderId int, testSetId int) (int, er
 }
 
 func (c OrchestratorClient) createExecuteTestSetRequest(folderId int, testSetId int) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/api/TestAutomation/StartTestSetExecution").
+	uri := c.newUriBuilder("/api/TestAutomation/StartTestSetExecution").
 		AddQueryString("testSetId", testSetId).
 		AddQueryString("triggerType", "ExternalTool").
 		Build()
@@ -401,8 +404,8 @@ func (c OrchestratorClient) GetTestSet(folderId int, testSetId int) (*TestSet, e
 }
 
 func (c OrchestratorClient) createGetTestSetRequest(folderId int, testSetId int) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/TestSets({TestSetId})").
-		FormatPath("TestSetId", testSetId).
+	uri := c.newUriBuilder("/odata/TestSets({testSetId})").
+		FormatPath("testSetId", testSetId).
 		AddQueryString("$expand", "TestCases($expand=Definition;$select=Id,Definition,DefinitionId,ReleaseId,VersionNumber),Packages").
 		AddQueryString("$select", "TestCases,Name").
 		Build()
@@ -438,8 +441,8 @@ func (c OrchestratorClient) GetTestExecution(folderId int, executionId int) (*Te
 }
 
 func (c OrchestratorClient) createGetTestExecutionRequest(folderId int, executionId int) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/TestSetExecutions({TestSetExecutionID})").
-		FormatPath("TestSetExecutionID", executionId).
+	uri := c.newUriBuilder("/odata/TestSetExecutions({testSetExecutionId})").
+		FormatPath("testSetExecutionId", executionId).
 		AddQueryString("$expand", "TestCaseExecutions($expand=TestCaseAssertions)").
 		Build()
 	header := http.Header{
@@ -474,7 +477,7 @@ func (c OrchestratorClient) GetRobotLogs(folderId int, jobKey string) ([]RobotLo
 }
 
 func (c OrchestratorClient) createGetRobotLogsRequest(folderId int, jobKey string) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/RobotLogs").
+	uri := c.newUriBuilder("/odata/RobotLogs").
 		AddQueryString("$filter", "JobKey eq "+jobKey).
 		Build()
 	header := http.Header{
@@ -506,7 +509,7 @@ func (c OrchestratorClient) GetFolderFeed(folderId int) (string, error) {
 }
 
 func (c OrchestratorClient) createGetFolderFeedRequest(folderId int) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/api/PackageFeeds/GetFolderFeed").
+	uri := c.newUriBuilder("/api/PackageFeeds/GetFolderFeed").
 		AddQueryString("folderId", folderId).
 		Build()
 	header := http.Header{
@@ -539,8 +542,8 @@ func (c OrchestratorClient) GetReadUrl(folderId int, bucketId int, path string) 
 }
 
 func (c OrchestratorClient) createReadUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Buckets({BucketId})/UiPath.Server.Configuration.OData.GetReadUri").
-		FormatPath("BucketId", bucketId).
+	uri := c.newUriBuilder("/odata/Buckets({bucketId})/UiPath.Server.Configuration.OData.GetReadUri").
+		FormatPath("bucketId", bucketId).
 		AddQueryString("path", path).
 		Build()
 	header := http.Header{
@@ -573,8 +576,8 @@ func (c OrchestratorClient) GetWriteUrl(folderId int, bucketId int, path string)
 }
 
 func (c OrchestratorClient) createWriteUrlRequest(folderId int, bucketId int, path string) *network.HttpRequest {
-	uri := converter.NewUriBuilder(c.baseUri, "/odata/Buckets({BucketId})/UiPath.Server.Configuration.OData.GetWriteUri").
-		FormatPath("BucketId", bucketId).
+	uri := c.newUriBuilder("/odata/Buckets({bucketId})/UiPath.Server.Configuration.OData.GetWriteUri").
+		FormatPath("bucketId", bucketId).
 		AddQueryString("path", path).
 		Build()
 	header := http.Header{
@@ -697,6 +700,39 @@ func (c OrchestratorClient) httpClientSettings() network.HttpClientSettings {
 		c.settings.Insecure)
 }
 
+func (c OrchestratorClient) GetTestSetExecutionUrl(folderId int, testSetExecutionId int) string {
+	return c.newUriBuilder("/test/executions/{testSetExecutionId}").
+		FormatPath("testSetExecutionId", testSetExecutionId).
+		AddQueryString("fid", folderId).
+		Build()
+}
+
+func (c OrchestratorClient) GetTestCaseExecutionUrl(folderId int, testSetExecutionId int, testCaseName string) string {
+	return c.newUriBuilder("/test/executions/{testSetExecutionId}").
+		FormatPath("testSetExecutionId", testSetExecutionId).
+		AddQueryString("fid", folderId).
+		AddQueryString("search", testCaseName).
+		Build()
+}
+
+func (c OrchestratorClient) GetTestCaseExecutionLogsUrl(folderId int, testSetExecutionId int, jobId int) string {
+	return c.newUriBuilder("/test/executions/{testSetExecutionId}/logs/{jobId}").
+		FormatPath("testSetExecutionId", testSetExecutionId).
+		FormatPath("jobId", jobId).
+		AddQueryString("fid", folderId).
+		Build()
+}
+
+func (c OrchestratorClient) newUriBuilder(path string) *converter.UriBuilder {
+	baseUri := c.baseUri
+	if baseUri.Path == "" {
+		baseUri.Path = "/{organization}/{tenant}/orchestrator_"
+	}
+	return converter.NewUriBuilder(baseUri, path).
+		FormatPath("organization", c.organization).
+		FormatPath("tenant", c.tenant)
+}
+
 func (c OrchestratorClient) toAuthorization(token *auth.AuthToken) *network.Authorization {
 	if token == nil {
 		return nil
@@ -811,6 +847,22 @@ type urlResponse struct {
 	Uri string `json:"Uri"`
 }
 
-func NewOrchestratorClient(baseUri string, token *auth.AuthToken, debug bool, settings plugin.ExecutionSettings, logger log.Logger) *OrchestratorClient {
-	return &OrchestratorClient{baseUri, token, debug, settings, logger}
+func NewOrchestratorClient(
+	baseUri url.URL,
+	organization string,
+	tenant string,
+	token *auth.AuthToken,
+	debug bool,
+	settings plugin.ExecutionSettings,
+	logger log.Logger,
+) *OrchestratorClient {
+	return &OrchestratorClient{
+		baseUri,
+		organization,
+		tenant,
+		token,
+		debug,
+		settings,
+		logger,
+	}
 }

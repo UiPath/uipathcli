@@ -205,7 +205,7 @@ func (b CommandBuilder) getValue(parameter parser.Parameter, context *CommandExe
 		return value
 	}
 	if parameter.DefaultValue != nil {
-		return fmt.Sprintf("%v", parameter.DefaultValue)
+		return fmt.Sprint(parameter.DefaultValue)
 	}
 	return ""
 }
@@ -222,7 +222,7 @@ func (b CommandBuilder) validateArguments(context *CommandExecContext, parameter
 		if value != "" && len(parameter.AllowedValues) > 0 {
 			valid := false
 			for _, allowedValue := range parameter.AllowedValues {
-				if fmt.Sprintf("%v", allowedValue) == value {
+				if fmt.Sprint(allowedValue) == value {
 					valid = true
 					break
 				}

@@ -89,8 +89,8 @@ func (b *QueryStringBuilder) arrayToQueryString(key string, value []interface{})
 }
 
 func (b *QueryStringBuilder) toQueryString(key string, value interface{}) string {
-	stringValue := fmt.Sprintf("%v", value)
-	return fmt.Sprintf("%s=%v", key, url.QueryEscape(stringValue))
+	stringValue := fmt.Sprint(value)
+	return fmt.Sprintf("%s=%v", url.QueryEscape(key), url.QueryEscape(stringValue))
 }
 
 func NewQueryStringBuilder() *QueryStringBuilder {

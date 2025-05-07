@@ -79,7 +79,7 @@ func (p *ConfigProvider) convertToConfig(profile profileYaml) Config {
 		Parameter:    profile.Parameter,
 		Header:       profile.Header,
 		Auth: AuthConfig{
-			Type:   fmt.Sprintf("%v", profile.Auth["type"]),
+			Type:   fmt.Sprint(profile.Auth["type"]),
 			Config: profile.Auth,
 		},
 		Insecure:       profile.Insecure,

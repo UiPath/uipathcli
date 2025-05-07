@@ -9,7 +9,7 @@ import (
 )
 
 type jUnitReportConverter struct {
-	BaseUri string
+	client *api.OrchestratorClient
 }
 
 func (c jUnitReportConverter) Convert(status []testRunStatus) junitReport {
@@ -31,7 +31,7 @@ func (c jUnitReportConverter) convertTestSetExecution(status testRunStatus) juni
 		junitTestCases = append(junitTestCases, junitTestCase)
 	}
 
-	testSetExecutionUrl := c.BaseUri + fmt.Sprintf("/test/executions/%d?fid=%d", status.Execution.Id, status.FolderId)
+	testSetExecutionUrl := c.client.GetTestSetExecutionUrl(status.FolderId, status.Execution.Id)
 	durationMs := status.Execution.EndTime.Sub(status.Execution.StartTime).Milliseconds()
 	systemOut := fmt.Sprintf(`Test set execution %s took %dms.
 Test set execution url: %s
@@ -64,8 +64,8 @@ func (c jUnitReportConverter) convertTestCaseExecution(folderId int, testSetExec
 	if execution.DataVariationIdentifier != "" {
 		name = testCase.Name + "_" + execution.DataVariationIdentifier
 	}
-	testCaseExecutionUrl := c.BaseUri + fmt.Sprintf("/test/executions/%d?search=%s&fid=%d", testSetExecutionId, testCase.Name, folderId)
-	testCaseExecutionLogsUrl := c.BaseUri + fmt.Sprintf("/test/executions/%d/logs/%d?fid=%d", testSetExecutionId, execution.JobId, folderId)
+	testCaseExecutionUrl := c.client.GetTestCaseExecutionUrl(folderId, testSetExecutionId, testCase.Name)
+	testCaseExecutionLogsUrl := c.client.GetTestCaseExecutionLogsUrl(folderId, testSetExecutionId, execution.JobId)
 	durationMs := execution.EndTime.Sub(execution.StartTime).Milliseconds()
 	systemOut := fmt.Sprintf(`Test case %s (v%s) executed as job %d and took %dms.
 Test case logs url: %s
@@ -104,6 +104,6 @@ func (c jUnitReportConverter) findTestCase(testSet *api.TestSet, id int) api.Tes
 	return *api.NewTestCase(id, "", "")
 }
 
-func newJUnitReportConverter(baseUri string) *jUnitReportConverter {
-	return &jUnitReportConverter{baseUri}
+func newJUnitReportConverter(client *api.OrchestratorClient) *jUnitReportConverter {
+	return &jUnitReportConverter{client}
 }

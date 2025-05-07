@@ -99,7 +99,7 @@ func (f parameterFormatter) commaSeparatedValues(values []interface{}) string {
 	builder := strings.Builder{}
 	for _, value := range values {
 		f.writeSeparator(&builder, ", ")
-		builder.WriteString(fmt.Sprintf("%v", value))
+		builder.WriteString(fmt.Sprint(value))
 	}
 	return builder.String()
 }
