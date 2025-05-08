@@ -570,7 +570,7 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 	const flagNameAuth = "auth"
 
 	flags := NewFlagBuilder().
-		AddFlag(NewFlag(flagNameAuth, fmt.Sprintf("Authorization type: %s, %s, %s", CredentialsAuth, LoginAuth, PatAuth), FlagTypeString)).
+		AddFlag(NewFlag(flagNameAuth, fmt.Sprintf("Authorization type: %s, %s, %s", config.AuthTypeCredentials, config.AuthTypeLogin, config.AuthTypePat), FlagTypeString)).
 		AddFlag(NewFlag(FlagNameProfile, "Profile to configure", FlagTypeString).
 			WithEnvVarName("UIPATH_PROFILE").
 			WithDefaultValue(config.DefaultProfile)).

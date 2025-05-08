@@ -58,9 +58,9 @@ func TestOAuthFlowIdentityFails(t *testing.T) {
 		ResponseStatus: http.StatusBadRequest,
 		ResponseBody:   "Invalid token request",
 	}
-	identityBaseUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t, false)
 
-	context := createAuthContext(identityBaseUrl)
+	context := createNonConfidentialAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	performLogin(loginUrl, t)
 
@@ -70,14 +70,37 @@ func TestOAuthFlowIdentityFails(t *testing.T) {
 	}
 }
 
-func TestOAuthFlowSuccessful(t *testing.T) {
+func TestNonConfidentialOAuthFlowSuccessful(t *testing.T) {
 	identityServerFake := identityServerFake{
 		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityBaseUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t, false)
 
-	context := createAuthContext(identityBaseUrl)
+	context := createNonConfidentialAuthContext(identityBaseUrl)
+	loginUrl, resultChannel := callAuthenticator(context)
+	performLogin(loginUrl, t)
+
+	result := <-resultChannel
+	if result.Error != "" {
+		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
+	}
+	if result.Token.Type != "Bearer" {
+		t.Errorf("Expected JWT bearer token, but got: %v", result.Token.Type)
+	}
+	if result.Token.Value != "my-access-token" {
+		t.Errorf("Expected value for JWT bearer token, but got: %v", result.Token.Value)
+	}
+}
+
+func TestConfidentialOAuthFlowSuccessful(t *testing.T) {
+	identityServerFake := identityServerFake{
+		ResponseStatus: http.StatusOK,
+		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
+	}
+	identityBaseUrl := identityServerFake.Start(t, true)
+
+	context := createConfidentialAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	performLogin(loginUrl, t)
 
@@ -98,9 +121,9 @@ func TestOAuthFlowIsCached(t *testing.T) {
 		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityBaseUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t, false)
 
-	context := createAuthContext(identityBaseUrl)
+	context := createNonConfidentialAuthContext(identityBaseUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	performLogin(loginUrl, t)
 	<-resultChannel
@@ -124,9 +147,9 @@ func TestProvidesCorrectPkceCodes(t *testing.T) {
 		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityUrl := identityFake.Start(t)
+	identityUrl := identityFake.Start(t, false)
 
-	context := createAuthContext(identityUrl)
+	context := createNonConfidentialAuthContext(identityUrl)
 	loginUrl, resultChannel := callAuthenticator(context)
 	identityFake.VerifyCodeChallenge(loginUrl.Query().Get("code_challenge"))
 	performLogin(loginUrl, t)
@@ -142,9 +165,9 @@ func TestShowsSuccessfullyLoggedInPage(t *testing.T) {
 		ResponseStatus: http.StatusOK,
 		ResponseBody:   `{"access_token": "my-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Users"}`,
 	}
-	identityBaseUrl := identityServerFake.Start(t)
+	identityBaseUrl := identityServerFake.Start(t, false)
 
-	context := createAuthContext(identityBaseUrl)
+	context := createNonConfidentialAuthContext(identityBaseUrl)
 	loginUrl, _ := callAuthenticator(context)
 	responseBody := performLogin(loginUrl, t)
 
@@ -155,7 +178,7 @@ func TestShowsSuccessfullyLoggedInPage(t *testing.T) {
 
 func TestInvalidStateShowsErrorMessage(t *testing.T) {
 	identityUrl, _ := url.Parse("http://localhost")
-	context := createAuthContext(*identityUrl)
+	context := createNonConfidentialAuthContext(*identityUrl)
 	loginUrl, _ := callAuthenticator(context)
 
 	queryString := loginUrl.Query()
@@ -170,7 +193,7 @@ func TestInvalidStateShowsErrorMessage(t *testing.T) {
 
 func TestMissingCodeShowsErrorMessage(t *testing.T) {
 	identityUrl, _ := url.Parse("http://localhost")
-	ctx := createAuthContext(*identityUrl)
+	ctx := createNonConfidentialAuthContext(*identityUrl)
 	loginUrl, _ := callAuthenticator(ctx)
 
 	redirectUri := loginUrl.Query().Get("redirect_uri")
@@ -219,9 +242,22 @@ func callAuthenticator(context AuthenticatorContext) (url.URL, chan Authenticato
 	return *url, resultChannel
 }
 
-func createAuthContext(baseUrl url.URL) AuthenticatorContext {
+func createConfidentialAuthContext(baseUrl url.URL) AuthenticatorContext {
 	config := map[string]interface{}{
-		"clientId":    newClientId(),
+		"clientId":     random(),
+		"clientSecret": random(),
+		"redirectUri":  "http://localhost:0",
+		"scopes":       "OR.Users",
+	}
+	identityUrl := createIdentityUrl(baseUrl.Host)
+	request := NewAuthenticatorRequest(fmt.Sprintf("%s://%s", baseUrl.Scheme, baseUrl.Host), map[string]string{})
+	context := NewAuthenticatorContext("login", config, identityUrl, "d7b087788be2154da3ad9d6bc14588f4", false, *request)
+	return *context
+}
+
+func createNonConfidentialAuthContext(baseUrl url.URL) AuthenticatorContext {
+	config := map[string]interface{}{
+		"clientId":    random(),
 		"redirectUri": "http://localhost:0",
 		"scopes":      "OR.Users",
 	}
@@ -258,7 +294,7 @@ func performLogin(loginUrl url.URL, t *testing.T) string {
 	return string(data)
 }
 
-func newClientId() string {
+func random() string {
 	value, err := rand.Int(rand.Reader, big.NewInt(math.MaxInt64))
 	if err != nil {
 		panic(fmt.Errorf("Unexpected error generating new client id: %w", err))
@@ -272,10 +308,10 @@ type identityServerFake struct {
 	codeChallenge  *string
 }
 
-func (i *identityServerFake) Start(t *testing.T) url.URL {
+func (i *identityServerFake) Start(t *testing.T, confidential bool) url.URL {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.String() == "/identity_/connect/token" {
-			i.handleIdentityTokenRequest(r, w)
+			i.handleIdentityTokenRequest(confidential, r, w)
 			return
 		}
 	}))
@@ -288,20 +324,22 @@ func (i *identityServerFake) VerifyCodeChallenge(codeChallenge string) {
 	i.codeChallenge = &codeChallenge
 }
 
-func (i *identityServerFake) handleIdentityTokenRequest(request *http.Request, response http.ResponseWriter) {
+func (i *identityServerFake) handleIdentityTokenRequest(confidential bool, request *http.Request, response http.ResponseWriter) {
 	body, _ := io.ReadAll(request.Body)
 	requestBody := string(body)
 	data, _ := url.ParseQuery(requestBody)
 
-	if len(data["client_id"]) != 1 || data["client_id"][0] == "" {
+	if i.isEmpty(data, "client_id") {
 		i.writeValidationErrorResponse(response, "client_id is missing")
-	} else if len(data["code"]) != 1 || data["code"][0] == "" {
+	} else if confidential && i.isEmpty(data, "client_secret") {
+		i.writeValidationErrorResponse(response, "client_secret is missing")
+	} else if i.isEmpty(data, "code") {
 		i.writeValidationErrorResponse(response, "code is missing")
-	} else if len(data["code_verifier"]) != 1 || data["code_verifier"][0] == "" {
+	} else if i.isEmpty(data, "code_verifier") {
 		i.writeValidationErrorResponse(response, "code_verifier is missing")
-	} else if len(data["redirect_uri"]) != 1 || data["redirect_uri"][0] == "" {
+	} else if i.isEmpty(data, "redirect_uri") {
 		i.writeValidationErrorResponse(response, "redirect_uri is missing")
-	} else if len(data["grant_type"]) != 1 || data["grant_type"][0] != "authorization_code" {
+	} else if i.isEmpty(data, "grant_type") || data["grant_type"][0] != "authorization_code" {
 		i.writeValidationErrorResponse(response, "Invalid grant_type")
 	} else if i.codeChallenge != nil && !i.validPkce(data["code_verifier"][0], *i.codeChallenge) {
 		i.writeValidationErrorResponse(response, "Invalid pkce")
@@ -309,6 +347,10 @@ func (i *identityServerFake) handleIdentityTokenRequest(request *http.Request, r
 		response.WriteHeader(i.ResponseStatus)
 		_, _ = response.Write([]byte(i.ResponseBody))
 	}
+}
+
+func (i *identityServerFake) isEmpty(values url.Values, key string) bool {
+	return len(values[key]) != 1 || values[key][0] == ""
 }
 
 func (i *identityServerFake) validPkce(codeVerifier string, expectedCodeChallenge string) bool {

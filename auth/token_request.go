@@ -20,6 +20,6 @@ func newTokenRequest(baseUri url.URL, grantType string, scopes string, clientId 
 	return &tokenRequest{baseUri, grantType, scopes, clientId, clientSecret, "", "", "", properties, operationId, insecure}
 }
 
-func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, code string, codeVerifier string, redirectUrl string, operationId string, insecure bool) *tokenRequest {
-	return &tokenRequest{baseUri, "authorization_code", "", clientId, "", code, codeVerifier, redirectUrl, map[string]string{}, operationId, insecure}
+func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, clientSecret string, code string, codeVerifier string, redirectUrl string, operationId string, insecure bool) *tokenRequest {
+	return &tokenRequest{baseUri, "authorization_code", "", clientId, clientSecret, code, codeVerifier, redirectUrl, map[string]string{}, operationId, insecure}
 }

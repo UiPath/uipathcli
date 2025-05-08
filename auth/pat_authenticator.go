@@ -26,12 +26,13 @@ func (a PatAuthenticator) enabled(ctx AuthenticatorContext) bool {
 }
 
 func (a PatAuthenticator) getPat(ctx AuthenticatorContext) (string, error) {
-	return a.parseRequiredString(ctx.Config, "pat", os.Getenv(PatEnvVarName))
+	return a.parseRequiredString(ctx.Config, "pat", PatEnvVarName)
 }
 
-func (a PatAuthenticator) parseRequiredString(config map[string]interface{}, name string, override string) (string, error) {
-	if override != "" {
-		return override, nil
+func (a PatAuthenticator) parseRequiredString(config map[string]interface{}, name string, envVarName string) (string, error) {
+	envVarValue := os.Getenv(envVarName)
+	if envVarValue != "" {
+		return envVarValue, nil
 	}
 	value := config[name]
 	result, valid := value.(string)

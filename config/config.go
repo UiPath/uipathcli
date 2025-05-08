@@ -7,6 +7,10 @@ import (
 	"net/url"
 )
 
+const AuthTypeCredentials = "credentials"
+const AuthTypeLogin = "login"
+const AuthTypePat = "pat"
+
 // The Config structure holds the config data from the selected profile.
 type Config struct {
 	Uri            *url.URL
@@ -73,58 +77,66 @@ func (c *Config) Pat() string {
 	return fmt.Sprint(pat)
 }
 
-func (c *Config) ConfigureOrgTenant(organization string, tenant string) bool {
-	if organization != "" {
-		c.Organization = organization
+func (c *Config) AuthType() string {
+	if c.Pat() != "" {
+		return AuthTypePat
 	}
-	if tenant != "" {
-		c.Tenant = tenant
+	if c.RedirectUri() != "" {
+		return AuthTypeLogin
 	}
-
-	return organization != "" || tenant != ""
+	if c.ClientId() != "" && c.ClientSecret() != "" {
+		return AuthTypeCredentials
+	}
+	return ""
 }
 
-func (c *Config) ConfigurePatAuth(pat string) bool {
+func (c *Config) SetOrganization(organization string) {
+	c.Organization = organization
+}
+
+func (c *Config) SetTenant(tenant string) {
+	c.Tenant = tenant
+}
+
+func (c *Config) SetCredentialsAuth(clientId *string, clientSecret *string) {
+	delete(c.Auth.Config, redirectUriKey)
+	delete(c.Auth.Config, scopesKey)
+	delete(c.Auth.Config, patKey)
+
+	if clientId != nil {
+		c.Auth.Config[clientIdKey] = clientId
+	}
+	if clientSecret != nil {
+		c.Auth.Config[clientSecretKey] = clientSecret
+	}
+}
+
+func (c *Config) SetLoginAuth(clientId *string, clientSecret *string, redirectUri *string, scopes *string) {
+	delete(c.Auth.Config, patKey)
+
+	if clientId != nil {
+		c.Auth.Config[clientIdKey] = clientId
+	}
+	if clientSecret != nil {
+		c.Auth.Config[clientSecretKey] = clientSecret
+	}
+	if redirectUri != nil {
+		c.Auth.Config[redirectUriKey] = redirectUri
+	}
+	if scopes != nil {
+		c.Auth.Config[scopesKey] = scopes
+	}
+}
+
+func (c *Config) SetPatAuth(pat *string) {
 	delete(c.Auth.Config, clientIdKey)
 	delete(c.Auth.Config, clientSecretKey)
 	delete(c.Auth.Config, redirectUriKey)
 	delete(c.Auth.Config, scopesKey)
 
-	if pat != "" {
+	if pat != nil {
 		c.Auth.Config[patKey] = pat
 	}
-	return pat != ""
-}
-
-func (c *Config) ConfigureLoginAuth(clientId string, redirectUri string, scopes string) bool {
-	delete(c.Auth.Config, clientSecretKey)
-	delete(c.Auth.Config, patKey)
-
-	if clientId != "" {
-		c.Auth.Config[clientIdKey] = clientId
-	}
-	if redirectUri != "" {
-		c.Auth.Config[redirectUriKey] = redirectUri
-	}
-	if scopes != "" {
-		c.Auth.Config[scopesKey] = scopes
-	}
-
-	return clientId != "" || redirectUri != "" || scopes != ""
-}
-
-func (c *Config) ConfigureCredentialsAuth(clientId string, clientSecret string) bool {
-	delete(c.Auth.Config, redirectUriKey)
-	delete(c.Auth.Config, scopesKey)
-	delete(c.Auth.Config, patKey)
-
-	if clientId != "" {
-		c.Auth.Config[clientIdKey] = clientId
-	}
-	if clientSecret != "" {
-		c.Auth.Config[clientSecretKey] = clientSecret
-	}
-	return clientId != "" || clientSecret != ""
 }
 
 func (c *Config) SetUri(uri string) error {

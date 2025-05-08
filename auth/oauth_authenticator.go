@@ -13,6 +13,8 @@ import (
 	"github.com/UiPath/uipathcli/cache"
 )
 
+const RedirectUriVarName = "UIPATH_AUTH_REDIRECT_URI"
+
 // The OAuthAuthenticator triggers the oauth authorization code flow with proof key for code exchange (PKCE).
 //
 // The user can login to the UiPath platform using the browser. In case the user interface is available,
@@ -43,7 +45,7 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 }
 
 func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, operationId string, insecure bool) (string, error) {
-	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.Scopes)
+	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.ClientSecret, config.Scopes)
 	token, _ := a.cache.Get(cacheKey)
 	if token != "" {
 		return token, nil
@@ -61,6 +63,7 @@ func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthA
 	tokenRequest := newAuthorizationCodeTokenRequest(
 		identityBaseUri,
 		config.ClientId,
+		config.ClientSecret,
 		code,
 		codeVerifier,
 		config.RedirectUrl.String(),
@@ -145,15 +148,19 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 }
 
 func (a OAuthAuthenticator) enabled(ctx AuthenticatorContext) bool {
-	return ctx.Config["clientId"] != nil && ctx.Config["redirectUri"] != nil && ctx.Config["scopes"] != nil
+	clientIdSet := os.Getenv(ClientIdEnvVarName) != "" || ctx.Config["clientId"] != nil
+	redirectUriSet := os.Getenv(RedirectUriVarName) != "" || ctx.Config["redirectUri"] != nil
+	scopesSet := os.Getenv(ScopesEnvVarName) != "" || ctx.Config["scopes"] != nil
+	return clientIdSet && redirectUriSet && scopesSet
 }
 
 func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthenticatorConfig, error) {
-	clientId, err := a.parseRequiredString(ctx.Config, "clientId")
+	clientId, err := a.parseRequiredString(ctx.Config, "clientId", ClientIdEnvVarName)
 	if err != nil {
 		return nil, err
 	}
-	redirectUri, err := a.parseRequiredString(ctx.Config, "redirectUri")
+	clientSecret, _ := a.parseString(ctx.Config, "clientSecret", ClientSecretEnvVarName)
+	redirectUri, err := a.parseRequiredString(ctx.Config, "redirectUri", RedirectUriVarName)
 	if err != nil {
 		return nil, err
 	}
@@ -161,14 +168,31 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthentic
 	if err != nil {
 		return nil, err
 	}
-	scopes, err := a.parseRequiredString(ctx.Config, "scopes")
+	scopes, err := a.parseRequiredString(ctx.Config, "scopes", ScopesEnvVarName)
 	if err != nil {
 		return nil, err
 	}
-	return newOAuthAuthenticatorConfig(clientId, *parsedRedirectUri, scopes, ctx.IdentityUri), nil
+	return newOAuthAuthenticatorConfig(clientId, clientSecret, *parsedRedirectUri, scopes, ctx.IdentityUri), nil
 }
 
-func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, name string) (string, error) {
+func (a OAuthAuthenticator) parseString(config map[string]interface{}, name string, envVarName string) (string, error) {
+	envVarValue := os.Getenv(envVarName)
+	if envVarValue != "" {
+		return envVarValue, nil
+	}
+	value := config[name]
+	result, valid := value.(string)
+	if value != nil && !valid {
+		return "", fmt.Errorf("Invalid value for %s: '%v'", name, value)
+	}
+	return result, nil
+}
+
+func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, name string, envVarName string) (string, error) {
+	envVarValue := os.Getenv(envVarName)
+	if envVarValue != "" {
+		return envVarValue, nil
+	}
 	value := config[name]
 	result, valid := value.(string)
 	if !valid || result == "" {
