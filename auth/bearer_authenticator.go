@@ -10,6 +10,8 @@ import (
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
 const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint:gosec // This is not a secret but just the env variable name
+const GrantTypeEnvVarName = "UIPATH_AUTH_GRANT_TYPE"
+const ScopesEnvVarName = "UIPATH_AUTH_SCOPES"
 
 // The BearerAuthenticator calls the identity token-endpoint to retrieve a JWT bearer token.
 // It requires clientId and clientSecret.
@@ -45,26 +47,27 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {
 	clientIdSet := os.Getenv(ClientIdEnvVarName) != "" || ctx.Config["clientId"] != nil
 	clientSecretSet := os.Getenv(ClientSecretEnvVarName) != "" || ctx.Config["clientSecret"] != nil
-	return clientIdSet && clientSecretSet
+	isOAuthFlow := os.Getenv(RedirectUriVarName) != "" || ctx.Config["redirectUri"] != nil
+	return clientIdSet && clientSecretSet && !isOAuthFlow
 }
 
 func (a BearerAuthenticator) getConfig(ctx AuthenticatorContext) (*bearerAuthenticatorConfig, error) {
-	grantType, err := a.parseString(ctx.Config, "grantType")
+	grantType, err := a.parseString(ctx.Config, "grantType", GrantTypeEnvVarName)
 	if err != nil {
 		return nil, err
 	}
 	if grantType == "" {
 		grantType = "client_credentials"
 	}
-	scopes, err := a.parseString(ctx.Config, "scopes")
+	scopes, err := a.parseString(ctx.Config, "scopes", ScopesEnvVarName)
 	if err != nil {
 		return nil, err
 	}
-	clientId, err := a.parseRequiredString(ctx.Config, "clientId", os.Getenv(ClientIdEnvVarName))
+	clientId, err := a.parseRequiredString(ctx.Config, "clientId", ClientIdEnvVarName)
 	if err != nil {
 		return nil, err
 	}
-	clientSecret, err := a.parseRequiredString(ctx.Config, "clientSecret", os.Getenv(ClientSecretEnvVarName))
+	clientSecret, err := a.parseRequiredString(ctx.Config, "clientSecret", ClientSecretEnvVarName)
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +103,11 @@ func (a BearerAuthenticator) parseProperties(config map[string]interface{}) (map
 	return result, nil
 }
 
-func (a BearerAuthenticator) parseString(config map[string]interface{}, name string) (string, error) {
+func (a BearerAuthenticator) parseString(config map[string]interface{}, name string, envVarName string) (string, error) {
+	envVarValue := os.Getenv(envVarName)
+	if envVarValue != "" {
+		return envVarValue, nil
+	}
 	value := config[name]
 	result, valid := value.(string)
 	if value != nil && !valid {
@@ -109,9 +116,10 @@ func (a BearerAuthenticator) parseString(config map[string]interface{}, name str
 	return result, nil
 }
 
-func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string, override string) (string, error) {
-	if override != "" {
-		return override, nil
+func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, name string, envVarName string) (string, error) {
+	envVarValue := os.Getenv(envVarName)
+	if envVarValue != "" {
+		return envVarValue, nil
 	}
 	value := config[name]
 	result, valid := value.(string)

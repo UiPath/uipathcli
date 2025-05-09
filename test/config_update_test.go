@@ -62,7 +62,7 @@ func TestConfiguresLoginAuth(t *testing.T) {
 	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.WriteString("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n")
+	stdIn.WriteString("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\n\nhttp://localhost:27100\nOR.Users\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -80,6 +80,37 @@ func TestConfiguresLoginAuth(t *testing.T) {
   tenant: my-tenant
   auth:
     clientId: ffe5141f-60fc-4fb9-8717-3969f303aedf
+    redirectUri: http://localhost:27100
+    scopes: OR.Users
+`
+	if string(config) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
+	}
+}
+
+func TestConfiguresLoginConfidentialAuth(t *testing.T) {
+	configFile := TempFile(t)
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("my-org\nmy-tenant\nffe5141f-60fc-4fb9-8717-3969f303aedf\nmy-secret\nhttp://localhost:27100\nOR.Users\n")
+	context := NewContextBuilder().
+		WithStdIn(stdIn).
+		WithConfigFile(configFile).
+		Build()
+
+	RunCli([]string{"config", "--auth", "login"}, context)
+
+	config, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: ffe5141f-60fc-4fb9-8717-3969f303aedf
+    clientSecret: my-secret
     redirectUri: http://localhost:27100
     scopes: OR.Users
 `
@@ -147,6 +178,90 @@ profiles:
     x-uipath-test: abc
   auth:
     pat: rt_mypersonalaccesstoken
+`
+	if string(updatedConfig) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(updatedConfig))
+	}
+}
+
+func TestReconfiguresExistingLoginConfidentialAuthAsNonConfidential(t *testing.T) {
+	configFile := TempFile(t)
+	config := `
+profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 06572c32-8ebe-4e0a-b067-844bc3818d58
+    clientSecret: my-secret
+    redirectUri: http://localhost:27100
+    scopes: OR.Default
+`
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("\n\n\n \n\n\n")
+
+	context := NewContextBuilder().
+		WithConfig(config).
+		WithConfigFile(configFile).
+		WithStdIn(stdIn).
+		Build()
+	RunCli([]string{"config", "--auth", "login"}, context)
+
+	updatedConfig, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 06572c32-8ebe-4e0a-b067-844bc3818d58
+    clientSecret: ""
+    redirectUri: http://localhost:27100
+    scopes: OR.Default
+`
+	if string(updatedConfig) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(updatedConfig))
+	}
+}
+
+func TestReconfiguresExistingLoginConfidentialAuthAsCredentials(t *testing.T) {
+	configFile := TempFile(t)
+	config := `
+profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 06572c32-8ebe-4e0a-b067-844bc3818d58
+    clientSecret: my-secret
+    redirectUri: http://localhost:27100
+    scopes: OR.Default
+`
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("\n\n\n\n")
+
+	context := NewContextBuilder().
+		WithConfig(config).
+		WithConfigFile(configFile).
+		WithStdIn(stdIn).
+		Build()
+	RunCli([]string{"config", "--auth", "credentials"}, context)
+
+	updatedConfig, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 06572c32-8ebe-4e0a-b067-844bc3818d58
+    clientSecret: my-secret
 `
 	if string(updatedConfig) != expectedConfig {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(updatedConfig))
@@ -306,16 +421,39 @@ profiles:
 	}
 }
 
+func TestMultiAuthOutputNotSet(t *testing.T) {
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("\n\n\n")
+
+	context := NewContextBuilder().
+		WithStdIn(stdIn).
+		Build()
+	result := RunCli([]string{"config"}, context)
+
+	expectedOutput := `Enter organization [not set]: Enter tenant [not set]: Authentication type [not set]:
+  [1] credentials - Client Id and Client Secret
+  [2] login - OAuth login using the browser
+  [3] pat - Personal Access Token
+Select: `
+	if result.StdOut != expectedOutput {
+		t.Errorf("Expected prompt '%v', but got '%v'", expectedOutput, result.StdOut)
+	}
+}
+
 func TestCredentialsAuthOutputNotSet(t *testing.T) {
+	configFile := TempFile(t)
+
 	stdIn := bytes.Buffer{}
 	stdIn.WriteString("\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
+		WithConfigFile(configFile).
 		Build()
 	result := RunCli([]string{"config", "--auth", "credentials"}, context)
 
-	expectedOutput := `Enter organization [not set]: Enter tenant [not set]: Enter client id [not set]: Enter client secret [not set]: `
+	expectedOutput := `Enter organization [not set]: Enter tenant [not set]: Enter client id [not set]: Enter client secret [not set]: Successfully configured uipath CLI
+`
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -418,7 +556,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.WriteString("\n\n\n\n")
+	stdIn.WriteString("\n\n\n\n\n")
 
 	context := NewContextBuilder().
 		WithConfig(config).
@@ -427,7 +565,37 @@ profiles:
 		Build()
 	result := RunCli([]string{"config", "--auth", "login"}, context)
 
-	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******dd35]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: `
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******dd35]: Enter client secret (only for confidential apps) [not set]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: `
+	if result.StdOut != expectedOutput {
+		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
+	}
+}
+
+func TestLoginConfidentialAuthMasksSecrets(t *testing.T) {
+	configFile := TempFile(t)
+	config := `
+profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 891979c1-68e2-46bb-9016-e5f2241fdd35
+    clientSecret: my-secret
+    redirectUri: http://localhost:27100
+    scopes: OR.Users.Read OR.Users.Write
+`
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("\n\n\n\n\n")
+
+	context := NewContextBuilder().
+		WithConfig(config).
+		WithConfigFile(configFile).
+		WithStdIn(stdIn).
+		Build()
+	result := RunCli([]string{"config", "--auth", "login"}, context)
+
+	expectedOutput := `Enter organization [my-org]: Enter tenant [my-tenant]: Enter client id [*******dd35]: Enter client secret (only for confidential apps) [*******]: Enter redirect uri [http://localhost:27100]: Enter scopes [OR.Users.Read OR.Users.Write]: `
 	if result.StdOut != expectedOutput {
 		t.Errorf("Expected prompt %v, but got %v", expectedOutput, result.StdOut)
 	}
@@ -462,11 +630,11 @@ func TestConfigureMultiAuthCredentialsAuth(t *testing.T) {
 	}
 }
 
-func TestConfigureMultiAuthLoginAuth(t *testing.T) {
+func TestConfigureMultiAuthNonLoginConfidentialAuth(t *testing.T) {
 	configFile := TempFile(t)
 
 	stdIn := bytes.Buffer{}
-	stdIn.WriteString("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\nhttp://localhost:27100\nOR.Users\n")
+	stdIn.WriteString("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\n\nhttp://localhost:27100\nOR.Users\n")
 	context := NewContextBuilder().
 		WithStdIn(stdIn).
 		WithConfigFile(configFile).
@@ -484,6 +652,37 @@ func TestConfigureMultiAuthLoginAuth(t *testing.T) {
   tenant: my-tenant
   auth:
     clientId: ffe5141f-60fc-4fb9-8717-3969f303aedf
+    redirectUri: http://localhost:27100
+    scopes: OR.Users
+`
+	if string(config) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
+	}
+}
+
+func TestConfigureMultiAuthLoginConfidentialAuth(t *testing.T) {
+	configFile := TempFile(t)
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("my-org\nmy-tenant\n2\nffe5141f-60fc-4fb9-8717-3969f303aedf\nmy-secret\nhttp://localhost:27100\nOR.Users\n")
+	context := NewContextBuilder().
+		WithStdIn(stdIn).
+		WithConfigFile(configFile).
+		Build()
+
+	RunCli([]string{"config"}, context)
+
+	config, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: ffe5141f-60fc-4fb9-8717-3969f303aedf
+    clientSecret: my-secret
     redirectUri: http://localhost:27100
     scopes: OR.Users
 `
@@ -715,7 +914,7 @@ profiles:
 `
 
 	stdIn := bytes.Buffer{}
-	stdIn.WriteString("\n\n\nb2f0fa8a-8a79-4733-b810-fe9989e39334\nhttp://new-url:8080\nOR.Machines\n")
+	stdIn.WriteString("\n\n\nb2f0fa8a-8a79-4733-b810-fe9989e39334\n\nhttp://new-url:8080\nOR.Machines\n")
 
 	context := NewContextBuilder().
 		WithConfig(existingConfig).
@@ -736,6 +935,49 @@ profiles:
     clientId: b2f0fa8a-8a79-4733-b810-fe9989e39334
     redirectUri: http://new-url:8080
     scopes: OR.Machines
+`
+	if string(config) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
+	}
+}
+
+func TestConfigureMultiAuthModifiesExistingLoginConfidentialAuth(t *testing.T) {
+	configFile := TempFile(t)
+	existingConfig := `
+profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: 6ff4a796-a938-4a75-82ab-e7e8c2577720
+    clientSecret: my-secret
+    redirectUri: http://localhost:27100
+    scopes: OR.Default
+`
+
+	stdIn := bytes.Buffer{}
+	stdIn.WriteString("\n\n\nadb7e1b3-6008-4f24-9ab4-4cac435987f8\nmy-updated-secret\nhttp://new-url:8080\nOR.Folders\n")
+
+	context := NewContextBuilder().
+		WithConfig(existingConfig).
+		WithConfigFile(configFile).
+		WithStdIn(stdIn).
+		Build()
+	RunCli([]string{"config"}, context)
+
+	config, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  organization: my-org
+  tenant: my-tenant
+  auth:
+    clientId: adb7e1b3-6008-4f24-9ab4-4cac435987f8
+    clientSecret: my-updated-secret
+    redirectUri: http://new-url:8080
+    scopes: OR.Folders
 `
 	if string(config) != expectedConfig {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
