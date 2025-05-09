@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,95 +10,107 @@ import (
 	"strings"
 	"time"
 
-	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/utils/network"
 )
 
 type identityClient struct {
-	cache cache.Cache
+	logger log.Logger
 }
 
-const TokenRoute = "/connect/token"
+const tokenRoute = "/connect/token"
+const redactedMessage = "**redacted**"
 
 func (c identityClient) GetToken(tokenRequest tokenRequest) (*tokenResponse, error) {
-	form := url.Values{}
-	form.Add("grant_type", tokenRequest.GrantType)
-	form.Add("scope", tokenRequest.Scopes)
-	form.Add("client_id", tokenRequest.ClientId)
-	form.Add("client_secret", tokenRequest.ClientSecret)
-	form.Add("code", tokenRequest.Code)
-	form.Add("code_verifier", tokenRequest.CodeVerifier)
-	form.Add("redirect_uri", tokenRequest.RedirectUri)
-	for key, value := range tokenRequest.Properties {
-		form.Add(key, value)
+	request := tokenRequestForm{
+		GrantType:    tokenRequest.GrantType,
+		Scopes:       tokenRequest.Scopes,
+		ClientId:     tokenRequest.ClientId,
+		ClientSecret: tokenRequest.ClientSecret,
+		Code:         tokenRequest.Code,
+		CodeVerifier: tokenRequest.CodeVerifier,
+		RedirectUri:  tokenRequest.RedirectUri,
+		RefreshToken: tokenRequest.RefreshToken,
+		Properties:   tokenRequest.Properties,
 	}
-
-	cacheKey := c.cacheKey(tokenRequest)
-	token, expiresIn := c.cache.Get(cacheKey)
-	if token != "" {
-		return newTokenResponse(token, expiresIn), nil
-	}
-
-	response, err := c.retrieveToken(tokenRequest.BaseUri, form, tokenRequest.OperationId, tokenRequest.Insecure)
+	response, err := c.retrieveToken(tokenRequest.BaseUri, request, tokenRequest.Settings)
 	if err != nil {
 		return nil, err
 	}
-	c.cache.Set(cacheKey, response.AccessToken, response.ExpiresIn)
-	return response, nil
+
+	expiresAt := time.Now().UTC().Add(time.Duration(response.ExpiresIn) * time.Second)
+	return newTokenResponse(response.AccessToken, expiresAt, response.RefreshToken), nil
 }
 
-func (c identityClient) retrieveToken(baseUri url.URL, form url.Values, operationId string, insecure bool) (*tokenResponse, error) {
-	uri := baseUri.JoinPath(TokenRoute)
+func (c identityClient) retrieveToken(baseUri url.URL, form tokenRequestForm, settings network.HttpClientSettings) (*tokenResponseJson, error) {
+	uri := baseUri.JoinPath(tokenRoute)
 	header := http.Header{
 		"Content-Type": {"application/x-www-form-urlencoded"},
 	}
 	request := network.NewHttpPostRequest(uri.String(), nil, header, strings.NewReader(form.Encode()), -1)
+	c.logRequest(settings.Debug, request, strings.NewReader(form.Redacted()))
 
-	clientSettings := network.NewHttpClientSettings(false, operationId, map[string]string{}, time.Duration(60)*time.Second, 3, insecure)
-	client := network.NewHttpClient(nil, *clientSettings)
+	settingsNoDebug := c.networkSettingsNoDebug(settings)
+	client := network.NewHttpClient(nil, settingsNoDebug)
 	response, err := client.Send(request)
 	if err != nil {
 		return nil, err
 	}
 	defer func() { _ = response.Body.Close() }()
-	bytes, err := io.ReadAll(response.Body)
+	responseBody, err := io.ReadAll(response.Body)
 	if err != nil {
 		return nil, fmt.Errorf("Error reading response: %w", err)
 	}
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("Token service returned status code '%d' and body '%s'", response.StatusCode, string(bytes))
+		c.logResponse(settings.Debug, response, bytes.NewReader(responseBody))
+		return nil, fmt.Errorf("Token service returned status code '%d' and body '%s'", response.StatusCode, string(responseBody))
 	}
 
-	var result tokenResponse
-	err = json.Unmarshal(bytes, &result)
+	var responseJson tokenResponseJson
+	err = json.Unmarshal(responseBody, &responseJson)
 	if err != nil {
+		c.logResponse(settings.Debug, response, bytes.NewReader(responseBody))
 		return nil, fmt.Errorf("Error parsing json response: %w", err)
 	}
-	return &result, nil
+	c.logResponseJson(settings.Debug, response, responseJson)
+	return &responseJson, nil
 }
 
-func (c identityClient) cacheKey(tokenRequest tokenRequest) string {
-	return fmt.Sprintf("token|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
-		tokenRequest.BaseUri.Scheme,
-		tokenRequest.BaseUri.Hostname(),
-		tokenRequest.GrantType,
-		tokenRequest.Scopes,
-		tokenRequest.ClientId,
-		tokenRequest.ClientSecret,
-		tokenRequest.Code,
-		tokenRequest.CodeVerifier,
-		tokenRequest.RedirectUri,
-		c.cacheKeyProperties(tokenRequest.Properties))
-}
-
-func (c identityClient) cacheKeyProperties(properties map[string]string) string {
-	values := []string{}
-	for key, value := range properties {
-		values = append(values, key+"="+value)
+func (c identityClient) logRequest(debug bool, request *network.HttpRequest, body io.Reader) {
+	if !debug {
+		return
 	}
-	return strings.Join(values, ",")
+	requestInfo := log.NewRequestInfo(request.Method, request.URL, request.Proto, request.Header, body)
+	c.logger.LogRequest(*requestInfo)
 }
 
-func newIdentityClient(cache cache.Cache) *identityClient {
-	return &identityClient{cache}
+func (c identityClient) logResponse(debug bool, response *network.HttpResponse, body io.Reader) {
+	if !debug {
+		return
+	}
+	responseInfo := log.NewResponseInfo(response.StatusCode, response.Status, response.Proto, response.Header, body)
+	c.logger.LogResponse(*responseInfo)
+}
+
+func (c identityClient) logResponseJson(debug bool, response *network.HttpResponse, body tokenResponseJson) {
+	if !debug {
+		return
+	}
+	data, _ := json.Marshal(body.Redacted())
+	c.logResponse(debug, response, bytes.NewReader(data))
+}
+
+func (c identityClient) networkSettingsNoDebug(settings network.HttpClientSettings) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		false,
+		settings.OperationId,
+		settings.Header,
+		settings.Timeout,
+		settings.MaxAttempts,
+		settings.Insecure,
+	)
+}
+
+func newIdentityClient(logger log.Logger) *identityClient {
+	return &identityClient{logger}
 }

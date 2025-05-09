@@ -4,9 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils/network"
 )
+
+const GetTokenTimeout = time.Duration(60) * time.Second
+const GetTokenMaxAttempts = 3
+
+const TokenExpiryGracePeriod = time.Duration(2) * time.Minute
 
 const ClientIdEnvVarName = "UIPATH_CLIENT_ID"
 const ClientSecretEnvVarName = "UIPATH_CLIENT_SECRET" //nolint:gosec // This is not a secret but just the env variable name
@@ -27,7 +35,7 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid bearer authenticator configuration: %w", err))
 	}
-	identityClient := newIdentityClient(a.cache)
+
 	tokenRequest := newTokenRequest(
 		config.IdentityUri,
 		config.GrantType,
@@ -35,13 +43,59 @@ func (a BearerAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult 
 		config.ClientId,
 		config.ClientSecret,
 		config.Properties,
-		ctx.OperationId,
-		ctx.Insecure)
-	tokenResponse, err := identityClient.GetToken(*tokenRequest)
+		a.networkSettings(ctx))
+
+	tokenResponse := a.getAccessTokenFromCache(*tokenRequest)
+	if tokenResponse != nil {
+		ctx.Logger.Log(fmt.Sprintf("Using existing access token from local cache which expires at %s\n", tokenResponse.ExpiresAt.UTC().Format(time.RFC3339)))
+		return *AuthenticatorSuccess(NewBearerToken(tokenResponse.AccessToken))
+	}
+
+	ctx.Logger.Log("No access token available. Calling identity server to retrieve new token...\n")
+
+	identityClient := newIdentityClient(ctx.Logger)
+	tokenResponse, err = identityClient.GetToken(*tokenRequest)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving bearer token: %w", err))
 	}
+	a.updateTokenResponseCache(*tokenRequest, *tokenResponse)
 	return *AuthenticatorSuccess(NewBearerToken(tokenResponse.AccessToken))
+}
+
+func (a BearerAuthenticator) getAccessTokenFromCache(tokenRequest tokenRequest) *tokenResponse {
+	cacheKey := a.cacheKey(tokenRequest)
+	token, expiresAt := a.cache.Get(cacheKey)
+	if token == "" {
+		return nil
+	}
+	return newTokenResponse(token, expiresAt, nil)
+}
+
+func (a BearerAuthenticator) updateTokenResponseCache(tokenRequest tokenRequest, tokenResponse tokenResponse) {
+	cacheKey := a.cacheKey(tokenRequest)
+	a.cache.Set(cacheKey, tokenResponse.AccessToken, tokenResponse.ExpiresAt.Add(-TokenExpiryGracePeriod))
+}
+
+func (a BearerAuthenticator) cacheKey(tokenRequest tokenRequest) string {
+	return fmt.Sprintf("beareraccesstoken|%s|%s|%s|%s|%s|%s|%s|%s|%s|%s",
+		tokenRequest.BaseUri.Scheme,
+		tokenRequest.BaseUri.Hostname(),
+		tokenRequest.GrantType,
+		tokenRequest.Scopes,
+		tokenRequest.ClientId,
+		tokenRequest.ClientSecret,
+		tokenRequest.Code,
+		tokenRequest.CodeVerifier,
+		tokenRequest.RedirectUri,
+		a.cacheKeyProperties(tokenRequest.Properties))
+}
+
+func (a BearerAuthenticator) cacheKeyProperties(properties map[string]string) string {
+	values := []string{}
+	for key, value := range properties {
+		values = append(values, key+"="+value)
+	}
+	return strings.Join(values, ",")
 }
 
 func (a BearerAuthenticator) enabled(ctx AuthenticatorContext) bool {
@@ -127,6 +181,17 @@ func (a BearerAuthenticator) parseRequiredString(config map[string]interface{}, 
 		return "", fmt.Errorf("Invalid value for %s: '%v'", name, value)
 	}
 	return result, nil
+}
+
+func (a BearerAuthenticator) networkSettings(ctx AuthenticatorContext) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		ctx.Debug,
+		ctx.OperationId,
+		map[string]string{},
+		GetTokenTimeout,
+		GetTokenMaxAttempts,
+		ctx.Insecure,
+	)
 }
 
 func NewBearerAuthenticator(cache cache.Cache) *BearerAuthenticator {
