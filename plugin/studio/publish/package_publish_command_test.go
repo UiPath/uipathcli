@@ -152,7 +152,7 @@ func TestPublishUploadsLatestPackageFromDirectory(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	err = os.Chtimes(archive1Path, time.Time{}, time.Now().Add(-5*time.Minute))
+	err = os.Chtimes(archive1Path, time.Time{}, time.Now().Add(time.Duration(-5)*time.Minute))
 	if err != nil {
 		t.Fatal(err)
 	}

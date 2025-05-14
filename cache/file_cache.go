@@ -21,23 +21,24 @@ const separator = "|"
 // multiple CLI invocations.
 type FileCache struct{}
 
-func (c FileCache) Get(key string) (string, float32) {
-	expiry, value, err := c.readValue(key)
+func (c FileCache) Get(key string) (string, time.Time) {
+	expires, value, err := c.readValue(key)
 	if err != nil {
-		return "", 0
+		return "", time.Time{}
 	}
-	if expiry < time.Now().Unix()+30 {
-		return "", 0
+	expiresAt := time.Unix(expires, 0).UTC()
+	if expiresAt.Before(time.Now().UTC()) {
+		return "", time.Time{}
 	}
-	return value, float32(expiry)
+	return value, expiresAt
 }
 
-func (c FileCache) Set(key string, value string, expiresIn float32) {
+func (c FileCache) Set(key string, value string, expiresAt time.Time) {
 	path, err := c.cacheFilePath(key)
 	if err != nil {
 		return
 	}
-	expires := time.Now().Unix() + int64(expiresIn)
+	expires := int64(expiresAt.Unix())
 	data := []byte(fmt.Sprintf("%d%s%s", expires, separator, value))
 	_ = os.WriteFile(path, data, cacheFilePermissions)
 }

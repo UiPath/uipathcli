@@ -1,6 +1,10 @@
 package auth
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/UiPath/uipathcli/log"
+)
 
 // AuthenticatorContext provides information required for authenticating requests.
 type AuthenticatorContext struct {
@@ -9,7 +13,9 @@ type AuthenticatorContext struct {
 	IdentityUri url.URL
 	OperationId string
 	Insecure    bool
+	Debug       bool
 	Request     AuthenticatorRequest
+	Logger      log.Logger
 }
 
 func NewAuthenticatorContext(
@@ -18,6 +24,9 @@ func NewAuthenticatorContext(
 	identityUri url.URL,
 	operationId string,
 	insecure bool,
-	request AuthenticatorRequest) *AuthenticatorContext {
-	return &AuthenticatorContext{authType, config, identityUri, operationId, insecure, request}
+	debug bool,
+	request AuthenticatorRequest,
+	logger log.Logger,
+) *AuthenticatorContext {
+	return &AuthenticatorContext{authType, config, identityUri, operationId, insecure, debug, request, logger}
 }

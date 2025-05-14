@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/utils/network"
 )
 
 const RedirectUriVarName = "UIPATH_AUTH_REDIRECT_URI"
@@ -29,6 +30,9 @@ type OAuthAuthenticator struct {
 	browserLauncher BrowserLauncher
 }
 
+const refreshTokenDefaultExpiry = time.Duration(7) * 24 * time.Hour
+const offlineAccessScope = "offline_access"
+
 func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if !a.enabled(ctx) {
 		return *AuthenticatorSuccess(nil)
@@ -37,48 +41,111 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Invalid oauth authenticator configuration: %w", err))
 	}
-	token, err := a.retrieveToken(config.IdentityUri, *config, ctx.OperationId, ctx.Insecure)
+	token, err := a.retrieveToken(*config, ctx)
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
 	return *AuthenticatorSuccess(NewBearerToken(token))
 }
 
-func (a OAuthAuthenticator) retrieveToken(identityBaseUri url.URL, config oauthAuthenticatorConfig, operationId string, insecure bool) (string, error) {
-	cacheKey := fmt.Sprintf("oauthtoken|%s|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.ClientSecret, config.Scopes)
-	token, _ := a.cache.Get(cacheKey)
-	if token != "" {
-		return token, nil
+func (a OAuthAuthenticator) retrieveToken(config oauthAuthenticatorConfig, ctx AuthenticatorContext) (string, error) {
+	tokenResponse := a.getAccessTokenFromCache(config)
+	if tokenResponse != nil {
+		ctx.Logger.Log(fmt.Sprintf("Using existing access token from local cache which expires at %s\n", tokenResponse.ExpiresAt.UTC().Format(time.RFC3339)))
+		return tokenResponse.AccessToken, nil
 	}
+
+	tokenResponse, err := a.renewAuthToken(config, ctx)
+	if err != nil {
+		ctx.Logger.LogError(fmt.Sprintf("Failed to renew auth token using refresh token: %v\n", err))
+	} else if tokenResponse != nil {
+		ctx.Logger.Log(fmt.Sprintf("Renewed access token using existing refresh token. New access token expires at %s\n", tokenResponse.ExpiresAt.UTC().Format(time.RFC3339)))
+		return tokenResponse.AccessToken, nil
+	}
+
+	ctx.Logger.Log("No access token or refresh token available. Starting login flow...\n")
 
 	secretGenerator := newSecretGenerator()
 	codeVerifier, codeChallenge := secretGenerator.GeneratePkce()
 	state := secretGenerator.GenerateState()
-	code, err := a.login(identityBaseUri, config, state, codeChallenge)
+	code, err := a.login(config, state, codeChallenge)
 	if err != nil {
 		return "", err
 	}
 
-	identityClient := newIdentityClient(a.cache)
+	identityClient := newIdentityClient(ctx.Logger)
 	tokenRequest := newAuthorizationCodeTokenRequest(
-		identityBaseUri,
+		config.IdentityUri,
 		config.ClientId,
 		config.ClientSecret,
 		code,
 		codeVerifier,
 		config.RedirectUrl.String(),
-		operationId,
-		insecure)
-	tokenResponse, err := identityClient.GetToken(*tokenRequest)
+		a.networkSettings(ctx))
+	tokenResponse, err = identityClient.GetToken(*tokenRequest)
 	if err != nil {
 		return "", err
 	}
-	a.cache.Set(cacheKey, tokenResponse.AccessToken, tokenResponse.ExpiresIn)
+
+	a.updateTokenResponseCache(config, tokenResponse)
 	return tokenResponse.AccessToken, nil
 }
 
-func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
+func (a OAuthAuthenticator) renewAuthToken(config oauthAuthenticatorConfig, ctx AuthenticatorContext) (*tokenResponse, error) {
+	refreshTokenCacheKey := a.refreshTokenCacheKey(config)
+	refreshToken, _ := a.cache.Get(refreshTokenCacheKey)
+	if !config.OfflineAccess || refreshToken == "" {
+		return nil, nil
+	}
+
+	refreshTokenRequest := newRefreshTokenRequest(
+		config.IdentityUri,
+		config.ClientId,
+		config.ClientSecret,
+		refreshToken,
+		a.networkSettings(ctx))
+
+	identityClient := newIdentityClient(ctx.Logger)
+	tokenResponse, err := identityClient.GetToken(*refreshTokenRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	a.updateTokenResponseCache(config, tokenResponse)
+	return tokenResponse, nil
+}
+
+func (a OAuthAuthenticator) getAccessTokenFromCache(config oauthAuthenticatorConfig) *tokenResponse {
+	cacheKey := a.accessTokenCacheKey(config)
+	token, expiresAt := a.cache.Get(cacheKey)
+	if token == "" {
+		return nil
+	}
+	return newTokenResponse(token, expiresAt, nil)
+}
+
+func (a OAuthAuthenticator) updateTokenResponseCache(config oauthAuthenticatorConfig, tokenResponse *tokenResponse) {
+	cacheKey := a.accessTokenCacheKey(config)
+	a.cache.Set(cacheKey, tokenResponse.AccessToken, tokenResponse.ExpiresAt.Add(-TokenExpiryGracePeriod))
+
+	if tokenResponse.RefreshToken != nil {
+		refreshTokenCacheKey := a.refreshTokenCacheKey(config)
+		a.cache.Set(refreshTokenCacheKey, *tokenResponse.RefreshToken, time.Now().UTC().Add(refreshTokenDefaultExpiry-TokenExpiryGracePeriod))
+	}
+}
+
+func (a OAuthAuthenticator) accessTokenCacheKey(config oauthAuthenticatorConfig) string {
+	identityBaseUri := config.IdentityUri
+	return fmt.Sprintf("oauthaccesstoken|%s|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.ClientSecret, config.Scopes)
+}
+
+func (a OAuthAuthenticator) refreshTokenCacheKey(config oauthAuthenticatorConfig) string {
+	identityBaseUri := config.IdentityUri
+	return fmt.Sprintf("oauthrefreshtoken|%s|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.ClientSecret, config.Scopes)
+}
+
+func (a OAuthAuthenticator) login(config oauthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(120)*time.Second)
 	defer cancel()
 
 	var code string
@@ -120,6 +187,7 @@ func (a OAuthAuthenticator) login(identityBaseUri url.URL, config oauthAuthentic
 	}(listener)
 
 	port := listener.Addr().(*net.TCPAddr).Port
+	identityBaseUri := config.IdentityUri
 	redirectUri := fmt.Sprintf("%s://%s:%d", config.RedirectUrl.Scheme, config.RedirectUrl.Hostname(), port)
 	loginUrl := fmt.Sprintf("%s/connect/authorize?response_type=code&client_id=%s&redirect_uri=%s&scope=%s&code_challenge=%s&code_challenge_method=S256&state=%s",
 		identityBaseUri.String(),
@@ -172,7 +240,14 @@ func (a OAuthAuthenticator) getConfig(ctx AuthenticatorContext) (*oauthAuthentic
 	if err != nil {
 		return nil, err
 	}
-	return newOAuthAuthenticatorConfig(clientId, clientSecret, *parsedRedirectUri, scopes, ctx.IdentityUri), nil
+	offlineAccess, err := a.parseBool(ctx.Config, "offlineAccess", true)
+	if err != nil {
+		return nil, err
+	}
+	if offlineAccess {
+		scopes = scopes + " " + offlineAccessScope
+	}
+	return newOAuthAuthenticatorConfig(clientId, clientSecret, *parsedRedirectUri, scopes, ctx.IdentityUri, offlineAccess), nil
 }
 
 func (a OAuthAuthenticator) parseString(config map[string]interface{}, name string, envVarName string) (string, error) {
@@ -184,6 +259,19 @@ func (a OAuthAuthenticator) parseString(config map[string]interface{}, name stri
 	result, valid := value.(string)
 	if value != nil && !valid {
 		return "", fmt.Errorf("Invalid value for %s: '%v'", name, value)
+	}
+	return result, nil
+}
+
+func (a OAuthAuthenticator) parseBool(config map[string]interface{}, name string, defaultValue bool) (bool, error) {
+	value := config[name]
+	if value == nil {
+		return defaultValue, nil
+	}
+
+	result, valid := value.(bool)
+	if value != nil && !valid {
+		return false, fmt.Errorf("Invalid value for %s: '%v'", name, value)
 	}
 	return result, nil
 }
@@ -213,6 +301,17 @@ func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
 func (a OAuthAuthenticator) writeHtmlPage(w http.ResponseWriter, html string) {
 	w.Header().Set("Content-Type", "text/html")
 	_, _ = w.Write([]byte(html))
+}
+
+func (a OAuthAuthenticator) networkSettings(ctx AuthenticatorContext) network.HttpClientSettings {
+	return *network.NewHttpClientSettings(
+		ctx.Debug,
+		ctx.OperationId,
+		map[string]string{},
+		GetTokenTimeout,
+		GetTokenMaxAttempts,
+		ctx.Insecure,
+	)
 }
 
 func NewOAuthAuthenticator(cache cache.Cache, browserLauncher BrowserLauncher) *OAuthAuthenticator {

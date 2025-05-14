@@ -133,7 +133,7 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 	return e.validateUri(uriBuilder.Build())
 }
 
-func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, url string) auth.AuthenticatorContext {
+func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, logger log.Logger, url string) auth.AuthenticatorContext {
 	authRequest := *auth.NewAuthenticatorRequest(url, map[string]string{})
 	return *auth.NewAuthenticatorContext(
 		ctx.AuthConfig.Type,
@@ -141,13 +141,16 @@ func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, url string) aut
 		ctx.IdentityUri,
 		ctx.Settings.OperationId,
 		ctx.Settings.Insecure,
-		authRequest)
+		ctx.Debug,
+		authRequest,
+		logger,
+	)
 }
 
-func (e HttpExecutor) executeAuthenticators(ctx ExecutionContext, url string) (*auth.AuthenticatorResult, error) {
+func (e HttpExecutor) executeAuthenticators(ctx ExecutionContext, logger log.Logger, url string) (*auth.AuthenticatorResult, error) {
 	var token *auth.AuthToken = nil
 	for _, authProvider := range e.authenticators {
-		authContext := e.authenticatorContext(ctx, url)
+		authContext := e.authenticatorContext(ctx, logger, url)
 		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
@@ -297,7 +300,7 @@ func (e HttpExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, log
 	uploadReader := e.progressReader("uploading...", "completing  ", bodyReader, size, uploadBar)
 	defer uploadBar.Remove()
 
-	auth, err := e.executeAuthenticators(ctx, uri.String())
+	auth, err := e.executeAuthenticators(ctx, logger, uri.String())
 	if err != nil {
 		return err
 	}

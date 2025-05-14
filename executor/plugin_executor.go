@@ -17,7 +17,7 @@ type PluginExecutor struct {
 	authenticators []auth.Authenticator
 }
 
-func (e PluginExecutor) authenticatorContext(ctx ExecutionContext) auth.AuthenticatorContext {
+func (e PluginExecutor) authenticatorContext(ctx ExecutionContext, logger log.Logger) auth.AuthenticatorContext {
 	authRequest := *auth.NewAuthenticatorRequest(ctx.BaseUri.String(), map[string]string{})
 	return *auth.NewAuthenticatorContext(
 		ctx.AuthConfig.Type,
@@ -25,13 +25,15 @@ func (e PluginExecutor) authenticatorContext(ctx ExecutionContext) auth.Authenti
 		ctx.IdentityUri,
 		ctx.Settings.OperationId,
 		ctx.Settings.Insecure,
-		authRequest)
+		ctx.Debug,
+		authRequest,
+		logger)
 }
 
-func (e PluginExecutor) executeAuthenticators(ctx ExecutionContext) (*auth.AuthenticatorResult, error) {
+func (e PluginExecutor) executeAuthenticators(ctx ExecutionContext, logger log.Logger) (*auth.AuthenticatorResult, error) {
 	var token *auth.AuthToken = nil
 	for _, authProvider := range e.authenticators {
-		authContext := e.authenticatorContext(ctx)
+		authContext := e.authenticatorContext(ctx, logger)
 		result := authProvider.Auth(authContext)
 		if result.Error != "" {
 			return nil, errors.New(result.Error)
@@ -59,7 +61,7 @@ func (e PluginExecutor) pluginAuth(auth *auth.AuthenticatorResult) plugin.AuthRe
 }
 
 func (e PluginExecutor) Call(ctx ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
-	auth, err := e.executeAuthenticators(ctx)
+	auth, err := e.executeAuthenticators(ctx, logger)
 	if err != nil {
 		return err
 	}

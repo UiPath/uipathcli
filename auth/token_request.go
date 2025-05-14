@@ -1,6 +1,10 @@
 package auth
 
-import "net/url"
+import (
+	"net/url"
+
+	"github.com/UiPath/uipathcli/utils/network"
+)
 
 type tokenRequest struct {
 	BaseUri      url.URL
@@ -12,14 +16,18 @@ type tokenRequest struct {
 	CodeVerifier string
 	RedirectUri  string
 	Properties   map[string]string
-	OperationId  string
-	Insecure     bool
+	RefreshToken string
+	Settings     network.HttpClientSettings
 }
 
-func newTokenRequest(baseUri url.URL, grantType string, scopes string, clientId string, clientSecret string, properties map[string]string, operationId string, insecure bool) *tokenRequest {
-	return &tokenRequest{baseUri, grantType, scopes, clientId, clientSecret, "", "", "", properties, operationId, insecure}
+func newTokenRequest(baseUri url.URL, grantType string, scopes string, clientId string, clientSecret string, properties map[string]string, settings network.HttpClientSettings) *tokenRequest {
+	return &tokenRequest{baseUri, grantType, scopes, clientId, clientSecret, "", "", "", properties, "", settings}
 }
 
-func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, clientSecret string, code string, codeVerifier string, redirectUrl string, operationId string, insecure bool) *tokenRequest {
-	return &tokenRequest{baseUri, "authorization_code", "", clientId, clientSecret, code, codeVerifier, redirectUrl, map[string]string{}, operationId, insecure}
+func newAuthorizationCodeTokenRequest(baseUri url.URL, clientId string, clientSecret string, code string, codeVerifier string, redirectUrl string, settings network.HttpClientSettings) *tokenRequest {
+	return &tokenRequest{baseUri, "authorization_code", "", clientId, clientSecret, code, codeVerifier, redirectUrl, map[string]string{}, "", settings}
+}
+
+func newRefreshTokenRequest(baseUri url.URL, clientId string, clientSecret string, refreshToken string, settings network.HttpClientSettings) *tokenRequest {
+	return &tokenRequest{baseUri, "refresh_token", "", clientId, clientSecret, "", "", "", map[string]string{}, refreshToken, settings}
 }
