@@ -136,8 +136,7 @@ func (e HttpExecutor) formatUri(baseUri url.URL, route string, pathParameters []
 func (e HttpExecutor) authenticatorContext(ctx ExecutionContext, logger log.Logger, url string) auth.AuthenticatorContext {
 	authRequest := *auth.NewAuthenticatorRequest(url, map[string]string{})
 	return *auth.NewAuthenticatorContext(
-		ctx.AuthConfig.Type,
-		ctx.AuthConfig.Config,
+		ctx.AuthConfig,
 		ctx.IdentityUri,
 		ctx.Settings.OperationId,
 		ctx.Settings.Insecure,
