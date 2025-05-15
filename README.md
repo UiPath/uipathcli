@@ -485,13 +485,13 @@ uipath orchestrator users get --profile automationsuite
 CLI commands consist of four main parts:
 
 ```bash
-uipath <service-name> <resource-name> <operation-name> --<argument1> --<argument2>
+uipath <service-name> <resource-name> <operation-name> --<argument1> <value1> [--<argument2> <value2>]
 ```
 
 - `<service-name>`: The UiPath product or service to call
 - `<resource-name>`: The resource to access
 - `<operation-name>`: The operation to perform on the resource
-- `<argument>`: A list of arguments passed to the operation
+- `--<argument> <value>`: A list of arguments and their values passed to the operation
 
 Example:
 

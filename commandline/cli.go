@@ -3,8 +3,10 @@
 package commandline
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
@@ -51,10 +53,11 @@ func (c Cli) run(args []string, input stream.Stream) error {
 		return err
 	}
 
+	var commandError error
 	app := &cli.App{
 		Name:                      "uipath",
 		Usage:                     "Command-Line Interface for UiPath Services",
-		UsageText:                 "uipath <service> <operation> --parameter",
+		UsageText:                 "uipath <service> <operation> --<argument> <value>",
 		Version:                   "1.0",
 		Flags:                     c.convertFlags(flags...),
 		Commands:                  c.convertCommands(commands...),
@@ -63,15 +66,37 @@ func (c Cli) run(args []string, input stream.Stream) error {
 		HideVersion:               true,
 		HideHelpCommand:           true,
 		DisableSliceFlagSeparator: true,
+		CommandNotFound: func(context *cli.Context, commandName string) {
+			commandError = fmt.Errorf("Command '%s' not found", commandName)
+		},
+		OnUsageError: func(context *cli.Context, err error, isSubcommand bool) error {
+			return fmt.Errorf("Incorrect usage: %w", err)
+		},
 		Action: func(context *cli.Context) error {
 			if context.IsSet(FlagNameVersion) {
 				handler := newVersionCommandHandler(c.stdOut)
 				return handler.Execute()
 			}
-			return cli.ShowAppHelp(context)
+			if len(args) <= 1 {
+				return cli.ShowAppHelp(context)
+			}
+
+			if strings.HasPrefix(args[1], "--") {
+				return errors.New(`No command provided.
+
+Please provide service and operation command in the following format:
+uipath <service> <operation> --<argument> <value>`)
+			}
+
+			commandName := args[1]
+			return fmt.Errorf("Command '%s' not found", commandName)
 		},
 	}
-	return app.Run(args)
+	err = app.Run(args)
+	if err != nil {
+		return err
+	}
+	return commandError
 }
 
 const colorRed = "\033[31m"
@@ -112,6 +137,9 @@ func (c Cli) convertCommand(command *CommandDefinition) *cli.Command {
 		CustomHelpTemplate: command.HelpTemplate,
 		Hidden:             command.Hidden,
 		HideHelp:           true,
+		OnUsageError: func(context *cli.Context, err error, isSubcommand bool) error {
+			return fmt.Errorf("Incorrect usage: %w", err)
+		},
 	}
 	if command.Action != nil {
 		result.Action = func(context *cli.Context) error {
