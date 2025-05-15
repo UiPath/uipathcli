@@ -172,6 +172,15 @@ func (c *Config) SetAuthScopes(scopes string) {
 	c.Auth.Config["scopes"] = scopes
 }
 
+func (c *Config) SetAuthUri(uri string) error {
+	parsedUri, err := url.Parse(uri)
+	if err != nil {
+		return fmt.Errorf("Invalid value for 'auth.uri': %w", err)
+	}
+	c.Auth.Config["uri"] = parsedUri.String()
+	return nil
+}
+
 func (c *Config) SetAuthProperty(key string, value string) {
 	properties, ok := c.Auth.Config["properties"].(map[interface{}]interface{})
 	if properties == nil || !ok {

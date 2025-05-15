@@ -340,3 +340,36 @@ func TestConfigSetServiceVersion(t *testing.T) {
 		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
 	}
 }
+
+func TestConfigSetAuthUri(t *testing.T) {
+	configFile := TempFile(t)
+	context := NewContextBuilder().
+		WithConfigFile(configFile).
+		Build()
+
+	RunCli([]string{"config", "set", "--key", "auth.uri", "--value", "https://alpha.uipath.com/identity_"}, context)
+
+	config, err := os.ReadFile(configFile)
+	if err != nil {
+		t.Errorf("Config file does not exist: %v", err)
+	}
+	expectedConfig := `profiles:
+- name: default
+  auth:
+    uri: https://alpha.uipath.com/identity_
+`
+	if string(config) != expectedConfig {
+		t.Errorf("Expected generated config %v, but got %v", expectedConfig, string(config))
+	}
+}
+
+func TestConfigInvalidAuthUri(t *testing.T) {
+	context := NewContextBuilder().
+		Build()
+
+	result := RunCli([]string{"config", "set", "--key", "auth.uri", "--value", "invalid uri\t"}, context)
+
+	if !strings.HasPrefix(result.StdErr, "Invalid value for 'auth.uri'") {
+		t.Errorf("Expected invalid auth.uri error, but got %v", result.StdErr)
+	}
+}
