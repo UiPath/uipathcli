@@ -1,3 +1,6 @@
+// Package stream provides methods to accessed stream data while abstracting
+// where the data comes from. This allows clients to read data from streams
+// without the need to know where the data is streamed from.
 package stream
 
 import (

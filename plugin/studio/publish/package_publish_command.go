@@ -1,3 +1,5 @@
+// Package publish implements the command plugin for publishing a NuGet package
+// to orchestrator so that it can be executed.
 package publish
 
 import (
@@ -25,7 +27,7 @@ type PackagePublishCommand struct {
 
 func (c PackagePublishCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
-		WithCategory("package", "Package", "UiPath Studio package-related actions").
+		WithCategory("package", "UiPath Studio project packaging", "Restore, analyze, package and publish your UiPath studio projects.").
 		WithOperation("publish", "Publish Package", "Publishes the package to orchestrator").
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to package").
 			WithRequired(true).

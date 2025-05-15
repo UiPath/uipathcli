@@ -1,3 +1,4 @@
+// Package api contains multiple clients which wrap an external service API
 package api
 
 import (

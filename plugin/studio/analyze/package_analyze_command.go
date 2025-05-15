@@ -1,3 +1,5 @@
+// Package analyze implements the command plugin for analyzing
+// UiPath Studio projects.
 package analyze
 
 import (
@@ -30,7 +32,7 @@ type PackageAnalyzeCommand struct {
 
 func (c PackageAnalyzeCommand) Command() plugin.Command {
 	return *plugin.NewCommand("studio").
-		WithCategory("package", "Package", "UiPath Studio package-related actions").
+		WithCategory("package", "UiPath Studio project packaging", "Restore, analyze, package and publish your UiPath studio projects.").
 		WithOperation("analyze", "Analyze Project", "Runs static code analysis on the project to detect common errors").
 		WithParameter(plugin.NewParameter("source", plugin.ParameterTypeString, "Path to a project.json file or a folder containing project.json file").
 			WithRequired(true).

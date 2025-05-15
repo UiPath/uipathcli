@@ -1,3 +1,4 @@
+// Package visualization provides widgets for the command line
 package visualization
 
 import (

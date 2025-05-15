@@ -83,6 +83,7 @@ var descriptions = map[string]*descriptionInfo{
 	"orchestrator translations":             newDescriptionInfo("Translation resources", "Translations resources to provide multilingual UI."),
 	"orchestrator users":                    newDescriptionInfo("Manage users", "Users are individuals who have access to the Orchestrator's features."),
 	"orchestrator webhooks":                 newDescriptionInfo("Notifications of changes", "Webhooks enable real-time notifications about changes or updates in Orchestrator to other applications."),
+	"studio":                                newDescriptionInfo("UiPath Studio", "UiPath Studio commands for analyzing, packaging, testing and publishing your UiPath Studio projects."),
 }
 
 func LookupDescription(name string) *descriptionInfo {

@@ -33,6 +33,5 @@ linters:
     staticcheck:
       checks:
         - all
-        - -ST1000     # Incorrect or missing package comment.
         - -ST1005     # Error strings should not end with punctuation or newlines.
         - -ST1003     # Poorly chosen identifier.
