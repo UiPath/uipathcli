@@ -599,7 +599,7 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 	const flagNameValue = "value"
 
 	flags := NewFlagBuilder().
-		AddFlag(NewFlag(flagNameKey, "The key", FlagTypeString).
+		AddFlag(NewFlag(flagNameKey, "The key\n\n"+b.configSetKeyAllowedValues(), FlagTypeString).
 			WithRequired(true)).
 		AddFlag(NewFlag(flagNameValue, "The value to set", FlagTypeString).
 			WithRequired(true)).
@@ -618,6 +618,18 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
 		})
+}
+
+func (b CommandBuilder) configSetKeyAllowedValues() string {
+	builder := strings.Builder{}
+	builder.WriteString("Allowed values:")
+	for _, value := range ConfigKeys {
+		if strings.HasSuffix(value, ".") {
+			value = value + "<key>"
+		}
+		builder.WriteString("\n- " + value)
+	}
+	return builder.String()
 }
 
 func (b CommandBuilder) createCacheClearCommand() *CommandDefinition {
