@@ -18,17 +18,11 @@ type Config struct {
 	Tenant         string
 	Parameter      map[string]string
 	Header         map[string]string
-	Auth           AuthConfig
+	Auth           map[string]interface{}
 	Insecure       bool
 	Debug          bool
 	Output         string
 	ServiceVersion string
-}
-
-// AuthConfig with metadata used for authenticating the caller.
-type AuthConfig struct {
-	Type   string
-	Config map[string]interface{}
 }
 
 const clientIdKey = "clientId"
@@ -36,9 +30,12 @@ const clientSecretKey = "clientSecret"
 const redirectUriKey = "redirectUri"
 const scopesKey = "scopes"
 const patKey = "pat"
+const grantTypeKey = "grantType"
+const authUriKey = "uri"
+const propertiesKey = "properties"
 
 func (c *Config) ClientId() string {
-	clientId := c.Auth.Config[clientIdKey]
+	clientId := c.Auth[clientIdKey]
 	if clientId == nil {
 		return ""
 	}
@@ -46,7 +43,7 @@ func (c *Config) ClientId() string {
 }
 
 func (c *Config) ClientSecret() string {
-	clientSecret := c.Auth.Config[clientSecretKey]
+	clientSecret := c.Auth[clientSecretKey]
 	if clientSecret == nil {
 		return ""
 	}
@@ -54,7 +51,7 @@ func (c *Config) ClientSecret() string {
 }
 
 func (c *Config) RedirectUri() string {
-	redirectUri := c.Auth.Config[redirectUriKey]
+	redirectUri := c.Auth[redirectUriKey]
 	if redirectUri == nil {
 		return ""
 	}
@@ -62,7 +59,7 @@ func (c *Config) RedirectUri() string {
 }
 
 func (c *Config) Scopes() string {
-	scopes := c.Auth.Config[scopesKey]
+	scopes := c.Auth[scopesKey]
 	if scopes == nil {
 		return ""
 	}
@@ -70,11 +67,19 @@ func (c *Config) Scopes() string {
 }
 
 func (c *Config) Pat() string {
-	pat := c.Auth.Config[patKey]
+	pat := c.Auth[patKey]
 	if pat == nil {
 		return ""
 	}
 	return fmt.Sprint(pat)
+}
+
+func (c *Config) AuthUri() string {
+	identityUri := c.Auth[authUriKey]
+	if identityUri == nil {
+		return ""
+	}
+	return fmt.Sprint(identityUri)
 }
 
 func (c *Config) AuthType() string {
@@ -99,43 +104,43 @@ func (c *Config) SetTenant(tenant string) {
 }
 
 func (c *Config) SetCredentialsAuth(clientId *string, clientSecret *string) {
-	delete(c.Auth.Config, redirectUriKey)
-	delete(c.Auth.Config, scopesKey)
-	delete(c.Auth.Config, patKey)
+	delete(c.Auth, redirectUriKey)
+	delete(c.Auth, scopesKey)
+	delete(c.Auth, patKey)
 
 	if clientId != nil {
-		c.Auth.Config[clientIdKey] = clientId
+		c.Auth[clientIdKey] = *clientId
 	}
 	if clientSecret != nil {
-		c.Auth.Config[clientSecretKey] = clientSecret
+		c.Auth[clientSecretKey] = *clientSecret
 	}
 }
 
 func (c *Config) SetLoginAuth(clientId *string, clientSecret *string, redirectUri *string, scopes *string) {
-	delete(c.Auth.Config, patKey)
+	delete(c.Auth, patKey)
 
 	if clientId != nil {
-		c.Auth.Config[clientIdKey] = clientId
+		c.Auth[clientIdKey] = *clientId
 	}
 	if clientSecret != nil {
-		c.Auth.Config[clientSecretKey] = clientSecret
+		c.Auth[clientSecretKey] = *clientSecret
 	}
 	if redirectUri != nil {
-		c.Auth.Config[redirectUriKey] = redirectUri
+		c.Auth[redirectUriKey] = *redirectUri
 	}
 	if scopes != nil {
-		c.Auth.Config[scopesKey] = scopes
+		c.Auth[scopesKey] = *scopes
 	}
 }
 
 func (c *Config) SetPatAuth(pat *string) {
-	delete(c.Auth.Config, clientIdKey)
-	delete(c.Auth.Config, clientSecretKey)
-	delete(c.Auth.Config, redirectUriKey)
-	delete(c.Auth.Config, scopesKey)
+	delete(c.Auth, clientIdKey)
+	delete(c.Auth, clientSecretKey)
+	delete(c.Auth, redirectUriKey)
+	delete(c.Auth, scopesKey)
 
 	if pat != nil {
-		c.Auth.Config[patKey] = pat
+		c.Auth[patKey] = *pat
 	}
 }
 
@@ -165,20 +170,29 @@ func (c *Config) SetParameter(key string, value string) {
 }
 
 func (c *Config) SetAuthGrantType(grantType string) {
-	c.Auth.Config["grantType"] = grantType
+	c.Auth[grantTypeKey] = grantType
 }
 
 func (c *Config) SetAuthScopes(scopes string) {
-	c.Auth.Config["scopes"] = scopes
+	c.Auth[scopesKey] = scopes
+}
+
+func (c *Config) SetAuthUri(uri string) error {
+	parsedUri, err := url.Parse(uri)
+	if err != nil {
+		return fmt.Errorf("Invalid value for 'auth.uri': %w", err)
+	}
+	c.Auth[authUriKey] = parsedUri.String()
+	return nil
 }
 
 func (c *Config) SetAuthProperty(key string, value string) {
-	properties, ok := c.Auth.Config["properties"].(map[interface{}]interface{})
+	properties, ok := c.Auth[propertiesKey].(map[interface{}]interface{})
 	if properties == nil || !ok {
 		properties = map[interface{}]interface{}{}
 	}
 	properties[key] = value
-	c.Auth.Config["properties"] = properties
+	c.Auth[propertiesKey] = properties
 }
 
 func (c *Config) SetServiceVersion(serviceVersion string) {

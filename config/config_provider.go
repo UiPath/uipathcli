@@ -44,7 +44,7 @@ func (p *ConfigProvider) Update(profileName string, config Config) error {
 	profile.Debug = config.Debug
 	profile.Organization = config.Organization
 	profile.Tenant = config.Tenant
-	profile.Auth = config.Auth.Config
+	profile.Auth = config.Auth
 	profile.Header = config.Header
 	profile.Parameter = config.Parameter
 	profile.ServiceVersion = config.ServiceVersion
@@ -73,15 +73,12 @@ func (p *ConfigProvider) convertToConfig(profile profileYaml) Config {
 		profile.Header = map[string]string{}
 	}
 	return Config{
-		Organization: profile.Organization,
-		Tenant:       profile.Tenant,
-		Uri:          profile.Uri.URL,
-		Parameter:    profile.Parameter,
-		Header:       profile.Header,
-		Auth: AuthConfig{
-			Type:   fmt.Sprint(profile.Auth["type"]),
-			Config: profile.Auth,
-		},
+		Organization:   profile.Organization,
+		Tenant:         profile.Tenant,
+		Uri:            profile.Uri.URL,
+		Parameter:      profile.Parameter,
+		Header:         profile.Header,
+		Auth:           profile.Auth,
 		Insecure:       profile.Insecure,
 		Debug:          profile.Debug,
 		Output:         profile.Output,

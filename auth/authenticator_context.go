@@ -8,7 +8,6 @@ import (
 
 // AuthenticatorContext provides information required for authenticating requests.
 type AuthenticatorContext struct {
-	Type        string
 	Config      map[string]interface{}
 	IdentityUri url.URL
 	OperationId string
@@ -19,7 +18,6 @@ type AuthenticatorContext struct {
 }
 
 func NewAuthenticatorContext(
-	authType string,
 	config map[string]interface{},
 	identityUri url.URL,
 	operationId string,
@@ -28,5 +26,13 @@ func NewAuthenticatorContext(
 	request AuthenticatorRequest,
 	logger log.Logger,
 ) *AuthenticatorContext {
-	return &AuthenticatorContext{authType, config, identityUri, operationId, insecure, debug, request, logger}
+	return &AuthenticatorContext{
+		config,
+		identityUri,
+		operationId,
+		insecure,
+		debug,
+		request,
+		logger,
+	}
 }

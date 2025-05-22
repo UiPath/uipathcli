@@ -3,7 +3,6 @@ package executor
 import (
 	"net/url"
 
-	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
@@ -19,7 +18,7 @@ type ExecutionContext struct {
 	ContentType  string
 	Input        stream.Stream
 	Parameters   ExecutionParameters
-	AuthConfig   config.AuthConfig
+	AuthConfig   map[string]interface{}
 	IdentityUri  url.URL
 	Plugin       plugin.CommandPlugin
 	Debug        bool
@@ -35,7 +34,7 @@ func NewExecutionContext(
 	contentType string,
 	input stream.Stream,
 	parameters []ExecutionParameter,
-	authConfig config.AuthConfig,
+	authConfig map[string]interface{},
 	identityUri url.URL,
 	plugin plugin.CommandPlugin,
 	debug bool,

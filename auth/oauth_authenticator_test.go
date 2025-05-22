@@ -424,7 +424,7 @@ func createNonConfidentialAuthContext(baseUrl url.URL) AuthenticatorContext {
 func createAuthContext(baseUrl url.URL, config map[string]interface{}, debug bool, writer io.Writer) AuthenticatorContext {
 	identityUrl := createIdentityUrl(baseUrl.Host)
 	request := NewAuthenticatorRequest(fmt.Sprintf("%s://%s", baseUrl.Scheme, baseUrl.Host), map[string]string{})
-	context := NewAuthenticatorContext("login", config, identityUrl, "d7b087788be2154da3ad9d6bc14588f4", false, debug, *request, log.NewDebugLogger(writer))
+	context := NewAuthenticatorContext(config, identityUrl, "d7b087788be2154da3ad9d6bc14588f4", false, debug, *request, log.NewDebugLogger(writer))
 	return *context
 }
 
