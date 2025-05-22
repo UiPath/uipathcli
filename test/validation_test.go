@@ -24,7 +24,7 @@ paths:
 
 	expected := "Invalid value for 'call-timeout'"
 	if !strings.Contains(result.StdErr, expected) {
-		t.Errorf("stderr does not invalid call-timeout error error, expected: %v, got: %v", expected, result.StdErr)
+		t.Errorf("stderr does not show invalid call-timeout error, expected: %v, got: %v", expected, result.StdErr)
 	}
 }
 
@@ -45,7 +45,7 @@ paths:
 
 	expected := "Invalid value for 'max-attempts'"
 	if !strings.Contains(result.StdErr, expected) {
-		t.Errorf("stderr does not invalid call-attempts error error, expected: %v, got: %v", expected, result.StdErr)
+		t.Errorf("stderr does not show invalid call-attempts error, expected: %v, got: %v", expected, result.StdErr)
 	}
 }
 

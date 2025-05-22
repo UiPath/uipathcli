@@ -82,6 +82,7 @@ func main() {
 		*configProvider,
 		executor.NewHttpExecutor(authenticators),
 		executor.NewPluginExecutor(authenticators),
+		authenticators,
 	)
 
 	input := stdIn()
