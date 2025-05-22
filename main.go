@@ -61,7 +61,6 @@ func main() {
 
 	authenticators := authenticators()
 	cli := commandline.NewCli(
-		os.Stdin,
 		os.Stdout,
 		os.Stderr,
 		colorsSupported(),
@@ -82,6 +81,7 @@ func main() {
 		*configProvider,
 		executor.NewHttpExecutor(authenticators),
 		executor.NewPluginExecutor(authenticators),
+		authenticators,
 	)
 
 	input := stdIn()

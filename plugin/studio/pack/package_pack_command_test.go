@@ -201,8 +201,7 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 
@@ -253,8 +252,7 @@ profiles:
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		WithCommandPlugin(PackagePackCommand{exec}).
 		Build()
 

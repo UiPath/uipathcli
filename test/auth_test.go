@@ -21,7 +21,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
+		WithResponse(http.StatusOK, "/ping").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -50,8 +50,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(500, "Internal Server Error").
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(500, "Internal Server Error").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -81,8 +81,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -113,8 +113,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -144,8 +144,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -173,8 +173,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	result := RunCli([]string{"myservice", "ping", "--identity-uri", ":invalid"}, context)
@@ -202,16 +202,16 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 	RunCli([]string{"myservice", "ping"}, context)
 
 	context2 := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusInternalServerError, "Internal Server Error").
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusInternalServerError, "Internal Server Error").
 		Build()
 	result := RunCli([]string{"myservice", "ping"}, context2)
 
@@ -243,16 +243,16 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 10, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 10, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 	RunCli([]string{"myservice", "ping"}, context)
 
 	context2 := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusInternalServerError, "Internal Server Error").
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusInternalServerError, "Internal Server Error").
 		Build()
 	result := RunCli([]string{"myservice", "ping"}, context2)
 
@@ -278,7 +278,7 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
+		WithResponse(http.StatusOK, "/ping").
 		Build()
 
 	result := RunCli([]string{"myservice", "ping"}, context)
@@ -318,8 +318,8 @@ paths:
 	context := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 	RunCli([]string{"myservice", "ping"}, context)
 
@@ -330,8 +330,8 @@ paths:
 	context3 := NewContextBuilder().
 		WithDefinition("myservice", definition).
 		WithConfig(config).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusInternalServerError, "Internal Server Error").
+		WithResponse(http.StatusOK, "/ping").
+		WithTokenResponse(http.StatusInternalServerError, "Internal Server Error").
 		Build()
 	result := RunCli([]string{"myservice", "ping"}, context3)
 

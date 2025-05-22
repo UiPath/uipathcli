@@ -29,6 +29,11 @@ func (p *ConfigProvider) Load() error {
 }
 
 func (p *ConfigProvider) Update(profileName string, config Config) error {
+	err := p.Load()
+	if err != nil {
+		return err
+	}
+
 	profile := profileYaml{
 		Name: profileName,
 	}

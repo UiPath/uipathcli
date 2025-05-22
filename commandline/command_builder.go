@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/log"
@@ -23,13 +24,13 @@ import (
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
 	Input              stream.Stream
-	StdIn              io.Reader
 	StdOut             io.Writer
 	StdErr             io.Writer
 	ConfigProvider     config.ConfigProvider
 	Executor           executor.Executor
 	PluginExecutor     executor.Executor
 	DefinitionProvider DefinitionProvider
+	Authenticators     []auth.Authenticator
 }
 
 func (b CommandBuilder) sort(commands []*CommandDefinition) {
@@ -145,7 +146,7 @@ func (b CommandBuilder) outputFormat(config config.Config, context *CommandExecC
 	return outputFormat, nil
 }
 
-func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.Config, context *CommandExecContext) (url.URL, error) {
+func (b CommandBuilder) createOperationBaseUri(operation parser.Operation, context *CommandExecContext, config *config.Config) (url.URL, error) {
 	uriArgument, err := b.parseUriArgument(context)
 	if err != nil {
 		return operation.BaseUri, err
@@ -157,7 +158,23 @@ func (b CommandBuilder) createBaseUri(operation parser.Operation, config config.
 	return builder.Uri(), nil
 }
 
-func (b CommandBuilder) createIdentityUri(context *CommandExecContext, config config.Config, baseUri url.URL) (*url.URL, error) {
+func (b CommandBuilder) createBaseUri(context *CommandExecContext, config *config.Config) (url.URL, error) {
+	defaultUri, _ := url.Parse(parser.DefaultServerBaseUrl)
+
+	uriArgument, err := b.parseUriArgument(context)
+	if err != nil {
+		return *defaultUri, err
+	}
+
+	builder := NewUriBuilder(*defaultUri)
+	if config != nil {
+		builder.OverrideUri(config.Uri)
+	}
+	builder.OverrideUri(uriArgument)
+	return builder.Uri(), nil
+}
+
+func (b CommandBuilder) createIdentityUri(context *CommandExecContext, config *config.Config, baseUri url.URL) (*url.URL, error) {
 	uri := context.String(FlagNameIdentityUri)
 	if uri != "" {
 		identityUri, err := url.Parse(uri)
@@ -167,7 +184,9 @@ func (b CommandBuilder) createIdentityUri(context *CommandExecContext, config co
 		return identityUri, nil
 	}
 
-	uri = config.AuthUri()
+	if config != nil {
+		uri = config.AuthUri()
+	}
 	if uri != "" {
 		identityUri, err := url.Parse(uri)
 		if err != nil {
@@ -298,7 +317,7 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 			wait := context.String(FlagNameWait)
 			waitTimeout := context.Int(FlagNameWaitTimeout)
 
-			baseUri, err := b.createBaseUri(operation, *config, context)
+			baseUri, err := b.createOperationBaseUri(operation, context, config)
 			if err != nil {
 				return err
 			}
@@ -324,7 +343,6 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 			if tenant == "" {
 				tenant = config.Tenant
 			}
-			insecure := context.Bool(FlagNameInsecure) || config.Insecure
 			timeout := time.Duration(context.Int(FlagNameCallTimeout)) * time.Second
 			if timeout < 0 {
 				return fmt.Errorf("Invalid value for '%s'", FlagNameCallTimeout)
@@ -333,12 +351,14 @@ func (b CommandBuilder) createOperationCommand(operation parser.Operation) *Comm
 			if maxAttempts < 1 {
 				return fmt.Errorf("Invalid value for '%s'", FlagNameMaxAttempts)
 			}
-			debug := context.Bool(FlagNameDebug) || config.Debug
-			identityUri, err := b.createIdentityUri(context, *config, baseUri)
+			identityUri, err := b.createIdentityUri(context, config, baseUri)
 			if err != nil {
 				return err
 			}
+
+			debug := b.debug(context, config)
 			operationId := b.operationId()
+			insecure := b.insecure(context, config)
 
 			executionContext := executor.NewExecutionContext(
 				organization,
@@ -570,9 +590,11 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 
 	flags := NewFlagBuilder().
 		AddFlag(NewFlag(flagNameAuth, fmt.Sprintf("Authorization type: %s, %s, %s", config.AuthTypeCredentials, config.AuthTypeLogin, config.AuthTypePat), FlagTypeString)).
-		AddFlag(NewFlag(FlagNameProfile, "Profile to configure", FlagTypeString).
-			WithEnvVarName("UIPATH_PROFILE").
-			WithDefaultValue(config.DefaultProfile)).
+		AddProfileFlag().
+		AddUriFlag().
+		AddDebugFlag().
+		AddInsecureFlag().
+		AddIdentityUriFlag().
 		AddHelpFlag().
 		Build()
 
@@ -588,8 +610,38 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 		WithAction(func(context *CommandExecContext) error {
 			auth := context.String(flagNameAuth)
 			profileName := context.String(FlagNameProfile)
-			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
-			return handler.Configure(auth, profileName)
+			config := b.ConfigProvider.Config(profileName)
+
+			baseUri, err := b.createBaseUri(context, config)
+			if err != nil {
+				return err
+			}
+			identityUri, err := b.createIdentityUri(context, config, baseUri)
+			if err != nil {
+				return err
+			}
+
+			debug := b.debug(context, config)
+			operationId := b.operationId()
+			insecure := b.insecure(context, config)
+
+			logger := b.logger(debug, b.StdErr)
+			handler := newConfigCommandHandler(
+				b.Input,
+				b.StdOut,
+				logger,
+				b.ConfigProvider,
+				b.Authenticators)
+			input := newConfigCommandInput(
+				auth,
+				profileName,
+				debug,
+				operationId,
+				insecure,
+				baseUri,
+				*identityUri,
+			)
+			return handler.Configure(*input)
 		})
 }
 
@@ -602,9 +654,7 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 			WithRequired(true)).
 		AddFlag(NewFlag(flagNameValue, "The value to set", FlagTypeString).
 			WithRequired(true)).
-		AddFlag(NewFlag(FlagNameProfile, "Profile to configure", FlagTypeString).
-			WithEnvVarName("UIPATH_PROFILE").
-			WithDefaultValue(config.DefaultProfile)).
+		AddProfileFlag().
 		AddHelpFlag().
 		Build()
 
@@ -614,7 +664,7 @@ func (b CommandBuilder) createConfigSetCommand() *CommandDefinition {
 			profileName := context.String(FlagNameProfile)
 			key := context.String(flagNameKey)
 			value := context.String(flagNameValue)
-			handler := newConfigCommandHandler(b.StdIn, b.StdOut, b.ConfigProvider)
+			handler := newConfigSetCommandHandler(b.StdOut, b.ConfigProvider)
 			return handler.Set(key, value, profileName)
 		})
 }
@@ -629,6 +679,22 @@ func (b CommandBuilder) configSetKeyAllowedValues() string {
 		builder.WriteString("\n- " + value)
 	}
 	return builder.String()
+}
+
+func (b CommandBuilder) debug(context *CommandExecContext, config *config.Config) bool {
+	debug := context.Bool(FlagNameDebug)
+	if !debug && config != nil {
+		return config.Debug
+	}
+	return debug
+}
+
+func (b CommandBuilder) insecure(context *CommandExecContext, config *config.Config) bool {
+	insecure := context.Bool(FlagNameInsecure)
+	if !insecure && config != nil {
+		return config.Insecure
+	}
+	return insecure
 }
 
 func (b CommandBuilder) createCacheClearCommand() *CommandDefinition {
@@ -797,4 +863,26 @@ func (b CommandBuilder) Create(args []string) ([]*CommandDefinition, error) {
 	inspectCommand := b.createInspectCommand(definitions)
 	commands := append(servicesCommands, autocompleteCommand, configCommand, inspectCommand)
 	return commands, nil
+}
+
+func NewCommandBuilder(
+	input stream.Stream,
+	stdOut io.Writer,
+	stdErr io.Writer,
+	configProvider config.ConfigProvider,
+	executor executor.Executor,
+	pluginExecutor executor.Executor,
+	definitionProvider DefinitionProvider,
+	authenticators []auth.Authenticator,
+) *CommandBuilder {
+	return &CommandBuilder{
+		input,
+		stdOut,
+		stdErr,
+		configProvider,
+		executor,
+		pluginExecutor,
+		definitionProvider,
+		authenticators,
+	}
 }

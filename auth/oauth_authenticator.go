@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/UiPath/uipathcli/cache"
+	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/utils/network"
 )
 
@@ -45,6 +46,9 @@ func (a OAuthAuthenticator) Auth(ctx AuthenticatorContext) AuthenticatorResult {
 	if err != nil {
 		return *AuthenticatorError(fmt.Errorf("Error retrieving access token: %w", err))
 	}
+	if token == "" {
+		return *AuthenticatorSuccess(nil)
+	}
 	return *AuthenticatorSuccess(NewBearerToken(token))
 }
 
@@ -68,9 +72,12 @@ func (a OAuthAuthenticator) retrieveToken(config oauthAuthenticatorConfig, ctx A
 	secretGenerator := newSecretGenerator()
 	codeVerifier, codeChallenge := secretGenerator.GeneratePkce()
 	state := secretGenerator.GenerateState()
-	code, err := a.login(config, state, codeChallenge)
+	code, err := a.login(config, state, codeChallenge, ctx.Logger)
 	if err != nil {
 		return "", err
+	}
+	if code == "" {
+		return "", nil
 	}
 
 	identityClient := newIdentityClient(ctx.Logger)
@@ -144,27 +151,34 @@ func (a OAuthAuthenticator) refreshTokenCacheKey(config oauthAuthenticatorConfig
 	return fmt.Sprintf("oauthrefreshtoken|%s|%s|%s|%s|%s", identityBaseUri.Scheme, identityBaseUri.Hostname(), config.ClientId, config.ClientSecret, config.Scopes)
 }
 
-func (a OAuthAuthenticator) login(config oauthAuthenticatorConfig, state string, codeChallenge string) (string, error) {
+func (a OAuthAuthenticator) handleRedirect(state string, request *http.Request, response http.ResponseWriter) string {
+	query := request.URL.Query()
+	code := query.Get("code")
+	if code == "" {
+		a.writeErrorPage(response, "Could not find query string 'code' in redirect_url")
+		return ""
+	}
+	if query.Get("state") != state {
+		a.writeErrorPage(response, "The query string 'state' in the redirect_url did not match")
+		return ""
+	}
+	a.writeHtmlPage(response, LOGGED_IN_PAGE_HTML)
+	return code
+}
+
+func (a OAuthAuthenticator) login(config oauthAuthenticatorConfig, state string, codeChallenge string, logger log.Logger) (string, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(120)*time.Second)
 	defer cancel()
 
-	var code string
-	var err error
+	var loginCode string
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		query := r.URL.Query()
-		code = query.Get("code")
-		if code == "" {
-			err = errors.New("Could not find query string 'code' in redirect_url")
-			a.writeErrorPage(w, err)
-		} else if query.Get("state") != state {
-			err = errors.New("The query string 'state' in the redirect_url did not match")
-			a.writeErrorPage(w, err)
-		} else {
-			a.writeHtmlPage(w, LOGGED_IN_PAGE_HTML)
+		code := a.handleRedirect(state, r, w)
+		if code != "" {
+			loginCode = code
+			cancel()
 		}
-		cancel()
 	})
 	listener, err := net.Listen("tcp", config.RedirectUrl.Host)
 	if err != nil {
@@ -200,19 +214,16 @@ func (a OAuthAuthenticator) login(config oauthAuthenticatorConfig, state string,
 	go func(url string) {
 		err := a.browserLauncher.Open(url)
 		if err != nil {
-			a.showBrowserLink(url)
+			a.showBrowserLink(url, logger)
 		}
 	}(loginUrl)
 
 	<-ctx.Done()
 
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
-		return "", errors.New("OAuth Login expired")
+		return "", errors.New("Login flow timed out")
 	}
-	if err != nil {
-		return "", err
-	}
-	return code, nil
+	return loginCode, nil
 }
 
 func (a OAuthAuthenticator) enabled(ctx AuthenticatorContext) bool {
@@ -289,18 +300,20 @@ func (a OAuthAuthenticator) parseRequiredString(config map[string]interface{}, n
 	return result, nil
 }
 
-func (a OAuthAuthenticator) showBrowserLink(url string) {
-	fmt.Fprintln(os.Stderr, "Go to URL and perform login:\n"+url)
+func (a OAuthAuthenticator) showBrowserLink(url string, logger log.Logger) {
+	logger.LogError(fmt.Sprintf(`Go to URL and perform login:
+%s
+`, url))
 }
 
-func (a OAuthAuthenticator) writeErrorPage(w http.ResponseWriter, err error) {
-	w.Header().Set("Content-Type", "text/html")
-	_, _ = w.Write([]byte(err.Error()))
+func (a OAuthAuthenticator) writeErrorPage(response http.ResponseWriter, errorMessage string) {
+	response.Header().Set("Content-Type", "text/html")
+	_, _ = response.Write([]byte(errorMessage))
 }
 
-func (a OAuthAuthenticator) writeHtmlPage(w http.ResponseWriter, html string) {
-	w.Header().Set("Content-Type", "text/html")
-	_, _ = w.Write([]byte(html))
+func (a OAuthAuthenticator) writeHtmlPage(response http.ResponseWriter, html string) {
+	response.Header().Set("Content-Type", "text/html")
+	_, _ = response.Write([]byte(html))
 }
 
 func (a OAuthAuthenticator) networkSettings(ctx AuthenticatorContext) network.HttpClientSettings {

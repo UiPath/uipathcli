@@ -13,6 +13,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"slices"
 	"strings"
 	"testing"
@@ -24,6 +25,7 @@ import (
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/parser"
 	"github.com/UiPath/uipathcli/plugin"
+	"github.com/UiPath/uipathcli/utils/process"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
 
@@ -82,8 +84,13 @@ func (b *ContextBuilder) WithResponseHandler(handler func(RequestData) ResponseD
 	return b
 }
 
-func (b *ContextBuilder) WithIdentityResponse(statusCode int, body string) *ContextBuilder {
-	b.context.IdentityResponse = ResponseData{statusCode, body}
+func (b *ContextBuilder) WithTokenResponse(statusCode int, body string) *ContextBuilder {
+	b.context.TokenResponse = &ResponseData{statusCode, body}
+	return b
+}
+
+func (b *ContextBuilder) WithOAuthTokenResponse(statusCode int, body string) *ContextBuilder {
+	b.context.OAuthTokenResponse = &ResponseData{statusCode, body}
 	return b
 }
 
@@ -108,14 +115,15 @@ type ResponseData struct {
 }
 
 type Context struct {
-	Config           string
-	ConfigFile       string
-	StdIn            *bytes.Buffer
-	Definitions      []commandline.DefinitionData
-	Responses        map[string]ResponseData
-	ResponseHandler  func(RequestData) ResponseData
-	IdentityResponse ResponseData
-	CommandPlugin    plugin.CommandPlugin
+	Config             string
+	ConfigFile         string
+	StdIn              *bytes.Buffer
+	Definitions        []commandline.DefinitionData
+	Responses          map[string]ResponseData
+	ResponseHandler    func(RequestData) ResponseData
+	TokenResponse      *ResponseData
+	OAuthTokenResponse *ResponseData
+	CommandPlugin      plugin.CommandPlugin
 }
 
 type Result struct {
@@ -128,77 +136,36 @@ type Result struct {
 	RequestBody   string
 }
 
-func handleIdentityTokenRequest(context Context, request *http.Request, response http.ResponseWriter) {
-	body, _ := io.ReadAll(request.Body)
-	requestBody := string(body)
-	data, _ := url.ParseQuery(requestBody)
-	if len(data["client_id"]) != 1 || data["client_id"][0] == "" {
-		response.WriteHeader(http.StatusBadRequest)
-		_, _ = response.Write([]byte("client_id is missing"))
-		return
-	}
-	if len(data["client_secret"]) != 1 || data["client_secret"][0] == "" {
-		response.WriteHeader(http.StatusBadRequest)
-		_, _ = response.Write([]byte("client_secret is missing"))
-		return
-	}
-	if len(data["grant_type"]) != 1 || data["grant_type"][0] != "client_credentials" {
-		response.WriteHeader(http.StatusBadRequest)
-		_, _ = response.Write([]byte("Invalid grant_type"))
-		return
-	}
-	response.WriteHeader(context.IdentityResponse.Status)
-	_, _ = response.Write([]byte(context.IdentityResponse.Body))
-}
-
 func RunCli(args []string, context Context) Result {
 	baseUrl := ""
-	requestUrl := ""
-	requestHeader := map[string]string{}
-	requestBody := ""
+	requestData := RequestData{}
+	httpFake := httpFake{
+		context.TokenResponse,
+		context.OAuthTokenResponse,
+		context.Responses,
+		context.ResponseHandler,
+	}
 
-	if len(context.Responses) > 0 || context.ResponseHandler != nil {
-		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			requestUrl = r.URL.String()
-			if requestUrl == "/identity_/connect/token" {
-				handleIdentityTokenRequest(context, r, w)
-				return
-			}
-
-			body, _ := io.ReadAll(r.Body)
-			requestBody = string(body)
-			for key, values := range r.Header {
+	if context.TokenResponse != nil || context.OAuthTokenResponse != nil || len(context.Responses) > 0 || context.ResponseHandler != nil {
+		srv := httptest.NewServer(http.HandlerFunc(func(response http.ResponseWriter, request *http.Request) {
+			body, _ := io.ReadAll(request.Body)
+			header := map[string]string{}
+			for key, values := range request.Header {
 				for _, value := range values {
-					requestHeader[strings.ToLower(key)] = value
+					header[strings.ToLower(key)] = value
 				}
 			}
-
-			decodedRequestUrl := r.URL.Path
-			query, _ := url.QueryUnescape(r.URL.RawQuery)
-			if query != "" {
-				decodedRequestUrl += "?" + query
+			requestData = RequestData{
+				URL:    *request.URL,
+				Header: header,
+				Body:   body,
 			}
-			response, found := context.Responses[decodedRequestUrl]
-			if !found {
-				response, found = context.Responses["*"]
+			responseData := httpFake.Handle(requestData)
+			if responseData == nil {
+				panic(fmt.Errorf("Request Url has not been handled '%s'", request.URL.String()))
 			}
-			if found {
-				w.WriteHeader(response.Status)
-				_, _ = w.Write([]byte(response.Body))
-				return
-			}
-
-			if context.ResponseHandler != nil {
-				response = context.ResponseHandler(RequestData{
-					URL:    *r.URL,
-					Header: requestHeader,
-					Body:   body,
-				})
-				w.WriteHeader(response.Status)
-				_, _ = w.Write([]byte(response.Body))
-				return
-			}
-			panic(fmt.Sprintf("Request Url has not been handled '%s'", requestUrl))
+			response.WriteHeader(responseData.Status)
+			_, _ = response.Write([]byte(responseData.Body))
 		}))
 		defer srv.Close()
 		args = append(args, "--uri", srv.URL)
@@ -212,11 +179,23 @@ func RunCli(args []string, context Context) Result {
 		}
 	}
 
+	browserLauncher := auth.BrowserLauncher{
+		Exec: process.NewExecCustomProcess(0, "", "", func(name string, args []string) {
+			uri := args[0]
+			if runtime.GOOS == "windows" {
+				uri = args[1]
+			}
+			err := httpFake.SendOAuthResponse(uri)
+			if err != nil {
+				panic(err)
+			}
+		}),
+	}
 	stdout := new(bytes.Buffer)
 	stderr := new(bytes.Buffer)
 	authenticators := []auth.Authenticator{
 		auth.NewPatAuthenticator(),
-		auth.NewOAuthAuthenticator(cache.NewFileCache(), *auth.NewBrowserLauncher()),
+		auth.NewOAuthAuthenticator(cache.NewFileCache(), browserLauncher),
 		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	}
 	commandPlugins := []plugin.CommandPlugin{}
@@ -225,7 +204,6 @@ func RunCli(args []string, context Context) Result {
 	}
 
 	cli := commandline.NewCli(
-		context.StdIn,
 		stdout,
 		stderr,
 		false,
@@ -239,6 +217,7 @@ func RunCli(args []string, context Context) Result {
 		),
 		executor.NewHttpExecutor(authenticators),
 		executor.NewPluginExecutor(authenticators),
+		authenticators,
 	)
 	args = append([]string{"uipath"}, args...)
 	var input stream.Stream
@@ -252,9 +231,9 @@ func RunCli(args []string, context Context) Result {
 		StdOut:        stdout.String(),
 		StdErr:        stderr.String(),
 		BaseUrl:       baseUrl,
-		RequestUrl:    requestUrl,
-		RequestHeader: requestHeader,
-		RequestBody:   requestBody,
+		RequestUrl:    requestData.URL.String(),
+		RequestHeader: requestData.Header,
+		RequestBody:   string(requestData.Body),
 	}
 }
 

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -151,8 +150,8 @@ func (e HttpExecutor) executeAuthenticators(ctx ExecutionContext, logger log.Log
 	for _, authProvider := range e.authenticators {
 		authContext := e.authenticatorContext(ctx, logger, url)
 		result := authProvider.Auth(authContext)
-		if result.Error != "" {
-			return nil, errors.New(result.Error)
+		if result.Error != nil {
+			return nil, result.Error
 		}
 		if result.Token != nil {
 			token = result.Token

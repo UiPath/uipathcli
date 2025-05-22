@@ -1,8 +1,6 @@
 package executor
 
 import (
-	"errors"
-
 	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/output"
@@ -34,8 +32,8 @@ func (e PluginExecutor) executeAuthenticators(ctx ExecutionContext, logger log.L
 	for _, authProvider := range e.authenticators {
 		authContext := e.authenticatorContext(ctx, logger)
 		result := authProvider.Auth(authContext)
-		if result.Error != "" {
-			return nil, errors.New(result.Error)
+		if result.Error != nil {
+			return nil, result.Error
 		}
 		if result.Token != nil {
 			token = result.Token
