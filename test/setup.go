@@ -1,3 +1,4 @@
+// Package test provides shared test utilities for writing integration tests.
 package test
 
 import (

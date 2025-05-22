@@ -1,3 +1,6 @@
+// Package upload implements a plugin for uploading files to orchestractor
+// buckets. It makes the upload more convienient through streaming support
+// and progress indicators.
 package upload
 
 import (
