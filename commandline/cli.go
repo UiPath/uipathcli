@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/utils/stream"
@@ -24,6 +25,7 @@ type Cli struct {
 	configProvider     config.ConfigProvider
 	executor           executor.Executor
 	pluginExecutor     executor.Executor
+	authenticators     []auth.Authenticator
 }
 
 func (c Cli) run(args []string, input stream.Stream) error {
@@ -32,23 +34,23 @@ func (c Cli) run(args []string, input stream.Stream) error {
 		return err
 	}
 
-	CommandBuilder := CommandBuilder{
-		Input:              input,
-		StdIn:              c.stdIn,
-		StdOut:             c.stdOut,
-		StdErr:             c.stdErr,
-		ConfigProvider:     c.configProvider,
-		Executor:           c.executor,
-		PluginExecutor:     c.pluginExecutor,
-		DefinitionProvider: c.definitionProvider,
-	}
-
+	commandBuilder := NewCommandBuilder(
+		input,
+		c.stdIn,
+		c.stdOut,
+		c.stdErr,
+		c.configProvider,
+		c.executor,
+		c.pluginExecutor,
+		c.definitionProvider,
+		c.authenticators,
+	)
 	flags := NewFlagBuilder().
 		AddDefaultFlags(false).
 		AddVersionFlag().
 		Build()
 
-	commands, err := CommandBuilder.Create(args)
+	commands, err := commandBuilder.Create(args)
 	if err != nil {
 		return err
 	}
@@ -112,19 +114,6 @@ func (c Cli) Run(args []string, input stream.Stream) error {
 		_, _ = fmt.Fprintln(c.stdErr, message)
 	}
 	return err
-}
-
-func NewCli(
-	stdIn io.Reader,
-	stdOut io.Writer,
-	stdErr io.Writer,
-	colors bool,
-	definitionProvider DefinitionProvider,
-	configProvider config.ConfigProvider,
-	executor executor.Executor,
-	pluginExecutor executor.Executor,
-) *Cli {
-	return &Cli{stdIn, stdOut, stdErr, colors, definitionProvider, configProvider, executor, pluginExecutor}
 }
 
 func (c Cli) convertCommand(command *CommandDefinition) *cli.Command {
@@ -253,4 +242,28 @@ func (c Cli) convertFlags(flags ...*FlagDefinition) []cli.Flag {
 		result = append(result, c.convertFlag(flag))
 	}
 	return result
+}
+
+func NewCli(
+	stdIn io.Reader,
+	stdOut io.Writer,
+	stdErr io.Writer,
+	colors bool,
+	definitionProvider DefinitionProvider,
+	configProvider config.ConfigProvider,
+	executor executor.Executor,
+	pluginExecutor executor.Executor,
+	authenticators []auth.Authenticator,
+) *Cli {
+	return &Cli{
+		stdIn,
+		stdOut,
+		stdErr,
+		colors,
+		definitionProvider,
+		configProvider,
+		executor,
+		pluginExecutor,
+		authenticators,
+	}
 }

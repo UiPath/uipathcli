@@ -81,6 +81,31 @@ func (b *FlagBuilder) AddHelpFlag() *FlagBuilder {
 	return b
 }
 
+func (b *FlagBuilder) AddProfileFlag() *FlagBuilder {
+	b.AddFlag(b.profileFlag(false))
+	return b
+}
+
+func (b *FlagBuilder) AddUriFlag() *FlagBuilder {
+	b.AddFlag(b.uriFlag(false))
+	return b
+}
+
+func (b *FlagBuilder) AddIdentityUriFlag() *FlagBuilder {
+	b.AddFlag(b.identityUriFlag(false))
+	return b
+}
+
+func (b *FlagBuilder) AddDebugFlag() *FlagBuilder {
+	b.AddFlag(b.debugFlag(false))
+	return b
+}
+
+func (b *FlagBuilder) AddInsecureFlag() *FlagBuilder {
+	b.AddFlag(b.insecureFlag(false))
+	return b
+}
+
 func (b *FlagBuilder) AddVersionFlag() *FlagBuilder {
 	b.AddFlag(b.versionFlag())
 	return b
@@ -101,27 +126,16 @@ func (b *FlagBuilder) Build() []*FlagDefinition {
 
 func (b *FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 	return []*FlagDefinition{
-		NewFlag(FlagNameDebug, "Enable debug output", FlagTypeBoolean).
-			WithEnvVarName("UIPATH_DEBUG").
-			WithDefaultValue(false).
-			WithHidden(hidden),
-		NewFlag(FlagNameProfile, "Config profile to use", FlagTypeString).
-			WithEnvVarName("UIPATH_PROFILE").
-			WithDefaultValue(config.DefaultProfile).
-			WithHidden(hidden),
-		NewFlag(FlagNameUri, "Server Base-URI", FlagTypeString).
-			WithEnvVarName("UIPATH_URI").
-			WithHidden(hidden),
+		b.debugFlag(hidden),
+		b.profileFlag(hidden),
+		b.uriFlag(hidden),
 		NewFlag(FlagNameOrganization, "Organization name", FlagTypeString).
 			WithEnvVarName("UIPATH_ORGANIZATION").
 			WithHidden(hidden),
 		NewFlag(FlagNameTenant, "Tenant name", FlagTypeString).
 			WithEnvVarName("UIPATH_TENANT").
 			WithHidden(hidden),
-		NewFlag(FlagNameInsecure, "Disable HTTPS certificate check", FlagTypeBoolean).
-			WithEnvVarName("UIPATH_INSECURE").
-			WithDefaultValue(false).
-			WithHidden(hidden),
+		b.insecureFlag(hidden),
 		NewFlag(FlagNameCallTimeout, "Call Timeout", FlagTypeInteger).
 			WithEnvVarName("UIPATH_CALL_TIMEOUT").
 			WithDefaultValue(60).
@@ -146,11 +160,42 @@ func (b *FlagBuilder) defaultFlags(hidden bool) []*FlagDefinition {
 		NewFlag(FlagNameFile, "Provide input from file (use - for stdin)", FlagTypeString).
 			WithDefaultValue("").
 			WithHidden(hidden),
-		NewFlag(FlagNameIdentityUri, "Identity Server URI", FlagTypeString).
-			WithEnvVarName("UIPATH_IDENTITY_URI").
-			WithHidden(hidden),
+		b.identityUriFlag(hidden),
 		b.serviceVersionFlag(hidden),
 	}
+}
+
+func (b *FlagBuilder) debugFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameDebug, "Enable debug output", FlagTypeBoolean).
+		WithEnvVarName("UIPATH_DEBUG").
+		WithDefaultValue(false).
+		WithHidden(hidden)
+}
+
+func (b *FlagBuilder) insecureFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameInsecure, "Disable HTTPS certificate check", FlagTypeBoolean).
+		WithEnvVarName("UIPATH_INSECURE").
+		WithDefaultValue(false).
+		WithHidden(hidden)
+}
+
+func (b *FlagBuilder) profileFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameProfile, "Config profile to use", FlagTypeString).
+		WithEnvVarName("UIPATH_PROFILE").
+		WithDefaultValue(config.DefaultProfile).
+		WithHidden(hidden)
+}
+
+func (b *FlagBuilder) uriFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameUri, "Server Base-URI", FlagTypeString).
+		WithEnvVarName("UIPATH_URI").
+		WithHidden(hidden)
+}
+
+func (b *FlagBuilder) identityUriFlag(hidden bool) *FlagDefinition {
+	return NewFlag(FlagNameIdentityUri, "Identity Server URI", FlagTypeString).
+		WithEnvVarName("UIPATH_IDENTITY_URI").
+		WithHidden(hidden)
 }
 
 func (b *FlagBuilder) versionFlag() *FlagDefinition {

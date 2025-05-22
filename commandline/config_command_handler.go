@@ -4,174 +4,121 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
+	"time"
 
+	"github.com/UiPath/uipathcli/auth"
 	"github.com/UiPath/uipathcli/config"
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/utils/api"
+	"github.com/UiPath/uipathcli/utils/network"
 )
 
-// configCommandHandler implements commands for configuring the CLI.
-// The CLI can be configured interactively or by setting config values
-// programmatically.
-//
-// Example:
-// uipath config ==> interactive configuration of the CLI
-// uipath config set ==> stores a value in the configuration file
+// configCommandHandler implements command for configuring the CLI interactively.
 type configCommandHandler struct {
 	StdIn          io.Reader
 	StdOut         io.Writer
+	Logger         log.Logger
 	ConfigProvider config.ConfigProvider
+	Authenticators []auth.Authenticator
 }
 
 const notSetMessage = "not set"
 const maskMessage = "*******"
 const successfullyConfiguredMessage = "Successfully configured uipath CLI"
-const successfullySetMessage = "Successfully set config value"
 
-const ConfigKeyServiceVersion = "serviceVersion"
-const ConfigKeyOrganization = "organization"
-const ConfigKeyTenant = "tenant"
-const ConfigKeyUri = "uri"
-const ConfigKeyInsecure = "insecure"
-const ConfigKeyDebug = "debug"
-const ConfigKeyAuthGrantType = "auth.grantType"
-const ConfigKeyAuthScopes = "auth.scopes"
-const ConfigKeyAuthUri = "auth.uri"
-const ConfigKeyAuthProperties = "auth.properties."
-const ConfigKeyHeader = "header."
-const ConfigKeyParameter = "parameter."
+const getTenantsTimeout = time.Duration(60) * time.Second
+const getTenantsMaxAttempts = 3
 
-var ConfigKeys = []string{
-	ConfigKeyServiceVersion,
-	ConfigKeyOrganization,
-	ConfigKeyTenant,
-	ConfigKeyUri,
-	ConfigKeyInsecure,
-	ConfigKeyDebug,
-	ConfigKeyAuthGrantType,
-	ConfigKeyAuthScopes,
-	ConfigKeyAuthUri,
-	ConfigKeyAuthProperties,
-	ConfigKeyHeader,
-	ConfigKeyParameter,
-}
-
-func (h configCommandHandler) Set(key string, value string, profileName string) error {
-	cfg := h.getOrCreateProfile(profileName)
-	err := h.setConfigValue(&cfg, key, value)
-	if err != nil {
-		return err
-	}
-	err = h.ConfigProvider.Update(profileName, cfg)
-	if err != nil {
-		return err
-	}
-	_, _ = fmt.Fprintln(h.StdOut, successfullySetMessage)
-	return nil
-}
-
-func (h configCommandHandler) setConfigValue(cfg *config.Config, key string, value string) error {
-	keyParts := strings.Split(key, ".")
-	if key == ConfigKeyServiceVersion {
-		cfg.SetServiceVersion(value)
-		return nil
-	} else if key == ConfigKeyOrganization {
-		cfg.SetOrganization(value)
-		return nil
-	} else if key == ConfigKeyTenant {
-		cfg.SetTenant(value)
-		return nil
-	} else if key == ConfigKeyUri {
-		return cfg.SetUri(value)
-	} else if key == ConfigKeyInsecure {
-		insecure, err := h.convertToBool(value)
-		if err != nil {
-			return fmt.Errorf("Invalid value for '%s': %w", ConfigKeyInsecure, err)
-		}
-		cfg.SetInsecure(insecure)
-		return nil
-	} else if key == ConfigKeyDebug {
-		debug, err := h.convertToBool(value)
-		if err != nil {
-			return fmt.Errorf("Invalid value for '%s': %w", ConfigKeyDebug, err)
-		}
-		cfg.SetDebug(debug)
-		return nil
-	} else if key == ConfigKeyAuthGrantType {
-		cfg.SetAuthGrantType(value)
-		return nil
-	} else if key == ConfigKeyAuthScopes {
-		cfg.SetAuthScopes(value)
-		return nil
-	} else if key == ConfigKeyAuthUri {
-		return cfg.SetAuthUri(value)
-	} else if h.isHeaderKey(key, keyParts) {
-		cfg.SetHeader(keyParts[1], value)
-		return nil
-	} else if h.isParameterKey(key, keyParts) {
-		cfg.SetParameter(keyParts[1], value)
-		return nil
-	} else if h.isAuthPropertyKey(key, keyParts) {
-		cfg.SetAuthProperty(keyParts[2], value)
-		return nil
-	}
-	return fmt.Errorf("Unknown config key '%s'", key)
-}
-
-func (h configCommandHandler) isHeaderKey(key string, keyParts []string) bool {
-	return strings.HasPrefix(key, ConfigKeyHeader) && len(keyParts) == 2
-}
-
-func (h configCommandHandler) isParameterKey(key string, keyParts []string) bool {
-	return strings.HasPrefix(key, ConfigKeyParameter) && len(keyParts) == 2
-}
-
-func (h configCommandHandler) isAuthPropertyKey(key string, keyParts []string) bool {
-	return strings.HasPrefix(key, ConfigKeyAuthProperties) && len(keyParts) == 3
-}
-
-func (h configCommandHandler) convertToBool(value string) (bool, error) {
-	if strings.EqualFold(value, "true") {
-		return true, nil
-	}
-	if strings.EqualFold(value, "false") {
-		return false, nil
-	}
-	return false, fmt.Errorf("Invalid boolean value: %s", value)
-}
-
-func (h configCommandHandler) Configure(auth string, profileName string) error {
-	switch auth {
-	case config.AuthTypeCredentials:
-		return h.configureCredentials(profileName)
-	case config.AuthTypeLogin:
-		return h.configureLogin(profileName)
-	case config.AuthTypePat:
-		return h.configurePat(profileName)
-	case "":
-		return h.configure(profileName)
-	}
-	return fmt.Errorf("Invalid auth, supported values: %s, %s, %s", config.AuthTypeCredentials, config.AuthTypeLogin, config.AuthTypePat)
-}
-
-func (h configCommandHandler) configure(profileName string) error {
-	cfg := h.getOrCreateProfile(profileName)
+func (h configCommandHandler) Configure(input configCommandInput) error {
+	cfg := h.getOrCreateProfile(input.Profile)
 	reader := bufio.NewReader(h.StdIn)
 
 	builder := config.NewConfigBuilder(cfg)
+	err := h.readAuthInput(builder, reader, input.AuthType)
+	if err != nil {
+		return nil
+	}
+
+	updatedCfg, _ := builder.Build()
+
+	token, err := h.performAuth(input, updatedCfg)
+	if err != nil {
+		return h.handleAuthError(err, input.Profile, builder, reader)
+	}
+
+	organization, err := h.getOrganizationInfo(input, token)
+	if err != nil {
+		return h.handleAuthError(err, input.Profile, builder, reader)
+	}
+	if organization == nil {
+		err := h.readOrgTenantInput(builder, reader)
+		if err != nil {
+			return nil
+		}
+		return h.updateConfigIfNeeded(builder, input.Profile)
+	}
+
+	err = h.readTenantInput(builder, reader, *organization)
+	if err != nil {
+		return nil
+	}
+	return h.updateConfigIfNeeded(builder, input.Profile)
+}
+
+func (h configCommandHandler) getOrganizationInfo(input configCommandInput, token *auth.AuthToken) (*api.Organization, error) {
+	if token == nil {
+		return nil, nil
+	}
+	jwtInfo, err := auth.NewJwtParser().Parse(token.Value)
+	if err != nil {
+		return nil, err
+	}
+	if jwtInfo.PartId == "" {
+		return nil, nil
+	}
+
+	settings := network.NewHttpClientSettings(input.Debug, input.OperationId, map[string]string{}, getTenantsTimeout, getTenantsMaxAttempts, input.Insecure)
+	omsClient := api.NewOmsClient(input.BaseUri, token, *settings, h.Logger)
+	return omsClient.GetOrganizationInfo(jwtInfo.PartId)
+}
+
+func (h configCommandHandler) performAuth(input configCommandInput, cfg config.Config) (*auth.AuthToken, error) {
+	authContext := h.newAuthContext(input, cfg.Auth)
+	for _, authenticator := range h.Authenticators {
+		result := authenticator.Auth(*authContext)
+		if result.Error != nil {
+			return nil, result.Error
+		}
+		if result.Token != nil {
+			return result.Token, nil
+		}
+	}
+	return nil, nil
+}
+
+func (h configCommandHandler) newAuthContext(input configCommandInput, authConfig map[string]interface{}) *auth.AuthenticatorContext {
+	authRequest := auth.NewAuthenticatorRequest(input.BaseUri.String(), map[string]string{})
+	return auth.NewAuthenticatorContext(authConfig, input.IdentityUri, input.OperationId, input.Insecure, input.Debug, *authRequest, h.Logger)
+}
+
+func (h configCommandHandler) handleAuthError(authErr error, profileName string, builder *config.ConfigBuilder, reader *bufio.Reader) error {
+	h.Logger.LogError(fmt.Sprintf(`Could not retrieve organization details: %v
+	
+Please make sure the credentials are correct or enter the organization and tenant information manually:
+`, authErr))
 	err := h.readOrgTenantInput(builder, reader)
 	if err != nil {
 		return nil
 	}
-	err = h.readAuthInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-
 	return h.updateConfigIfNeeded(builder, profileName)
 }
 
-func (h configCommandHandler) readAuthInput(builder *config.ConfigBuilder, reader *bufio.Reader) error {
-	authType := h.readAuthTypeInput(builder.Config, reader)
+func (h configCommandHandler) readAuthInput(builder *config.ConfigBuilder, reader *bufio.Reader, authType string) error {
+	if authType == "" {
+		authType = h.readAuthTypeInput(builder.Config, reader)
+	}
 	switch authType {
 	case config.AuthTypeCredentials:
 		return h.readCredentialsInput(builder, reader)
@@ -179,60 +126,10 @@ func (h configCommandHandler) readAuthInput(builder *config.ConfigBuilder, reade
 		return h.readLoginInput(builder, reader)
 	case config.AuthTypePat:
 		return h.readPatInput(builder, reader)
-	default:
+	case "":
 		return nil
 	}
-}
-
-func (h configCommandHandler) configureCredentials(profileName string) error {
-	cfg := h.getOrCreateProfile(profileName)
-	reader := bufio.NewReader(h.StdIn)
-
-	builder := config.NewConfigBuilder(cfg)
-	err := h.readOrgTenantInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-	err = h.readCredentialsInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-
-	return h.updateConfigIfNeeded(builder, profileName)
-}
-
-func (h configCommandHandler) configureLogin(profileName string) error {
-	cfg := h.getOrCreateProfile(profileName)
-	reader := bufio.NewReader(h.StdIn)
-
-	builder := config.NewConfigBuilder(cfg)
-	err := h.readOrgTenantInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-	err = h.readLoginInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-
-	return h.updateConfigIfNeeded(builder, profileName)
-}
-
-func (h configCommandHandler) configurePat(profileName string) error {
-	cfg := h.getOrCreateProfile(profileName)
-	reader := bufio.NewReader(h.StdIn)
-
-	builder := config.NewConfigBuilder(cfg)
-	err := h.readOrgTenantInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-	err = h.readPatInput(builder, reader)
-	if err != nil {
-		return nil
-	}
-
-	return h.updateConfigIfNeeded(builder, profileName)
+	return fmt.Errorf("Invalid auth, supported values: %s, %s, %s", config.AuthTypeCredentials, config.AuthTypeLogin, config.AuthTypePat)
 }
 
 func (h configCommandHandler) updateConfigIfNeeded(builder *config.ConfigBuilder, profileName string) error {
@@ -395,10 +292,47 @@ Select:`, h.getDisplayValue(authType, false))
 	}
 }
 
-func newConfigCommandHandler(stdIn io.Reader, stdOut io.Writer, configProvider config.ConfigProvider) *configCommandHandler {
+func (h configCommandHandler) readTenantInput(builder *config.ConfigBuilder, reader *bufio.Reader, organization api.Organization) error {
+	tenant := builder.Config.Tenant
+
+	tenantList := ""
+	for i, tenant := range organization.Tenants {
+		tenantList += fmt.Sprintf("  [%d] %s\n", i+1, tenant.Name)
+	}
+
+	for {
+		message := fmt.Sprintf(`Tenant [%s]:
+%sSelect:`, h.getDisplayValue(tenant, false), tenantList)
+		input, err := h.readUserInput(message, reader)
+		if err != nil {
+			return err
+		}
+		if input == nil {
+			return nil
+		}
+		i, err := strconv.Atoi(*input)
+		if err == nil && i <= len(organization.Tenants) {
+			tenant := organization.Tenants[i-1]
+			builder.
+				WithOrganization(&organization.Name).
+				WithTenant(&tenant.Name)
+			return nil
+		}
+	}
+}
+
+func newConfigCommandHandler(
+	stdIn io.Reader,
+	stdOut io.Writer,
+	logger log.Logger,
+	configProvider config.ConfigProvider,
+	authenticators []auth.Authenticator,
+) *configCommandHandler {
 	return &configCommandHandler{
 		StdIn:          stdIn,
 		StdOut:         stdOut,
+		Logger:         logger,
 		ConfigProvider: configProvider,
+		Authenticators: authenticators,
 	}
 }

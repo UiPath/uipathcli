@@ -167,8 +167,7 @@ paths:
 		WithDefinition("mypluginservice", definition).
 		WithConfig(config).
 		WithCommandPlugin(&pluginCommand).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	RunCli([]string{"mypluginservice", "my-plugin-command"}, context)
@@ -202,8 +201,7 @@ profiles:
 		WithDefinition("mypluginservice", "").
 		WithConfig(config).
 		WithCommandPlugin(&pluginCommand).
-		WithResponse(http.StatusOK, "").
-		WithIdentityResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
 		Build()
 
 	RunCli([]string{"mypluginservice", "my-plugin-command"}, context)

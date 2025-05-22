@@ -31,7 +31,7 @@ func TestOAuthAuthenticatorNotEnabled(t *testing.T) {
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(context)
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when oauth flow is skipped, but got: %v", result.Error)
 	}
 	if result.Token != nil {
@@ -50,7 +50,7 @@ func TestOAuthAuthenticatorInvalidConfig(t *testing.T) {
 
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(context)
-	if result.Error != "Invalid oauth authenticator configuration: Invalid value for clientId: '1'" {
+	if result.Error == nil || result.Error.Error() != "Invalid oauth authenticator configuration: Invalid value for clientId: '1'" {
 		t.Errorf("Expected error with invalid config, but got: %v", result.Error)
 	}
 }
@@ -67,7 +67,7 @@ func TestOAuthFlowIdentityFails(t *testing.T) {
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel
-	if result.Error != "Error retrieving access token: Token service returned status code '400' and body 'Invalid token request'" {
+	if result.Error == nil || result.Error.Error() != "Error retrieving access token: Token service returned status code '400' and body 'Invalid token request'" {
 		t.Errorf("Expected error when identity call fails, but got: %v", result.Error)
 	}
 }
@@ -84,7 +84,7 @@ func TestNonConfidentialOAuthFlowSuccessful(t *testing.T) {
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if result.Token.Type != "Bearer" {
@@ -107,7 +107,7 @@ func TestConfidentialOAuthFlowSuccessful(t *testing.T) {
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if result.Token.Type != "Bearer" {
@@ -140,7 +140,7 @@ func TestOAuthFlowIsCached(t *testing.T) {
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(context)
 
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if result.Token.Type != "Bearer" {
@@ -176,7 +176,7 @@ func TestOAuthFlowUsesRefreshToken(t *testing.T) {
 	authenticator := NewOAuthAuthenticator(cache.NewFileCache(), *NewBrowserLauncher())
 	result := authenticator.Auth(context)
 
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if result.Token.Type != "Bearer" {
@@ -196,7 +196,6 @@ func TestOAuthFlowDoesNotUseRefreshTokenWhenDisabled(t *testing.T) {
 	identityServerFake := identityServerFake{
 		ResponseHandler: func(data map[string]string) (int, string) {
 			if data["refresh_token"] != "" {
-				fmt.Println(data)
 				refreshTokenCalled = true
 			}
 			body := `{"access_token": "my-access-token", "expires_in": 10, "token_type": "Bearer", "scope": "OR.Users", "refresh_token": "my-refresh-token"}`
@@ -220,7 +219,7 @@ func TestOAuthFlowDoesNotUseRefreshTokenWhenDisabled(t *testing.T) {
 	performLogin(loginUrl, t)
 	result := <-resultChannel
 
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 	if refreshTokenCalled {
@@ -262,7 +261,7 @@ func TestOAuthFlowIgnoresInvalidRefreshToken(t *testing.T) {
 	performLogin(loginUrl, t)
 	result := <-resultChannel
 
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error with invalid refresh token, but got: %v", result.Error)
 	}
 	if result.Token.Value != "my-second-access-token" {
@@ -286,7 +285,7 @@ func TestProvidesCorrectPkceCodes(t *testing.T) {
 	performLogin(loginUrl, t)
 
 	result := <-resultChannel
-	if result.Error != "" {
+	if result.Error != nil {
 		t.Errorf("Expected no error when performing oauth flow, but got: %v", result.Error)
 	}
 }
