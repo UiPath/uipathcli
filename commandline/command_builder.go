@@ -669,8 +669,11 @@ func (b CommandBuilder) loadDefinitions(args []string, serviceVersion string) ([
 		return b.loadAllDefinitions(serviceVersion)
 	}
 	definition, err := b.DefinitionProvider.Load(args[1], serviceVersion)
-	if definition == nil {
+	if err != nil {
 		return nil, err
+	}
+	if definition == nil {
+		return b.DefinitionProvider.Index(serviceVersion)
 	}
 	return []parser.Definition{*definition}, err
 }
