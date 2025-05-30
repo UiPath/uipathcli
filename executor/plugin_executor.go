@@ -20,8 +20,7 @@ type PluginExecutor struct {
 func (e PluginExecutor) authenticatorContext(ctx ExecutionContext, logger log.Logger) auth.AuthenticatorContext {
 	authRequest := *auth.NewAuthenticatorRequest(ctx.BaseUri.String(), map[string]string{})
 	return *auth.NewAuthenticatorContext(
-		ctx.AuthConfig.Type,
-		ctx.AuthConfig.Config,
+		ctx.AuthConfig,
 		ctx.IdentityUri,
 		ctx.Settings.OperationId,
 		ctx.Settings.Insecure,
