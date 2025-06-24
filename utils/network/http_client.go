@@ -87,6 +87,7 @@ func (c HttpClient) resetReader(reader io.Reader) bool {
 
 func (c HttpClient) send(request *HttpRequest, ctx context.Context) (*HttpResponse, error) {
 	transport := &http.Transport{
+		Proxy:                 http.ProxyFromEnvironment,
 		TLSClientConfig:       &tls.Config{InsecureSkipVerify: c.settings.Insecure}, //nolint:gosec // This is user configurable and disabled by default
 		ResponseHeaderTimeout: c.settings.Timeout,
 	}
