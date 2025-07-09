@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"bufio"
 	"context"
 	"errors"
 	"fmt"
@@ -9,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/UiPath/uipathcli/cache"
@@ -18,7 +16,6 @@ import (
 )
 
 const RedirectUriVarName = "UIPATH_AUTH_REDIRECT_URI"
-const CancelOAuthMessage = "Press << Enter >> to cancel login flow"
 
 // The OAuthAuthenticator triggers the oauth authorization code flow with proof key for code exchange (PKCE).
 //
@@ -219,23 +216,9 @@ func (a OAuthAuthenticator) login(config oauthAuthenticatorConfig, state string,
 		if err != nil {
 			a.showBrowserLink(url, logger)
 		}
-		logger.LogError(CancelOAuthMessage)
 	}(loginUrl)
 
-	go func() {
-		reader := bufio.NewReader(os.Stdin)
-		reader.ReadString('\n')
-		cancel()
-	}()
-
 	<-ctx.Done()
-
-	go func() {
-		os.Stdin.Write([]byte{'\n'})
-	}()
-
-	clear := strings.Repeat(" ", len(CancelOAuthMessage))
-	logger.LogError("\r" + clear + "\r")
 
 	if errors.Is(ctx.Err(), context.DeadlineExceeded) {
 		return "", errors.New("Login flow timed out")

@@ -14,12 +14,13 @@ import (
 	"github.com/UiPath/uipathcli/log"
 	"github.com/UiPath/uipathcli/utils/api"
 	"github.com/UiPath/uipathcli/utils/network"
+	"github.com/UiPath/uipathcli/utils/stream"
 	"github.com/UiPath/uipathcli/utils/visualization"
 )
 
 // configCommandHandler implements command for configuring the CLI interactively.
 type configCommandHandler struct {
-	StdIn          io.Reader
+	Input          stream.Stream
 	StdOut         io.Writer
 	Logger         log.Logger
 	ConfigProvider config.ConfigProvider
@@ -34,15 +35,21 @@ const getTenantsTimeout = time.Duration(60) * time.Second
 const getTenantsMaxAttempts = 3
 
 func (h configCommandHandler) Configure(input configCommandInput) error {
+	stdin, err := h.Input.Data()
+	if err != nil {
+		return err
+	}
+	defer func() { _ = stdin.Close() }()
+
 	cfg := h.getOrCreateProfile(input.Profile)
-	reader := bufio.NewReader(h.StdIn)
+	reader := bufio.NewReader(stdin)
 
 	builder := config.NewConfigBuilder(cfg)
 	authType := input.AuthType
 	if authType == "" {
 		authType = h.readAuthTypeInput(builder, reader)
 	}
-	err := h.readAuthInput(builder, reader, authType)
+	err = h.readAuthInput(builder, reader, authType)
 	if err != nil {
 		return nil
 	}
@@ -75,9 +82,6 @@ func (h configCommandHandler) getOrganization(builder *config.ConfigBuilder, inp
 		return nil, nil
 	}
 
-	spinner := visualization.NewSpinner(h.Logger, "Tenant [loading...]: ")
-	defer spinner.Close()
-
 	organizationId, err := h.getOrganizationIdFromToken(token)
 	if err != nil {
 		return nil, err
@@ -86,6 +90,8 @@ func (h configCommandHandler) getOrganization(builder *config.ConfigBuilder, inp
 		return nil, nil
 	}
 
+	spinner := visualization.NewSpinner(h.Logger, "Tenant [loading...]: ")
+	defer spinner.Close()
 	settings := network.NewHttpClientSettings(input.Debug, input.OperationId, map[string]string{}, getTenantsTimeout, getTenantsMaxAttempts, input.Insecure)
 	omsClient := api.NewOmsClient(input.BaseUri, token, *settings, h.Logger)
 	return omsClient.GetOrganizationInfo(organizationId)
@@ -319,6 +325,7 @@ func (h configCommandHandler) readTenantInput(builder *config.ConfigBuilder, rea
 	if err != nil {
 		return err
 	}
+
 	if i >= 0 {
 		builder.
 			WithOrganization(&organization.Name).
@@ -353,14 +360,14 @@ func (h configCommandHandler) readInput(reader *bufio.Reader, message string, va
 }
 
 func newConfigCommandHandler(
-	stdIn io.Reader,
+	input stream.Stream,
 	stdOut io.Writer,
 	logger log.Logger,
 	configProvider config.ConfigProvider,
 	authenticators []auth.Authenticator,
 ) *configCommandHandler {
 	return &configCommandHandler{
-		StdIn:          stdIn,
+		Input:          input,
 		StdOut:         stdOut,
 		Logger:         logger,
 		ConfigProvider: configProvider,

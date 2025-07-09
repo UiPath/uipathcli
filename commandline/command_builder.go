@@ -24,7 +24,6 @@ import (
 // The CommandBuilder is creating all available operations and arguments for the CLI.
 type CommandBuilder struct {
 	Input              stream.Stream
-	StdIn              io.Reader
 	StdOut             io.Writer
 	StdErr             io.Writer
 	ConfigProvider     config.ConfigProvider
@@ -628,7 +627,7 @@ func (b CommandBuilder) createConfigCommand() *CommandDefinition {
 
 			logger := b.logger(debug, b.StdErr)
 			handler := newConfigCommandHandler(
-				b.StdIn,
+				b.Input,
 				b.StdOut,
 				logger,
 				b.ConfigProvider,
@@ -868,7 +867,6 @@ func (b CommandBuilder) Create(args []string) ([]*CommandDefinition, error) {
 
 func NewCommandBuilder(
 	input stream.Stream,
-	stdIn io.Reader,
 	stdOut io.Writer,
 	stdErr io.Writer,
 	configProvider config.ConfigProvider,
@@ -879,7 +877,6 @@ func NewCommandBuilder(
 ) *CommandBuilder {
 	return &CommandBuilder{
 		input,
-		stdIn,
 		stdOut,
 		stdErr,
 		configProvider,

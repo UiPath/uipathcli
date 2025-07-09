@@ -61,7 +61,6 @@ func main() {
 
 	authenticators := authenticators()
 	cli := commandline.NewCli(
-		os.Stdin,
 		os.Stdout,
 		os.Stderr,
 		colorsSupported(),

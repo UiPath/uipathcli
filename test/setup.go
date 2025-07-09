@@ -204,7 +204,6 @@ func RunCli(args []string, context Context) Result {
 	}
 
 	cli := commandline.NewCli(
-		context.StdIn,
 		stdout,
 		stderr,
 		false,

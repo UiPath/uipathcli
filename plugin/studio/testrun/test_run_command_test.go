@@ -794,6 +794,7 @@ profiles:
 		WithDefinition("studio", studio.StudioDefinition).
 		WithConfig(config).
 		WithTokenResponse(http.StatusOK, `{"access_token": "my-jwt-access-token", "expires_in": 3600, "token_type": "Bearer", "scope": "OR.Ping"}`).
+		WithResponse(http.StatusOK, `{}`).
 		WithCommandPlugin(TestRunCommand{exec}).
 		Build()
 

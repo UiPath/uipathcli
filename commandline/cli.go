@@ -17,7 +17,6 @@ import (
 
 // Cli is a wrapper for building the CLI commands.
 type Cli struct {
-	stdIn              io.Reader
 	stdOut             io.Writer
 	stdErr             io.Writer
 	coloredOutput      bool
@@ -36,7 +35,6 @@ func (c Cli) run(args []string, input stream.Stream) error {
 
 	commandBuilder := NewCommandBuilder(
 		input,
-		c.stdIn,
 		c.stdOut,
 		c.stdErr,
 		c.configProvider,
@@ -245,7 +243,6 @@ func (c Cli) convertFlags(flags ...*FlagDefinition) []cli.Flag {
 }
 
 func NewCli(
-	stdIn io.Reader,
 	stdOut io.Writer,
 	stdErr io.Writer,
 	colors bool,
@@ -256,7 +253,6 @@ func NewCli(
 	authenticators []auth.Authenticator,
 ) *Cli {
 	return &Cli{
-		stdIn,
 		stdOut,
 		stdErr,
 		colors,
