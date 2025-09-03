@@ -1,8 +1,8 @@
 openapi: 3.0.1
 info:
   title: IdentityServer External API
-  version: 3.2.11
-  x-uipath-version: 3.2.11
+  version: 3.2.54
+  x-uipath-version: 3.2.54
 servers:
   - url: https://cloud.uipath.com/identity_
 paths:
@@ -447,6 +447,123 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RobotAccountDto'
+  /api/SamlCertificate/{partitionGlobalId}/certificates:
+    get:
+      tags:
+        - SamlCertificate
+      summary: Get the certificate pair for the partition.
+      operationId: SamlCertificate_GetCertificatePair
+      parameters:
+        - name: partitionGlobalId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePair'
+        "404":
+          description: Not Found
+  /api/SamlCertificate/primary:
+    put:
+      tags:
+        - SamlCertificate
+      summary: Add or update the primary certificate.
+      operationId: SamlCertificate_UpdatePrimaryCertificate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCertificateCommand'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePair'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  /api/SamlCertificate/secondary:
+    put:
+      tags:
+        - SamlCertificate
+      summary: Add or update the secondary certificate.
+      operationId: SamlCertificate_UpdateSecondaryCertificate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCertificateCommand'
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePair'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  /api/SamlCertificate/{partitionGlobalId}/switch:
+    post:
+      tags:
+        - SamlCertificate
+      summary: Switch the secondary certificate to be the primary certificate.
+      operationId: SamlCertificate_SwitchToPrimary
+      parameters:
+        - name: partitionGlobalId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CertificatePair'
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
+  /api/SamlCertificate/{partitionGlobalId}/{certificateId}:
+    delete:
+      tags:
+        - SamlCertificate
+      summary: Delete a certificate by its ID.
+      operationId: SamlCertificate_DeleteCertificate
+      parameters:
+        - name: partitionGlobalId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: certificateId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: boolean
+        "400":
+          description: Bad Request
+        "404":
+          description: Not Found
   /api/Setting:
     get:
       tags:
@@ -580,7 +697,7 @@ paths:
     post:
       tags:
         - User
-      summary: Creates a new user. This API is idempotent, the existing user will be deleted if trying to be created again.
+      summary: Creates a new user. This API will fail if a user with the same email or username already exists.
       description: Creating user in a group requires partition administrator group membership.
       operationId: User_CreateUser
       requestBody:
@@ -787,6 +904,15 @@ paths:
                 $ref: '#/components/schemas/UserLoginAttemptDtoPagedResultDto'
 components:
   schemas:
+    AddCertificateCommand:
+      type: object
+      properties:
+        partitionGlobalId:
+          type: string
+          format: uuid
+        certificate:
+          type: string
+          nullable: true
     AuditQueryRecordDto:
       type: object
       properties:
@@ -882,6 +1008,34 @@ components:
           items:
             type: string
             format: uuid
+          nullable: true
+    CertificatePair:
+      required:
+        - partitionGlobalId
+        - primaryCertificateId
+        - primaryCertificateThumbprint
+      type: object
+      properties:
+        partitionGlobalId:
+          type: string
+          format: uuid
+        primaryCertificateId:
+          type: integer
+          format: int64
+        primaryCertificate:
+          type: string
+          nullable: true
+        primaryCertificateThumbprint:
+          type: string
+        secondaryCertificateId:
+          type: integer
+          format: int64
+          nullable: true
+        secondaryCertificate:
+          type: string
+          nullable: true
+        secondaryCertificateThumbprint:
+          type: string
           nullable: true
     ChangeUserPasswordCommand:
       type: object

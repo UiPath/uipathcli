@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.4
 info:
   title: Document Understanding Cloud APIs
   description: Consume Document Understanding capabilities via APIs, hosted in the cloud. All the APIs are in the context of a Document Understanding project. Both pre-trained and custom resources are available for consumption.<br><br>Additional details can be found <A HREF ="https://docs.uipath.com/document-understanding/automation-cloud/latest/api-guide/api-overview">here.</A>
@@ -9,7 +9,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve all projects
-      description: "Retrieve all available projects from Document Understanding.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve all available projects from Document Understanding.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetProjects
       parameters:
         - name: api-version
@@ -20,6 +23,12 @@ paths:
             enum:
               - "1.0"
             type: string
+        - name: type
+          in: query
+          description: Filter for project type. If omitted, all projects are returned.
+          schema:
+            type: string
+            default: null
       responses:
         "200":
           description: OK
@@ -88,7 +97,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve project details
-      description: "Retrieve details about a specific project from Document Understanding.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve details about a specific project from Document Understanding.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetProjectById
       parameters:
         - name: api-version
@@ -109,6 +121,9 @@ paths:
         - name: projectVersion
           in: query
           description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
+          schema:
+            type: integer
+            default: null
       responses:
         "200":
           description: OK
@@ -177,7 +192,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve document types
-      description: "Retrieve all document types from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve all document types from a project.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetDocumentTypes
       parameters:
         - name: api-version
@@ -198,6 +216,9 @@ paths:
         - name: projectVersion
           in: query
           description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
+          schema:
+            type: integer
+            default: null
       responses:
         "200":
           description: OK
@@ -278,7 +299,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve document type details
-      description: "Retrieve details about a specific document type from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve details about a specific document type from a project.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetDocumentTypeById
       parameters:
         - name: api-version
@@ -306,6 +330,9 @@ paths:
         - name: projectVersion
           in: query
           description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
+          schema:
+            type: integer
+            default: null
       responses:
         "200":
           description: OK
@@ -386,7 +413,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve classifiers
-      description: "Retrieve all classifiers from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve all classifiers from a project.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetClassifiers
       parameters:
         - name: api-version
@@ -407,6 +437,9 @@ paths:
         - name: projectVersion
           in: query
           description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
+          schema:
+            type: integer
+            default: null
       responses:
         "200":
           description: OK
@@ -487,7 +520,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve classifier details
-      description: "Retrieve details about a specific classifier from a project.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve details about a specific classifier from a project.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetClassifierById
       parameters:
         - name: api-version
@@ -592,7 +628,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve extractors
-      description: "Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve all extractors from a project. These can be either Forms AI or deep-learning extraction skills.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: Extractors
       parameters:
         - name: api-version
@@ -613,6 +652,9 @@ paths:
         - name: projectVersion
           in: query
           description: Version of the project, referencing a snapshot of your Document Understanding project, including all its resources. If omitted, the latest project version will be used.
+          schema:
+            type: integer
+            default: null
       responses:
         "200":
           description: OK
@@ -693,7 +735,10 @@ paths:
       tags:
         - Discovery
       summary: Retrieve extractor details
-      description: "Retrieve details about a specific extractor from a project. It can be either a Forms AI or a deep-learning extraction skill.\r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: |-
+        Retrieve details about a specific extractor from a project. It can be either a Forms AI or a deep-learning extraction skill.
+
+        Required scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>
       operationId: GetExtractorById
       parameters:
         - name: api-version
@@ -810,7 +855,7 @@ paths:
       tags:
         - Discovery
       summary: Retrieve tags
-      description: "Retrieve all tags from a project. \r\n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
+      description: "Retrieve all tags from a project. \n\nRequired scopes: <b>Du.Digitization.Api or Du.Classification.Api or Du.Extraction.Api or Du.Validation.Api</b></br>"
       operationId: Tags
       parameters:
         - name: api-version
@@ -908,7 +953,10 @@ paths:
       tags:
         - Digitization
       summary: Digitize document
-      description: "Digitize a document using the OCR settings of the associated Document Understanding project.\r\n\nRequired scopes: <b>Du.Digitization.Api</b></br>"
+      description: |-
+        Digitize a document using the OCR settings of the associated Document Understanding project.
+
+        Required scopes: <b>Du.Digitization.Api</b></br>
       operationId: StartDigitization
       parameters:
         - name: api-version
@@ -928,7 +976,10 @@ paths:
             default: 00000000-0000-0000-0000-000000000000
         - name: x-uipath-page-range
           in: header
-          description: Specifies the page range of the document to be digitized. Page range can be provided as a range of consecutive pages (e.g. 2-5), as one specific page (e.g. 2) or as a range of consecutive pages and individual pages (e.g. 2-5,6,7). It also allows the specification of the start (^) and the end ($) of the document (e.g. ^-3,5-$).
+          description: Specifies the range of pages to be processed. The value can be a single page (e.g. "7"), a range of pages (e.g. "7-12"), a complex range (e.g. "2-5, 7, 15-End" or "All"), or a complex reordered range (e.g. "4, 1-2, 7").
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           multipart/form-data:
@@ -1044,7 +1095,10 @@ paths:
       tags:
         - Digitization
       summary: Get digitization result
-      description: "Get the digitization result of a document.\r\n\nRequired scopes: <b>Du.Digitization.Api</b></br>"
+      description: |-
+        Get the digitization result of a document.
+
+        Required scopes: <b>Du.Digitization.Api</b></br>
       operationId: GetDigitizationResult
       parameters:
         - name: api-version
@@ -1066,6 +1120,9 @@ paths:
           in: path
           description: The document identifier obtained from the START digitization route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -1157,7 +1214,10 @@ paths:
       tags:
         - Classification
       summary: Classify document
-      description: "Classify a document.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Classify a document.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: Classify
       parameters:
         - name: api-version
@@ -1190,11 +1250,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1206,11 +1266,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1222,11 +1282,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: d1d6d604-7a14-4104-8c4e-b66fba687dc6
+                  documentId: 3b6fe063-1a2b-4399-8a49-fa73db71d79b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1323,7 +1383,10 @@ paths:
       tags:
         - Classification
       summary: Classify document
-      description: "Classify a document.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Classify a document.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: ClassifyByTag
       parameters:
         - name: api-version
@@ -1345,6 +1408,9 @@ paths:
           in: path
           description: The tag associated with the project version to use for the classification.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -1353,11 +1419,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1369,11 +1435,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1385,11 +1451,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 0b6dbc34-bf33-43d2-91d5-182d70a3cb2b
+                  documentId: dcecf967-a9f7-4298-83d1-5046c6d1167f
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1486,7 +1552,10 @@ paths:
       tags:
         - Classification
       summary: Start classification
-      description: "Start classification operation. To monitor the status and retrieve the classification result, use the \"Get Classification Result\" route.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Start classification operation. To monitor the status and retrieve the classification result, use the "Get Classification Result" route.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: StartClassification
       parameters:
         - name: api-version
@@ -1519,11 +1588,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1535,11 +1604,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1551,11 +1620,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: 1afe9ddb-d2ca-4e26-9d17-96ea77f398cd
+                  documentId: 34776242-78f4-4716-8324-d63a3af9f173
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1628,7 +1697,10 @@ paths:
       tags:
         - Classification
       summary: Start classification by tag
-      description: "Start classification by tag operation. To monitor the status and retrieve the classification result, use the \"Get Tag Classification Result\" route.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Start classification by tag operation. To monitor the status and retrieve the classification result, use the "Get Tag Classification Result" route.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: StartClassificationByTag
       parameters:
         - name: api-version
@@ -1650,6 +1722,9 @@ paths:
           in: path
           description: The tag associated with the project version to use for the classification.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -1658,11 +1733,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1674,11 +1749,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1690,11 +1765,11 @@ paths:
             examples:
               Specialized Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts: null
               Generative Classification:
                 value:
-                  documentId: b1f046ed-96ac-4a9e-af4d-e5bd63dec21c
+                  documentId: 6c696329-1a4f-4ace-aa31-59de5eee7c4b
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
@@ -1767,7 +1842,10 @@ paths:
       tags:
         - Classification
       summary: Retrieve classification result
-      description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the classification result once the operation is completed.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: GetClassificationResult
       parameters:
         - name: api-version
@@ -1796,6 +1874,9 @@ paths:
           in: path
           description: The operation identifier obtained from the START classification route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -1875,7 +1956,10 @@ paths:
       tags:
         - Classification
       summary: Retrieve classification result
-      description: "Monitor the status and retrieve the classification result once the operation is completed.\r\n\nRequired scopes: <b>Du.Classification.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the classification result once the operation is completed.
+
+        Required scopes: <b>Du.Classification.Api</b></br>
       operationId: GetClassificationResultByTag
       parameters:
         - name: api-version
@@ -1897,10 +1981,16 @@ paths:
           in: path
           description: The tag associated with the project version to use for the classification.
           required: true
+          schema:
+            type: string
+            default: null
         - name: operationId
           in: path
           description: The operation identifier obtained from the START classification route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -1980,7 +2070,10 @@ paths:
       tags:
         - Extraction
       summary: Extract document fields
-      description: "Extract all fields from a document.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Extract all fields from a document.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: Extract
       parameters:
         - name: api-version
@@ -2013,20 +2106,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           text/json:
             schema:
@@ -2034,20 +2135,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           application/*+json:
             schema:
@@ -2055,20 +2164,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: bc8ec74a-923d-4668-bb94-ab7b66d02245
+                  documentId: dd5a7e7d-8b19-4bb5-9a96-923aef3c9440
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
       responses:
         "200":
@@ -2173,7 +2290,10 @@ paths:
       tags:
         - Extraction
       summary: Start extraction
-      description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Start extraction operation. To monitor the status and retrieve the extraction result, use the "Get Extraction Result" route.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: StartExtraction
       parameters:
         - name: api-version
@@ -2206,20 +2326,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           text/json:
             schema:
@@ -2227,20 +2355,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           application/*+json:
             schema:
@@ -2248,20 +2384,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 70d96e57-19d3-4973-a78e-58b7effffdff
+                  documentId: 334c8792-7dca-4ebd-bb4a-b2d113f4976d
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
       responses:
         "202":
@@ -2330,7 +2474,10 @@ paths:
       tags:
         - Extraction
       summary: Start extraction
-      description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Start extraction operation. To monitor the status and retrieve the extraction result, use the "Get Extraction Result" route.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: ExtractByDocumentType
       parameters:
         - name: api-version
@@ -2352,10 +2499,16 @@ paths:
           in: path
           description: The tag associated with the project version to use for the extraction.
           required: true
+          schema:
+            type: string
+            default: null
         - name: documentTypeId
           in: path
           description: Extraction will be performed using the extractor associated with the document type with this identifier.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -2364,20 +2517,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           text/json:
             schema:
@@ -2385,20 +2546,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           application/*+json:
             schema:
@@ -2406,20 +2575,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 5a94fdef-6799-4b81-bea5-cdf2466efac8
+                  documentId: e9d50dbc-375b-4ba1-8fb0-f9b58ece7d4a
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
       responses:
         "200":
@@ -2524,7 +2701,10 @@ paths:
       tags:
         - Extraction
       summary: Start extraction
-      description: "Start extraction operation. To monitor the status and retrieve the extraction result, use the \"Get Extraction Result\" route.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Start extraction operation. To monitor the status and retrieve the extraction result, use the "Get Extraction Result" route.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: StartByDocumentType
       parameters:
         - name: api-version
@@ -2546,10 +2726,16 @@ paths:
           in: path
           description: The tag associated with the project version to use for the extraction.
           required: true
+          schema:
+            type: string
+            default: null
         - name: documentTypeId
           in: path
           description: Extraction will be performed using the extractor associated with the document type with this identifier.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -2558,20 +2744,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           text/json:
             schema:
@@ -2579,20 +2773,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
           application/*+json:
             schema:
@@ -2600,20 +2802,28 @@ paths:
             examples:
               Specialized Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts: null
                   configuration:
                     autoValidationConfidenceThreshold: 70
               Generative Extraction:
                 value:
-                  documentId: 6d61b670-bed7-4fa0-942d-c908f3b4ae38
+                  documentId: c9b17a7d-1385-41b6-b446-c281b8f5634f
+                  pageRange: null
                   prompts:
                     - id: Invoice Number
                       question: Extract the invoice number from the provided document.
+                      fieldType: Text
+                      multiValued: false
                     - id: Date
                       question: What is the invoice date mentioned in the document?
+                      fieldType: Text
+                      multiValued: false
                     - id: Total
                       question: Extract the total amount from the invoice.
+                      fieldType: Text
+                      multiValued: false
                   configuration: null
       responses:
         "202":
@@ -2682,7 +2892,10 @@ paths:
       tags:
         - Extraction
       summary: Retrieve extraction result
-      description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the extraction result once the operation is completed.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: GetExtractionResult
       parameters:
         - name: api-version
@@ -2711,6 +2924,9 @@ paths:
           in: path
           description: The operation identifier obtained from the START extraction route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -2790,7 +3006,10 @@ paths:
       tags:
         - Extraction
       summary: Retrieve extraction result
-      description: "Monitor the status and retrieve the extraction result once the operation is completed.\r\n\nRequired scopes: <b>Du.Extraction.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the extraction result once the operation is completed.
+
+        Required scopes: <b>Du.Extraction.Api</b></br>
       operationId: GetDocTypeExtractionResult
       parameters:
         - name: api-version
@@ -2812,14 +3031,23 @@ paths:
           in: path
           description: The operation identifier obtained from the START extraction route.
           required: true
+          schema:
+            type: string
+            default: ""
         - name: tag
           in: path
           description: The tag associated with the project version to use for the extraction.
           required: true
+          schema:
+            type: string
+            default: null
         - name: documentTypeId
           in: path
           description: Extraction will be performed using the extractor associated with the document type with this identifier.
           required: true
+          schema:
+            type: string
+            default: null
       responses:
         "200":
           description: OK
@@ -2899,7 +3127,10 @@ paths:
       tags:
         - Validation
       summary: Start classification validation
-      description: "Start classification validation operation. To monitor the status and retrieve the validation result, use the \"Get Classification Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Start classification validation operation. To monitor the status and retrieve the validation result, use the "Get Classification Validation Result" route.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: StartClassificationValidation
       parameters:
         - name: api-version
@@ -2934,7 +3165,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2956,9 +3187,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -2969,7 +3202,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -2991,13 +3224,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3012,7 +3247,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3034,9 +3269,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3047,7 +3284,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3069,13 +3306,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3090,7 +3329,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3112,9 +3351,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3125,7 +3366,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                      DocumentId: 1e8ed286-d480-446c-9e2b-46007d736945
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3147,13 +3388,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: b03b3b15-6576-4cf0-a8be-e397c7d39259
+                  configuration: null
+                  documentId: 1e8ed286-d480-446c-9e2b-46007d736945
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3251,8 +3494,11 @@ paths:
       tags:
         - Validation
       summary: Start classification validation
-      description: "Start classification validation operation. To monitor the status and retrieve the validation result, use the \"Get Classification Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
-      operationId: StartClassificationValidation
+      description: |-
+        Start classification validation operation. To monitor the status and retrieve the validation result, use the "Get Classification Validation Result" route.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
+      operationId: StartDocTypeClassificationValidation
       parameters:
         - name: api-version
           in: query
@@ -3273,6 +3519,9 @@ paths:
           in: path
           description: The tag associated with the project version to use for the classification.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -3283,7 +3532,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3305,9 +3554,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3318,7 +3569,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3340,13 +3591,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3361,7 +3614,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3383,9 +3636,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3396,7 +3651,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3418,13 +3673,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3439,7 +3696,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3461,9 +3718,11 @@ paths:
                         PageCount: 1
                         TextStartIndex: 0
                         TextLength: 1
+                        PageRange: ""
                       ClassifierName: ML Classification
                   prompts: null
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3474,7 +3733,7 @@ paths:
                 value:
                   classificationResults:
                     - DocumentTypeId: Invoice
-                      DocumentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                      DocumentId: deccd04e-28cb-4549-96bf-0753db214507
                       Confidence: 0.0
                       OcrConfidence: 0.0
                       Reference:
@@ -3496,13 +3755,15 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       ClassifierName: Generative Classifier
                   prompts:
                     - name: Invoice
                       description: A detailed statement of goods or services provided, with individual prices, the total charge, and payment terms.
                     - name: Receipt
                       description: A written acknowledgment of having received a specified amount of money, goods, or services.
-                  documentId: 24fa332c-f2ca-491d-9816-a87248b550fb
+                  configuration: null
+                  documentId: deccd04e-28cb-4549-96bf-0753db214507
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -3600,7 +3861,10 @@ paths:
       tags:
         - Validation
       summary: Retrieve classification validation result
-      description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the classification validation result once the operation is completed.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: GetClassificationValidationResult
       parameters:
         - name: api-version
@@ -3629,6 +3893,9 @@ paths:
           in: path
           description: The operation identifier obtained from the START classification validation route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -3720,7 +3987,10 @@ paths:
       tags:
         - Validation
       summary: Retrieve classification validation result
-      description: "Monitor the status and retrieve the classification validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the classification validation result once the operation is completed.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: GetClassificationValidationResultByTag
       parameters:
         - name: api-version
@@ -3742,10 +4012,16 @@ paths:
           in: path
           description: The tag associated with the project version to use for the classification.
           required: true
+          schema:
+            type: string
+            default: null
         - name: operationId
           in: path
           description: The operation identifier obtained from the START classification validation route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -3837,7 +4113,10 @@ paths:
       tags:
         - Validation
       summary: Start extraction validation
-      description: "Start extraction validation operation. To monitor the status and retrieve the validation result, use the \"Get Extraction Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Start extraction validation operation. To monitor the status and retrieve the validation result, use the "Get Extraction Validation Result" route.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: StartExtractionValidation
       parameters:
         - name: api-version
@@ -3871,7 +4150,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -3879,6 +4158,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -4044,8 +4324,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4055,7 +4336,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4063,6 +4344,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -4240,8 +4522,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4255,7 +4538,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4263,6 +4546,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -4428,8 +4712,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4439,7 +4724,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4447,6 +4732,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -4624,8 +4910,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4639,7 +4926,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4647,6 +4934,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -4812,8 +5100,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -4823,7 +5112,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                    DocumentId: 614efc55-605b-4b78-88c8-4b012474cee2
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -4831,6 +5120,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -5008,8 +5298,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 559e41a0-e411-4bf4-82d4-f154d5b13129
+                  documentId: 614efc55-605b-4b78-88c8-4b012474cee2
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5107,7 +5398,10 @@ paths:
       tags:
         - Validation
       summary: Start extraction validation
-      description: "Start extraction validation by document type operation. To monitor the status and retrieve the validation result, use the \"Get Document Type Extraction Validation Result\" route.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Start extraction validation by document type operation. To monitor the status and retrieve the validation result, use the "Get Document Type Extraction Validation Result" route.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: StartDocTypeExtractionValidation
       parameters:
         - name: api-version
@@ -5129,10 +5423,16 @@ paths:
           in: path
           description: The tag associated with the project version to use for the extraction.
           required: true
+          schema:
+            type: string
+            default: null
         - name: documentTypeId
           in: path
           description: Extraction will be performed using the extractor associated with the document type with this identifier.
           required: true
+          schema:
+            type: string
+            default: null
       requestBody:
         content:
           application/json:
@@ -5142,7 +5442,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5150,6 +5450,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -5315,8 +5616,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5326,7 +5628,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5334,6 +5636,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -5511,8 +5814,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5526,7 +5830,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5534,6 +5838,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -5699,8 +6004,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5710,7 +6016,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5718,6 +6024,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -5895,8 +6202,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -5910,7 +6218,7 @@ paths:
               Specialized Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -5918,6 +6226,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -6083,8 +6392,9 @@ paths:
                         TableFieldId: string
                   prompts: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6094,7 +6404,7 @@ paths:
               Generative Extraction Validation:
                 value:
                   extractionResult:
-                    DocumentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                    DocumentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                     ResultsVersion: 0
                     ResultsDocument:
                       Bounds:
@@ -6102,6 +6412,7 @@ paths:
                         PageCount: 0
                         TextStartIndex: 0
                         TextLength: 0
+                        PageRange: ""
                       Language: string
                       DocumentGroup: string
                       DocumentCategory: string
@@ -6279,8 +6590,9 @@ paths:
                       fieldType: null
                       multiValued: null
                   fieldsValidationConfidence: null
+                  configuration: null
                   allowChangeOfDocumentType: null
-                  documentId: 185508b7-23e3-4651-941f-6e62f1d5cdd6
+                  documentId: d5a63f13-a3c1-4b6f-851c-9c50f346e110
                   actionTitle: Title of the action in action center
                   actionPriority: Low
                   actionCatalog: default_du_actions
@@ -6378,7 +6690,10 @@ paths:
       tags:
         - Validation
       summary: Retrieve extraction validation result
-      description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the extraction validation result once the operation is completed.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: GetExtractionValidationResult
       parameters:
         - name: api-version
@@ -6407,6 +6722,9 @@ paths:
           in: path
           description: The operation identifier obtained from the START extraction validation route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -6498,7 +6816,10 @@ paths:
       tags:
         - Validation
       summary: Retrieve the extraction validation result
-      description: "Monitor the status and retrieve the extraction validation result once the operation is completed.\r\n\nRequired scopes: <b>Du.Validation.Api</b></br>"
+      description: |-
+        Monitor the status and retrieve the extraction validation result once the operation is completed.
+
+        Required scopes: <b>Du.Validation.Api</b></br>
       operationId: GetDocTypeExtractionValidationResult
       parameters:
         - name: api-version
@@ -6520,14 +6841,23 @@ paths:
           in: path
           description: The tag associated with the project version to use for the extraction.
           required: true
+          schema:
+            type: string
+            default: null
         - name: documentTypeId
           in: path
           description: Extraction will be performed using the extractor associated with the document type with this identifier.
           required: true
+          schema:
+            type: string
+            default: null
         - name: operationId
           in: path
           description: The operation identifier obtained from the START extraction validation route.
           required: true
+          schema:
+            type: string
+            default: ""
       responses:
         "200":
           description: OK
@@ -6742,6 +7072,13 @@ components:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.Metadata'
           nullable: true
       additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Dom.MarkupType:
+      enum:
+        - Unknown
+        - Circled
+        - Underlined
+        - Strikethrough
+      type: string
     UiPath.DocumentProcessing.Contracts.Dom.Metadata:
       type: object
       properties:
@@ -6770,6 +7107,11 @@ components:
           items:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.PageSection'
           nullable: true
+        pageMarkups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.PageMarkup'
+          nullable: true
         processingSource:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.ProcessingSource'
         indexInText:
@@ -6788,6 +7130,27 @@ components:
           items:
             $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.Metadata'
           nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Dom.PageMarkup:
+      type: object
+      properties:
+        box:
+          maxItems: 4
+          minItems: 4
+          type: array
+          items:
+            type: number
+          example: '[23.2, 723.3, 41.5, 18.2]'
+        polygon:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Polygon'
+        ocrConfidence:
+          type: number
+          format: float
+        text:
+          type: string
+          nullable: true
+        markupType:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.MarkupType'
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Dom.PageSection:
       type: object
@@ -6848,6 +7211,9 @@ components:
         - QRcode
         - Stamp
         - Logo
+        - Circle
+        - Underline
+        - Cut
       type: string
     UiPath.DocumentProcessing.Contracts.Dom.Word:
       type: object
@@ -6875,6 +7241,11 @@ components:
           format: int32
         textType:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.TextType'
+        markupType:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Dom.MarkupType'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Dom.WordGroup:
       type: object
@@ -7081,15 +7452,21 @@ components:
         startPage:
           type: integer
           format: int32
+          deprecated: true
         pageCount:
           type: integer
           format: int32
         textStartIndex:
           type: integer
           format: int32
+          deprecated: true
         textLength:
           type: integer
           format: int32
+          deprecated: true
+        pageRange:
+          type: string
+          nullable: true
       additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Results.ResultsTable:
       type: object
@@ -7250,11 +7627,188 @@ components:
         - GreaterOrEqual
         - LessOrEqual
       type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.Connection:
+      type: object
+      properties:
+        connectionId:
+          type: string
+          nullable: true
+        connectionName:
+          type: string
+          nullable: true
+        elementInstanceId:
+          type: string
+          nullable: true
+        elementKey:
+          type: string
+          nullable: true
+        folderKey:
+          type: string
+          nullable: true
+        folderName:
+          type: string
+          nullable: true
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.ConnectionResource'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.ConnectionResource:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          nullable: true
+        elementApiName:
+          type: string
+          nullable: true
+        endpoint:
+          type: string
+          nullable: true
+        primaryKey:
+          type: string
+          nullable: true
+        resourceFields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.ResourceField'
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.Criticality:
       enum:
         - Must
         - Should
       type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.DataSource:
+      type: object
+      properties:
+        resourceId:
+          type: string
+          nullable: true
+        elementFieldId:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentGroup:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        categories:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentTaxonomy:
+      type: object
+      properties:
+        dataContractVersion:
+          type: string
+          default: "1.1"
+          nullable: true
+        documentTypes:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentType'
+          nullable: true
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentGroup'
+          nullable: true
+        supportedLanguages:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.LanguageInfo'
+          nullable: true
+        reportAsExceptionSettings:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.ReportAsExceptionSettings'
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentType:
+      type: object
+      properties:
+        connections:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Connection'
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        group:
+          type: string
+          nullable: true
+        category:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        optionalUniqueIdentifier:
+          type: string
+          nullable: true
+        typeField:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.TypeField'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Field'
+          nullable: true
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.MetadataEntry'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.ExceptionReasonOption:
+      type: object
+      properties:
+        exceptionReason:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.Field:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldName:
+          type: string
+          nullable: true
+        isMultiValue:
+          type: boolean
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType'
+        deriveFieldsFormat:
+          type: string
+          nullable: true
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Field'
+          nullable: true
+        setValues:
+          type: array
+          items:
+            type: string
+          nullable: true
+        metadata:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.MetadataEntry'
+          nullable: true
+        ruleSet:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.RuleSet'
+        defaultValue:
+          type: string
+          nullable: true
+        dataSource:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.DataSource'
+      additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType:
       enum:
         - Text
@@ -7268,11 +7822,59 @@ components:
         - Table
         - Internal
       type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.LanguageInfo:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        code:
+          type: string
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.LogicalOperator:
       enum:
         - AND
         - OR
       type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.MetadataEntry:
+      type: object
+      properties:
+        key:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.ReportAsExceptionSettings:
+      type: object
+      properties:
+        exceptionReasonOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.ExceptionReasonOption'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.ResourceField:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        searchable:
+          type: boolean
+        searchableOperators:
+          type: array
+          items:
+            type: string
+          nullable: true
+        searchableNames:
+          type: array
+          items:
+            type: string
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.Rule:
       type: object
       properties:
@@ -7294,6 +7896,17 @@ components:
             type: string
           nullable: true
       additionalProperties: false
+    UiPath.DocumentProcessing.Contracts.Taxonomy.RuleSet:
+      type: object
+      properties:
+        criticality:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Criticality'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.Rule'
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentProcessing.Contracts.Taxonomy.RuleType:
       enum:
         - Mandatory
@@ -7310,12 +7923,16 @@ components:
         - TableExpression
         - IsEmpty
       type: string
-    UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus:
-      enum:
-        - Unassigned
-        - Pending
-        - Completed
-      type: string
+    UiPath.DocumentProcessing.Contracts.Taxonomy.TypeField:
+      type: object
+      properties:
+        fieldId:
+          type: string
+          nullable: true
+        fieldName:
+          type: string
+          nullable: true
+      additionalProperties: false
     UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.CreateTaskPriority:
       enum:
         - Low
@@ -7362,7 +7979,7 @@ components:
             - Failed
             - Running
             - NotStarted
-          type: enum
+          type: string
           example: Succeeded
         createdAt:
           type: string
@@ -7398,7 +8015,7 @@ components:
             - Failed
             - Running
             - NotStarted
-          type: enum
+          type: string
           example: Succeeded
         error:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
@@ -7433,6 +8050,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         status:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
         documentTypeIds:
@@ -7457,6 +8076,47 @@ components:
           format: int32
           nullable: true
         projectVersionName:
+          type: string
+          nullable: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredExtractorResourceSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
+        detailsUrl:
+          type: string
+          format: uri
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        documentTypeName:
+          type: string
+          nullable: true
+        projectVersion:
+          type: integer
+          format: int32
+          nullable: true
+        projectVersionName:
+          type: string
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+        description:
           type: string
           nullable: true
       additionalProperties: false
@@ -7487,6 +8147,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         detailsUrl:
           type: string
           format: uri
@@ -7515,9 +8177,35 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         detailsUrl:
           type: string
           format: uri
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentTypeField:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        displayName:
+          type: string
+          nullable: true
+        type:
+          type: string
+          nullable: true
+        section:
+          type: string
+          nullable: true
+        isMultiValue:
+          type: boolean
+        color:
+          type: string
+          nullable: true
+        hotkey:
+          type: string
           nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Extractor:
@@ -7532,6 +8220,8 @@ components:
         documentTypeId:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         status:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
         detailsUrl:
@@ -7590,6 +8280,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         type:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Discovery.Model.ClassifierDocumentTypeType'
         createdOn:
@@ -7606,6 +8298,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         status:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
         documentTypes:
@@ -7632,6 +8326,11 @@ components:
         projectVersionName:
           type: string
           nullable: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetClassifiersResponse:
       type: object
@@ -7640,6 +8339,37 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.Classifier'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsByTagResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
+        numberOfDocuments:
+          type: integer
+          format: int32
+          nullable: true
+        numberOfPages:
+          type: integer
+          format: int32
+          nullable: true
+        createdOn:
+          type: string
+          format: date-time
+          nullable: true
+        taxonomy:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.DocumentTaxonomy'
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DocumentTypeField'
           nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.GetDocumentTypeDetailsResponse:
@@ -7651,6 +8381,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         numberOfDocuments:
           type: integer
           format: int32
@@ -7692,6 +8424,8 @@ components:
         name:
           type: string
           nullable: true
+        resourceType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceType'
         status:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ResourceStatus'
         projectId:
@@ -7754,6 +8488,11 @@ components:
           nullable: true
         type:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType'
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties'
+          nullable: true
         documentTypes:
           type: array
           items:
@@ -7767,7 +8506,7 @@ components:
         extractors:
           type: array
           items:
-            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredResourceSummaryResponse'
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.DiscoveredExtractorResourceSummaryResponse'
           nullable: true
         projectVersions:
           type: array
@@ -7831,12 +8570,18 @@ components:
           type: string
           format: uri
           nullable: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectProperties:
       enum:
         - IsPredefined
         - SupportsTags
         - SupportsVersions
+        - IsSplittingEnabled
       type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Discovery.ProjectType:
       enum:
@@ -7968,6 +8713,13 @@ components:
           description: Question of the extracted field.
           nullable: true
           example: What is the sum?
+        fieldType:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.GptFieldType'
+        multiValued:
+          type: boolean
+          description: Indicates if the extracted field is multivalued.
+          nullable: true
+          example: false
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.StartExtractionResponse:
       type: object
@@ -7994,7 +8746,7 @@ components:
             - Failed
             - Running
             - NotStarted
-          type: enum
+          type: string
           example: Succeeded
         createdAt:
           type: string
@@ -8011,11 +8763,255 @@ components:
         result:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Extraction.ExtractSyncResult'
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.ClassificationValidationFinishedTaskInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
+        creationTime:
+          type: string
+          format: date-time
+        completionTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastAssignedTime:
+          type: string
+          format: date-time
+        url:
+          type: string
+          nullable: true
+        assignedToUser:
+          type: string
+          nullable: true
+        completedByUser:
+          type: string
+          nullable: true
+        lastModifierUser:
+          type: string
+          nullable: true
+        documentRejectionReason:
+          type: string
+          nullable: true
+        catalogName:
+          type: string
+          nullable: true
+        folderName:
+          type: string
+          nullable: true
+        processingTime:
+          type: integer
+          format: int64
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.FinishExtractionValidationTaskInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
+        creationTime:
+          type: string
+          format: date-time
+        completionTime:
+          type: string
+          format: date-time
+          nullable: true
+        lastAssignedTime:
+          type: string
+          format: date-time
+        url:
+          type: string
+          nullable: true
+        assignedToUser:
+          type: string
+          nullable: true
+        completedByUser:
+          type: string
+          nullable: true
+        lastModifierUser:
+          type: string
+          nullable: true
+        documentRejectionReason:
+          type: string
+          nullable: true
+        catalogName:
+          type: string
+          nullable: true
+        folderName:
+          type: string
+          nullable: true
+        processingTime:
+          type: integer
+          format: int64
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.StartClassificationValidationTaskInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        folderName:
+          type: string
+          nullable: true
+        storageBucketName:
+          type: string
+          nullable: true
+        storageBucketDirectoryPath:
+          type: string
+          nullable: true
+        catalogName:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.StartExtractionValidationTaskInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        title:
+          type: string
+          nullable: true
+        folderName:
+          type: string
+          nullable: true
+        storageBucketName:
+          type: string
+          nullable: true
+        storageBucketDirectoryPath:
+          type: string
+          nullable: true
+        catalogName:
+          type: string
+          nullable: true
+        priority:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Actions.DocumentActionPriority'
+        status:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.TrackFinishClassificationValidationRequest:
+      type: object
+      properties:
+        classifierId:
+          type: string
+          nullable: true
+        tag:
+          type: string
+          nullable: true
+        documentId:
+          type: string
+          format: uuid
+        task:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.ClassificationValidationFinishedTaskInfo'
+        classificationResult:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.TrackFinishExtractionValidationRequest:
+      type: object
+      properties:
+        extractorId:
+          type: string
+          nullable: true
+        tag:
+          type: string
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        documentId:
+          type: string
+          format: uuid
+        task:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.FinishExtractionValidationTaskInfo'
+        extractionResult:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+        validatedExtractionResult:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.TrackStartClassificationValidationRequest:
+      type: object
+      properties:
+        classifierId:
+          type: string
+          nullable: true
+        tag:
+          type: string
+          nullable: true
+        documentId:
+          type: string
+          format: uuid
+        duration:
+          type: integer
+          format: int64
+        task:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.StartClassificationValidationTaskInfo'
+        classificationResult:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ClassificationResult'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.TrackStartExtractionValidationRequest:
+      type: object
+      properties:
+        extractorId:
+          type: string
+          nullable: true
+        tag:
+          type: string
+          nullable: true
+        documentTypeId:
+          type: string
+          nullable: true
+        documentId:
+          type: string
+          format: uuid
+        duration:
+          type: integer
+          format: int64
+        task:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Monitor.StartExtractionValidationTaskInfo'
+        extractionResult:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus:
+      enum:
+        - Unassigned
+        - Pending
+        - Completed
+      type: string
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ClassificationValidationResult:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel'
         validatedClassificationResults:
@@ -8029,11 +9025,16 @@ components:
       type: object
       properties:
         actionStatus:
-          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Common.Clients.Orchestrator.Model.ActionStatus'
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.ActionStatus'
         actionData:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentExtractionActionDataModel'
         validatedExtractionResults:
           $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Results.ExtractionResult'
+        dataProjection:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.FieldGroupValueProjection'
+          nullable: true
       additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Api.Controllers.Model.Validation.GetClassificationValidationTaskResponse:
       type: object
@@ -8045,8 +9046,9 @@ components:
             - Failed
             - Running
             - NotStarted
-          type: enum
+          type: string
           description: The status of the operation
+          example: NotStarted
         error:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         createdAt:
@@ -8072,8 +9074,9 @@ components:
             - Failed
             - Running
             - NotStarted
-          type: enum
+          type: string
           description: The status of the operation
+          example: NotStarted
         error:
           $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Helpers.ErrorResponse'
         createdAt:
@@ -8225,7 +9228,7 @@ components:
             - Info
             - Warning
             - Error
-          type: enum
+          type: string
           example: Error
         code:
           type: string
@@ -8270,6 +9273,44 @@ components:
           type: boolean
           nullable: true
       additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.FieldGroupValueProjection:
+      type: object
+      properties:
+        fieldGroupName:
+          type: string
+          nullable: true
+        fieldValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.FieldValueProjection'
+          nullable: true
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.FieldValueProjection:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: true
+        name:
+          type: string
+          nullable: true
+        value:
+          type: string
+          nullable: true
+        unformattedValue:
+          type: string
+          nullable: true
+        confidence:
+          type: number
+          format: float
+          nullable: true
+        ocrConfidence:
+          type: number
+          format: float
+          nullable: true
+        type:
+          $ref: '#/components/schemas/UiPath.DocumentProcessing.Contracts.Taxonomy.FieldType'
+      additionalProperties: false
     UiPath.DocumentUnderstanding.Framework.Shared.Core.Model.GptFieldType:
       enum:
         - Address
@@ -8278,6 +9319,25 @@ components:
         - Name
         - Number
         - Text
+      type: string
+    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ClassificationValidationConfiguration:
+      type: object
+      properties:
+        enablePageReordering:
+          type: boolean
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ExtractionValidationConfiguration:
+      type: object
+      properties:
+        enableRtlControls:
+          type: boolean
+        displayMode:
+          $ref: '#/components/schemas/UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationDisplayMode'
+      additionalProperties: false
+    UiPath.DocumentUnderstanding.Framework.Validation.Core.Model.ValidationDisplayMode:
+      enum:
+        - Classic
+        - Compact
       type: string
     UiPath.DocumentUnderstanding.Framework.Validation.Services.Model.DocumentClassificationActionDataModel:
       type: object
@@ -8411,6 +9471,7 @@ components:
             Du.Classification.Api: Classification Api Scope
             Du.Extraction.Api: Extraction Api Scope
             Du.Validation.Api: Validation Api Scope
+            Du.DataDeletion.Api: Data Deletion Api Scope
 security:
   - oauth2:
       - Du.Digitization.Api
