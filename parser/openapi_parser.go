@@ -87,14 +87,6 @@ func (p OpenApiParser) getUri(document openapi3.T) (*url.URL, error) {
 	return url.Parse(server)
 }
 
-func (p OpenApiParser) formatName(name string) string {
-	name = strings.ReplaceAll(name, "$", "")
-	name = strings.ReplaceAll(name, "/", "-")
-	name = strings.ReplaceAll(name, "_", "-")
-	name = toSnakeCase(name)
-	return strings.ToLower(name)
-}
-
 func (p OpenApiParser) getOperationName(method string, route string, category *OperationCategory, operation openapi3.Operation) string {
 	name := method + route
 	customName := p.getCustomName(operation.Extensions)
@@ -104,7 +96,7 @@ func (p OpenApiParser) getOperationName(method string, route string, category *O
 	if operation.OperationID != "" {
 		name = operation.OperationID
 	}
-	name = p.formatName(name)
+	name = toSnakeCase(name)
 	if category != nil {
 		name = strings.TrimPrefix(name, category.Name+"-")
 	}
@@ -159,7 +151,7 @@ func (p OpenApiParser) parseSchema(fieldName string, schemaRef *openapi3.SchemaR
 	}
 	visitedSchemas[schemaRef] = true
 
-	name := p.formatName(fieldName)
+	name := toSnakeCase(fieldName)
 	_type := p.getType(schemaRef)
 	required := p.contains(requiredFieldnames, fieldName)
 	parameters := []Parameter{}
@@ -279,7 +271,7 @@ func (p OpenApiParser) parseRequestBodyParameters(requestBody *openapi3.RequestB
 
 func (p OpenApiParser) parseParameter(param openapi3.Parameter) Parameter {
 	fieldName := param.Name
-	name := p.formatName(fieldName)
+	name := toSnakeCase(fieldName)
 	customName := p.getCustomName(param.Extensions)
 	if customName != "" {
 		name = customName
@@ -320,7 +312,7 @@ func (p OpenApiParser) getCategory(definitionName string, document openapi3.T, o
 	if len(operation.Tags) > 0 {
 		name := operation.Tags[0]
 		tag := document.Tags.Get(name)
-		formattedName := p.formatName(name)
+		formattedName := toSnakeCase(name)
 		summary, description := p.getCategoryText(definitionName, formattedName, tag)
 		return NewOperationCategory(formattedName, summary, description)
 	}
