@@ -262,6 +262,42 @@ paths:
 	}
 }
 
+func TestCustomOperationNameFromRoute(t *testing.T) {
+	t.Run("SimpleGetRoute", func(t *testing.T) {
+		CustomOperationNameFromRoute(t, "get", "/ping", "get-ping")
+	})
+	t.Run("ComplexPathRoute", func(t *testing.T) {
+		CustomOperationNameFromRoute(t, "post", "/my-resource/update", "post-my-resource-update")
+	})
+	t.Run("CaseSensitiveRoute", func(t *testing.T) {
+		CustomOperationNameFromRoute(t, "get", "/MyResource/Ping", "get-my-resource-ping")
+	})
+	t.Run("CurlyBracketsAreIgnored", func(t *testing.T) {
+		CustomOperationNameFromRoute(t, "get", "/MyResource/{resourceId}/Ping", "get-my-resource-resource-id-ping")
+	})
+	t.Run("DollarSignIsIgnored", func(t *testing.T) {
+		CustomOperationNameFromRoute(t, "get", "/MyResource/$resourceId/Ping", "get-my-resource-resource-id-ping")
+	})
+}
+
+func CustomOperationNameFromRoute(t *testing.T, method string, route string, expectedName string) {
+	definition := `
+paths:
+  ` + route + `:
+    ` + method + `:
+      summary: Simple operation`
+
+	context := NewContextBuilder().
+		WithDefinition("myservice", definition).
+		Build()
+
+	result := RunCli([]string{"myservice"}, context)
+
+	if !strings.Contains(result.StdOut, expectedName) {
+		t.Errorf("stdout does not contain custom operation, expected: %v, got: %v", expectedName, result.StdOut)
+	}
+}
+
 func TestOperationsSummary(t *testing.T) {
 	definition := `
 paths:
