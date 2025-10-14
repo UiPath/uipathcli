@@ -49,10 +49,10 @@ func TestFormatPathReplacesPlaceholderWithEscapedPathValue(t *testing.T) {
 	builder := NewUriBuilder(toUrl("https://cloud.uipath.com/{organization}/{tenant}/"), "/my-service")
 
 	builder.FormatPath("organization", "my org")
-	builder.FormatPath("tenant", "{my/tenant}")
+	builder.FormatPath("tenant", "{my%tenant}")
 
 	uri := builder.Build()
-	if uri != "https://cloud.uipath.com/my%20org/%7Bmy%2Ftenant%7D/my-service" {
+	if uri != "https://cloud.uipath.com/my%20org/%7Bmy%25tenant%7D/my-service" {
 		t.Errorf("Did not replace placeholder, got: %v", uri)
 	}
 }
@@ -124,11 +124,22 @@ func FormatPathDataTypes(t *testing.T, value interface{}, expected string) {
 func TestFormatPathEscapeStringValue(t *testing.T) {
 	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
 
+	builder.FormatPath("param", "my#value")
+
+	uri := builder.Build()
+	if uri != "https://cloud.uipath.com/my%23value" {
+		t.Errorf("Did not escape path properly, got: %v", uri)
+	}
+}
+
+func TestFormatPathPreservesSlash(t *testing.T) {
+	builder := NewUriBuilder(toUrl("https://cloud.uipath.com"), "/{param}")
+
 	builder.FormatPath("param", "my/value")
 
 	uri := builder.Build()
-	if uri != "https://cloud.uipath.com/my%2Fvalue" {
-		t.Errorf("Did not escape path properly, got: %v", uri)
+	if uri != "https://cloud.uipath.com/my/value" {
+		t.Errorf("Did not preserve slash in path, got: %v", uri)
 	}
 }
 

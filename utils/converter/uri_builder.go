@@ -38,8 +38,16 @@ func (b *UriBuilder) formatPathValue(value interface{}) string {
 		return b.toCommaSeparatedStringPathEscape(array)
 	default:
 		str := b.converter.ToString(value)
-		return url.PathEscape(str)
+		return b.escapePathPreserveSlashes(str)
 	}
+}
+
+func (b *UriBuilder) escapePathPreserveSlashes(value string) string {
+	segments := strings.Split(value, "/")
+	for i := range segments {
+		segments[i] = url.PathEscape(segments[i])
+	}
+	return strings.Join(segments, "/")
 }
 
 func (b *UriBuilder) toCommaSeparatedStringPathEscape(array []string) string {

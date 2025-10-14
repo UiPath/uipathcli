@@ -237,6 +237,35 @@ paths:
 	}
 }
 
+func TestGetRequestWithMultiSegmentPathParameter(t *testing.T) {
+	definition := `
+paths:
+  /api/{objectKey}:
+    parameters:
+    - name: objectKey
+      in: path
+      required: true
+      description: The object key
+      schema:
+        type: string
+    get:
+      operationId: download
+      summary: Download file
+`
+
+	context := NewContextBuilder().
+		WithDefinition("storage", definition).
+		WithResponse(http.StatusOK, "").
+		Build()
+
+	result := RunCli([]string{"storage", "download", "--object-key", "myfolder/myobject.txt"}, context)
+
+	expected := "/api/myfolder/myobject.txt"
+	if !strings.Contains(result.RequestUrl, expected) {
+		t.Errorf("Request url did not contain parameter value, expected: %v, got: %v", expected, result.RequestUrl)
+	}
+}
+
 func TestGetRequestWithCategory(t *testing.T) {
 	definition := `
 paths:
