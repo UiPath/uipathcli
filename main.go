@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"os"
@@ -85,7 +86,7 @@ func main() {
 	)
 
 	input := stdIn()
-	err = cli.Run(os.Args, input)
+	err = cli.Run(context.Background(), os.Args, input)
 	if err != nil {
 		os.Exit(1)
 	}

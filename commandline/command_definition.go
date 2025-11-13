@@ -1,10 +1,15 @@
 package commandline
 
-import "github.com/urfave/cli/v2"
+import (
+	"context"
+
+	"github.com/urfave/cli/v3"
+)
 
 // The CommandExecContext contains the flag values provided by the user.
 type CommandExecContext struct {
-	*cli.Context
+	*cli.Command
+	Context context.Context
 }
 
 // The CommandExecFunc is the function definition for executing a command action.
