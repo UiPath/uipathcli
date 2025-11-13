@@ -3,7 +3,7 @@ package config
 import (
 	"fmt"
 
-	"gopkg.in/yaml.v2"
+	"github.com/goccy/go-yaml"
 )
 
 const DefaultProfile = "default"

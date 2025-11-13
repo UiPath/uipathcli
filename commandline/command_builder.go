@@ -199,9 +199,13 @@ func (b CommandBuilder) getValue(parameter parser.Parameter, context *CommandExe
 	if value != "" {
 		return value
 	}
-	value = config.Parameter[parameter.Name]
-	if value != "" {
-		return value
+	valueSlice := context.StringSlice(parameter.Name)
+	if len(valueSlice) > 0 {
+		return strings.Join(valueSlice, ",")
+	}
+	configValue := config.Parameter[parameter.Name]
+	if configValue != "" {
+		return configValue
 	}
 	if parameter.DefaultValue != nil {
 		return fmt.Sprint(parameter.DefaultValue)

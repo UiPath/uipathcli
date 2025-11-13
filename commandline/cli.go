@@ -3,6 +3,7 @@
 package commandline
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -11,7 +12,7 @@ import (
 	"github.com/UiPath/uipathcli/config"
 	"github.com/UiPath/uipathcli/executor"
 	"github.com/UiPath/uipathcli/utils/stream"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli/v3"
 )
 
 // Cli is a wrapper for building the CLI commands.
@@ -26,7 +27,7 @@ type Cli struct {
 	pluginExecutor     executor.Executor
 }
 
-func (c Cli) run(args []string, input stream.Stream) error {
+func (c Cli) run(ctx context.Context, args []string, input stream.Stream) error {
 	err := c.configProvider.Load()
 	if err != nil {
 		return err
@@ -54,7 +55,7 @@ func (c Cli) run(args []string, input stream.Stream) error {
 	}
 
 	var commandError error
-	app := &cli.App{
+	app := &cli.Command{
 		Name:                      "uipath",
 		Usage:                     "Command-Line Interface for UiPath Services",
 		UsageText:                 "uipath <service> <operation> --<argument> <value>",
@@ -66,19 +67,19 @@ func (c Cli) run(args []string, input stream.Stream) error {
 		HideVersion:               true,
 		HideHelpCommand:           true,
 		DisableSliceFlagSeparator: true,
-		CommandNotFound: func(context *cli.Context, commandName string) {
+		CommandNotFound: func(ctx context.Context, cmd *cli.Command, commandName string) {
 			commandError = fmt.Errorf("Command '%s' not found", commandName)
 		},
-		OnUsageError: func(context *cli.Context, err error, isSubcommand bool) error {
+		OnUsageError: func(ctx context.Context, cmd *cli.Command, err error, isSubcommand bool) error {
 			return fmt.Errorf("Incorrect usage: %w", err)
 		},
-		Action: func(context *cli.Context) error {
-			if context.IsSet(FlagNameVersion) {
+		Action: func(ctx context.Context, cmd *cli.Command) error {
+			if cmd.IsSet(FlagNameVersion) {
 				handler := newVersionCommandHandler(c.stdOut)
 				return handler.Execute()
 			}
 			if len(args) <= 1 {
-				return cli.ShowAppHelp(context)
+				return cli.ShowAppHelp(cmd)
 			}
 
 			if strings.HasPrefix(args[1], "--") {
@@ -92,7 +93,7 @@ uipath <service> <operation> --<argument> <value>`)
 			return fmt.Errorf("Command '%s' not found", commandName)
 		},
 	}
-	err = app.Run(args)
+	err = app.Run(ctx, args)
 	if err != nil {
 		return err
 	}
@@ -102,8 +103,8 @@ uipath <service> <operation> --<argument> <value>`)
 const colorRed = "\033[31m"
 const colorReset = "\033[0m"
 
-func (c Cli) Run(args []string, input stream.Stream) error {
-	err := c.run(args, input)
+func (c Cli) Run(ctx context.Context, args []string, input stream.Stream) error {
+	err := c.run(ctx, args, input)
 	if err != nil {
 		message := err.Error()
 		if c.coloredOutput {
@@ -129,21 +130,28 @@ func NewCli(
 
 func (c Cli) convertCommand(command *CommandDefinition) *cli.Command {
 	result := cli.Command{
-		Name:               command.Name,
-		Usage:              command.Summary,
-		Description:        command.Description,
-		Flags:              c.convertFlags(command.Flags...),
-		Subcommands:        c.convertCommands(command.Subcommands...),
-		CustomHelpTemplate: command.HelpTemplate,
-		Hidden:             command.Hidden,
-		HideHelp:           true,
-		OnUsageError: func(context *cli.Context, err error, isSubcommand bool) error {
+		Name:                      command.Name,
+		Usage:                     command.Summary,
+		Description:               command.Description,
+		Flags:                     c.convertFlags(command.Flags...),
+		Commands:                  c.convertCommands(command.Subcommands...),
+		CustomHelpTemplate:        command.HelpTemplate,
+		Hidden:                    command.Hidden,
+		HideHelp:                  true,
+		DisableSliceFlagSeparator: true,
+		CommandNotFound: func(ctx context.Context, cmd *cli.Command, commandName string) {
+			if cmd != nil {
+				root := cmd.Root()
+				root.CommandNotFound(ctx, cmd, commandName)
+			}
+		},
+		OnUsageError: func(ctx context.Context, cmd *cli.Command, err error, isSubcommand bool) error {
 			return fmt.Errorf("Incorrect usage: %w", err)
 		},
 	}
 	if command.Action != nil {
-		result.Action = func(context *cli.Context) error {
-			return command.Action(&CommandExecContext{context})
+		result.Action = func(ctx context.Context, cmd *cli.Command) error {
+			return command.Action(&CommandExecContext{cmd, ctx})
 		}
 	}
 	return &result
@@ -162,14 +170,14 @@ func (c Cli) convertStringSliceFlag(flag *FlagDefinition) *cli.StringSliceFlag {
 	if flag.EnvVarName != "" {
 		envVars = append(envVars, flag.EnvVarName)
 	}
-	var value *cli.StringSlice
+	var value []string
 	if flag.DefaultValue != nil {
-		value = cli.NewStringSlice(flag.DefaultValue.([]string)...)
+		value = flag.DefaultValue.([]string)
 	}
 	return &cli.StringSliceFlag{
 		Name:     flag.Name,
 		Usage:    flag.Summary,
-		EnvVars:  envVars,
+		Sources:  cli.EnvVars(envVars...),
 		Required: flag.Required,
 		Hidden:   flag.Hidden,
 		Value:    value,
@@ -188,7 +196,7 @@ func (c Cli) convertIntFlag(flag *FlagDefinition) *cli.IntFlag {
 	return &cli.IntFlag{
 		Name:     flag.Name,
 		Usage:    flag.Summary,
-		EnvVars:  envVars,
+		Sources:  cli.EnvVars(envVars...),
 		Required: flag.Required,
 		Hidden:   flag.Hidden,
 		Value:    value,
@@ -207,7 +215,7 @@ func (c Cli) convertBoolFlag(flag *FlagDefinition) *cli.BoolFlag {
 	return &cli.BoolFlag{
 		Name:     flag.Name,
 		Usage:    flag.Summary,
-		EnvVars:  envVars,
+		Sources:  cli.EnvVars(envVars...),
 		Required: flag.Required,
 		Hidden:   flag.Hidden,
 		Value:    value,
@@ -226,7 +234,7 @@ func (c Cli) convertStringFlag(flag *FlagDefinition) *cli.StringFlag {
 	return &cli.StringFlag{
 		Name:     flag.Name,
 		Usage:    flag.Summary,
-		EnvVars:  envVars,
+		Sources:  cli.EnvVars(envVars...),
 		Required: flag.Required,
 		Hidden:   flag.Hidden,
 		Value:    value,

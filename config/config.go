@@ -187,9 +187,9 @@ func (c *Config) SetAuthUri(uri string) error {
 }
 
 func (c *Config) SetAuthProperty(key string, value string) {
-	properties, ok := c.Auth[propertiesKey].(map[interface{}]interface{})
+	properties, ok := c.Auth[propertiesKey].(map[string]interface{})
 	if properties == nil || !ok {
-		properties = map[interface{}]interface{}{}
+		properties = map[string]interface{}{}
 	}
 	properties[key] = value
 	c.Auth[propertiesKey] = properties

@@ -3,6 +3,7 @@ package test
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -128,7 +129,7 @@ type Result struct {
 	RequestBody   string
 }
 
-func handleIdentityTokenRequest(context Context, request *http.Request, response http.ResponseWriter) {
+func handleIdentityTokenRequest(ctx Context, request *http.Request, response http.ResponseWriter) {
 	body, _ := io.ReadAll(request.Body)
 	requestBody := string(body)
 	data, _ := url.ParseQuery(requestBody)
@@ -147,21 +148,21 @@ func handleIdentityTokenRequest(context Context, request *http.Request, response
 		_, _ = response.Write([]byte("Invalid grant_type"))
 		return
 	}
-	response.WriteHeader(context.IdentityResponse.Status)
-	_, _ = response.Write([]byte(context.IdentityResponse.Body))
+	response.WriteHeader(ctx.IdentityResponse.Status)
+	_, _ = response.Write([]byte(ctx.IdentityResponse.Body))
 }
 
-func RunCli(args []string, context Context) Result {
+func RunCli(args []string, ctx Context) Result {
 	baseUrl := ""
 	requestUrl := ""
 	requestHeader := map[string]string{}
 	requestBody := ""
 
-	if len(context.Responses) > 0 || context.ResponseHandler != nil {
+	if len(ctx.Responses) > 0 || ctx.ResponseHandler != nil {
 		srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			requestUrl = r.URL.String()
 			if requestUrl == "/identity_/connect/token" {
-				handleIdentityTokenRequest(context, r, w)
+				handleIdentityTokenRequest(ctx, r, w)
 				return
 			}
 
@@ -178,9 +179,9 @@ func RunCli(args []string, context Context) Result {
 			if query != "" {
 				decodedRequestUrl += "?" + query
 			}
-			response, found := context.Responses[decodedRequestUrl]
+			response, found := ctx.Responses[decodedRequestUrl]
 			if !found {
-				response, found = context.Responses["*"]
+				response, found = ctx.Responses["*"]
 			}
 			if found {
 				w.WriteHeader(response.Status)
@@ -188,8 +189,8 @@ func RunCli(args []string, context Context) Result {
 				return
 			}
 
-			if context.ResponseHandler != nil {
-				response = context.ResponseHandler(RequestData{
+			if ctx.ResponseHandler != nil {
+				response = ctx.ResponseHandler(RequestData{
 					URL:    *r.URL,
 					Header: requestHeader,
 					Body:   body,
@@ -205,10 +206,10 @@ func RunCli(args []string, context Context) Result {
 		baseUrl = srv.URL
 	}
 
-	if context.ConfigFile != "" && context.Config != "" {
-		err := os.WriteFile(context.ConfigFile, []byte(context.Config), 0600)
+	if ctx.ConfigFile != "" && ctx.Config != "" {
+		err := os.WriteFile(ctx.ConfigFile, []byte(ctx.Config), 0600)
 		if err != nil {
-			panic(fmt.Errorf("Error writing config file '%s': %w", context.ConfigFile, err))
+			panic(fmt.Errorf("Error writing config file '%s': %w", ctx.ConfigFile, err))
 		}
 	}
 
@@ -220,32 +221,32 @@ func RunCli(args []string, context Context) Result {
 		auth.NewBearerAuthenticator(cache.NewFileCache()),
 	}
 	commandPlugins := []plugin.CommandPlugin{}
-	if context.CommandPlugin != nil {
-		commandPlugins = append(commandPlugins, context.CommandPlugin)
+	if ctx.CommandPlugin != nil {
+		commandPlugins = append(commandPlugins, ctx.CommandPlugin)
 	}
 
 	cli := commandline.NewCli(
-		context.StdIn,
+		ctx.StdIn,
 		stdout,
 		stderr,
 		false,
 		*commandline.NewDefinitionProvider(
-			commandline.NewDefinitionFileStoreWithData(context.Definitions),
+			commandline.NewDefinitionFileStoreWithData(ctx.Definitions),
 			parser.NewOpenApiParser(),
 			commandPlugins,
 		),
 		*config.NewConfigProvider(
-			config.NewConfigFileStoreWithData(context.ConfigFile, []byte(context.Config)),
+			config.NewConfigFileStoreWithData(ctx.ConfigFile, []byte(ctx.Config)),
 		),
 		executor.NewHttpExecutor(authenticators),
 		executor.NewPluginExecutor(authenticators),
 	)
 	args = append([]string{"uipath"}, args...)
 	var input stream.Stream
-	if context.StdIn != nil {
-		input = stream.NewMemoryStream(parser.RawBodyParameterName, context.StdIn.Bytes())
+	if ctx.StdIn != nil {
+		input = stream.NewMemoryStream(parser.RawBodyParameterName, ctx.StdIn.Bytes())
 	}
-	err := cli.Run(args, input)
+	err := cli.Run(context.Background(), args, input)
 
 	return Result{
 		Error:         err,

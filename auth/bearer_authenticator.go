@@ -138,21 +138,17 @@ func (a BearerAuthenticator) parseProperties(config map[string]interface{}) (map
 	if value == nil {
 		return result, nil
 	}
-	properties, valid := value.(map[interface{}]interface{})
+	properties, valid := value.(map[string]interface{})
 	if !valid {
 		return result, errors.New("Invalid key 'properties' in auth")
 	}
 
 	for k, v := range properties {
-		key, valid := k.(string)
-		if !valid {
-			return result, fmt.Errorf("Invalid key '%v' in auth properties", k)
-		}
 		value, valid := v.(string)
 		if !valid {
-			return result, fmt.Errorf("Invalid value for '%v' in auth properties", k)
+			return result, fmt.Errorf("Invalid value for '%s' in auth properties", k)
 		}
-		result[key] = value
+		result[k] = value
 	}
 	return result, nil
 }
