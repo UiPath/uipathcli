@@ -6,15 +6,15 @@
 
 # uipathcli
 
-The uipathcli project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and MacOS.
+The uipathcli project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and macOS.
 
 <img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_uipath.gif" />
 
-*Try it out, enjoy, and let us know what you think. Remember, uipathcli is still in preview phase, a special time when your feedback, thoughts, or questions are more than appreciated, so please submit them [here](https://github.com/UiPath/uipathcli/issues).*
+*Try it out, enjoy, and share your feedback, thoughts, or questions [here](https://github.com/UiPath/uipathcli/issues).*
 
 ## Install
 
-In order to get started quickly, you can run the install scripts for Windows, Linux and MacOS.
+In order to get started quickly, you can run the install scripts for Windows, Linux and macOS.
 
 <details open>
   <summary>Install instructions for x86_64/amd64</summary>
@@ -32,7 +32,7 @@ Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/
 curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-amd64.tar.gz" | tar -xzv
 ```
 
-### MacOS
+### macOS
 
 ```bash
 curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-amd64.tar.gz" | tar -xzv
@@ -57,7 +57,7 @@ Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/
 curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-arm64.tar.gz" | tar -xzv
 ```
 
-### MacOS (ARM)
+### macOS (ARM)
 
 ```bash
 curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar -xzv
@@ -181,7 +181,7 @@ Response:
 
 ### OAuth Login
 
-In order to use oauth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
+In order to use OAuth login, you need to set up an [External Application (Non-Confidential)](https://docs.uipath.com/automation-cloud/docs/managing-external-applications) with a redirect url which points to your local CLI:
 
 <img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_auth_login.gif" />
 
@@ -315,18 +315,10 @@ uipath studio package pack
 # Publish the package
 uipath studio package publish
 
-# Create release
-folderId=$(uipath orchestrator folders get --query "value[0].Id")
-releaseKey=$(uipath orchestrator releases post --folder-id "$folderId" \
-                                               --name "MyProcess" \
-                                               --process-key "MyProcess" \
-                                               --process-version "1.0.0" \
-                                               --query "Key" \
-                                               --output text)
-
 # Start process
+folderId=$(uipath orchestrator folders get --query "value[0].Id")
 jobId=$(uipath orchestrator jobs start-jobs --folder-id "$folderId" \
-                                            --start-info "ReleaseKey=$releaseKey" \
+                                            --start-info "ReleaseName=Calculator" \
                                             --query "value[0].Id")
 uipath orchestrator jobs get-by-id --folder-id "$folderId" --key "$jobId"
 ```
@@ -472,7 +464,7 @@ profiles:
     uri: https://<your-automation-suite-cluster-url>
 ```
 
-*Note: You can also disable HTTPS certificate validation by adding `insecure: true` to you profile but this imposes a security risk. Please make sure you understand the implications of this setting and just disable the certificate check when absolutely necessary.*
+*Note: You can also disable HTTPS certificate validation by adding `insecure: true` to your profile but this imposes a security risk. Please make sure you understand the implications of this setting and just disable the certificate check when absolutely necessary.*
 
 And you simply call the CLI with the `--profile automationsuite` parameter:
 
@@ -515,7 +507,7 @@ Array arguments can be passed as comma-separated strings and are automatically c
 uipath orchestrator jobs stop-jobs --folder-id "2000021" --strategy "SoftStop" --job-ids "451019658,451019773"
 ```
 
-You can also provide arrays by specifing the same parameter multiple times:
+You can also provide arrays by specifying the same parameter multiple times:
 
 ```bash
 uipath orchestrator jobs stop-jobs --folder-id "2000021" --strategy "SoftStop" --job-ids "451019658" --job-ids "451019773"
@@ -523,7 +515,7 @@ uipath orchestrator jobs stop-jobs --folder-id "2000021" --strategy "SoftStop" -
 
 ### Nested Object arguments
 
-More complex nested objects can be passed as semi-colon separated list of property assigments:
+More complex nested objects can be passed as semi-colon separated list of property assignments:
 
 ```bash
 uipath orchestrator jobs start-jobs --folder-id "2000021" --start-info "ReleaseKey=4bfcd6e6-44ae-46d2-b1a5-d8647bec8b66; RunAsMe=false; RuntimeType=Unattended"
@@ -568,7 +560,7 @@ The CLI supports multiple output formats:
 
 - `json` (default): HTTP response is rendered as prettified json on standard output. The output can be used to pipe into `jq` or other command line utilities which support json.
 
-- `text`: Fields are tab-separated and rows are outputted on separate lines. This output can be easily processed by standard unix tools like `cut`, `grep`, `sort`, etc...
+- `text`: Fields are tab-separated and rows are outputted on separate lines. This output can be easily processed by standard Unix tools like `cut`, `grep`, `sort`, etc...
 
 In order to switch to text output, you can either set the environment variable `UIPATH_OUTPUT` to `text`, change the setting in your profile or pass it as an argument to the CLI:
 
