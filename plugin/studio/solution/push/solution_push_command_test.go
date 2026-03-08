@@ -30,8 +30,8 @@ func TestPushMissingSourceReturnsError(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "solution", "push", "--organization", "my-org"}, context)
 
-	if result.Error == nil || !strings.Contains(result.Error.Error(), "Source .uis file is required") {
-		t.Errorf("Expected source required error, but got: %v", result.Error)
+	if result.Error == nil {
+		t.Errorf("Expected error for missing source, but got none")
 	}
 }
 

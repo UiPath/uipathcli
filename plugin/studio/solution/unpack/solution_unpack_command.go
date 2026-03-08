@@ -6,6 +6,7 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -34,7 +35,7 @@ func (c SolutionUnpackCommand) Command() plugin.Command {
 func (c SolutionUnpackCommand) Execute(ctx plugin.ExecutionContext, writer output.OutputWriter, logger log.Logger) error {
 	source := c.getStringParameter("source", "", ctx.Parameters)
 	if source == "" {
-		return fmt.Errorf("Source .uis file is required")
+		return errors.New("Source .uis file is required")
 	}
 	source, _ = filepath.Abs(source)
 	destination := c.getStringParameter("destination", "", ctx.Parameters)
@@ -79,14 +80,14 @@ func (c SolutionUnpackCommand) unpack(params solutionUnpackParams) (*solutionUnp
 		}
 
 		if file.FileInfo().IsDir() {
-			err := os.MkdirAll(destPath, 0755)
+			err := os.MkdirAll(destPath, 0750)
 			if err != nil {
 				return nil, fmt.Errorf("Cannot create directory '%s': %w", destPath, err)
 			}
 			continue
 		}
 
-		err := os.MkdirAll(filepath.Dir(destPath), 0755)
+		err := os.MkdirAll(filepath.Dir(destPath), 0750)
 		if err != nil {
 			return nil, fmt.Errorf("Cannot create directory for '%s': %w", destPath, err)
 		}
@@ -102,7 +103,8 @@ func (c SolutionUnpackCommand) unpack(params solutionUnpackParams) (*solutionUnp
 			return nil, fmt.Errorf("Cannot read archive entry '%s': %w", file.Name, err)
 		}
 
-		_, err = io.Copy(outFile, rc)
+		const maxFileSize = 1 << 30 // 1 GB
+		_, err = io.Copy(outFile, io.LimitReader(rc, maxFileSize))
 		_ = rc.Close()
 		_ = outFile.Close()
 		if err != nil {

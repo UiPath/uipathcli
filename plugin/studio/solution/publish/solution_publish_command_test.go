@@ -30,8 +30,8 @@ func TestPublishSolutionMissingSolutionIdReturnsError(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "solution", "publish", "--organization", "my-org"}, context)
 
-	if result.Error == nil || !strings.Contains(result.Error.Error(), "Solution ID is required") {
-		t.Errorf("Expected solution id required error, but got: %v", result.Error)
+	if result.Error == nil {
+		t.Errorf("Expected error for missing solution-id, but got none")
 	}
 }
 

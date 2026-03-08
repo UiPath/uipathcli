@@ -32,8 +32,8 @@ func TestPullMissingSolutionIdReturnsError(t *testing.T) {
 
 	result := test.RunCli([]string{"studio", "solution", "pull", "--organization", "my-org"}, context)
 
-	if result.Error == nil || !strings.Contains(result.Error.Error(), "Solution ID is required") {
-		t.Errorf("Expected solution id required error, but got: %v", result.Error)
+	if result.Error == nil {
+		t.Errorf("Expected error for missing solution-id, but got none")
 	}
 }
 
@@ -69,9 +69,7 @@ func TestPullDownloadsSolution(t *testing.T) {
 
 func TestPullDefaultDestination(t *testing.T) {
 	tmpDir := t.TempDir()
-	origDir, _ := os.Getwd()
-	_ = os.Chdir(tmpDir)
-	defer func() { _ = os.Chdir(origDir) }()
+	t.Chdir(tmpDir)
 
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).

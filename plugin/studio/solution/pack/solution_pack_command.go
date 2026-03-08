@@ -6,7 +6,6 @@ import (
 	"archive/zip"
 	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -85,55 +84,22 @@ func (c SolutionPackCommand) pack(params solutionPackParams) (*solutionPackResul
 		if err != nil {
 			return err
 		}
-
 		relPath, err := filepath.Rel(params.Source, path)
 		if err != nil {
 			return err
 		}
-
-		// Skip .git directory
-		if strings.HasPrefix(relPath, ".git"+string(filepath.Separator)) || relPath == ".git" {
+		if c.shouldSkip(relPath, info) {
 			if info.IsDir() {
 				return filepath.SkipDir
 			}
 			return nil
 		}
-
-		// Skip __pycache__ directories
-		if info.IsDir() && info.Name() == "__pycache__" {
-			return filepath.SkipDir
-		}
-
-		// Skip .pyc files
-		if !info.IsDir() && strings.HasSuffix(info.Name(), ".pyc") {
-			return nil
-		}
-
 		if info.IsDir() {
 			return nil
 		}
-
-		// Use forward slashes in ZIP entries
-		zipPath := strings.ReplaceAll(relPath, string(filepath.Separator), "/")
-		w, err := zipWriter.Create(zipPath)
-		if err != nil {
-			return fmt.Errorf("Error creating zip entry '%s': %w", zipPath, err)
-		}
-
-		f, err := os.Open(path)
-		if err != nil {
-			return fmt.Errorf("Error opening file '%s': %w", path, err)
-		}
-		defer func() { _ = f.Close() }()
-
-		_, err = io.Copy(w, f)
-		if err != nil {
-			return fmt.Errorf("Error writing file '%s': %w", zipPath, err)
-		}
-		return nil
+		return c.addFileToZip(zipWriter, path, relPath)
 	})
 	if err != nil {
-		// Clean up partial output on failure
 		_ = zipWriter.Close()
 		_ = outFile.Close()
 		_ = os.Remove(params.Destination)
@@ -149,6 +115,37 @@ func (c SolutionPackCommand) pack(params solutionPackParams) (*solutionPackResul
 	return newSucceededSolutionPackResult(params.Destination, params.SolutionId, params.SolutionName, size), nil
 }
 
+func (c SolutionPackCommand) shouldSkip(relPath string, info os.FileInfo) bool {
+	if relPath == ".git" || strings.HasPrefix(relPath, ".git"+string(filepath.Separator)) {
+		return true
+	}
+	if info.IsDir() && info.Name() == "__pycache__" {
+		return true
+	}
+	if !info.IsDir() && strings.HasSuffix(info.Name(), ".pyc") {
+		return true
+	}
+	return false
+}
+
+func (c SolutionPackCommand) addFileToZip(zipWriter *zip.Writer, path string, relPath string) error {
+	zipPath := strings.ReplaceAll(relPath, string(filepath.Separator), "/")
+	w, err := zipWriter.Create(zipPath)
+	if err != nil {
+		return fmt.Errorf("Error creating zip entry '%s': %w", zipPath, err)
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return fmt.Errorf("Error opening file '%s': %w", path, err)
+	}
+	defer func() { _ = f.Close() }()
+	_, err = io.Copy(w, f)
+	if err != nil {
+		return fmt.Errorf("Error writing file '%s': %w", zipPath, err)
+	}
+	return nil
+}
+
 func (c SolutionPackCommand) readSolutionInfo(path string) (string, string) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -158,7 +155,7 @@ func (c SolutionPackCommand) readSolutionInfo(path string) (string, string) {
 		SolutionId string `json:"SolutionId"`
 	}
 	err = json.Unmarshal(data, &storage)
-	if errors.Is(err, nil) {
+	if err == nil {
 		return storage.SolutionId, ""
 	}
 	return "", ""

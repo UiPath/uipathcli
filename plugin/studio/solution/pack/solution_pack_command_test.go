@@ -112,7 +112,7 @@ func TestPackContainsAllFiles(t *testing.T) {
 func TestPackExcludesGitDirectory(t *testing.T) {
 	dir := createSolutionDirectory(t)
 	gitDir := filepath.Join(dir, ".git")
-	_ = os.MkdirAll(gitDir, 0755)
+	_ = os.MkdirAll(gitDir, 0750)
 	_ = os.WriteFile(filepath.Join(gitDir, "config"), []byte("test"), 0600)
 
 	outputPath := filepath.Join(t.TempDir(), "test.uis")
@@ -139,7 +139,7 @@ func TestPackExcludesGitDirectory(t *testing.T) {
 func TestPackExcludesPycache(t *testing.T) {
 	dir := createSolutionDirectory(t)
 	cacheDir := filepath.Join(dir, "Agent", "__pycache__")
-	_ = os.MkdirAll(cacheDir, 0755)
+	_ = os.MkdirAll(cacheDir, 0750)
 	_ = os.WriteFile(filepath.Join(cacheDir, "module.pyc"), []byte("test"), 0600)
 
 	outputPath := filepath.Join(t.TempDir(), "test.uis")
@@ -196,9 +196,7 @@ func TestPackDefaultOutputName(t *testing.T) {
 
 	// Work from a temp directory so default output goes there
 	tmpDir := t.TempDir()
-	origDir, _ := os.Getwd()
-	_ = os.Chdir(tmpDir)
-	defer func() { _ = os.Chdir(origDir) }()
+	t.Chdir(tmpDir)
 
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
@@ -230,16 +228,16 @@ func createSolutionDirectory(t *testing.T) string {
 	_ = os.WriteFile(filepath.Join(dir, "SolutionStorage.json"), data, 0600)
 
 	agentDir := filepath.Join(dir, "Agent")
-	_ = os.MkdirAll(agentDir, 0755)
+	_ = os.MkdirAll(agentDir, 0750)
 	_ = os.WriteFile(filepath.Join(agentDir, "agent.json"), []byte(`{"type":"lowCode"}`), 0600)
 	_ = os.WriteFile(filepath.Join(agentDir, "project.uiproj"), []byte(`{"ProjectType":"Agent"}`), 0600)
 
 	builderDir := filepath.Join(agentDir, ".agent-builder")
-	_ = os.MkdirAll(builderDir, 0755)
+	_ = os.MkdirAll(builderDir, 0750)
 	_ = os.WriteFile(filepath.Join(builderDir, "bindings.json"), []byte(`{"version":"2.0","resources":[]}`), 0600)
 
 	projectDir := filepath.Join(agentDir, ".project")
-	_ = os.MkdirAll(projectDir, 0755)
+	_ = os.MkdirAll(projectDir, 0750)
 	_ = os.WriteFile(filepath.Join(projectDir, "JitCustomTypes.json"), []byte(`{}`), 0600)
 
 	return dir
