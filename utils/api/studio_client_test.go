@@ -2,7 +2,7 @@ package api
 
 import (
 	"bytes"
-	"fmt"
+	"errors"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -384,9 +384,9 @@ type failingStream struct {
 }
 
 func (s *failingStream) Name() string           { return s.name }
-func (s *failingStream) Size() (int64, error)    { return 0, fmt.Errorf("size error") }
+func (s *failingStream) Size() (int64, error)    { return 0, errors.New("size error") }
 func (s *failingStream) Data() (io.ReadCloser, error) {
-	return nil, fmt.Errorf("data error")
+	return nil, errors.New("data error")
 }
 
 func newTestProgressBar(logger log.Logger) *visualization.ProgressBar {
