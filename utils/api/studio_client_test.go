@@ -52,8 +52,8 @@ func TestNewUriBuilderWithEmptyPath(t *testing.T) {
 	builder := client.newUriBuilder("/api/v1/test")
 	uri := builder.Build()
 
-	if !strings.Contains(uri.Path, "/my-org/studio_/backend/api/v1/test") {
-		t.Errorf("Expected URI to contain default studio backend path, but got: %v", uri.String())
+	if !strings.Contains(uri, "/my-org/studio_/backend/api/v1/test") {
+		t.Errorf("Expected URI to contain default studio backend path, but got: %v", uri)
 	}
 }
 
@@ -66,8 +66,8 @@ func TestNewUriBuilderWithCustomPath(t *testing.T) {
 	builder := client.newUriBuilder("/api/v1/test")
 	uri := builder.Build()
 
-	if !strings.Contains(uri.Path, "/custom/path/api/v1/test") {
-		t.Errorf("Expected URI to use custom path, but got: %v", uri.String())
+	if !strings.Contains(uri, "/custom/path/api/v1/test") {
+		t.Errorf("Expected URI to use custom path, but got: %v", uri)
 	}
 }
 
