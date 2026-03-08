@@ -24,6 +24,12 @@ import (
 	plugin_studio_pack "github.com/UiPath/uipathcli/plugin/studio/pack"
 	plugin_studio_publish "github.com/UiPath/uipathcli/plugin/studio/publish"
 	plugin_studio_restore "github.com/UiPath/uipathcli/plugin/studio/restore"
+	plugin_solution_list "github.com/UiPath/uipathcli/plugin/studio/solution/list"
+	plugin_solution_pack "github.com/UiPath/uipathcli/plugin/studio/solution/pack"
+	plugin_solution_publish "github.com/UiPath/uipathcli/plugin/studio/solution/publish"
+	plugin_solution_pull "github.com/UiPath/uipathcli/plugin/studio/solution/pull"
+	plugin_solution_push "github.com/UiPath/uipathcli/plugin/studio/solution/push"
+	plugin_solution_unpack "github.com/UiPath/uipathcli/plugin/studio/solution/unpack"
 	plugin_studio_testrun "github.com/UiPath/uipathcli/plugin/studio/testrun"
 	"github.com/UiPath/uipathcli/utils/stream"
 )
@@ -78,6 +84,12 @@ func main() {
 				plugin_studio_restore.NewPackageRestoreCommand(),
 				plugin_studio_publish.NewPackagePublishCommand(),
 				plugin_studio_testrun.NewTestRunCommand(),
+				plugin_solution_pack.NewSolutionPackCommand(),
+				plugin_solution_unpack.NewSolutionUnpackCommand(),
+				plugin_solution_push.NewSolutionPushCommand(),
+				plugin_solution_pull.NewSolutionPullCommand(),
+				plugin_solution_list.NewSolutionListCommand(),
+				plugin_solution_publish.NewSolutionPublishCommand(),
 			},
 		),
 		*configProvider,

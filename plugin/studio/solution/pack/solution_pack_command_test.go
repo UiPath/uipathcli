@@ -1,0 +1,246 @@
+package pack
+
+import (
+	"archive/zip"
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+
+	"github.com/UiPath/uipathcli/plugin/studio"
+	"github.com/UiPath/uipathcli/test"
+)
+
+func TestPackMissingSolutionDirectoryReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", "/tmp/not-found-dir"}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Solution directory not found") {
+		t.Errorf("Expected solution directory not found error, but got: %v", result.Error)
+	}
+}
+
+func TestPackNotADirectoryReturnsError(t *testing.T) {
+	path := test.CreateTempFile(t, "test")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", path}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Source is not a directory") {
+		t.Errorf("Expected not a directory error, but got: %v", result.Error)
+	}
+}
+
+func TestPackMissingSolutionStorageReturnsError(t *testing.T) {
+	dir := t.TempDir()
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "SolutionStorage.json not found") {
+		t.Errorf("Expected SolutionStorage.json not found error, but got: %v", result.Error)
+	}
+}
+
+func TestPackCreatesUisFile(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status Succeeded, but got: %v", result.StdOut)
+	}
+	if _, err := os.Stat(outputPath); err != nil {
+		t.Errorf("Expected .uis file to exist at %s, but got error: %v", outputPath, err)
+	}
+}
+
+func TestPackContainsAllFiles(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	reader, err := zip.OpenReader(outputPath)
+	if err != nil {
+		t.Fatalf("Cannot open .uis file: %v", err)
+	}
+	defer func() { _ = reader.Close() }()
+
+	fileNames := map[string]bool{}
+	for _, f := range reader.File {
+		fileNames[f.Name] = true
+	}
+
+	expectedFiles := []string{
+		"SolutionStorage.json",
+		"Agent/agent.json",
+		"Agent/project.uiproj",
+		"Agent/.agent-builder/bindings.json",
+	}
+	for _, expected := range expectedFiles {
+		if !fileNames[expected] {
+			t.Errorf("Expected .uis to contain %s, but it was not found", expected)
+		}
+	}
+}
+
+func TestPackExcludesGitDirectory(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	gitDir := filepath.Join(dir, ".git")
+	_ = os.MkdirAll(gitDir, 0755)
+	_ = os.WriteFile(filepath.Join(gitDir, "config"), []byte("test"), 0600)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	reader, err := zip.OpenReader(outputPath)
+	if err != nil {
+		t.Fatalf("Cannot open .uis file: %v", err)
+	}
+	defer func() { _ = reader.Close() }()
+
+	for _, f := range reader.File {
+		if strings.HasPrefix(f.Name, ".git/") || f.Name == ".git" {
+			t.Errorf("Expected .git to be excluded, but found: %s", f.Name)
+		}
+	}
+}
+
+func TestPackExcludesPycache(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	cacheDir := filepath.Join(dir, "Agent", "__pycache__")
+	_ = os.MkdirAll(cacheDir, 0755)
+	_ = os.WriteFile(filepath.Join(cacheDir, "module.pyc"), []byte("test"), 0600)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	reader, err := zip.OpenReader(outputPath)
+	if err != nil {
+		t.Fatalf("Cannot open .uis file: %v", err)
+	}
+	defer func() { _ = reader.Close() }()
+
+	for _, f := range reader.File {
+		if strings.Contains(f.Name, "__pycache__") || strings.HasSuffix(f.Name, ".pyc") {
+			t.Errorf("Expected __pycache__ and .pyc to be excluded, but found: %s", f.Name)
+		}
+	}
+}
+
+func TestPackIncludesDotDirectories(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	reader, err := zip.OpenReader(outputPath)
+	if err != nil {
+		t.Fatalf("Cannot open .uis file: %v", err)
+	}
+	defer func() { _ = reader.Close() }()
+
+	found := false
+	for _, f := range reader.File {
+		if strings.Contains(f.Name, ".agent-builder/") {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Errorf("Expected .agent-builder/ to be included in the .uis file")
+	}
+}
+
+func TestPackDefaultOutputName(t *testing.T) {
+	dir := createSolutionDirectory(t)
+
+	// Work from a temp directory so default output goes there
+	tmpDir := t.TempDir()
+	origDir, _ := os.Getwd()
+	_ = os.Chdir(tmpDir)
+	defer func() { _ = os.Chdir(origDir) }()
+
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	pkg, ok := stdout["package"].(string)
+	if !ok || !strings.HasSuffix(pkg, ".uis") {
+		t.Errorf("Expected package path to end with .uis, but got: %v", pkg)
+	}
+}
+
+func createSolutionDirectory(t *testing.T) string {
+	dir := t.TempDir()
+
+	solutionStorage := map[string]interface{}{
+		"SolutionId": "test-solution-id",
+		"Projects": []map[string]interface{}{
+			{"ProjectId": "test-project-id", "ProjectRelativePath": "Agent/project.uiproj"},
+		},
+	}
+	data, _ := json.Marshal(solutionStorage)
+	_ = os.WriteFile(filepath.Join(dir, "SolutionStorage.json"), data, 0600)
+
+	agentDir := filepath.Join(dir, "Agent")
+	_ = os.MkdirAll(agentDir, 0755)
+	_ = os.WriteFile(filepath.Join(agentDir, "agent.json"), []byte(`{"type":"lowCode"}`), 0600)
+	_ = os.WriteFile(filepath.Join(agentDir, "project.uiproj"), []byte(`{"ProjectType":"Agent"}`), 0600)
+
+	builderDir := filepath.Join(agentDir, ".agent-builder")
+	_ = os.MkdirAll(builderDir, 0755)
+	_ = os.WriteFile(filepath.Join(builderDir, "bindings.json"), []byte(`{"version":"2.0","resources":[]}`), 0600)
+
+	projectDir := filepath.Join(agentDir, ".project")
+	_ = os.MkdirAll(projectDir, 0755)
+	_ = os.WriteFile(filepath.Join(projectDir, "JitCustomTypes.json"), []byte(`{}`), 0600)
+
+	return dir
+}

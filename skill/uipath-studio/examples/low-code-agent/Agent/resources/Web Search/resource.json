@@ -1,0 +1,109 @@
+{
+  "$resourceType": "tool",
+  "name": "Web Search",
+  "description": "Web search executes a search of the public domain using a natural language search query.",
+  "location": "external",
+  "type": "integration",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "provider": {
+        "type": "string",
+        "title": "Search Engine",
+        "enum": ["GoogleCustomSearch"],
+        "oneOf": [{ "const": "GoogleCustomSearch", "title": "GoogleCustomSearch" }]
+      },
+      "query": {
+        "type": "string",
+        "title": "Search",
+        "description": "The natural language query to search the web for"
+      },
+      "num": {
+        "type": "integer",
+        "title": "Number of results",
+        "description": "The number of results. Default to 10."
+      }
+    },
+    "required": ["provider", "query"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "results[*]": {
+        "type": "array",
+        "title": "Results",
+        "items": { "$ref": "#/definitions/results[*]" }
+      },
+      "formattedResults": {
+        "type": "string",
+        "title": "Formatted results"
+      }
+    },
+    "definitions": {
+      "results[*]": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "title": "Result title" },
+          "snippet": { "type": "string", "title": "Result snippet" },
+          "url": { "type": "string", "title": "Result url" }
+        }
+      }
+    }
+  },
+  "settings": {},
+  "properties": {
+    "toolPath": "/v2/webSearch",
+    "objectName": "v2::webSearch",
+    "toolDisplayName": "Web Search",
+    "method": "POST",
+    "connection": {
+      "id": "",
+      "name": "",
+      "state": "enabled",
+      "connector": {
+        "key": "uipath-uipath-airdk",
+        "name": "UiPath GenAI Activities",
+        "enabled": true
+      },
+      "folder": {
+        "key": "00000000-0000-0000-0000-000000000000",
+        "path": ""
+      },
+      "solutionProperties": {
+        "resourceKey": "00000000-0000-0000-0000-000000000100"
+      }
+    },
+    "parameters": [
+      {
+        "name": "provider",
+        "displayName": "Search Engine",
+        "type": "string",
+        "fieldLocation": "body",
+        "fieldVariant": "static",
+        "value": "GoogleCustomSearch",
+        "dynamic": false,
+        "position": "primary",
+        "sortOrder": 1,
+        "required": true,
+        "enumValues": [{ "name": "GoogleCustomSearch", "value": "GoogleCustomSearch" }]
+      },
+      {
+        "name": "query",
+        "displayName": "Search",
+        "type": "string",
+        "fieldLocation": "body",
+        "fieldVariant": "dynamic",
+        "value": "{{prompt}}",
+        "dynamic": true,
+        "position": "primary",
+        "sortOrder": 2,
+        "required": true
+      }
+    ],
+    "bodyStructure": { "contentType": "json" }
+  },
+  "guardrail": { "policies": [] },
+  "id": "00000000-0000-0000-0000-000000000020",
+  "isPreview": false,
+  "isEnabled": true
+}

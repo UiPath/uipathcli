@@ -1,0 +1,10 @@
+{
+  "type": "object",
+  "properties": {
+    "min_sources": {
+      "type": "integer",
+      "description": "Minimum number of sources expected in the output"
+    }
+  },
+  "required": ["min_sources"]
+}
