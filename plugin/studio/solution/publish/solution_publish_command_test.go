@@ -92,6 +92,24 @@ func TestPublishSolutionAcceptedStatusSucceeds(t *testing.T) {
 	}
 }
 
+func TestPublishSolutionCreatedStatusSucceeds(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/Publish-Requests", http.StatusCreated, `{"requestId":"req-created","status":"created"}`).
+		WithCommandPlugin(NewSolutionPublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "publish", "--organization", "my-org", "--solution-id", "abc-123"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error for 201 Created, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["requestId"] != "req-created" {
+		t.Errorf("Expected requestId req-created, but got: %v", stdout["requestId"])
+	}
+}
+
 func TestPublishSolutionBadRequestReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
@@ -103,6 +121,20 @@ func TestPublishSolutionBadRequestReturnsError(t *testing.T) {
 
 	if result.Error == nil || !strings.Contains(result.Error.Error(), "400") {
 		t.Errorf("Expected error with status code 400, but got: %v", result.Error)
+	}
+}
+
+func TestPublishSolutionWithNonJsonResponseSucceeds(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/Publish-Requests", http.StatusOK, "not-json").
+		WithCommandPlugin(NewSolutionPublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "publish", "--organization", "my-org", "--solution-id", "abc-123"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error for non-JSON response, but got: %v", result.Error)
 	}
 }
 

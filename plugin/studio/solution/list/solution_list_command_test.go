@@ -73,6 +73,28 @@ func TestListInvalidJsonReturnsError(t *testing.T) {
 	}
 }
 
+func TestListReturnsEmptyList(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/List", http.StatusOK, `[]`).
+		WithCommandPlugin(NewSolutionListCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "list", "--organization", "my-org"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["status"] != "Succeeded" {
+		t.Errorf("Expected status Succeeded, but got: %v", result.StdOut)
+	}
+	solutions, ok := stdout["solutions"].([]interface{})
+	if !ok || len(solutions) != 0 {
+		t.Errorf("Expected empty solutions list, but got: %v", stdout["solutions"])
+	}
+}
+
 func TestListServerErrorReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).

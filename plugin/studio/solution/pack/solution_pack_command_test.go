@@ -254,6 +254,74 @@ func TestPackReportsFileSize(t *testing.T) {
 	}
 }
 
+func TestPackExcludesPycFilesOutsidePycache(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	// Create .pyc file directly in the Agent directory (not inside __pycache__)
+	_ = os.WriteFile(filepath.Join(dir, "Agent", "module.pyc"), []byte("bytecode"), 0600)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	reader, err := zip.OpenReader(outputPath)
+	if err != nil {
+		t.Fatalf("Cannot open .uis file: %v", err)
+	}
+	defer func() { _ = reader.Close() }()
+
+	for _, f := range reader.File {
+		if strings.HasSuffix(f.Name, ".pyc") {
+			t.Errorf("Expected .pyc files to be excluded, but found: %s", f.Name)
+		}
+	}
+}
+
+func TestPackWithInvalidSolutionStorageJson(t *testing.T) {
+	dir := t.TempDir()
+	// Write invalid JSON to SolutionStorage.json
+	_ = os.WriteFile(filepath.Join(dir, "SolutionStorage.json"), []byte("not valid json"), 0600)
+
+	agentDir := filepath.Join(dir, "Agent")
+	_ = os.MkdirAll(agentDir, 0750)
+	_ = os.WriteFile(filepath.Join(agentDir, "agent.json"), []byte(`{"type":"lowCode"}`), 0600)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error even with invalid JSON, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "" {
+		t.Errorf("Expected empty solutionId for invalid JSON, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestPackToInvalidDestinationReturnsError(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	// Use a path with non-existent parent directory
+	outputPath := filepath.Join(t.TempDir(), "nonexistent-parent", "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Cannot create output file") {
+		t.Errorf("Expected cannot create output file error, but got: %v", result.Error)
+	}
+}
+
 func createSolutionDirectory(t *testing.T) string {
 	dir := t.TempDir()
 

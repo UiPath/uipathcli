@@ -153,6 +153,110 @@ func TestUnpackDefaultDestination(t *testing.T) {
 	}
 }
 
+func TestUnpackWithDirectoryEntries(t *testing.T) {
+	uisPath := filepath.Join(t.TempDir(), "test.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+
+	// Add explicit directory entry with proper directory mode
+	dirHeader := &zip.FileHeader{
+		Name: "SubDir/",
+	}
+	dirHeader.SetMode(os.ModeDir | 0750)
+	_, err = w.CreateHeader(dirHeader)
+	if err != nil {
+		t.Fatalf("Cannot create directory entry: %v", err)
+	}
+	addZipFile(t, w, "SubDir/file.txt", "content")
+	addZipFile(t, w, "SolutionStorage.json", `{"SolutionId":"dir-test"}`)
+
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	info, err := os.Stat(filepath.Join(destDir, "SubDir"))
+	if err != nil || !info.IsDir() {
+		t.Errorf("Expected SubDir to be extracted as directory")
+	}
+	if _, err := os.Stat(filepath.Join(destDir, "SubDir", "file.txt")); err != nil {
+		t.Errorf("Expected SubDir/file.txt to be extracted: %v", err)
+	}
+}
+
+func TestUnpackWithoutSolutionStorageJson(t *testing.T) {
+	uisPath := filepath.Join(t.TempDir(), "test.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+	addZipFile(t, w, "Agent/agent.json", `{"type":"lowCode"}`)
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error even without SolutionStorage.json, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "" {
+		t.Errorf("Expected empty solutionId, but got: %v", stdout["solutionId"])
+	}
+	projectCount, ok := stdout["projectCount"].(float64)
+	if !ok || projectCount != 0 {
+		t.Errorf("Expected projectCount 0, but got: %v", stdout["projectCount"])
+	}
+}
+
+func TestUnpackWithInvalidSolutionStorageJson(t *testing.T) {
+	uisPath := filepath.Join(t.TempDir(), "test.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+	addZipFile(t, w, "SolutionStorage.json", "not valid json")
+	addZipFile(t, w, "Agent/agent.json", `{"type":"lowCode"}`)
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error even with invalid JSON, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "" {
+		t.Errorf("Expected empty solutionId for invalid JSON, but got: %v", stdout["solutionId"])
+	}
+}
+
 func createTestUisFile(t *testing.T) string {
 	uisPath := filepath.Join(t.TempDir(), "test.uis")
 	outFile, err := os.Create(uisPath)

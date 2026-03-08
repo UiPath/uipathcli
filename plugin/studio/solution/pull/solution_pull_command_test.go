@@ -106,6 +106,21 @@ func TestPullReportsFileSize(t *testing.T) {
 	}
 }
 
+func TestPullToInvalidDestinationReturnsError(t *testing.T) {
+	destPath := filepath.Join(t.TempDir(), "nonexistent-parent", "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Pull?solutionId=abc-123", http.StatusOK, "content").
+		WithCommandPlugin(NewSolutionPullCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pull", "--organization", "my-org", "--solution-id", "abc-123", "--destination", destPath}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Cannot create output file") {
+		t.Errorf("Expected cannot create output file error, but got: %v", result.Error)
+	}
+}
+
 func TestPullNotFoundReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).

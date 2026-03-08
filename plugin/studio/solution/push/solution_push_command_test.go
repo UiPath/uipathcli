@@ -135,6 +135,21 @@ func TestPushBadRequestReturnsError(t *testing.T) {
 	}
 }
 
+func TestPushWithNonJsonResponseSucceeds(t *testing.T) {
+	path := test.CreateTempFile(t, "test-content")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Push", http.StatusOK, "not-json").
+		WithCommandPlugin(NewSolutionPushCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "push", "--organization", "my-org", "--source", path}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error for non-JSON response, but got: %v", result.Error)
+	}
+}
+
 func TestPushServerErrorReturnsError(t *testing.T) {
 	path := test.CreateTempFile(t, "test-content")
 	context := test.NewContextBuilder().
