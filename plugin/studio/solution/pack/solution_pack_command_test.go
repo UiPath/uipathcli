@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -303,6 +304,65 @@ func TestPackWithInvalidSolutionStorageJson(t *testing.T) {
 	stdout := test.ParseOutput(t, result.StdOut)
 	if stdout["solutionId"] != "" {
 		t.Errorf("Expected empty solutionId for invalid JSON, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestPackWithUnreadableFileReturnsError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission test on Windows")
+	}
+	dir := createSolutionDirectory(t)
+	// Create a file without read permissions
+	unreadablePath := filepath.Join(dir, "Agent", "unreadable.txt")
+	_ = os.WriteFile(unreadablePath, []byte("secret"), 0600)
+	_ = os.Chmod(unreadablePath, 0000)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Error opening file") {
+		t.Errorf("Expected error opening unreadable file, but got: %v", result.Error)
+	}
+	// Verify cleanup: output file should be removed
+	if _, err := os.Stat(outputPath); err == nil {
+		t.Errorf("Expected output file to be cleaned up after error")
+	}
+}
+
+func TestPackWithUnreadableSolutionStorageJson(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission test on Windows")
+	}
+	dir := t.TempDir()
+	solutionStoragePath := filepath.Join(dir, "SolutionStorage.json")
+	_ = os.WriteFile(solutionStoragePath, []byte(`{"SolutionId":"test"}`), 0600)
+	// Make unreadable after stat check passes
+	_ = os.Chmod(solutionStoragePath, 0000)
+	defer func() { _ = os.Chmod(solutionStoragePath, 0600) }()
+
+	agentDir := filepath.Join(dir, "Agent")
+	_ = os.MkdirAll(agentDir, 0750)
+	_ = os.WriteFile(filepath.Join(agentDir, "agent.json"), []byte(`{}`), 0600)
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error (graceful fallback), but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "" {
+		t.Errorf("Expected empty solutionId when file is unreadable, but got: %v", stdout["solutionId"])
 	}
 }
 

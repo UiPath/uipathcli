@@ -95,6 +95,20 @@ func TestListReturnsEmptyList(t *testing.T) {
 	}
 }
 
+func TestListBadRequestReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/List", http.StatusBadRequest, `{"error":"bad request"}`).
+		WithCommandPlugin(NewSolutionListCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "list", "--organization", "my-org"}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "400") {
+		t.Errorf("Expected error with status code 400, but got: %v", result.Error)
+	}
+}
+
 func TestListServerErrorReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).

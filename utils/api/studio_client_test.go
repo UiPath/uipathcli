@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
@@ -267,18 +268,18 @@ func TestListSolutionsInvalidJsonReturnsError(t *testing.T) {
 	}
 }
 
-func TestListSolutionsServerErrorReturnsError(t *testing.T) {
+func TestListSolutionsBadRequestReturnsError(t *testing.T) {
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
-		_, _ = w.Write([]byte(`{"error":"server error"}`))
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"error":"bad request"}`))
 	}))
 	defer srv.Close()
 
 	client := newTestClient(t, srv.URL, nil)
 	_, err := client.ListSolutions()
 
-	if err == nil || !strings.Contains(err.Error(), "500") {
-		t.Errorf("Expected error with status code 500, but got: %v", err)
+	if err == nil || !strings.Contains(err.Error(), "400") {
+		t.Errorf("Expected error with status code 400, but got: %v", err)
 	}
 }
 
@@ -363,6 +364,29 @@ func TestWriteMultipartForm(t *testing.T) {
 	if !strings.Contains(buf.String(), "test.uis") {
 		t.Errorf("Expected multipart body to contain filename")
 	}
+}
+
+func TestWriteMultipartFormWithFailingStream(t *testing.T) {
+	client := newTestClient(t, "http://localhost", nil)
+	file := &failingStream{name: "test.uis"}
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	err := client.writeMultipartForm(writer, file, "application/octet-stream")
+
+	if err == nil {
+		t.Errorf("Expected error from failing stream, but got nil")
+	}
+}
+
+type failingStream struct {
+	name string
+}
+
+func (s *failingStream) Name() string           { return s.name }
+func (s *failingStream) Size() (int64, error)    { return 0, fmt.Errorf("size error") }
+func (s *failingStream) Data() (io.ReadCloser, error) {
+	return nil, fmt.Errorf("data error")
 }
 
 func newTestProgressBar(logger log.Logger) *visualization.ProgressBar {
