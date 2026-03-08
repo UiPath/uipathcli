@@ -101,6 +101,40 @@ func TestPushWithSolutionIdIncludesQueryParam(t *testing.T) {
 	}
 }
 
+func TestPushCreatedStatusSucceeds(t *testing.T) {
+	path := test.CreateTempFile(t, "test-content")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Push", http.StatusCreated, `{"solutionId":"new-id"}`).
+		WithCommandPlugin(NewSolutionPushCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "push", "--organization", "my-org", "--source", path}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error for 201 Created, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "new-id" {
+		t.Errorf("Expected solutionId new-id, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestPushBadRequestReturnsError(t *testing.T) {
+	path := test.CreateTempFile(t, "test-content")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Push", http.StatusBadRequest, `{"error":"invalid file"}`).
+		WithCommandPlugin(NewSolutionPushCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "push", "--organization", "my-org", "--source", path}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "400") {
+		t.Errorf("Expected error with status code 400, but got: %v", result.Error)
+	}
+}
+
 func TestPushServerErrorReturnsError(t *testing.T) {
 	path := test.CreateTempFile(t, "test-content")
 	context := test.NewContextBuilder().

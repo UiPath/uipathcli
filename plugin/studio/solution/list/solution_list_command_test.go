@@ -2,6 +2,7 @@ package list
 
 import (
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/UiPath/uipathcli/plugin/studio"
@@ -36,6 +37,39 @@ func TestListReturnsSolutions(t *testing.T) {
 	stdout := test.ParseOutput(t, result.StdOut)
 	if stdout["status"] != "Succeeded" {
 		t.Errorf("Expected status Succeeded, but got: %v", result.StdOut)
+	}
+}
+
+func TestListReturnsSolutionDetails(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/List", http.StatusOK, `[{"solutionId":"sol-1","name":"MySolution","status":"active"},{"solutionId":"sol-2","name":"OtherSolution","status":"draft"}]`).
+		WithCommandPlugin(NewSolutionListCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "list", "--organization", "my-org"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	solutions, ok := stdout["solutions"].([]interface{})
+	if !ok || len(solutions) != 2 {
+		t.Errorf("Expected 2 solutions, but got: %v", stdout["solutions"])
+	}
+}
+
+func TestListInvalidJsonReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/List", http.StatusOK, `not-valid-json`).
+		WithCommandPlugin(NewSolutionListCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "list", "--organization", "my-org"}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "invalid response body") {
+		t.Errorf("Expected invalid response body error, but got: %v", result.Error)
 	}
 }
 

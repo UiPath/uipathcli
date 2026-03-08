@@ -74,6 +74,38 @@ func TestPublishSolutionSendsJsonBody(t *testing.T) {
 	}
 }
 
+func TestPublishSolutionAcceptedStatusSucceeds(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/Publish-Requests", http.StatusAccepted, `{"requestId":"req-789","status":"accepted"}`).
+		WithCommandPlugin(NewSolutionPublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "publish", "--organization", "my-org", "--solution-id", "abc-123"}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error for 202 Accepted, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["requestId"] != "req-789" {
+		t.Errorf("Expected requestId req-789, but got: %v", stdout["requestId"])
+	}
+}
+
+func TestPublishSolutionBadRequestReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/Publish-Requests", http.StatusBadRequest, `{"error":"invalid solution"}`).
+		WithCommandPlugin(NewSolutionPublishCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "publish", "--organization", "my-org", "--solution-id", "abc-123"}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "400") {
+		t.Errorf("Expected error with status code 400, but got: %v", result.Error)
+	}
+}
+
 func TestPublishSolutionServerErrorReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).

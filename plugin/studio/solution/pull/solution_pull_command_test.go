@@ -89,6 +89,37 @@ func TestPullDefaultDestination(t *testing.T) {
 	}
 }
 
+func TestPullReportsFileSize(t *testing.T) {
+	destPath := filepath.Join(t.TempDir(), "downloaded.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Pull?solutionId=abc-123", http.StatusOK, "fake-uis-content").
+		WithCommandPlugin(NewSolutionPullCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pull", "--organization", "my-org", "--solution-id", "abc-123", "--destination", destPath}, context)
+
+	stdout := test.ParseOutput(t, result.StdOut)
+	size, ok := stdout["size"].(float64)
+	if !ok || size <= 0 {
+		t.Errorf("Expected positive size, but got: %v", stdout["size"])
+	}
+}
+
+func TestPullNotFoundReturnsError(t *testing.T) {
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithUrlResponse("/my-org/studio_/backend/api/v1/ExternalSolution/Pull?solutionId=not-found", http.StatusNotFound, `{"error":"Solution not found"}`).
+		WithCommandPlugin(NewSolutionPullCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pull", "--organization", "my-org", "--solution-id", "not-found"}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "404") {
+		t.Errorf("Expected error with status code 404, but got: %v", result.Error)
+	}
+}
+
 func TestPullServerErrorReturnsError(t *testing.T) {
 	context := test.NewContextBuilder().
 		WithDefinition("studio", studio.StudioDefinition).
