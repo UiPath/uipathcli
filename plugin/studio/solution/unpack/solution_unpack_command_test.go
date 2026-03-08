@@ -85,6 +85,74 @@ func TestUnpackReturnsProjectCount(t *testing.T) {
 	}
 }
 
+func TestUnpackZipSlipReturnsError(t *testing.T) {
+	uisPath := filepath.Join(t.TempDir(), "malicious.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+	addZipFile(t, w, "../../etc/passwd", "malicious content")
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "is not allowed") {
+		t.Errorf("Expected zip slip error, but got: %v", result.Error)
+	}
+}
+
+func TestUnpackExtractsFileContent(t *testing.T) {
+	uisPath := createTestUisFile(t)
+	destDir := filepath.Join(t.TempDir(), "output")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	data, err := os.ReadFile(filepath.Join(destDir, "Agent", "agent.json"))
+	if err != nil {
+		t.Fatalf("Expected Agent/agent.json to exist: %v", err)
+	}
+	if string(data) != `{"type":"lowCode"}` {
+		t.Errorf("Expected agent.json content to be preserved, but got: %v", string(data))
+	}
+}
+
+func TestUnpackDefaultDestination(t *testing.T) {
+	uisPath := createTestUisFile(t)
+	tmpDir := t.TempDir()
+	t.Chdir(tmpDir)
+
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	directory, ok := stdout["directory"].(string)
+	if !ok || directory == "" {
+		t.Errorf("Expected directory in output, but got: %v", stdout["directory"])
+	}
+}
+
 func createTestUisFile(t *testing.T) string {
 	uisPath := filepath.Join(t.TempDir(), "test.uis")
 	outFile, err := os.Create(uisPath)

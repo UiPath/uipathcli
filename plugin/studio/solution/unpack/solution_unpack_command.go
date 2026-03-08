@@ -71,50 +71,59 @@ func (c SolutionUnpackCommand) unpack(params solutionUnpackParams) (*solutionUnp
 	defer func() { _ = reader.Close() }()
 
 	for _, file := range reader.File {
-		destPath := filepath.Join(params.Destination, file.Name) //nolint:gosec // paths within trusted .uis archive
-
-		// Validate path doesn't escape destination (zip slip protection)
-		if !strings.HasPrefix(filepath.Clean(destPath), filepath.Clean(params.Destination)+string(filepath.Separator)) &&
-			filepath.Clean(destPath) != filepath.Clean(params.Destination) {
-			return nil, fmt.Errorf("Invalid file path in archive: %s", file.Name)
-		}
-
-		if file.FileInfo().IsDir() {
-			err := os.MkdirAll(destPath, 0750)
-			if err != nil {
-				return nil, fmt.Errorf("Cannot create directory '%s': %w", destPath, err)
-			}
-			continue
-		}
-
-		err := os.MkdirAll(filepath.Dir(destPath), 0750)
+		err := c.extractFile(file, params.Destination)
 		if err != nil {
-			return nil, fmt.Errorf("Cannot create directory for '%s': %w", destPath, err)
-		}
-
-		outFile, err := os.Create(destPath)
-		if err != nil {
-			return nil, fmt.Errorf("Cannot create file '%s': %w", destPath, err)
-		}
-
-		rc, err := file.Open()
-		if err != nil {
-			_ = outFile.Close()
-			return nil, fmt.Errorf("Cannot read archive entry '%s': %w", file.Name, err)
-		}
-
-		const maxFileSize = 1 << 30 // 1 GB
-		_, err = io.Copy(outFile, io.LimitReader(rc, maxFileSize))
-		_ = rc.Close()
-		_ = outFile.Close()
-		if err != nil {
-			return nil, fmt.Errorf("Error extracting '%s': %w", file.Name, err)
+			return nil, err
 		}
 	}
 
 	solutionId, projectCount := c.readSolutionInfo(filepath.Join(params.Destination, "SolutionStorage.json"))
 
 	return newSucceededSolutionUnpackResult(params.Destination, solutionId, projectCount), nil
+}
+
+const maxArchiveFileSize = 1 * 1024 * 1024 * 1024
+
+func (c SolutionUnpackCommand) extractFile(file *zip.File, destination string) error {
+	destPath, err := c.sanitizeArchivePath(destination, file.Name)
+	if err != nil {
+		return err
+	}
+
+	if file.FileInfo().IsDir() {
+		return os.MkdirAll(destPath, 0750)
+	}
+
+	err = os.MkdirAll(filepath.Dir(destPath), 0750)
+	if err != nil {
+		return fmt.Errorf("Cannot create directory for '%s': %w", destPath, err)
+	}
+
+	rc, err := file.Open()
+	if err != nil {
+		return fmt.Errorf("Cannot read archive entry '%s': %w", file.Name, err)
+	}
+	defer func() { _ = rc.Close() }()
+
+	outFile, err := os.OpenFile(destPath, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, file.Mode())
+	if err != nil {
+		return fmt.Errorf("Cannot create file '%s': %w", destPath, err)
+	}
+	defer func() { _ = outFile.Close() }()
+
+	_, err = io.CopyN(outFile, rc, maxArchiveFileSize)
+	if err != nil && !errors.Is(err, io.EOF) {
+		return fmt.Errorf("Error extracting '%s': %w", file.Name, err)
+	}
+	return nil
+}
+
+func (c SolutionUnpackCommand) sanitizeArchivePath(directory string, name string) (string, error) {
+	result := filepath.Join(directory, name)
+	if strings.HasPrefix(result, filepath.Clean(directory)) {
+		return result, nil
+	}
+	return "", fmt.Errorf("File path '%s' is not allowed", name)
 }
 
 func (c SolutionUnpackCommand) readSolutionInfo(path string) (string, int) {

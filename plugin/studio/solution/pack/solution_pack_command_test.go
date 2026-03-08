@@ -215,6 +215,45 @@ func TestPackDefaultOutputName(t *testing.T) {
 	}
 }
 
+func TestPackReadsSolutionId(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	if stdout["solutionId"] != "test-solution-id" {
+		t.Errorf("Expected solutionId test-solution-id, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestPackReportsFileSize(t *testing.T) {
+	dir := createSolutionDirectory(t)
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error != nil {
+		t.Errorf("Expected no error, but got: %v", result.Error)
+	}
+	stdout := test.ParseOutput(t, result.StdOut)
+	size, ok := stdout["size"].(float64)
+	if !ok || size <= 0 {
+		t.Errorf("Expected positive size, but got: %v", stdout["size"])
+	}
+}
+
 func createSolutionDirectory(t *testing.T) string {
 	dir := t.TempDir()
 
