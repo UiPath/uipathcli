@@ -21,7 +21,9 @@ func newTestClient(t *testing.T, serverURL string, token *auth.AuthToken) *Studi
 	t.Helper()
 	baseUri, _ := url.Parse(serverURL)
 	logger := log.NewDefaultLogger(io.Discard)
-	settings := plugin.ExecutionSettings{}
+	settings := plugin.ExecutionSettings{
+		MaxAttempts: 1,
+	}
 	return NewStudioClient(*baseUri, "my-org", token, false, settings, logger)
 }
 
