@@ -106,6 +106,10 @@ func (c SolutionPackCommand) pack(params solutionPackParams) (*solutionPackResul
 		return nil, err
 	}
 
+	// Close zip writer and file before reading size to ensure data is flushed
+	_ = zipWriter.Close()
+	_ = outFile.Close()
+
 	fileInfo, err := os.Stat(params.Destination)
 	size := int64(0)
 	if err == nil {
