@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"testing"
 
@@ -258,6 +259,66 @@ func TestUnpackWithInvalidSolutionStorageJson(t *testing.T) {
 	stdout := test.ParseOutput(t, result.StdOut)
 	if stdout["solutionId"] != "" {
 		t.Errorf("Expected empty solutionId for invalid JSON, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestUnpackToReadOnlyDestinationReturnsError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission test on Windows")
+	}
+	uisPath := filepath.Join(t.TempDir(), "test.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+	addZipFile(t, w, "test.txt", "content")
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	_ = os.MkdirAll(destDir, 0500)
+	defer func() { _ = os.Chmod(destDir, 0750) }() //nolint:gosec // Restore permissions for test cleanup
+
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Cannot create file") {
+		t.Errorf("Expected cannot create file error, but got: %v", result.Error)
+	}
+}
+
+func TestUnpackSubdirToReadOnlyDestinationReturnsError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission test on Windows")
+	}
+	uisPath := filepath.Join(t.TempDir(), "test.uis")
+	outFile, err := os.Create(uisPath)
+	if err != nil {
+		t.Fatalf("Cannot create test .uis file: %v", err)
+	}
+	w := zip.NewWriter(outFile)
+	addZipFile(t, w, "SubDir/file.txt", "content")
+	_ = w.Close()
+	_ = outFile.Close()
+
+	destDir := filepath.Join(t.TempDir(), "output")
+	_ = os.MkdirAll(destDir, 0500)
+	defer func() { _ = os.Chmod(destDir, 0750) }() //nolint:gosec // Restore permissions for test cleanup
+
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionUnpackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "unpack", "--source", uisPath, "--destination", destDir}, context)
+
+	if result.Error == nil || !strings.Contains(result.Error.Error(), "Cannot create directory") {
+		t.Errorf("Expected cannot create directory error, but got: %v", result.Error)
 	}
 }
 

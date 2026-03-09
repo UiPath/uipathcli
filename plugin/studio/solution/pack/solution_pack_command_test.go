@@ -350,6 +350,16 @@ func TestPackToInvalidDestinationReturnsError(t *testing.T) {
 	}
 }
 
+func TestReadSolutionInfoFileNotFound(t *testing.T) {
+	cmd := SolutionPackCommand{}
+
+	id, name := cmd.readSolutionInfo(filepath.Join(t.TempDir(), "nonexistent.json"))
+
+	if id != "" || name != "" {
+		t.Errorf("Expected empty values for missing file, but got id=%v name=%v", id, name)
+	}
+}
+
 func createSolutionDirectory(t *testing.T) string {
 	dir := t.TempDir()
 
