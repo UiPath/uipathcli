@@ -389,13 +389,11 @@ func (s *failingStream) Data() (io.ReadCloser, error) {
 	return nil, errors.New("data error")
 }
 
-func TestWriteMultipartFormWithClosedWriter(t *testing.T) {
+func TestWriteMultipartFormWithFailingWriter(t *testing.T) {
 	client := newTestClient(t, "http://localhost", nil)
 	file := stream.NewMemoryStream("test.uis", []byte("content"))
 
-	var buf bytes.Buffer
-	writer := multipart.NewWriter(&buf)
-	_ = writer.Close()
+	writer := multipart.NewWriter(&failingWriter{})
 	err := client.writeMultipartForm(writer, file, "application/octet-stream")
 
 	if err == nil || !strings.Contains(err.Error(), "Error creating form field") {
@@ -431,6 +429,12 @@ func TestPushSolutionWithFailingStreamCancelsRequest(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error from failing stream push, but got nil")
 	}
+}
+
+type failingWriter struct{}
+
+func (w *failingWriter) Write(_ []byte) (int, error) {
+	return 0, errors.New("write error")
 }
 
 type failingReadStream struct {
