@@ -389,6 +389,66 @@ func (s *failingStream) Data() (io.ReadCloser, error) {
 	return nil, errors.New("data error")
 }
 
+func TestWriteMultipartFormWithClosedWriter(t *testing.T) {
+	client := newTestClient(t, "http://localhost", nil)
+	file := stream.NewMemoryStream("test.uis", []byte("content"))
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	_ = writer.Close()
+	err := client.writeMultipartForm(writer, file, "application/octet-stream")
+
+	if err == nil || !strings.Contains(err.Error(), "Error creating form field") {
+		t.Errorf("Expected error creating form field, but got: %v", err)
+	}
+}
+
+func TestWriteMultipartFormWithReadError(t *testing.T) {
+	client := newTestClient(t, "http://localhost", nil)
+	file := &failingReadStream{name: "test.uis"}
+
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+	err := client.writeMultipartForm(writer, file, "application/octet-stream")
+
+	if err == nil || !strings.Contains(err.Error(), "Error writing form field") {
+		t.Errorf("Expected error writing form field, but got: %v", err)
+	}
+}
+
+func TestPushSolutionWithFailingStreamCancelsRequest(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.ReadAll(r.Body)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(`{"solutionId":"test"}`))
+	}))
+	defer srv.Close()
+
+	client := newTestClient(t, srv.URL, nil)
+	file := &failingStream{name: "test.uis"}
+	_, err := client.PushSolution(file, "", nil)
+
+	if err == nil {
+		t.Errorf("Expected error from failing stream push, but got nil")
+	}
+}
+
+type failingReadStream struct {
+	name string
+}
+
+func (s *failingReadStream) Name() string        { return s.name }
+func (s *failingReadStream) Size() (int64, error) { return 100, nil }
+func (s *failingReadStream) Data() (io.ReadCloser, error) {
+	return io.NopCloser(&failingReader{}), nil
+}
+
+type failingReader struct{}
+
+func (r *failingReader) Read(_ []byte) (int, error) {
+	return 0, errors.New("read error")
+}
+
 func newTestProgressBar(logger log.Logger) *visualization.ProgressBar {
 	return visualization.NewProgressBar(logger)
 }
