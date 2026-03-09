@@ -1,10 +1,14 @@
 package publish
 
 import (
+	"io"
 	"net/http"
 	"strings"
 	"testing"
 
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
+	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/plugin/studio"
 	"github.com/UiPath/uipathcli/test"
 )
@@ -149,5 +153,21 @@ func TestPublishSolutionServerErrorReturnsError(t *testing.T) {
 
 	if result.Error == nil {
 		t.Errorf("Expected error for server failure, but got none")
+	}
+}
+
+func TestPublishNonStringSolutionIdReturnsError(t *testing.T) {
+	cmd := NewSolutionPublishCommand()
+	ctx := plugin.ExecutionContext{
+		Organization: "my-org",
+		Parameters: []plugin.ExecutionParameter{
+			{Name: "solution-id", Value: 42},
+		},
+	}
+
+	err := cmd.Execute(ctx, output.NewMemoryOutputWriter(), log.NewDefaultLogger(io.Discard))
+
+	if err == nil || err.Error() != "Solution ID is required" {
+		t.Errorf("Expected solution ID required error, but got: %v", err)
 	}
 }

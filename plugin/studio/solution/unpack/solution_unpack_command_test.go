@@ -2,11 +2,15 @@ package unpack
 
 import (
 	"archive/zip"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
+	"github.com/UiPath/uipathcli/log"
+	"github.com/UiPath/uipathcli/output"
+	"github.com/UiPath/uipathcli/plugin"
 	"github.com/UiPath/uipathcli/plugin/studio"
 	"github.com/UiPath/uipathcli/test"
 )
@@ -254,6 +258,21 @@ func TestUnpackWithInvalidSolutionStorageJson(t *testing.T) {
 	stdout := test.ParseOutput(t, result.StdOut)
 	if stdout["solutionId"] != "" {
 		t.Errorf("Expected empty solutionId for invalid JSON, but got: %v", stdout["solutionId"])
+	}
+}
+
+func TestUnpackNonStringSourceReturnsError(t *testing.T) {
+	cmd := NewSolutionUnpackCommand()
+	ctx := plugin.ExecutionContext{
+		Parameters: []plugin.ExecutionParameter{
+			{Name: "source", Value: 42},
+		},
+	}
+
+	err := cmd.Execute(ctx, output.NewMemoryOutputWriter(), log.NewDefaultLogger(io.Discard))
+
+	if err == nil || err.Error() != "Source .uis file is required" {
+		t.Errorf("Expected source required error, but got: %v", err)
 	}
 }
 
