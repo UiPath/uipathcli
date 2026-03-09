@@ -24,6 +24,7 @@ import (
 	plugin_studio_pack "github.com/UiPath/uipathcli/plugin/studio/pack"
 	plugin_studio_publish "github.com/UiPath/uipathcli/plugin/studio/publish"
 	plugin_studio_restore "github.com/UiPath/uipathcli/plugin/studio/restore"
+	plugin_solution_create "github.com/UiPath/uipathcli/plugin/studio/solution/create"
 	plugin_solution_list "github.com/UiPath/uipathcli/plugin/studio/solution/list"
 	plugin_solution_pack "github.com/UiPath/uipathcli/plugin/studio/solution/pack"
 	plugin_solution_publish "github.com/UiPath/uipathcli/plugin/studio/solution/publish"
@@ -84,6 +85,7 @@ func main() {
 				plugin_studio_restore.NewPackageRestoreCommand(),
 				plugin_studio_publish.NewPackagePublishCommand(),
 				plugin_studio_testrun.NewTestRunCommand(),
+				plugin_solution_create.NewSolutionCreateCommand(),
 				plugin_solution_pack.NewSolutionPackCommand(),
 				plugin_solution_unpack.NewSolutionUnpackCommand(),
 				plugin_solution_push.NewSolutionPushCommand(),
