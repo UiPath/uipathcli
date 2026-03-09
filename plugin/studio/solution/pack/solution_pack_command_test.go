@@ -334,6 +334,30 @@ func TestPackWithUnreadableFileReturnsError(t *testing.T) {
 	}
 }
 
+func TestPackWithUnreadableDirectoryReturnsError(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Skipping permission test on Windows")
+	}
+	dir := createSolutionDirectory(t)
+	unreadableDir := filepath.Join(dir, "Agent", "unreadable-dir")
+	_ = os.MkdirAll(unreadableDir, 0750)
+	_ = os.WriteFile(filepath.Join(unreadableDir, "secret.txt"), []byte("secret"), 0600)
+	_ = os.Chmod(unreadableDir, 0000)
+	defer func() { _ = os.Chmod(unreadableDir, 0750) }() //nolint:gosec // Restore permissions for test cleanup
+
+	outputPath := filepath.Join(t.TempDir(), "test.uis")
+	context := test.NewContextBuilder().
+		WithDefinition("studio", studio.StudioDefinition).
+		WithCommandPlugin(NewSolutionPackCommand()).
+		Build()
+
+	result := test.RunCli([]string{"studio", "solution", "pack", "--source", dir, "--destination", outputPath}, context)
+
+	if result.Error == nil {
+		t.Errorf("Expected error for unreadable directory, but got none")
+	}
+}
+
 func TestPackToInvalidDestinationReturnsError(t *testing.T) {
 	dir := createSolutionDirectory(t)
 	// Use a path with non-existent parent directory
