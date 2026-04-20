@@ -8,6 +8,9 @@
 
 The uipathcli project is a command line interface to simplify, script and automate API calls for UiPath services. The CLI works on Windows, Linux and macOS.
 
+**Note:** This is the **UiPath Platform CLI** (`uipath`) for scripting and automating UiPath Cloud API calls (Orchestrator, Document Understanding, AI Center, etc.).
+If you are looking for the CLI to build, run, or debug coding agent automations (C# coded workflows, coded test cases, or AI-powered coding agents in UiPath Studio), see the [UiPath Coding Agents CLI](https://github.com/UiPath/cli) instead.
+
 <img src="https://raw.githubusercontent.com/UiPath/uipathcli/main/documentation/images/getting_started_uipath.gif" />
 
 *Try it out, enjoy, and share your feedback, thoughts, or questions [here](https://github.com/UiPath/uipathcli/issues).*
