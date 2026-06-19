@@ -118,6 +118,8 @@ jobs:
     needs: [build, test_linux, test_windows, test_macos]
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     env:
       UIPATHCLI_VERSION: ${{ needs.build.outputs.UIPATHCLI_VERSION }}
     steps:
