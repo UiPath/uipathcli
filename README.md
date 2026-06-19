@@ -20,7 +20,7 @@ If you are looking for the CLI to build, run, or debug coding agent automations 
 In order to get started quickly, you can run the install scripts for Windows, Linux and macOS.
 
 <details open>
-  <summary>Install instructions for x86_64/amd64</summary>
+  <summary>Install instructions</summary>
   <p>
 
 ### Windows
@@ -38,7 +38,7 @@ curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli
 ### macOS
 
 ```bash
-curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-amd64.tar.gz" | tar -xzv
+curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar -xzv
 ```
 
   </p>
@@ -58,12 +58,6 @@ Invoke-WebRequest "https://github.com/UiPath/uipathcli/releases/latest/download/
 
 ```bash
 curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-linux-arm64.tar.gz" | tar -xzv
-```
-
-### macOS (ARM)
-
-```bash
-curl -sL "https://github.com/UiPath/uipathcli/releases/latest/download/uipathcli-darwin-arm64.tar.gz" | tar -xzv
 ```
 
   </p>
