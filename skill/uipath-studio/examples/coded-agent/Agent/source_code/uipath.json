@@ -1,0 +1,29 @@
+{
+  "entryPoints": [
+    {
+      "filePath": "main.py",
+      "uniqueId": "00000000-0000-0000-0000-000000000050",
+      "type": "agent",
+      "input": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "max_results": { "type": "integer" }
+        },
+        "required": ["query"]
+      },
+      "output": {
+        "type": "object",
+        "properties": {
+          "answer": { "type": "string" },
+          "sources": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["answer"]
+      }
+    }
+  ],
+  "bindings": {
+    "version": "2.0",
+    "resources": []
+  }
+}

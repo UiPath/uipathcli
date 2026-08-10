@@ -1,0 +1,15 @@
+{
+  "version": "1.0",
+  "id": "ContainsEvaluator",
+  "description": "Checks if the response text includes the expected substring.",
+  "evaluatorTypeId": "uipath-contains",
+  "evaluatorConfig": {
+    "name": "ContainsEvaluator",
+    "targetOutputKey": "answer",
+    "negated": false,
+    "ignoreCase": true,
+    "defaultEvaluationCriteria": {
+      "searchText": ""
+    }
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "version": "1.0.0",
+  "metadata": {
+    "storageVersion": "27.0.0",
+    "targetRuntime": "python",
+    "isConversational": false,
+    "codeVersion": "1.0.10",
+    "author": "developer@example.com"
+  },
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": { "type": "string" },
+      "max_results": { "type": "integer" }
+    },
+    "required": ["query"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "answer": { "type": "string" },
+      "sources": { "type": "array", "items": { "type": "string" } }
+    },
+    "required": ["answer"]
+  },
+  "bindings": {
+    "version": "2.0",
+    "resources": []
+  },
+  "settings": {},
+  "entryPoints": [{}],
+  "type": "coded"
+}

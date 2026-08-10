@@ -1,0 +1,50 @@
+{
+  "version": "1.0",
+  "id": "ResearchEvalSet",
+  "name": "Research Agent Evaluation Set",
+  "evaluatorRefs": [
+    "ContainsEvaluator",
+    "ExactMatchEvaluator",
+    "SemanticSimilarityEvaluator",
+    "TrajectoryEvaluator"
+  ],
+  "evaluations": [
+    {
+      "id": "test-basic-search",
+      "name": "Basic Search Query",
+      "inputs": {
+        "query": "What is UiPath?",
+        "max_results": 3
+      },
+      "evaluationCriterias": {
+        "ContainsEvaluator": {
+          "searchText": "UiPath"
+        },
+        "SemanticSimilarityEvaluator": {
+          "expectedOutput": {
+            "answer": "UiPath is an enterprise automation platform."
+          }
+        },
+        "TrajectoryEvaluator": {
+          "expectedAgentBehavior": "The agent should search for UiPath information and return a structured answer with sources."
+        }
+      },
+      "updatedAt": "2026-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "test-no-results",
+      "name": "No Results Handling",
+      "inputs": {
+        "query": "xyznonexistent12345",
+        "max_results": 1
+      },
+      "evaluationCriterias": {
+        "ContainsEvaluator": {
+          "searchText": "No results"
+        }
+      }
+    }
+  ],
+  "fileName": "default.json",
+  "updatedAt": "2026-01-01T00:00:00.000Z"
+}

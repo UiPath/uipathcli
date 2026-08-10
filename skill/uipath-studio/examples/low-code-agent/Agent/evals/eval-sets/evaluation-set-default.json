@@ -1,0 +1,29 @@
+{
+  "fileName": "evaluation-set-default.json",
+  "id": "00000000-0000-0000-0000-000000000030",
+  "name": "Default Evaluation Set",
+  "batchSize": 10,
+  "evaluatorRefs": ["00000000-0000-0000-0000-000000000040"],
+  "evaluations": [
+    {
+      "id": "00000000-0000-0000-0000-000000000031",
+      "name": "Basic search test",
+      "inputs": {
+        "query": "What is UiPath?"
+      },
+      "expectedOutput": {
+        "content": "UiPath is a leading enterprise automation platform."
+      },
+      "simulationInstructions": "",
+      "expectedAgentBehavior": "The agent should use web search to find information about UiPath and provide a comprehensive summary.",
+      "simulateInput": false,
+      "inputGenerationInstructions": "",
+      "simulateTools": false,
+      "toolsToSimulate": [],
+      "evalSetId": "00000000-0000-0000-0000-000000000030",
+      "createdAt": "2026-01-01T00:00:00.000Z",
+      "updatedAt": "2026-01-01T00:00:00.000Z",
+      "source": "manual"
+    }
+  ]
+}

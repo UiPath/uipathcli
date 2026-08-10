@@ -1,0 +1,57 @@
+{
+  "version": "1.1.0",
+  "settings": {
+    "model": "anthropic.claude-haiku-4-5-20251001-v1:0",
+    "maxTokens": 16384,
+    "temperature": 0,
+    "engine": "basic-v2",
+    "maxIterations": 25
+  },
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "query": {
+        "type": "string"
+      }
+    },
+    "required": ["query"]
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "content": {
+        "type": "string",
+        "description": "Output content"
+      }
+    }
+  },
+  "metadata": {
+    "storageVersion": "44.0.0",
+    "isConversational": false,
+    "showProjectCreationExperience": true,
+    "targetRuntime": "pythonAgent"
+  },
+  "type": "lowCode",
+  "projectId": "00000000-0000-0000-0000-000000000001",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You are a research assistant that searches the web to answer queries comprehensively.",
+      "contentTokens": [
+        {
+          "type": "simpleText",
+          "rawString": "You are a research assistant that searches the web to answer queries comprehensively."
+        }
+      ]
+    },
+    {
+      "role": "user",
+      "content": "query: {{query}}",
+      "contentTokens": [
+        { "type": "simpleText", "rawString": "query: " },
+        { "type": "variable", "rawString": "input.query" },
+        { "type": "simpleText", "rawString": "" }
+      ]
+    }
+  ]
+}
